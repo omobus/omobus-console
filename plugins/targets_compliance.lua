@@ -1,0 +1,325 @@
+-- -*- Lua -*-
+-- Copyright (c) 2006 - 2019 omobus-console authors, see the included COPYRIGHT file.
+
+local M = {} -- public interface
+
+local V = require 'version'
+local mime = require 'mime'
+local scgi = require 'scgi'
+local json = require 'json'
+local uri = require 'url'
+local validate = require 'validate'
+local zlib = require 'zlib'
+local bzlib = require 'bzlib'
+local core = require 'core'
+
+local function data(stor, permtb, sestb)
+    return stor.get(function(tran, func_execute)
+	local tb, tmp, err
+	tb = {}
+	if sestb.erpid ~= nil then
+	    tmp, err = func_execute(tran,
+[[
+select array_to_string(dep_ids,',') dep_ids from users where user_id = %user_id%
+]]
+		, "//targets_compliance/u_params/"
+		, {user_id = sestb.erpid}
+	    )
+	    if tmp ~= nil and #tmp == 1 and tmp[1].dep_ids ~= nil then
+		tb.dep_ids = core.split(tmp[1].dep_ids,',')
+	    end
+	    if err == nil or err == false then
+		tb._users, err = func_execute(tran,
+[[
+select my_staff user_id from my_staff(%user_id%, 1::bool_t)
+]]
+		    , "//targets_compliance/F.users/"
+		    , {user_id = sestb.erpid}
+		)
+	    end
+	    if err == nil or err == false then
+		tb._accounts, err = func_execute(tran,
+[[
+select account_id from my_accounts where user_id in (select my_staff(%user_id%, 1::bool_t))
+    union
+select account_id from my_retail_chains r, accounts a where r.user_id in (select my_staff(%user_id%, 1::bool_t)) and r.rc_id=a.rc_id and (r.region_id='' or r.region_id=a.region_id)
+    union
+select account_id from my_regions r, accounts a where r.user_id in (select my_staff(%user_id%, 1::bool_t)) and r.region_id=a.region_id
+    union
+select account_id from (select expand_cities(city_id) city_id from my_cities where user_id in (select my_staff(%user_id%, 1::bool_t))) c, accounts a where c.city_id=a.city_id
+]]
+		    , "//targets_compliance/F.accounts/"
+		    , {user_id = sestb.erpid}
+		)
+	    end
+	elseif sestb.distributor ~= nil then
+	    tb._users, err = func_execute(tran,
+[[
+select user_id from users
+    where distr_ids && string_to_array(%distr_id%,',')::uids_t
+]]
+		, "//targets_compliance/F.users/"
+		, {distr_id = sestb.distributor}
+	    )
+        elseif sestb.agency ~= nil then
+	    tb._users, err = func_execute(tran,
+[[
+select user_id from users
+    where agency_id=any(string_to_array(%agency_id%,','))
+]]
+		, "//targets_compliance/F.users/"
+		, {agency_id = sestb.agency})
+        else
+	    tb._users, err = func_execute(tran,
+[[
+select user_id from users
+]]
+		, "//targets_compliance/F.users/"
+	    )
+	end
+	if (err == nil or err == false) then
+	    tb.users, err = func_execute(tran,
+[[
+select user_id, descr, dev_login, area, hidden from users
+    order by descr
+]]
+		, "//targets_compliance/users/"
+	    )
+	end
+	if permtb.channel == true and (err == nil or err == false) then
+	    tb.channels, err = func_execute(tran,
+[[
+select chan_id, descr, hidden from channels
+    order by descr
+]]
+		, "//targets_compliance/channels/"
+	    )
+	end
+	if err == nil or err == false then
+	    tb.retail_chains, err = func_execute(tran,
+[[
+select rc_id, descr, ka_code, hidden from retail_chains
+    order by descr
+]]
+		, "//targets_compliance/retail_chains/"
+	    )
+	end
+	if err == nil or err == false then
+	    tb.target_types, err = func_execute(tran,
+[[
+select target_type_id, descr, hidden from target_types
+    order by row_no, descr
+]]
+		, "//targets_compliance/target_types/"
+	    )
+	end
+	if err == nil or err == false then
+	    tb.confirmation_types, err = func_execute(tran,
+[[
+select confirm_id, descr, hidden from confirmation_types
+    order by descr
+]]
+		, "//targets_compliance/confirmation_types/"
+	    )
+	end
+	if err == nil or err == false then
+	    tb.content, err = func_execute(tran,
+[[
+select content_ts, content_type, content_compress, content_blob from content_get('targets_compliance', '', '', '')
+]]
+		, "//targets_compliance/content/"
+	    )
+	end
+	return tb, err
+    end
+    )
+end
+
+local function photo(stor, blob_id)
+    return stor.get(function(tran, func_execute) return func_execute(tran,
+[[
+select photo_get(%blob_id%::blob_t) photo
+]]
+	, "//targets_compliance/photo/"
+	, {blob_id = blob_id})
+    end
+    )
+end
+
+local function thumb(stor, blob_id)
+    return stor.get(function(tran, func_execute) return func_execute(tran,
+[[
+select thumb_get(%blob_id%::blob_t) photo
+]]
+	, "//photos/thumb/"
+	, {blob_id = blob_id})
+    end
+    )
+end
+
+local function post(stor, uid, params)
+    params.req_uid = uid
+    return stor.get(function(tran, func_execute) return func_execute(tran,
+[[
+select console.req_target(%req_uid%, (%doc_id%, %sub%, %msg%, %strict%::bool_t)::console.target_at_t) target_id
+]]
+	, "//photos/new_target/"
+	, params)
+    end, false
+    )
+end
+
+local function decompress(content_blob, content_compress)
+    if content_compress ~= nil and #content_compress > 0 then
+	local sz_in, sz_out;
+	if content_compress == "gz" then
+	    content_blob, _, sz_in, sz_out = zlib.inflate():finish(content_blob)
+	    --print("IN="..sz_in..", OUT="..sz_out)
+	elseif content_compress == "bz2" then
+	    content_blob, _, sz_in, sz_out = bzlib.decompress():finish(content_blob)
+	else
+	    assert(false, "content_compress="..xontent_compress.." does not supported.")
+	end
+    end
+    return content_blob
+end
+
+local function compress(content_blob)
+    return zlib.deflate(9):finish(content_blob)
+end
+
+local function personalize(sestb, data)
+    local p = json.decode(decompress(data.content[1].content_blob, data.content[1].content_compress))
+    if sestb.erpid ~= nil or sestb.distributor ~= nil or sestb.agency ~= nil then
+	local idx0, idx1, tb = {}, {}, {}
+	if data._users ~= nil then
+	    for i, v in ipairs(data._users) do
+		idx0[v.user_id] = 1
+	    end
+	end
+	if data._accounts ~= nil then
+	    for i, v in ipairs(data._accounts) do
+		idx1[v.account_id] = 1
+	    end
+	end
+	for i, v in ipairs(p.rows) do
+	    if idx0[v.author_id] ~= nil or (idx1[v.account_id] ~= nil and (data.dep_ids == nil or v.dep_id == nil or core.contains(data.dep_ids,v.dep_id))) then
+		table.insert(tb, v); 
+		v.row_no = #tb
+	    end
+	end
+	p.rows = tb
+    end
+    -- build filters:
+    local x = {u = {}, chan = {}, rc = {}, t = {}, conf = {}, p = {}, e = {}}
+    for i, v in ipairs(p.rows) do
+	if v.author_id ~= nil then x.u[v.author_id] = 1; end
+	if v.chan_id ~= nil then x.chan[v.chan_id] = 1; end
+	if v.rc_id ~= nil then x.rc[v.rc_id] = 1; end
+	if v.target_type_id ~= nil then x.t[v.target_type_id] = 1; end
+	if v.confirmations ~= nil then
+	    for j, w in ipairs(v.confirmations) do
+		if w.performer_id ~= nil then x.p[w.performer_id] = 1; end
+		if w.confirm_id ~= nil then x.conf[w.confirm_id] = 1; end
+		if w.head_id ~= nil then x.e[w.head_id] = 1; end
+		break -- (the earliest confirmation only)
+	    end
+	end
+    end
+    p.dep_ids = data.dep_ids
+    p.authors = core.reduce(data.users, 'user_id', x.u)
+    p.performers = core.reduce(data.users, 'user_id', x.p)
+    p.heads = core.reduce(data.users, 'user_id', x.e)
+    p.channels = core.reduce(data.channels, 'chan_id', x.chan)
+    p.retail_chains = core.reduce(data.retail_chains, 'rc_id', x.rc)
+    p.target_types = core.reduce(data.target_types, 'target_type_id', x.t)
+    p.confirmation_types = core.reduce(data.confirmation_types, 'confirm_id', x.conf)
+
+    return json.encode(p)
+end
+
+
+-- *** plugin interface: begin
+function M.scripts(lang, permtb, sestb, params)
+    local ar = {}
+    table.insert(ar, '<script src="' .. V.static_prefix .. '/libs/lazyload-4.0.4.js"> </script>')
+    table.insert(ar, '<script src="' .. V.static_prefix .. '/libs/jszip-2.5.0.js"> </script>')
+    table.insert(ar, '<script src="' .. V.static_prefix .. '/libs/filesaver-0.1.0.js"> </script>')
+    table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.js"> </script>')
+    table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.channels.js"> </script>')
+    table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.confirmationtypes.js"> </script>')
+    table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.retailchains.js"> </script>')
+    table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.targettypes.js"> </script>')
+    table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.users.js"> </script>')
+    table.insert(ar, '<script src="' .. V.static_prefix .. '/slideshow.simple.js"> </script>')
+    table.insert(ar, '<script src="' .. V.static_prefix .. '/plugins/targets_compliance.js"> </script>')
+    return table.concat(ar,"\n")
+end
+
+function M.startup(lang, permtb, sestb, params, stor)
+    return "startup(_('pluginCore')," .. json.encode(permtb) .. ");"
+end
+
+function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor, res)
+    local p, tb, err
+    if method == "GET" then
+	if params.blob ~= nil then 
+	    -- validate input data
+	    assert(validate.isuid(params.blob_id), string.format("function %s() invalid blob_id.", debug.getinfo(1,"n").name))
+	    -- execute query
+	    tb, err = params.thumb == nil and photo(stor, params.blob_id) or thumb(stor, params.blob_id)
+	    if err then
+		scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
+		scgi.writeBody(res, "Internal server error")
+	    elseif tb == nil or #tb ~= 1 or tb[1].photo == nil then
+		scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
+		scgi.writeBody(res, "Invalid input parameters")
+	    else
+		scgi.writeHeader(res, 200, {["Content-Type"] = mime.jpeg})
+		scgi.writeBody(res, tb[1].photo)
+	    end
+	else
+	    tb, err = data(stor, permtb.columns or {}, sestb)
+	    if err then
+		scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
+		scgi.writeBody(res, "Internal server error")
+	    elseif tb == nil or tb.content == nil or #tb.content ~= 1 then
+		scgi.writeHeader(res, 200, {["Content-Type"] = mime.json .. "; charset=utf-8"})
+		scgi.writeBody(res, "{}")
+	    else
+		scgi.writeHeader(res, 200, {["Content-Type"] = tb.content[1].content_type .. "; charset=utf-8", ["Content-Encoding"] = "deflate"})
+		scgi.writeBody(res, compress(personalize(sestb, tb)))
+	    end
+	end
+    elseif method == "POST" then
+	if permtb.target == true then
+	    if type(content) == "string" then p = uri.parseQuery(content) end
+	    -- validate input data
+	    assert(p.sub ~= nil and #p.sub, string.format("function %s() invalid turget subject.", debug.getinfo(1,"n").name))
+	    assert(p.msg ~= nil and #p.msg, string.format("function %s() invalid target body.", debug.getinfo(1,"n").name))
+	    assert(validate.isuid(p.doc_id), string.format("function %s() invalid doc_id.", debug.getinfo(1,"n").name))
+	    p.strict = p.strict == 'true' and 1 or 0
+	    -- execute query
+	    tb, err = post(stor, sestb.erpid or sestb.username, p)
+	    if err then
+		scgi.writeHeader(res, 500, {["Content-Type"] = mime.json .. "; charset=utf-8"})
+		scgi.writeBody(res, "{\"status\":\"failed\",\"msg\":\"Internal server error\"}")
+	    elseif tb == nil or #tb ~= 1 or tb[1].target_id == nil then
+		scgi.writeHeader(res, 409, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
+		scgi.writeBody(res, "Invalid input parameters")
+	    else
+		scgi.writeHeader(res, 200, {["Content-Type"] = mime.json})
+		scgi.writeBody(res, "{\"status\":\"success\"}")
+	    end
+	else
+	    scgi.writeHeader(res, 400, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
+	    scgi.writeBody(res, "Bad request. Operation does not permitted.")
+	end
+    else
+	scgi.writeHeader(res, 400, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
+	scgi.writeBody(res, "Bad request. Mehtod " .. method .. " does not supported.")
+    end
+end
+-- *** plugin interface: end
+
+return M

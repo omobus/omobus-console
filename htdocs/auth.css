@@ -1,0 +1,73 @@
+/* -*- CSS -*- */
+/* Copyright (c) 2006 - 2019 omobus-console authors, see the included COPYRIGHT file. */
+
+body {
+    margin: 4px 20px 4px 20px;
+    background-color: #f6f6f6;
+    font-family: verdana, arial, sans-serif;
+    font-weight: normal;
+    font-size: 9pt;
+}
+
+.logotitle {
+    color: #080c57;
+    font-size: 13pt;
+    font-weight: bold;
+}
+
+.logosubtitle {
+    color: #a3a3a3;
+    font-size: 9pt;
+    font-weight: bold;
+}
+
+.auth {
+    background: #f4f4f4;
+    border: 1px solid #a3a3a3;
+    padding: 15px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    color: #080c57;
+    min-width: 450px;
+}
+
+.auth .alert {
+    color: #bd1515;
+}
+
+.auth hr {
+    border: 0;
+    height: 1px;
+    background-image: -webkit-linear-gradient(left, rgba(154,154,154,0.5), rgba(154,154,154,0.75), rgba(154,154,154,0.2));
+    background-image:    -moz-linear-gradient(left, rgba(154,154,154,0.5), rgba(154,154,154,0.75), rgba(154,154,154,0.2));
+}
+
+.auth input[type=text], input[type=password] {
+    border: 1px solid #a3a3a3;
+    border-radius: 3px;
+}
+
+.auth input[type=text], input[type=password] {
+    height: 19px;
+    padding-left: 10px;
+    padding-right: 10px;
+    width: 190px;
+    vertical-align: middle;
+}
+
+.auth input[type=submit] {
+    border: 1px solid #a3a3a3;
+    border-radius: 3px;
+    height: 26px;
+    padding-left: 32px;
+    padding-right: 32px;
+    font-size: 10pt;
+    cursor: pointer;
+    background: -moz-linear-gradient(top,  #ffffff 0%, #f6f6f6 47%, #ededed 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffffff), color-stop(47%,#f6f6f6), color-stop(100%,#ededed)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  #ffffff 0%,#f6f6f6 47%,#ededed 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  #ffffff 0%,#f6f6f6 47%,#ededed 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  #ffffff 0%,#f6f6f6 47%,#ededed 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  #ffffff 0%,#f6f6f6 47%,#ededed 100%); /* W3C */
+}

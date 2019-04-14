@@ -1,0 +1,8 @@
+*.css -crlf
+*.js -crlf
+*.lua -crlf
+AUTHORS -crlf
+ChangeLog -crlf
+LICENSE -crlf
+README -crlf
+.git* -crlf

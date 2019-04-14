@@ -1,0 +1,16 @@
+[Unit]
+Description=OMOBUS console daemon
+After=local-fs.target network.target slapd.service pgsql.service
+#Requires=slapd.service pgsql.service
+
+[Service]
+#Type=forking
+PIDFile=/var/run/omobus-scgi.d/console.pid
+ExecStartPre=/bin/mkdir -m 0755 -p /var/run/omobus-scgi.d
+ExecStartPre=/bin/chown omobus:omobus /var/run/omobus-scgi.d
+ExecStartPre=/bin/sh /etc/omobus-scgi.d/console/env.sh
+ExecStart=/usr/local/sbin/omobus-scgid -x -u omobus -g omobus -p /var/run/omobus-scgi.d/console.pid -t 20 -c /var/lib/omobus-scgi.d -s /var/www/run/omobus-console.sock /etc/omobus-scgi.d/console/main.lua
+ExecStop=/bin/kill -s USR1 $MAINPID
+
+[Install]
+WantedBy=multi-user.target

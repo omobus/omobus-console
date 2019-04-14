@@ -1,0 +1,20 @@
+
+This file no longer holds the changelog. Now you can generate it yourself
+like this:
+
+$ git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s \
+    %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+
+or create alias:
+
+$ git config --global alias.log-short "log --color --graph --pretty=format:'%Cred%h%Creset \
+    -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
+
+And every time you need to see changelog, just type in:
+
+$ git log-short
+
+Or, if you want to see the lines that changed:
+
+$ git log-short -p
+

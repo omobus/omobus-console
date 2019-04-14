@@ -1,1 +1,0 @@
-# omobus-console
