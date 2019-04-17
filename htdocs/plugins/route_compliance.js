@@ -41,10 +41,10 @@ var PLUG = (function() {
 	ar.push("<th colspan='7'>", lang.route, "</th>");
 	//ar.push("<th rowspan='2'>", lang.area, "</th>");
 	if( perm.columns != null && perm.columns.head == true ) {
-	    ar.push("<th rowspan='2'>", lang.head_name, "</th>");
+	    ar.push("<th rowspan='2' width='160px'>", lang.head_name, "</th>");
 	}
 	if( perm.columns != null && perm.columns.mileage == true ) {
-	    ar.push("<th rowspan='2' style='width: 65px'>", lang.mileage, "</th>");
+	    ar.push("<th rowspan='2' width='55px'>", lang.mileage, "</th>");
 	}
 	ar.push("<th colspan='3'>", R.power, "</th>");
 	ar.push("</tr><tr>");
@@ -108,7 +108,7 @@ var PLUG = (function() {
 		    ar.push("<td class='delim int'><a href='", G.getref({plug:'tech',user_id:r.user_id,date:G.getdate(_cache.date)}), 
 			"'>", r.dev_login, "</a></td>");
 		} else {
-		    ar.push("<td class='delim int", disabled, "'>", G.shielding(r.user_id), "</td>");
+		    ar.push("<td class='delim int", disabled, "'>", G.shielding(r.user_id).mtrunc(12), "</td>");
 		}
 		if( !(r.scheduled > 0 || r.other > 0) ) {
 		    ar.push("<td class='delim ref disabled' colspan='", (perm.columns != null && perm.columns.workday == true)?14:11, "'>", 
