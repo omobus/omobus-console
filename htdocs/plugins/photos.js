@@ -203,7 +203,7 @@ var PLUG = (function() {
 		    if( !String.isEmpty(r.doc_note) ) {
 			ar.push("<div class='row'>", G.shielding(r.doc_note), "</div>");
 		    }
-		    if( Array.isArray(r.photo_params) && r.photo_params.length > 0 ) {
+		    /*if( Array.isArray(r.photo_params) && r.photo_params.length > 0 ) {
 			if( !String.isEmpty(r.doc_note) ) {
 			    ar.push("<hr/>");
 			}
@@ -211,7 +211,7 @@ var PLUG = (function() {
 			    if( index > 0 ) { ar.push("<hr/>"); }
 			    ar.push("<div class='row remark'>", G.shielding(val), "</div>");
 			});
-		    }
+		    }*/
 		    ar.push("</td>");
 		    if( perm.columns != null && perm.columns.head == true ) {
 			ar.push("<td class='string sw95px", xs, "'>", G.shielding(r.head_name), "</td>");
