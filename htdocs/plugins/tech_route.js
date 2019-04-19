@@ -992,11 +992,12 @@ var __route = (function() {
 		ar.push("</div>");
 		ar.push("<table width='100%' class='report'>");
 		ar.push("<tr class='def'>");
-		ar.push("<td class='divider'>", lang.wishes.type, "</td>");
+		ar.push("<td class='divider' colspan='2'>", lang.wishes.type, "</td>");
 		ar.push("<td class='divider'>", lang.note, "</td>");
 		ar.push("</tr>");
 		ar.push("<tr>");
-		ar.push("<td class='string' width='50%'>", G.shielding(r.wish_type), "</td>");
+		ar.push("<td class='string' width='30%'>", G.shielding(r.weeks), "</td>");
+		ar.push("<td class='string' width='30%'>", G.shielding(r.days), "</td>");
 		ar.push("<td class='string'>", G.shielding(r.doc_note), "</td>");
 		ar.push("</tr>");
 		ar.push("</table>");
