@@ -65,7 +65,6 @@ var PLUG = (function() {
 	    rc_id:true, rc:true, ka_code:true, 
 	    region:true, 
 	    city:true, 
-	    wish_type_id:true, wish_type:true, 
 	    head_id:true
 	});
     }
@@ -106,8 +105,11 @@ var PLUG = (function() {
 			ar.push("<td class='ref sw95px", r.rejected ? " disabled" : "", "'>", G.shielding(r.chan), "</td>");
 		    }
 		    ar.push("<td class='ref", r.rejected ? " disabled" : "","'>");
-		    if( !String.isEmpty(r.wish_type) ) {
-			ar.push("<div class='row'>", G.shielding(r.wish_type), "</div>");
+		    if( !String.isEmpty(r.weeks) ) {
+			ar.push("<div class='row'>", G.shielding(r.weeks), "</div>");
+		    }
+		    if( !String.isEmpty(r.days) ) {
+			ar.push("<div class='row'>", G.shielding(r.days), "</div>");
 		    }
 		    if( !String.isEmpty(r.note) ) {
 			ar.push("<div class='row'><i>", G.shielding(r.note), "</i></div>");
