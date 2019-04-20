@@ -36,24 +36,12 @@ M.session	= {
     strict 	= false
 }
 
--- *** Storage parameters (PostgeSQL) ***
+-- *** Main storage parameters ***
 M.stor		= require 'stor_pgsql'
 M.stor.server	= "hostaddr=127.0.0.1 port=5432"
 M.stor.storage	= "omobus-proxy-db"
 M.stor.user	= "omobus"
 M.stor.password	= "omobus"
---#M.stor.ic_u2c	= require 'iconv'.new("utf-8", "windows-1251")
---#M.stor.ic_c2u	= require 'iconv'.new("windows-1251", "utf-8")
-
--- *** Storage parameters (Microsoft SQLServer) ***
---M.stor		= require 'stor_tds'
---M.stor.server	= "srv1"
---M.stor.storage	= "omobus-proxy-db"
---M.stor.user	= "omobus"
---M.stor.password	= "0"
---#M.stor.ic_uc	= require 'iconv'.new("utf-8", "windows-1251")
---#M.stor.ic_c2u= require 'iconv'.new("windows-1251", "utf-8")
---M.stor.freetdsconf= "/freetds.conf"
 
 -- *** FTP server parameters ***
 M.ftp 		= {
