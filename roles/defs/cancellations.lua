@@ -3,7 +3,7 @@
 
 local M = {} -- public interface
 
---[[ locked by default: M.add = {offset=-5, depth=2} ]]
+M.add = {offset=0, depth=2}
 M.restore = false
 M.reject = true
 

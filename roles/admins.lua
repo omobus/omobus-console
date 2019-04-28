@@ -53,7 +53,7 @@ M.permissions.additions.data.lidate = true
 M.permissions.additions.data.rejected = true
 M.permissions.additions.reject = true
 M.permissions.additions.validate = true
-M.permissions.cancellations.add = {offset=-5, depth=2}
+M.permissions.cancellations.add.offset = -5
 M.permissions.cancellations.restore = true
 M.permissions.deletions.validate = true
 M.permissions.deletions.reject = true
