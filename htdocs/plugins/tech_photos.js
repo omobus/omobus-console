@@ -52,7 +52,7 @@ PLUG.registerRef("photo", (function() {
 	    if( !String.isEmpty(r.doc_note) ) {
 		ar.push("<div class='row'>", G.shielding(r.doc_note), "</div>");
 	    }
-	    /*if( Array.isArray(r.photo_params) && r.photo_params.length > 0 ) {
+	    if( Array.isArray(r.photo_params) && r.photo_params.length > 0 ) {
 		if( !String.isEmpty(r.doc_note) ) {
 		    ar.push("<hr/>");
 		}
@@ -60,7 +60,7 @@ PLUG.registerRef("photo", (function() {
 		    if( index > 0 ) { ar.push("<hr/>"); }
 		    ar.push("<div class='row remark'>", G.shielding(val), "</div>");
 		});
-	    }*/
+	    }
 	    ar.push("</td>");
 	}
 	if( ar.length == 0 ) {
