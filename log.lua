@@ -2,7 +2,7 @@
 -- Copyright (c) 2006 - 2019 omobus-console authors, see the included COPYRIGHT file.
 
 local M = {} -- public interface
-local code = "{console} "
+local code = "(console) "
 
 M.i = function(s) log_msg(code..s) end
 M.w = function(s) log_warn(code..s) end

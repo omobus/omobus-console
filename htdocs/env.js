@@ -3,5 +3,5 @@
 
 function isEnvironmentCorrect() {
     return document.addEventListener && window.XMLHttpRequest && window.FormData && window.File && window.FileReader && window.FileList && window.Blob &&
-	navigator.userAgent.indexOf("Trident") < 0 /* not (Microsoft Internet Explorer) */;
+	Object.assign && navigator.userAgent.indexOf("Trident") < 0 /* not (Microsoft Internet Explorer) */;
 }

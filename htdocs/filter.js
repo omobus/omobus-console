@@ -37,7 +37,7 @@ function Filter(arg, short, maptb) {
 	    a = false;
 	} else if( typeof ev.keyCode == 'undefined' ) {
 	    func();
-	} else if( ev.keyCode != "Meta" && (ev.keyCode < 33 || ev.keyCode > 40) ) {
+	} else if( ev.keyCode != "Meta" && (ev.keyCode == 8 || (46 <= ev.keyCode && ev.keyCode <= 90 )) ) {
 	    __filtersTimeout = setTimeout(func, 1500);
 	}
 	return a;

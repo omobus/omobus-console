@@ -36,24 +36,36 @@ M.session	= {
     strict 	= false
 }
 
--- *** Main storage parameters ***
-M.stor		= require 'stor_pgsql'
-M.stor.server	= "hostaddr=127.0.0.1 port=5432"
-M.stor.storage	= "omobus-proxy-db"
-M.stor.user	= "omobus"
-M.stor.password	= "omobus"
+-- *** Main data storage parameters ***
+M.data 		= {
+    server	= "hostaddr=127.0.0.1 port=5432",
+    storage	= "omobus-proxy-db",
+    user	= "omobus",
+    password	= "omobus"
+}
+
+-- *** Archive data storage parameters ***
+M.ark 		= {
+    host 	= "176.114.222.130",
+    port 	= 8080,
+    connect_timeout = 10,
+    recv_timeout= 5,
+    send_timeout= 5,
+    tls		= false,
+    tokenid 	= 'b69570cb-0d78-41c1-8f2d-175c255e9ad8'
+}
 
 -- *** FTP server parameters ***
 M.ftp 		= {
-    host		= "127.0.0.1",
-    port		= 21021,
-    connect_timeout 	= 10,
-    recv_timeout	= 5,
-    send_timeout	= 5,
-    epsv		= true,
-    tls			= false,
-    ccc			= false,
-    cdc			= false
+    host	= "127.0.0.1",
+    port	= 21021,
+    connect_timeout = 10,
+    recv_timeout= 5,
+    send_timeout= 5,
+    epsv	= true,
+    tls		= false,
+    ccc		= false,
+    cdc		= false
 }
 
 return M

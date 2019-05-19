@@ -14,6 +14,7 @@ local stor = require 'stor'
 local plugins = require 'plugins'
 local roles = require 'roles'
 local dumps = require 'dumps'
+local ark = require 'archive'
 
 local function REF(arg)
     return '/' .. V.package_code .. arg
@@ -33,9 +34,21 @@ select photo_get(%guid%::uuid) photo
 	    )
 	end
 	)
-	if err or tb == nil or #tb ~= 1 or tb[1].photo == nil then
-	    scgi.writeHeader(res, 400, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
-	    scgi.writeBody(res, "Bad request")
+	if err then
+	    scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
+	    scgi.writeBody(res, "Internal server error")
+	elseif tb == nil or #tb ~= 1 or tb[1].photo == nil then
+	    tb, err = ark.getJPEG('photo', {ref = params.ref})
+	    if err then
+		scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
+		scgi.writeBody(res, "Internal server error")
+	    elseif tb == nil then
+		scgi.writeHeader(res, 400, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
+		scgi.writeBody(res, "Bad request")
+	    else
+		scgi.writeHeader(res, 200, {["Content-Type"] = mime.jpeg})
+		scgi.writeBody(res, tb)
+	    end
 	else
 	    scgi.writeHeader(res, 200, {["Content-Type"] = mime.jpeg})
 	    scgi.writeBody(res, tb[1].photo)
@@ -57,9 +70,21 @@ select thumb_get(%guid%::uuid) photo
 	    )
 	end
 	)
-	if err or tb == nil or #tb ~= 1 or tb[1].photo == nil then
-	    scgi.writeHeader(res, 400, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
-	    scgi.writeBody(res, "Bad request")
+	if err then
+	    scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
+	    scgi.writeBody(res, "Internal server error")
+	elseif tb == nil or #tb ~= 1 or tb[1].photo == nil then
+	    tb, err = ark.getJPEG('thumb', {ref = params.ref})
+	    if err then
+		scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
+		scgi.writeBody(res, "Internal server error")
+	    elseif tb == nil then
+		scgi.writeHeader(res, 400, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
+		scgi.writeBody(res, "Bad request")
+	    else
+		scgi.writeHeader(res, 200, {["Content-Type"] = mime.jpeg})
+		scgi.writeBody(res, tb)
+	    end
 	else
 	    scgi.writeHeader(res, 200, {["Content-Type"] = mime.jpeg})
 	    scgi.writeBody(res, tb[1].photo)
@@ -247,7 +272,8 @@ function login_page(lang, params, ip, agent, res)
     table.insert(ar, '</form>')
     table.insert(ar, '</body>')
     table.insert(ar, '</html>')
-    scgi.writeHeader(res, 200, {["Content-Type"] = mime.html .. "; charset=utf-8", ["Content-Security-Policy"] = "default-src 'self'"})
+    scgi.writeHeader(res, 200, {["Content-Type"] = mime.html .. "; charset=utf-8", ["Content-Security-Policy"] = "default-src 'self'",
+	["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"})
     scgi.writeBody(res, table.concat(ar,"\n"));
     log.i(string.format("[audit] IP:%s requested the login form. %s.", ip, agent))
 end
@@ -261,9 +287,6 @@ local function get_lang(lang)
 end
 
 function websvc_main()
-    log.i(V.package_name .. " " .. V.package_version)
-    config.stor.dump_params()
-
     return {
 	request_handler = function(env, content_size, content, res) -- request handler
 	    assert(env.QUERY_STRING ~= nil, "invalid request. QUERY_STRING is unavailable.")
@@ -282,7 +305,7 @@ function websvc_main()
 	    elseif script == REF("/") or script == REF("/login") then
 		login_page(lang, params, env.REMOTE_ADDR, env.HTTP_USER_AGENT, res)
 	    elseif script == REF("/auth") then
-		stor.init(config)
+		stor.init()
 		sid = auth.mySID(lang, (env.REQUEST_METHOD == "POST" and type(content) == "string") and uri.parseQuery(content) or params, env.REMOTE_ADDR, stor)
 		if sid == nil then
 		    scgi.writeHeader(res, 400, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
@@ -294,7 +317,7 @@ function websvc_main()
 		end
 		stor.cleanup()
 	    elseif script == REF("/logout") then
-		stor.init(config)
+		stor.init()
 		sestb = auth.killSID(params.sid, env.REMOTE_ADDR, stor)
 		if sestb ~= nil then
 		    scgi.writeHeader(res, 301, {["Location"] = REF("/")})
@@ -306,7 +329,7 @@ function websvc_main()
 		end
 		stor.cleanup()
 	    elseif script == REF("/keep-alive") then
-		stor.init(config)
+		stor.init()
 		sestb, obsolete = auth.validate(params.sid, env.REMOTE_ADDR, stor)
 		if sestb ~= nil then
 		    scgi.writeHeader(res, 200, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
@@ -319,7 +342,7 @@ function websvc_main()
 		end
 		stor.cleanup()
 	    elseif script == REF("/default") then
-		stor.init(config)
+		stor.init()
 		sestb, obsolete = auth.validate(params.sid, env.REMOTE_ADDR, stor)
 		if sestb ~= nil then
 		    roletb = roles.get(sestb.group)
@@ -350,7 +373,7 @@ function websvc_main()
 		end
 		stor.cleanup()
 	    elseif script == REF("/startup") then
-		stor.init(config)
+		stor.init()
 		sestb, obsolete = auth.validate(params.sid, env.REMOTE_ADDR, stor)
 		if sestb ~= nil then
 		    roletb = roles.get(sestb.group)
@@ -388,7 +411,7 @@ function websvc_main()
 		end
 		stor.cleanup()
 	    elseif script == REF("/ajax") then
-		stor.init(config)
+		stor.init()
 		sestb, obsolete = auth.validate(params.sid, env.REMOTE_ADDR, stor)
 		if sestb ~= nil then
 		    roletb = roles.get(sestb.group)
@@ -420,15 +443,15 @@ function websvc_main()
 		end
 		stor.cleanup()
 	    elseif script == REF("/photo") then
-		stor.init(config)
+		stor.init()
 		photorequest(lang, params, stor, res)
 		stor.cleanup()
 	    elseif script == REF("/thumb") then
-		stor.init(config)
+		stor.init()
 		thumbrequest(lang, params, stor, res)
 		stor.cleanup()
 	    elseif script == REF("/dump") and params.name ~= nil then
-		stor.init(config)
+		stor.init()
 		sestb, obsolete = auth.validate(params.sid, env.REMOTE_ADDR, stor)
 		if sestb ~= nil then
 		    local dumptb = dumps.get(config, sestb.username, params.name)
@@ -461,7 +484,7 @@ function websvc_main()
 	    return 0
 	end, 
 	gc = function() -- GC
-	    stor.init(config)
+	    stor.init()
 	    auth.gc(stor)
 	    stor.cleanup()
 	end

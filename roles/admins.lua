@@ -10,7 +10,8 @@ M.selectable = {
 	monthly = {"joint_routes", "confirmations", "orders", "reclamations", "comments", "photos", "testings", "trainings", "presentations", "audits", "shelfs", "quests", "advt", "prices"}
     },
     analitics = {"targets_compliance"},
-    managment = {"routes", "targets", "additions", "deletions", "wishes", "discards", "cancellations", "info_materials", "training_materials", "pos_materials", "planograms"}
+    managment = {"routes", "targets", "additions", "deletions", "wishes", "discards", "cancellations", "info_materials", "training_materials", "pos_materials", "planograms"},
+    archive = {"photos_archive"}
 }
 
 M.permissions = {
@@ -28,6 +29,7 @@ M.permissions = {
     joint_routes 	= require 'roles.defs.joint_routes',
     orders 		= require 'roles.defs.orders',
     photos 		= require 'roles.defs.photos',
+    photos_archive 	= require 'roles.defs.photos_archive',
     planograms 		= require 'roles.defs.planograms',
     pos_materials 	= require 'roles.defs.pos_materials',
     presentations 	= require 'roles.defs.presentations',

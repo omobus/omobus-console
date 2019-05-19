@@ -1034,6 +1034,14 @@ hr {
     font-weight: normal;
 }
 
+.report th a.selected:link, 
+.report th a.selected:visited {
+    color: #bd1515;
+    text-decoration: none; 
+    border-bottom: none;
+    cursor: default;
+}
+
 .report .autoincrement {
     width: 30px;
 }
@@ -1209,8 +1217,6 @@ hr {
 }
 
 .report div.row {
-/*    font-size: 9pt;
-    font-weight: normal;*/
     padding-top: 2px;
     padding-bottom: 2px;
 }

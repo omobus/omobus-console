@@ -10,6 +10,8 @@ local modules = {
 
 	additions 		= require 'plugins.additions',
 	advt 			= require 'plugins.advt',
+photos_archive 			= require 'plugins.photos_archive',
+
 	audits 			= require 'plugins.audits',
 	cancellations 		= require 'plugins.cancellations',
 	comments 		= require 'plugins.comments',

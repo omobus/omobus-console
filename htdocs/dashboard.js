@@ -46,6 +46,11 @@ var Dashboard = (function() {
 	    _dashboard(ar, d);
 	    ar.push("</table>");
 	}
+	if( (d = rules.permissions.archive) != null && Array.isArray(d) && d.length > 0 ) {
+	    ar.push("<hr />", lang.archive, "<table class='dashboard'>");
+	    _dashboard(ar, d);
+	    ar.push("</table>");
+	}
 
 	return ar;
     }
