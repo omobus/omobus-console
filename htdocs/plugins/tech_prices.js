@@ -46,7 +46,7 @@ PLUG.registerRef("price", (function() {
 	    ar = ["<tr class='def'><td colspan='", _columns, "' class='message'>", lang.empty, "</td></tr>"];
 	}
 	if( typeof data.data_ts == 'string' ) {
-	    ar.push("<tr class='def'><td colspan='", _columns, "' class='watermark'>", lang.data_watermark, "&nbsp;", data.data_ts, "</td></tr>");
+	    ar.push("<tr class='def'><td colspan='", _columns, "' class='watermark'>", lang.data_ts, "&nbsp;", data.data_ts, "</td></tr>");
 	}
 	return ar;
     }

@@ -16,7 +16,7 @@ var PLUG = (function() {
 	ar.push("<span>", lang.tech.title1, "</span>&nbsp;");
 	ar.push("<a id='plugCal' href='javascript:void(0);' onclick='PLUG.calendar(this)'>[&nbsp;-&nbsp;]</a>");
 	ar.push("</h1></td><td class='r'>");
-	ar.push("<span>", lang.get_watermark, "</span>&nbsp;<span id='timestamp'>&nbsp;-&nbsp;</span>");
+	ar.push("<span>", lang.received_ts, "</span>&nbsp;<span id='timestamp'>&nbsp;-&nbsp;</span>");
 	ar.push("&nbsp;(<a href='javascript:void(0);' onclick='PLUG.refresh();'>", lang.refresh, "</a>)");
 	ar.push("<span id='usersGroup'>");
 	ar.push("<span id='plugTotal'></span>");
@@ -141,7 +141,7 @@ var PLUG = (function() {
 	    ar = _datamsg(lang.empty);
 	}
 	if( typeof data.data_ts == 'string' ) {
-	    ar.push("<tr class='def'><td colspan='", _getcolumns(),"' class='watermark'>", lang.data_watermark, "&nbsp;", data.data_ts, "</td></tr>");
+	    ar.push("<tr class='def'><td colspan='", _getcolumns(),"' class='watermark'>", lang.data_ts, "&nbsp;", data.data_ts, "</td></tr>");
 	}
 	return ar;
     }

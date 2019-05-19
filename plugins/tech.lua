@@ -371,7 +371,7 @@ local function personalizeL2(tb, my_habitat) --: tech_route
     end
     for k, v in pairs(tb) do
 	if type(v) == 'table' then
-	    if core.contains({'packets','rules','power','traffics','exchanges','dev_ids','map','trace','wd','rd','distributors'}, k) then
+	    if core.contains({'packets','rules','power','traffics','exchanges','dev_ids','map','trace','wd','rd','departments','distributors','violations'}, k) then
 		--[[ doesn't crop system data ]]
 	    elseif core.contains({'additions','unsched','reviews','joints'}, k) then
 		tb[k] = nil

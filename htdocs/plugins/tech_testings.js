@@ -48,7 +48,7 @@ PLUG.registerRef("testing", (function() {
 	    ar = ["<tr class='def'><td colspan='", _columns, "' class='message'>", lang.empty, "</td></tr>"];
 	}
 	if( typeof data.data_ts == 'string' ) {
-	    ar.push("<tr class='def'><td colspan='", _columns, "' class='watermark'>", lang.data_watermark, "&nbsp;", data.data_ts, "</td></tr>");
+	    ar.push("<tr class='def'><td colspan='", _columns, "' class='watermark'>", lang.data_ts, "&nbsp;", data.data_ts, "</td></tr>");
 	}
 	return ar;
     }
@@ -79,7 +79,7 @@ PLUG.registerRef("testing", (function() {
 	}
 	ar.push("</tbody><tfoot>");
 	ar.push("<tr class='def'><td colspan='4' class='watermark'>", "{0}&nbsp;{1}".format_a(
-	    lang.data_watermark, G.getdatetime_l(Date.parseISO8601(r.fix_dt))), "</td></tr>");
+	    lang.data_ts, G.getdatetime_l(Date.parseISO8601(r.fix_dt))), "</td></tr>");
 	ar.push("</tfoot></table>");
 	ar.push("<br/>");
 	return ar;
