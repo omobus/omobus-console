@@ -3,7 +3,7 @@
 
 local M = {} -- public interface
 
-M.columns = {channel=true, head=true, photo_type=true, brand=true}
+M.columns = {channel=true, head=true, brand=true, photo_type=true}
 M.target = false
 M.rows = 500
 M.csv = '{fix_dt},{head_name},{user_id},{u_name},{a_code},{a_name},{address},{rc},{chan},{region},{city},{brand},{placement},{photo_type},{doc_note},{doc_id}'
