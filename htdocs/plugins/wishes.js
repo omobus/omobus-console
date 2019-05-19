@@ -19,7 +19,7 @@ var PLUG = (function() {
 	ar.push("<table class='headerbar' width='100%'><tr><td><h1>");
 	ar.push("<span>", lang.wishes.title, "</span>");
 	ar.push("</h1></td><td class='r'>");
-	ar.push("<span>", lang.get_watermark, "</span>&nbsp;<span id='timestamp'>&nbsp;-&nbsp;</span>");
+	ar.push("<span>", lang.received_ts, "</span>&nbsp;<span id='timestamp'>&nbsp;-&nbsp;</span>");
 	ar.push("&nbsp;(<a href='javascript:void(0);' onclick='PLUG.refresh();'>", lang.refresh, "</a>)<span id='plugTotal'></span>");
 	ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<input class='search' type='text' maxlength='96' autocomplete='off' placeholder='",
 	    lang.search, "' id='plugFilter' onkeyup='return PLUG.filter(this, event);' onpaste='PLUG.filter(this, event); return true;' />");
@@ -79,7 +79,7 @@ var PLUG = (function() {
 	    if( (r = data.rows[i]) != null && f.is(r) ) {
 		if( (page-1)*perm.rows <= x && x < page*perm.rows ) {
 		    ar.push("<tr" + (typeof checked != 'undefined' && checked[r.row_id] ? " class='selected'" : "") + ">");
-		    ar.push("<td style='cursor:pointer' class='autoincrement' onclick=\"PLUG.checkrow(this.parentNode,'" +
+		    ar.push("<td class='autoincrement clickable' onclick=\"PLUG.checkrow(this.parentNode,'" +
 			r.row_id + "');event.stopPropagation();\">", r.row_no, "</td>");
 		    ar.push("<td class='date", r.rejected ? " disabled" : "", "'>", 
 			G.getdatetime_l(Date.parseISO8601(r.fix_dt)), "</td>");
@@ -142,7 +142,7 @@ var PLUG = (function() {
 	    ar = _datamsg(lang.empty, perm);
 	}
 	if( typeof data.data_ts == 'string' ) {
-	    ar.push("<tr class='def'><td colspan='" + _getcolumns(perm) + "' class='watermark'>" + lang.data_watermark +
+	    ar.push("<tr class='def'><td colspan='" + _getcolumns(perm) + "' class='watermark'>" + lang.data_ts +
 		"&nbsp;" + data.data_ts + "</td></tr>");
 	}
 	if( (z = Math.floor(x/perm.rows) + ((x%perm.rows)?1:0)) > 1 /*pages: */ ) {

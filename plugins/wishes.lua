@@ -13,9 +13,9 @@ local core = require 'core'
 
 local function data(permtb, stor, sestb)
     return stor.get(function(tran, func_execute)
-	local tb, err
+	local tb, err, qs
 	tb = {}
-	tb.rows, err = func_execute(tran,
+	qs =
 [[
 select
     md5(format('%s:%s', j.user_id, j.account_id)) row_id,
@@ -43,28 +43,47 @@ from j_wishes j
     left join users ex on ex.user_id = u.executivehead_id
     left join users v on v.user_id = j.validator_id
 where
-    (
+    $(0)(
 	(j.validated = 0 and j.hidden = 0 and a.hidden = 0 and %registered% = 1)
 	or (j.validated = 1 and j.hidden = 0 and a.hidden = 0 and %validated% = 1)
 	or (j.hidden = 1 and a.hidden = 0 and %rejected% = 1)
 	or (a.hidden = 1 and %closed% = 1)
     )
-    and (%user_id% is null or j.user_id in (select * from my_staff(%user_id%, 1::bool_t)))
-    and (%distr_id% is null or u.distr_ids && string_to_array(%distr_id%,',')::uids_t)
-    and (%agency_id% is null or u.agency_id = any(string_to_array(%agency_id%,',')))
 order by j.inserted_ts desc, j.fix_dt desc
 ]]
-	    , "//wishes/get/"
-	    , {
-		user_id = sestb.erpid == nil and stor.NULL or sestb.erpid,
-		distr_id = sestb.distributor == null and stor.NULL or sestb.distributor,
-		agency_id = sestb.agency == null and stor.NULL or sestb.agency,
-		registered = (permtb.data or {}).registered == true and 1 or 0,
-		validated = (permtb.data or {}).validated == true and 1 or 0,
-		rejected = (permtb.data or {}).rejected == true and 1 or 0,
-		closed = (permtb.data or {}).closed == true and 1 or 0
-	    }
-	)
+	if sestb.erpid ~= nil then
+	    tb.rows, err = func_execute(tran, qs:replace("$(0)", "j.user_id in (select * from my_staff(%user_id%, 1::bool_t)) and "),
+		"//wishes/get", { user_id = sestb.erpid,
+		    registered = (permtb.data ~= nil and permtb.data.registered == true) and 1 or 0,
+		    validated = (permtb.data ~= nil and permtb.data.validated == true) and 1 or 0,
+		    rejected = (permtb.data ~= nil and permtb.data.rejected == true) and 1 or 0,
+		    closed = (permtb.data ~= nil and permtb.data.closed == true) and 1 or 0
+		})
+	elseif sestb.distributor ~= nil then
+	    tb.rows, err = func_execute(tran, qs:replace("$(0)", "u.distr_ids && string_to_array(%distr_id%,',')::uids_t and "),
+		"//wishes/get", { distr_id = sestb.distributor,
+		    registered = (permtb.data ~= nil and permtb.data.registered == true) and 1 or 0,
+		    validated = (permtb.data ~= nil and permtb.data.validated == true) and 1 or 0,
+		    rejected = (permtb.data ~= nil and permtb.data.rejected == true) and 1 or 0,
+		    closed = (permtb.data ~= nil and permtb.data.closed == true) and 1 or 0
+		})
+	elseif sestb.agency ~= nil then
+	    tb.rows, err = func_execute(tran, qs:replace("$(0)", "u.agency_id = any(string_to_array(%agency_id%,',')) and "),
+		"//wishes/get", { agency_id = sestb.agency,
+		    registered = (permtb.data ~= nil and permtb.data.registered == true) and 1 or 0,
+		    validated = (permtb.data ~= nil and permtb.data.validated == true) and 1 or 0,
+		    rejected = (permtb.data ~= nil and permtb.data.rejected == true) and 1 or 0,
+		    closed = (permtb.data ~= nil and permtb.data.closed == true) and 1 or 0
+		})
+	else
+	    tb.rows, err = func_execute(tran, qs:replace("$(0)", ""),
+		"//wishes/get", { agency_id = sestb.agency,
+		    registered = (permtb.data ~= nil and permtb.data.registered == true) and 1 or 0,
+		    validated = (permtb.data ~= nil and permtb.data.validated == true) and 1 or 0,
+		    rejected = (permtb.data ~= nil and permtb.data.rejected == true) and 1 or 0,
+		    closed = (permtb.data ~= nil and permtb.data.closed == true) and 1 or 0
+		})
+	end
 	if err == nil or err == false then
 	    tb.users, err = func_execute(tran,
 [[
@@ -121,22 +140,26 @@ end
 
 local function personalize(data)
     local p = {}
+    local idx_users = {}
+    local idx_channels = {}
+    local idx_rcs = {}
+    local idx_heads = {}
     local x = {u = {}, chan = {}, rc = {}, e = {}}
 
     for i, v in ipairs(data.rows) do
 	v.row_no = i
 
-	x.u[v.user_id] = 1
-	if v.chan_id ~= nil then x.chan[v.chan_id] = 1; end
-	if v.rc_id ~= nil then x.rc[v.rc_id] = 1; end
-	if v.head_id ~= nil then x.e[v.head_id] = 1; end
+	idx_users[v.user_id] = 1
+	if v.chan_id ~= nil then idx_channels[v.chan_id] = 1; end
+	if v.rc_id ~= nil then idx_rcs[v.rc_id] = 1; end
+	if v.head_id ~= nil then idx_heads[v.head_id] = 1; end
     end
 
     p.rows = data.rows
-    p.users = core.reduce(data.users, 'user_id', x.u)
-    p.heads = core.reduce(data.users, 'user_id', x.e)
-    p.channels = core.reduce(data.channels, 'chan_id', x.chan)
-    p.retail_chains = core.reduce(data.retail_chains, 'rc_id', x.rc)
+    p.users = core.reduce(data.users, 'user_id', idx_users)
+    p.heads = core.reduce(data.users, 'user_id', idx_heads)
+    p.channels = core.reduce(data.channels, 'chan_id', idx_channels)
+    p.retail_chains = core.reduce(data.retail_chains, 'rc_id', idx_rcs)
 
     return p
 end
@@ -153,7 +176,7 @@ function M.scripts(lang, permtb, sestb, params)
 end
 
 function M.startup(lang, permtb, sestb, params, stor)
-    return  "startup(_('pluginCore')," .. json.encode(permtb) .. ");"
+    return string.format("startup(_('pluginCore'),%s);", json.encode(permtb));
 end
 
 function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor, res)
@@ -172,9 +195,9 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
 	end
     elseif method == "PUT" then
 	-- validate input data
-	assert(permtb.validate ~= nil and permtb.validate == true, string.format("function %s() operation does not permitted.", debug.getinfo(1,"n").name))
-	assert(validate.isuid(params.account_id), string.format("function %s() invalid account_id.", debug.getinfo(1,"n").name))
-	assert(validate.isuid(params.user_id), string.format("function %s() invalid user_id.", debug.getinfo(1,"n").name))
+	assert(permtb.validate ~= nil and permtb.validate == true, "operation does not permitted.")
+	assert(validate.isuid(params.account_id), "invalid [account_id] parameter.")
+	assert(validate.isuid(params.user_id), "invalid [user_id] parameter.")
 	-- execute query
 	accept(stor, sestb.erpid or sestb.username, params.account_id, params.user_id)
 	if err then
@@ -186,9 +209,9 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
 	end
     elseif method == "DELETE" then
 	-- validate input data
-	assert(permtb.reject ~= nil and permtb.reject == true, string.format("function %s() operation does not permitted.", debug.getinfo(1,"n").name))
-	assert(validate.isuid(params.account_id), string.format("function %s() invalid account_id.", debug.getinfo(1,"n").name))
-	assert(validate.isuid(params.user_id), string.format("function %s() invalid user_id.", debug.getinfo(1,"n").name))
+	assert(permtb.reject ~= nil and permtb.reject == true, "operation does not permitted.")
+	assert(validate.isuid(params.account_id), "invalid [account_id] parameter.")
+	assert(validate.isuid(params.user_id), "invalid [user_id] parameter.")
 	-- execute query
 	reject(stor, sestb.erpid or sestb.username, params.account_id, params.user_id)
 	if err then
