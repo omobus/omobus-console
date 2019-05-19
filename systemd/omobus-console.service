@@ -1,5 +1,5 @@
 [Unit]
-Description=OMOBUS console daemon
+Description=[omobus-scgid: console] service
 After=local-fs.target network.target slapd.service pgsql.service
 #Requires=slapd.service pgsql.service
 
