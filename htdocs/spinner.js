@@ -34,25 +34,3 @@ function spinnerLarge(tag, top, left) {
     return new Spinner({lines: 8, length: 2, width: 4, radius: 6, corners: 1, rotate: 0, direction: 1, speed: 1, trail: 60, 
 	shadow: false, hwaccel: false, top: top, left: left}).spin(tag);
 }
-
-
-
-/* OBSOLETE: */
-
-function _SPIN_OPT(opt, top, left) {
-    if( top != null ) 	{ opt.top = top; }
-    if( left != null ) 	{ opt.left = left; }
-    return opt;
-}
-
-function SPIN_LARGE(top, left) {
-    return _SPIN_OPT({lines: 8, length: 2, width: 4, radius: 6, corners: 1, rotate: 0, direction: 1, speed: 1, trail: 60, shadow: false, hwaccel: false}, top, left);
-}
-
-//function SPIN_MEDIUM(top, left) {
-//    return _SPIN_OPT({lines: 8, length: 2, width: 4, radius: 5, corners: 1, rotate: 0, direction: 1, speed: 1, trail: 60, shadow: false, hwaccel: false}, top, left);
-//}
-//
-//function SPIN_SMALL(top, left) {
-//    return _SPIN_OPT({lines: 6, length: 1, width: 2, radius: 3, corners: 1, rotate: 0, direction: 1, speed: 1, trail: 60, shadow: false, hwaccel: false}, top, left);
-//}
