@@ -33,8 +33,11 @@ var G = (function() {
 	ar.push("/console/", code);
 	if( params != null && typeof params == 'object' ) {
 	    for( var prop in params ) {
-		ar.push(delim,prop,"=",params[prop]);
-		delim = "&";
+		var v = params[prop];
+		if( v != null ) {
+		    ar.push(delim,prop,"=",v);
+		    delim = "&";
+		}
 	    }
 	}
 	if( extra != null && typeof extra == 'object' ) {
