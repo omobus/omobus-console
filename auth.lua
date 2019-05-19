@@ -99,7 +99,7 @@ local function sescreate(stor, username, ip, attrs, lang)
 
     x = stor.get(function(tran, func_execute) 
 	    return func_execute(tran, "select console.ses_create(%params%) sid", 
-		"//auth/sescreate/", {params=json.encode(tb)})
+		"//auth/sescreate", {params=json.encode(tb)})
     end, false)
 
     return (x ~= nil and #x == 1) and tb.sid or nil
@@ -131,7 +131,7 @@ end
 local function sesget(stor, sid, ip)
     local tb, err = stor.get(function(tran, func_execute) 
 	return func_execute(tran, "select p::text params, obsolete from console.ses_get(%ses_id%, %ses_ip%)", 
-	    "//auth/sesget/", {ses_id=sid, ses_ip=ip})
+	    "//auth/sesget", {ses_id=sid, ses_ip=ip})
     end, false)
 
     return sesdecode(tb, sid, ip)
@@ -140,7 +140,7 @@ end
 local function sesdestroy(stor, sid, ip)
     local tb, err = stor.get(function(tran, func_execute) 
 	return func_execute(tran, "select console.ses_destroy(%ses_id%, %ses_ip%)::text params", 
-	    "//auth/sesdestroy/", {ses_id=sid, ses_ip=ip})
+	    "//auth/sesdestroy", {ses_id=sid, ses_ip=ip})
     end, false)
 
     return sesdecode(tb, sid, ip)
@@ -148,7 +148,7 @@ end
 
 local function sesgc(stor)
     local tb, err = stor.get(function(tran, func_execute) 
-	return func_execute(tran, "select * from console.ses_gc()", "//auth/sesgc/", {})
+	return func_execute(tran, "select * from console.ses_gc()", "//auth/sesgc", {})
     end, false)
     if tb ~= nil then
 	for i, v in ipairs(tb) do
