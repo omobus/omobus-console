@@ -33,12 +33,18 @@ local function dumparray(arg)
     return s
 end
 
-local function dumpparams(params)
-    local str = ""
+local function dumpparams(query_id, params)
+    local f = false
+    local str = query_id
     if params ~= nil then
 	for k, v in pairs(params) do
-	    if #str > 0 then str = str .. ", " end
-	    str = str .. k .. ":" .. (isnull(v) and 'null' or 
+	    if f then 
+		str = str .. "&" 
+	    else
+		str = str .. "?"
+		f = true
+	    end
+	    str = str .. k .. "=" .. (isnull(v) and 'null' or 
 		(type(v) == "table" and dumparray(v) or v))
 	end
     end
@@ -132,9 +138,6 @@ local function sqlexec(conn, query, params, blob)
 	end
 	query = tmp
     end
-    if M.ic_u2c ~= nil then
-	query = M.ic_u2c:iconv(query)
-    end
     if blob ~= nil and #blob > 0 then
 	local blob_oid = write_largeobject(conn, blob)
 	if blob_id == 0 then
@@ -149,12 +152,6 @@ local function sqlexec(conn, query, params, blob)
     end
 
     return conn:exec(query)
-
---	res = conn:execParams(query, blob_oid)
---    else
---	res = conn:exec(query)
---    end
---    return res
 end
 
 local function putdata(conn, colname, ftype, ptr, len, tb)
@@ -164,39 +161,22 @@ local function putdata(conn, colname, ftype, ptr, len, tb)
 	elseif core.contains(numberTypes, ftype) == true then
 	    tb[colname] = tonumber(ptr)
 	else
-	    if len == 0 or M.ic_c2u == nil then
-		tb[colname] = ptr
-	    else
-		tb[colname] = M.ic_c2u:iconv(ptr)
-	    end
+	    tb[colname] = ptr
 	end
     end
 end
 
 -- *** stor_pgsql interface: begin *** 
 
-M.code		= "pgsql"
-M.server 	= nil
-M.storage 	= nil
-M.user 		= nil
-M.password	= nil
-M.ic_c2u	= nil  -- command -> utf-8
-M.ic_u2c	= nil  -- utf-8 -> command
-
-
-function M.dump_params()
-    log.i(string.format("PostgreSQL connection parameters: %s@[%s]/%s.", M.user, M.server, M.storage))
-end
-
-function M.connect()
-    assert(M.server, "uninitialized 'server' variable!")
-    assert(M.storage, "uninitialized 'storage' variable!")
-    assert(M.user, "uninitialized 'user' variable!")
-    assert(M.password, "uninitialized 'password' variable!")
+function M.connect(server, storage, user, password)
+    assert(server, "uninitialized 'server' variable!")
+    assert(storage, "uninitialized 'storage' variable!")
+    assert(user, "uninitialized 'user' variable!")
+    assert(password, "uninitialized 'password' variable!")
 
     local cs, conn
 
-    cs = string.format("%s dbname=%s user=%s password=%s", M.server, M.storage, M.user, M.password)
+    cs = string.format("%s dbname=%s user=%s password=%s", server, storage, user, password)
     conn = pq.connectdb(cs)
     if conn:status() ~= pq.CONNECTION_OK then
 	log.w(string.format("%s:%d unable to create connection (%s). %s.", 
@@ -206,8 +186,7 @@ function M.connect()
 	return nil
     end
 
-    log.d(string.format("database %s@%s/%s connected.",
-	M.user, M.server, M.storage))
+    log.d(string.format("database %s@[%s]/%s connected.", user, server, storage))
 
     conn:setNoticeProcessor(log.i);
 
@@ -217,8 +196,7 @@ end
 function M.disconnect(conn)
     conn:finish()
     conn = nil
-    log.d(string.format("database %s@%s/%s disconnected.",
-	M.user, M.server, M.storage))
+    log.d("database disconnected.")
 end
 
 function M.begin_tran(conn, readonly)
@@ -273,9 +251,9 @@ function M.execute(conn, query, query_id, params, blob)
 
     res = sqlexec(conn, query, params, blob)
     if res == nil then
-	log.e(string.format("%s:%d unable to execute query [%s].",
+	log.e(string.format("%s:%d unable to execute query %s.",
 	    debug.getinfo(1,'S').short_src, debug.getinfo(1, 'l').currentline,
-	    query_id))
+	    dumpparams(query_id, params)))
 	return nil, true
     end
     status = res:status()
@@ -299,16 +277,16 @@ function M.execute(conn, query, query_id, params, blob)
 	    end
 	end
     elseif status ~= pq.PGRES_COMMAND_OK then
-	log.e(string.format("%s:%d unable to execute query [%s]. Msg: %s.",
+	log.e(string.format("%s:%d unable to execute query %s: %s.",
 	    debug.getinfo(1,'S').short_src, debug.getinfo(1, 'l').currentline,
-	    query_id, res:errorMessage()))
+	    dumpparams(query_id, params), res:errorMessage()))
 	res:clear()
 	return nil, true
     end
     res:clear()
 
-    log.i(string.format("query [%s] executed successfully. Rows: %d. Params: [%s].",
-	query_id, tb == nil and 0 or #tb, dumpparams(params)))
+    log.d(string.format("query %s executed successfully. Rows: %d.",
+	dumpparams(query_id, params), tb == nil and 0 or #tb))
 
     return tb, false
 end

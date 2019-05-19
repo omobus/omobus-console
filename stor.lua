@@ -1,34 +1,33 @@
 -- -*- Lua -*-
 -- Copyright (c) 2006 - 2019 omobus-console authors, see the included COPYRIGHT file.
 
-local M = {} -- public interface
+local config = require 'config'
+local stor = require 'stor_pgsql'
 
-local defstor
+local M = {} -- public interface
 
 M.NULL = { null = true }
 
-function M.init(config)
-    defstor = config.stor
-    if defstor.init ~= nil then defstor.init() end
+function M.init()
+    if stor.init ~= nil then stor.init() end
 end
 
 function M.cleanup()
-    if defstor.cleanup ~= nil then defstor.cleanup() end
-    defstor = nil
+    if stor.cleanup ~= nil then stor.cleanup() end
 end
 
 function M.get(func_in_tran, ro)
     local conn, tran, tb, err
     err = true
     if func_in_tran ~= nil then
-	conn = defstor.connect()
+	conn = stor.connect(config.data.server, config.data.storage, config.data.user, config.data.password)
 	if conn ~= nil then
-	    tran = defstor.begin_tran(conn, ro == nil or ro)
+	    tran = stor.begin_tran(conn, ro == nil or ro)
 	    if tran ~= nil then
-		tb, err = func_in_tran(tran, defstor.execute)
-		defstor.commit_tran(tran)
+		tb, err = func_in_tran(tran, stor.execute)
+		stor.commit_tran(tran)
 	    end
-	    defstor.disconnect(conn)
+	    stor.disconnect(conn)
 	end
     end
     return tb, err
@@ -38,14 +37,14 @@ function M.put(func_in_tran)
     local conn, tran, err
     err = true
     if func_in_tran ~= nil then
-	conn = defstor.connect()
+	conn = stor.connect(config.data.server, config.data.storage, config.data.user, config.data.password)
 	if conn ~= nil then
-	    tran = defstor.begin_tran(conn, false)
+	    tran = stor.begin_tran(conn, false)
 	    if tran ~= nil then
-		_, err = func_in_tran(tran, defstor.execute)
-		defstor.commit_tran(tran)
+		_, err = func_in_tran(tran, stor.execute)
+		stor.commit_tran(tran)
 	    end
-	    defstor.disconnect(conn)
+	    stor.disconnect(conn)
 	end
     end
     return err
