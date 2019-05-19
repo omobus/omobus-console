@@ -13,9 +13,9 @@ local core = require 'core'
 
 local function data(permtb, stor, sestb)
     return stor.get(function(tran, func_execute)
-	local tb, err
+	local tb, err, qs
 	tb = {}
-	tb.rows, err = func_execute(tran,
+	qs =
 [[
 select
     j.doc_id,
@@ -38,33 +38,49 @@ from j_additions j
     left join users ex on ex.user_id = u.executivehead_id
     left join users v on v.user_id = j.validator_id
 where
-    (
+    $(0)(
 	(j.validated = 0 and j.hidden = 0 and %registered% = 1)
 	or (j.validated = 1 and j.hidden = 0 and %validated% = 1)
 	or (j.hidden = 1 and %rejected% = 1)
     )
-    and (%user_id% is null or j.user_id in (select * from my_staff(%user_id%, 1::bool_t)))
-    and (%distr_id% is null or u.distr_ids && string_to_array(%distr_id%,',')::uids_t)
-    and (%agency_id% is null or u.agency_id = any(string_to_array(%agency_id%,',')))
 order by j.inserted_ts desc, j.fix_dt desc
 ]]
-	    , "//additions/get/"
-	    , {
-		user_id = sestb.erpid == nil and stor.NULL or sestb.erpid,
-		distr_id = sestb.distributor == null and stor.NULL or sestb.distributor,
-		agency_id = sestb.agency == null and stor.NULL or sestb.agency,
-		registered = (permtb.data or {}).registered == true and 1 or 0,
-		validated = (permtb.data or {}).validated == true and 1 or 0,
-		rejected = (permtb.data or {}).rejected == true and 1 or 0
-	    }
-	)
+	if sestb.erpid ~= nil then
+	    tb.rows, err = func_execute(tran, qs:replace("$(0)", "j.user_id in (select * from my_staff(%user_id%, 1::bool_t)) and "), 
+		"//additions/get", { user_id = sestb.erpid,
+		    registered = (permtb.data ~= nil and permtb.data.registered == true) and 1 or 0,
+		    validated = (permtb.data ~= nil and permtb.data.validated == true) and 1 or 0,
+		    rejected = (permtb.data ~= nil and permtb.data.rejected == true) and 1 or 0
+		})
+	elseif sestb.distributor ~= nil then
+	    tb.rows, err = func_execute(tran, qs:replace("$(0)", "u.distr_ids && string_to_array(%distr_id%,',')::uids_t and "),
+		"//additions/get", { distr_id = sestb.distributor,
+		    registered = (permtb.data ~= nil and permtb.data.registered == true) and 1 or 0,
+		    validated = (permtb.data ~= nil and permtb.data.validated == true) and 1 or 0,
+		    rejected = (permtb.data ~= nil and permtb.data.rejected == true) and 1 or 0
+		})
+        elseif sestb.agency ~= nil then
+	    tb.rows, err = func_execute(tran, qs:replace("$(0)", "u.agency_id = any(string_to_array(%agency_id%,',')) and "),
+		"//additions/get", { agency_id = sestb.agency,
+		    registered = (permtb.data ~= nil and permtb.data.registered == true) and 1 or 0,
+		    validated = (permtb.data ~= nil and permtb.data.validated == true) and 1 or 0,
+		    rejected = (permtb.data ~= nil and permtb.data.rejected == true) and 1 or 0
+		})
+	else
+	    tb.rows, err = func_execute(tran, qs:replace("$(0)", ""),
+		"//additions/get", { agency_id = sestb.agency,
+		    registered = (permtb.data ~= nil and permtb.data.registered == true) and 1 or 0,
+		    validated = (permtb.data ~= nil and permtb.data.validated == true) and 1 or 0,
+		    rejected = (permtb.data ~= nil and permtb.data.rejected == true) and 1 or 0
+		})
+	end
 	if err == nil or err == false then
 	    tb.users, err = func_execute(tran,
 [[
 select user_id, descr, dev_login, area, hidden from users
     order by descr
 ]]
-		, "//additions/users/"
+		, "//additions/users"
 	    )
 	end
 	if err == nil or err == false then
@@ -73,7 +89,7 @@ select user_id, descr, dev_login, area, hidden from users
 select addition_type_id, descr, hidden from addition_types
     order by descr
 ]]
-		, "//additions/addition_types/"
+		, "//additions/addition_types"
 	    )
 	end
 	if (permtb.columns or {}).channel == true and (err == nil or err == false) then
@@ -82,7 +98,7 @@ select addition_type_id, descr, hidden from addition_types
 select chan_id, descr, hidden from channels
     order by descr
 ]]
-		, "//additions/channels/"
+		, "//additions/channels"
 	    )
 	end
 	return tb, err
@@ -95,8 +111,7 @@ local function photo(stor, blob_id)
 [[
 select photo_get(%blob_id%::blob_t) photo
 ]]
-	, "//photos/photo/"
-	, {blob_id = blob_id})
+	, "//photos/photo", {blob_id = blob_id})
     end
     )
 end
@@ -108,8 +123,7 @@ local function accept(stor, uid, doc_id)
 select console.req_addition(%req_uid%, 'validate', %doc_id%)
 ]]
 -- *** sql query: end
-	, "//additions/validate/"
-	, {req_uid = uid, doc_id = doc_id})
+	, "//additions/validate", {req_uid = uid, doc_id = doc_id})
     end
     )
 end
@@ -121,15 +135,17 @@ local function reject(stor, uid, doc_id)
 select console.req_addition(%req_uid%, 'reject', %doc_id%)
 ]]
 -- *** sql query: end
-	, "//additions/reject/"
-	, {req_uid = uid, doc_id = doc_id})
+	, "//additions/reject", {req_uid = uid, doc_id = doc_id})
     end
     )
 end
 
 local function personalize(data)
     local p = {}
-    local x = {u = {}, chan = {}, t = {}, e = {}}
+    local idx_users = {}
+    local idx_channels = {}
+    local idx_types = {}
+    local idx_heads = {}
 
     for i, v in ipairs(data.rows) do
 	v.row_no = i
@@ -140,17 +156,17 @@ local function personalize(data)
 	    v.photos = core.split(v.photos,'|')
         end
 
-	x.u[v.user_id] = 1
-	if v.addition_type_id ~= nil then x.t[v.addition_type_id] = 1; end
-	if v.chan_id ~= nil then x.chan[v.chan_id] = 1; end
-	if v.head_id ~= nil then x.e[v.head_id] = 1; end
+	idx_users[v.user_id] = 1
+	if v.addition_type_id ~= nil then idx_types[v.addition_type_id] = 1; end
+	if v.chan_id ~= nil then idx_channels[v.chan_id] = 1; end
+	if v.head_id ~= nil then idx_heads[v.head_id] = 1; end
     end
 
     p.rows = data.rows
-    p.users = core.reduce(data.users, 'user_id', x.u)
-    p.heads = core.reduce(data.users, 'user_id', x.e)
-    p.channels = core.reduce(data.channels, 'chan_id', x.chan)
-    p.types = core.reduce(data.types, 'addition_type_id', x.t)
+    p.users = core.reduce(data.users, 'user_id', idx_users)
+    p.heads = core.reduce(data.users, 'user_id', idx_heads)
+    p.channels = core.reduce(data.channels, 'chan_id', idx_channels)
+    p.types = core.reduce(data.types, 'addition_type_id', idx_types)
 
     return p
 end
@@ -168,7 +184,7 @@ function M.scripts(lang, permtb, sestb, params)
 end
 
 function M.startup(lang, permtb, sestb, params, stor)
-    return  "startup(_('pluginCore')," .. json.encode(permtb) .. ");"
+    return string.format("startup(_('pluginCore'),%s);", json.encode(permtb));
 end
 
 function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor, res)
@@ -176,7 +192,7 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
     if method == "GET" then
 	if params.blob ~= nil then
 	    -- validate input data
-	    assert(validate.isuid(params.blob_id), string.format("function %s() invalid blob_id.", debug.getinfo(1,"n").name))
+	    assert(validate.isuid(params.blob_id), "invalid [blob_id] parameter.")
 	    -- execute query
 	    tb, err = photo(stor, params.blob_id)
 	    if err then
@@ -204,8 +220,8 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
 	end
     elseif method == "PUT" then
 	-- validate input data
-	assert(permtb.validate ~= nil and permtb.validate == true, string.format("function %s() operation does not permitted.", debug.getinfo(1,"n").name))
-	assert(validate.isuid(params.doc_id), string.format("function %s() invalid doc_id.", debug.getinfo(1,"n").name))
+	assert(permtb.validate ~= nil and permtb.validate == true, "operation does not permitted.")
+	assert(validate.isuid(params.doc_id), "invalid [doc_id] parameter.")
 	-- execute query
 	accept(stor, sestb.erpid or sestb.username, params.doc_id)
 	if err then
@@ -217,8 +233,8 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
 	end
     elseif method == "DELETE" then
 	-- validate input data
-	assert(permtb.reject ~= nil and permtb.reject == true, string.format("function %s() operation does not permitted.", debug.getinfo(1,"n").name))
-	assert(validate.isuid(params.doc_id), string.format("function %s() invalid doc_id.", debug.getinfo(1,"n").name))
+	assert(permtb.reject ~= nil and permtb.reject == true, "operation does not permitted.")
+	assert(validate.isuid(params.doc_id), "invalid [doc_id] parameter.")
 	-- execute query
 	reject(stor, sestb.erpid or sestb.username, params.doc_id)
 	if err then
