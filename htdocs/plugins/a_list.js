@@ -26,8 +26,8 @@ var __a_list = (function() {
 	for( var i = 0, size = Array.isArray(data.rows) ? data.rows.length : 0; i < size; i++ ) {
 	    r = data.rows[i];
 	    k = "{0}${1}${2}".format_a(u_id, G.getdate(date), r.row_id);
-	    ar.push("<tr style='cursor:pointer'", (typeof checked != 'undefined' && checked[k]) ? "class='selected' " : "", 
-		" onclick=\"__a_list.checkrow(this,'", k, "')\">");
+	    ar.push("<tr class='clickable", (typeof checked != 'undefined' && checked[k]) ? " selected" : "", 
+		"' onclick=\"__a_list.checkrow(this,'", k, "')\">");
 	    ar.push("<td class='autoincrement'>", r.row_no, "</td>");
 	    ar.push("<td class='datetime'>", G.getdatetime_l(Date.parseISO8601(r.fix_dt)), "</td>");
 	    ar.push("<td class='datetime'>", (r.satellite_dt == "" ? "" : G.getdatetime_l(Date.parseISO8601(r.satellite_dt))), "</td>");
@@ -42,7 +42,7 @@ var __a_list = (function() {
 	    ar = ["<tr class='def'><td colspan='", _columns, "' class='message'>", lang.empty, "</td></tr>"];
 	}
 	if( typeof data.data_ts == 'string' ) {
-	    ar.push("<tr class='def'><td colspan='", _columns, "' class='watermark'>", lang.data_watermark, "&nbsp;", data.data_ts, "</td></tr>");
+	    ar.push("<tr class='def'><td colspan='", _columns, "' class='watermark'>", lang.data_ts, "&nbsp;", data.data_ts, "</td></tr>");
 	}
 	return ar;
     }
