@@ -1,7 +1,7 @@
 # Copyright (c) 2006 - 2019 omobus-console authors, see the included COPYRIGHT file.
 
 PACKAGE_NAME 	= omobus-console
-PACKAGE_VERSION = 3.4.46
+PACKAGE_VERSION = 3.4.47
 COPYRIGHT 	= Copyright (c) 2006 - 2019 ak obs, ltd. <info@omobus.net>
 SUPPORT 	= Support and bug reports: <support@omobus.net>
 AUTHOR		= Author: Igor Artemov <i_artemov@omobus.net>
@@ -22,10 +22,11 @@ all:
 
 distr:
 	$(INSTALL) -d $(DISTR_NAME)
-	$(INSTALL) -m 0644 *.lua *.sh *.htm *.service Makefile* ChangeLog AUTHO* COPY* README* $(DISTR_NAME)
+	$(INSTALL) -m 0644 *.lua *.sh *.htm Makefile* ChangeLog AUTHO* COPY* README* $(DISTR_NAME)
 	$(CP) -r plugins/ ./$(DISTR_NAME)
 	$(CP) -r roles/ ./$(DISTR_NAME)
 	$(CP) -r htdocs/ ./$(DISTR_NAME)
+	$(CP) -r systemd/ ./$(DISTR_NAME)
 	$(TAR) ./$(DISTR_NAME).tar ./$(DISTR_NAME)
 	$(BZIP) ./$(DISTR_NAME).tar
 	$(RM) -f -r ./$(DISTR_NAME)
@@ -38,5 +39,5 @@ install:
 	$(CP) -r htdocs/ $(ETC_PATH)
 	$(CHOWN) -v omobus:omobus $(ETC_PATH)
 	$(CHOWN) -Rv omobus:omobus $(ETC_PATH)/*
-	$(INSTALL) -m 0644 *.service /etc/systemd/system
+	$(INSTALL) -m 0644 systemd/*.service /etc/systemd/system
 	$(CHOWN) root:root /etc/systemd/system/omobus-console.service
