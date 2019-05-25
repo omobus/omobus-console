@@ -17,7 +17,7 @@ var PLUG = (function() {
 	ar.push("<span>", lang.routes.title1, "</span>&nbsp;");
 	ar.push("<a id='plugCycle' href='javascript:void(0);' onclick='PLUG.cycles(this)'>[&nbsp;-&nbsp;]</a><span id='plugTotal'></span>");
 	ar.push("</h1></td><td class='r'>");
-	ar.push("<span>", lang.get_watermark, "</span>&nbsp;<span id='timestamp'>&nbsp;-&nbsp;</span>");
+	ar.push("<span>", lang.received_ts, "</span>&nbsp;<span id='timestamp'>&nbsp;-&nbsp;</span>");
 	ar.push("&nbsp;(<a href='javascript:void(0);' onclick='PLUG.refresh();'>", lang.refresh, "</a>)");
 	ar.push("<span id='usersFilter'>&nbsp&nbsp;|&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.users(this, 0.8)'>", lang.u_everyone, "</a></span>");
 	if( perm.add ) {
@@ -157,7 +157,7 @@ var PLUG = (function() {
 		    var style = (r.hidden || r.locked ? " strikethrough attention" : "");
 		    style += (r._code == 'route' ? "" : " disabled");
 		    ar.push("<tr", (objcache.getchecked(r.row_id) ? " class='selected'" : ""), ">");
-		    ar.push("<td style='cursor:pointer' class='autoincrement' onclick=\"PLUG.checkrow(this.parentNode,'" + 
+		    ar.push("<td class='autoincrement clickable' onclick=\"PLUG.checkrow(this.parentNode,'" + 
 			r.row_id + "');event.stopPropagation();\">", r._row_no, "</td>");
 		    ar.push("<td class='int'><a href='javascript:void(0);' onclick='PLUG.more(this, " + i + ")'>", 
 			r.a_code, "</a></td>");
@@ -410,7 +410,7 @@ var PLUG = (function() {
 	ar.push("<br/>");
 	if( !String.isEmpty(r.author) ) {
 	    ar.push("<div class='watermark'>", "{0}:&nbsp;{1}. {2}&nbsp;{3}".format_a(
-		lang.author, r.author, lang.data_watermark, r.updated_ts), "</div>");
+		lang.author, r.author, lang.data_ts, r.updated_ts), "</div>");
 	}
 	return ar;
     }

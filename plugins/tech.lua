@@ -73,7 +73,7 @@ local function dataL0(stor, permtb, sestb, date)
 [[
 select content_ts, content_type, content_compress, content_blob from content_get('tech', '', %fix_date%, %fix_date%)
 ]]
-	    , "//tech/content/"
+	    , "//tech/content"
 	    , {fix_date=date}
 	)
 	if (err == nil or err == false) and tb ~= nil and #tb == 1 then
@@ -83,7 +83,7 @@ select content_ts, content_type, content_compress, content_blob from content_get
 [[
 select my_staff user_id from my_staff(%user_id%, 1::bool_t)
 ]]
-		    , "//tech/F.my_staff/"
+		    , "//tech/F.my_staff"
 		    , {user_id = sestb.erpid}
 		)
 		tb.indirect_staff, err = func_execute(tran,
@@ -100,7 +100,7 @@ select distinct user_id from (
     select account_id from (select expand_cities(city_id) city_id from my_cities where user_id in (select my_staff(%user_id%, 1::bool_t))) c, accounts a where c.city_id=a.city_id
 ) and user_id not in (select my_staff(%user_id%, 1::bool_t))
 ]]
-		    , "//tech/F.indirect_staff/"
+		    , "//tech/F.indirect_staff"
 		    , {user_id = sestb.erpid, fix_date = date}
 		)
 	    elseif sestb.distributor ~= nil then
@@ -109,7 +109,7 @@ select distinct user_id from (
 select user_id from users
     where distr_ids && string_to_array(%distr_id%,',')::uids_t
 ]]
-		    , "//tech/F.my_staff/"
+		    , "//tech/F.my_staff"
 		    , {distr_id = sestb.distributor}
 		)
 	    elseif sestb.agency ~= nil then
@@ -118,7 +118,7 @@ select user_id from users
 select user_id from users
     where agency_id=any(string_to_array(%agency_id%,','))
 ]]
-		    , "//tech/F.my_staff/"
+		    , "//tech/F.my_staff"
 		    , {agency_id = sestb.agency}
 		)
 	    else
@@ -140,7 +140,7 @@ local function dataL1(stor, permtb, sestb, code, user_id, date)
 [[
 select content_ts, content_type, content_compress, content_blob from content_get(%content_code%, %user_id%, %fix_date%, %fix_date%)
 ]]
-	    , "//tech/content/"
+	    , "//tech/content"
 	    , {content_code=code, user_id=user_id, fix_date=date}
 	)
 	if (err == nil or err == false) and tb ~= nil and #tb == 1 then
@@ -153,7 +153,7 @@ select content_ts, content_type, content_compress, content_blob from content_get
 select count(*) exist from my_staff(%user_id%, 1::bool_t)
     where my_staff = %code%
 ]]
-		    , "//tech/exist.my_staff/"
+		    , "//tech/exist.my_staff"
 		    , {user_id = sestb.erpid, code = user_id}
 		)
 		if (err == nil or err == false) and xx ~= nil and #xx == 1 and xx[1].exist > 0 then
@@ -169,7 +169,7 @@ select count(*) exist from j_user_activities where fix_date=%fix_date% and user_
     select account_id from (select expand_cities(city_id) city_id from my_cities where user_id in (select my_staff(%user_id%, 1::bool_t))) c, accounts a where c.city_id=a.city_id
 )
 ]]
-			, "//tech/exist.indirect_staff/"
+			, "//tech/exist.indirect_staff"
 			, {user_id = sestb.erpid, fix_date=date, code = user_id}
 		    )
 		    if (err == nil or err == false) and xx ~= nil and #xx == 1 and xx[1].exist then
@@ -186,7 +186,7 @@ select account_id from my_regions r, accounts a where r.user_id in (select my_st
     union
 select account_id from (select expand_cities(city_id) city_id from my_cities where user_id in (select my_staff(%user_id%, 1::bool_t))) c, accounts a where c.city_id=a.city_id
 ]]
-			, "//tech/F.my_habitat/"
+			, "//tech/F.my_habitat"
 			, {user_id = sestb.erpid}
 		    )
 		end
@@ -196,7 +196,7 @@ select account_id from (select expand_cities(city_id) city_id from my_cities whe
 select count(*) exist from users
     where distr_ids && string_to_array(%distr_id%,',')::uids_t and user_id = %code%
 ]]
-		    , "//tech/exist.my_staff/"
+		    , "//tech/exist.my_staff"
 		    , {distr_id = sestb.distributor, code = user_id}
 		)
 		if (err == nil or err == false) and xx ~= nil and #xx == 1 and xx[1].exist > 0 then
@@ -208,7 +208,7 @@ select count(*) exist from users
 select count(*) exist from users
     where agency_id=any(string_to_array(%agency_id%,',')) and user_id = %code%
 ]]
-		    , "//tech/exist.my_staff/"
+		    , "//tech/exist.my_staff"
 		    , {agency_id = sestb.agency, code = user_id}
 		)
 		if (err == nil or err == false) and xx ~= nil and #xx == 1 and xx[1].exist > 0 then
@@ -223,7 +223,7 @@ select count(*) exist from users
 [[
 select guid, zstatus, znote from j_user_activities where user_id = %user_id% and fix_date = %fix_date%
 ]]
-		    , "//tech/zstatus/"
+		    , "//tech/zstatus"
 		    , {user_id=user_id, fix_date=date}
 		)
 	    end
@@ -241,7 +241,7 @@ local function photo(stor, blob_id)
 [[
 select photo_get(%blob_id%::blob_t) photo
 ]]
-	, "//tech/photo/"
+	, "//tech/photo"
 	, { blob_id = blob_id })
     end
     )
@@ -252,7 +252,7 @@ local function thumb(stor, blob_id)
 [[
 select thumb_get(%blob_id%::blob_t) photo
 ]]
-	, "//tech/thumb/"
+	, "//tech/thumb"
 	, {blob_id = blob_id})
     end
     )
@@ -264,7 +264,7 @@ local function target(stor, uid, params)
 [[
 select console.req_target(%req_uid%, (%doc_id%, %sub%, %msg%, %strict%::bool_t)::console.target_at_t) target_id
 ]]
-	, "//tech/new_target/"
+	, "//tech/new_target"
 	, params)
     end, false
     )
@@ -275,7 +275,7 @@ local function zstatus(stor, uid, cmd, guid, note)
 [[
 select console.req_zstatus(%req_uid%, %cmd%, %guid%, %msg%) zrows
 ]]
-	, "//tech/zstatus/"
+	, "//tech/zstatus"
 	, {req_uid = uid, cmd = cmd, guid = guid, msg = note or stor.NULL})
     end, false
     )
@@ -479,7 +479,6 @@ function M.startup(lang, permtb, sestb, params, stor)
 end
 
 function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor, res)
-    local fn = debug.getinfo(1,"n").name
     local tb, err, x
     if method == "GET" then
 	if params.calendar ~= nil then
@@ -495,7 +494,7 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
 		scgi.writeBody(res, json.encode(recompile_calendar(tb)))
 	    end
 	elseif params.blob ~= nil then
-	    assert(validate.isuid(params.blob_id), string.format("function %s() invalid blob_id.", fn))
+	    assert(validate.isuid(params.blob_id), "invalid [blob_id] parameter.")
 	    tb, err = params.thumb == nil and photo(stor, params.blob_id) or thumb(stor, params.blob_id)
 	    if err then
 		scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
@@ -508,8 +507,8 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
 		scgi.writeBody(res, tb[1].photo)
 	    end
 	elseif params.code == "tech" then
-	    assert(validate.isuid(params.code), string.format("function %s() unknown [code].", fn))
-	    assert(validate.isdate(params.date), string.format("function %s() invalid [date].", fn))
+	    assert(validate.isuid(params.code), "invalid [code] parameter.")
+	    assert(validate.isdate(params.date), "invalid [date] parameter.")
 	    tb, err = dataL0(stor, permtb, sestb, params.date)
 	    if err then
 		scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
@@ -525,9 +524,9 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
 		scgi.writeBody(res, compress(json.encode(personalizeL0(json.decode(decompress(tb.content_blob, tb.content_compress)), tb.my_staff, tb.indirect_staff))))
 	    end
 	else
-	    assert(validate.isuid(params.code), string.format("function %s() unknown [code].", fn))
-	    assert(validate.isuid(params.user_id), string.format("function %s() invalid [user_id].", fn))
-	    assert(validate.isdate(params.date), string.format("function %s() invalid [date].", fn))
+	    assert(validate.isuid(params.code), "invalid [code] parameter.")
+	    assert(validate.isuid(params.user_id), "invalid [user_id] parameter.")
+	    assert(validate.isdate(params.date), "invalid [date] parameter.")
 	    local tb, err = dataL1(stor, permtb, sestb, params.code, params.user_id, params.date)
 	    if err then
 		scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
@@ -553,9 +552,9 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
 	if permtb.target == true then
 	    local p, tb, err
 	    if type(content) == "string" then p = uri.parseQuery(content) end
-	    assert(p.sub ~= nil and #p.sub, string.format("function %s() invalid target subject.", fn))
-	    assert(p.msg ~= nil and #p.msg, string.format("function %s() invalid target body.", fn))
-	    assert(validate.isuid(p.doc_id), string.format("function %s() invalid doc_id.", fn))
+	    assert(p.sub ~= nil and #p.sub, "invalid [subject] parameter.")
+	    assert(p.msg ~= nil and #p.msg, "invalid [body] parameter.")
+	    assert(validate.isuid(p.doc_id), "invalid [doc_id] parameter.")
 	    p.strict = p.strict == 'true' and 1 or 0
 	    tb, err = target(stor, sestb.erpid or sestb.username, p)
 	    if err then
@@ -576,7 +575,7 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
 	if permtb.zstatus == true then
 	    local p, tb, err
 	    if type(content) == "string" then p = uri.parseQuery(content) end
-	    assert(validate.isuid(p.guid), string.format("function %s() invalid guid.", fn))
+	    assert(validate.isuid(p.guid), "invalid [guid] parameter.")
 	    tb, err = zstatus(stor, sestb.erpid or sestb.username, 'accept', p.guid, p.note)
 	    if err then
 		scgi.writeHeader(res, 500, {["Content-Type"] = mime.json .. "; charset=utf-8"})
@@ -596,8 +595,8 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
 	if permtb.zstatus == true then
 	    local p, tb, err
 	    if type(content) == "string" then p = uri.parseQuery(content) end
-	    assert(validate.isuid(p.guid), string.format("function %s() invalid guid.", fn))
-	    assert(p.note ~= nil and #p.note, string.format("function %s() invalid note.", fn))
+	    assert(validate.isuid(p.guid), "invalid [guid] parameter.")
+	    assert(p.note ~= nil and #p.note, "invalid [note] parameter.")
 	    tb, err = zstatus(stor, sestb.erpid or sestb.username, 'reject', p.guid, p.note)
 	    if err then
 		scgi.writeHeader(res, 500, {["Content-Type"] = mime.json .. "; charset=utf-8"})

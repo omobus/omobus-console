@@ -36,7 +36,7 @@ var PLUG = (function() {
 	return "<table class='headerbar' width='100%'><tr><td><h1>" + lang.cancellations.title + "&nbsp;<a id='plugmonth' "+
 	    "href='javascript:PLUG.calendar.onshow();'>[&nbsp;-&nbsp;]</a>:&nbsp;&nbsp;<input id='plugfilter' type='text' " +
 	    "placeholder='" + lang.everything + "' onkeyup='return PLUG.onfilter(this, event);' /></h1></td><td " +
-	    "style='text-align: right;'>" + lang.get_watermark + "&nbsp;<span id='timestamp'>&nbsp;-&nbsp;</span>&nbsp;(" +
+	    "style='text-align: right;'>" + lang.received_ts + "&nbsp;<span id='timestamp'>&nbsp;-&nbsp;</span>&nbsp;(" +
 	    "<a id='refresh' href='javascript:PLUG.onrefresh();'>" + lang.refresh + "</a>)" +
 	    (perm.add != null?("&nbsp&nbsp;|&nbsp;&nbsp;<a href='javascript:PLUG.add();'>" + lang.cancellations.title2 + "</a>"):"") +
 	    "</td></tr></table>" +

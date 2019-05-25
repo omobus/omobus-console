@@ -410,7 +410,7 @@ var PLUG = (function() {
 		    _setcaldate(date);
 		    _dropcache();
 		    _setdataordet();
-		    history.pushState({date: _cache.date}, "", G.getref({plug: _code, date: G.getdate(_cache.date)}));
+		    history.replaceState({date: _cache.date}, "", G.getref({plug: _code, date: G.getdate(_cache.date)}));
 		}, {date: _cache.date, uri: G.getajax({plug: _code, calendar: true})})
 	    });
 	},

@@ -17,7 +17,7 @@ var PLUG = (function() {
     function _getbody(perm) {
 	return "<table class='headerbar' width='100%'><tr><td><h1>" + lang.discards.title + ":&nbsp;&nbsp;<input id='plugfilter' " +
 	    "type='text' placeholder='" + lang.everything + "' onkeyup='return PLUG.onfilter(this, event);'/></h1></td>" +
-	    "<td style='text-align: right;'>" + lang.get_watermark + "&nbsp;<span id='timestamp'>-</span>&nbsp;(<a id='refresh' " +
+	    "<td style='text-align: right;'>" + lang.received_ts + "&nbsp;<span id='timestamp'>-</span>&nbsp;(<a id='refresh' " +
 	    "href='javascript:PLUG.onrefresh();'>" + lang.refresh + "</a>)</td></tr></table>" +
 	    "<table width='100%' class='report'><thead><tr>" + 
 	    "<th rowspan='2' class='autoincrement'>" + lang.num + "</th>" + 

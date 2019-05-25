@@ -35,7 +35,7 @@ var PLUG = (function() {
     function _getbody(perm) {
 	return "<table class='headerbar' width='100%'><tr><td><h1>" + lang.training_materials.title + ":&nbsp;&nbsp;" +
 	    "<input id='plugfilter' type='text' placeholder='" + lang.everything + "' onkeyup='return PLUG.onfilter(this, event);' />" +
-	    "</h1></td><td style='text-align: right;'>" + lang.get_watermark + "&nbsp;<span id='timestamp'>&nbsp;-&nbsp;</span>&nbsp;" +
+	    "</h1></td><td style='text-align: right;'>" + lang.received_ts + "&nbsp;<span id='timestamp'>&nbsp;-&nbsp;</span>&nbsp;" +
 	    "(<a href='javascript:PLUG.onrefresh();'>" + lang.refresh  + "</a>)" +
 	    (perm.add != null?("&nbsp&nbsp;|&nbsp;&nbsp;<a href='javascript:PLUG.add();'>" + lang.training_materials.add + "</a>"):"") +
 	    "</td></tr></table>" +

@@ -21,7 +21,7 @@ var PLUG = (function() {
 	ar.push("<span>", R.title1, "</span>&nbsp;");
 	ar.push("<a id='plugCal' href='javascript:void(0);' onclick='PLUG.calendar(this)'>[&nbsp;-&nbsp;]</a>");
 	ar.push("</h1></td><td class='r'>");
-	ar.push("<span>", lang.get_watermark, "</span>&nbsp;<span id='timestamp'>&nbsp;-&nbsp;</span>");
+	ar.push("<span>", lang.received_ts, "</span>&nbsp;<span id='timestamp'>&nbsp;-&nbsp;</span>");
 	ar.push("&nbsp;(<a href='javascript:void(0);' onclick='PLUG.refresh();'>", lang.refresh, "</a>)");
 	ar.push("<span id='plugTotal'></span>");
 	if( perm.csv ) {
@@ -100,7 +100,7 @@ var PLUG = (function() {
 		if( r.violations.gps ) { fn.push(lang.violations.gps); }
 		if( r.violations.tm ) { fn.push(lang.violations.tm); }
 		ar.push("<tr" + (typeof checked != 'undefined' && checked[r.user_id] ? " class='selected'" : "") + ">");
-		ar.push("<td style='cursor:pointer' class='autoincrement' onclick='PLUG.checkrow(this.parentNode,\"" +
+		ar.push("<td class='autoincrement clickable' onclick='PLUG.checkrow(this.parentNode,\"" +
 		    r.user_id + "\");event.stopPropagation();'>", r.row_no, "</td>");
 		ar.push("<td class='string", violations, disabled, fn.isEmpty() ? "'>" : ("' data-title='" + fn.join(" + ") + "'>"), 
 		    G.shielding(r.u_name), "</td>");
@@ -163,12 +163,12 @@ var PLUG = (function() {
 	    ar = _datamsg(lang.empty, perm);
 	}
 	if( typeof data.data_ts == 'string' ) {
-	    ar.push("<tr class='def'><td colspan='", _getcolumns(perm),"' class='watermark'>", lang.data_watermark, "&nbsp;", data.data_ts, "</td></tr>");
+	    ar.push("<tr class='def'><td colspan='", _getcolumns(perm),"' class='watermark'>", lang.data_ts, "&nbsp;", data.data_ts, "</td></tr>");
 	}
 	return ar;
     }
 
-    function _setdata() {
+    function _datareq() {
 	var sp;
 	_tags.tbody.hide();
 	_tags.total.html("");
@@ -228,23 +228,23 @@ var PLUG = (function() {
 	    _tags.rule1 = _("rule1");
 	    _tags.rule2 = _("rule2");
 	    _tags.popup = DaysPopup(function(date) {
-		    _setcaldate(date); _dropcache(); _setdata();
-		    history.pushState({date: _cache.date}, "", G.getref({plug: _code, date: G.getdate(_cache.date)}));
+		    _setcaldate(date); _dropcache(); _datareq();
+		    history.replaceState({date: _cache.date}, "", G.getref({plug: _code, date: G.getdate(_cache.date)}));
 		}, {date: date, uri: G.getajax({plug: _code, calendar: true})});
 	    _perm = perm;
 	    _setcaldate(date);
-	    _setdata();
+	    _datareq();
 	},
 	refresh: function() {
 	    _dropcache();
-	    _setdata();
+	    _datareq();
 	    _tags.popup.dropCache();
 	    _tags.popup.hide();
 	},
 	navigate: function(date) {
 	    _tags.popup.hide();
 	    _setcaldate(date);
-	    _setdata();
+	    _datareq();
 	},
 	filter: function(tag, ev) {
 	    return Filter.onkeyup(tag, ev, function() {

@@ -17,7 +17,7 @@ var PLUG = (function() {
 	ar.push("<table class='headerbar' width='100%'><tr><td><h1>");
 	ar.push("<span>", lang.targets_compliance.title, "</span>");
 	ar.push("</h1></td><td class='r'>");
-	ar.push("<span>", lang.get_watermark, "</span>&nbsp;<span id='timestamp'>&nbsp;-&nbsp;</span>");
+	ar.push("<span>", lang.received_ts, "</span>&nbsp;<span id='timestamp'>&nbsp;-&nbsp;</span>");
 	ar.push("&nbsp;(<a href='javascript:void(0);' onclick='PLUG.refresh();'>", lang.refresh, "</a>)<span id='plugTotal'></span>");
 	if( perm.csv ) {
 	    ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.csv(this)'>", lang.export.csv, "</a>");
@@ -140,7 +140,7 @@ var PLUG = (function() {
 			});
 		    }
 		    ar.push("<tr" + (typeof checked != 'undefined' && checked[r.row_id] ? " class='selected'" : "") + ">");
-		    ar.push("<td style='cursor:pointer' class='autoincrement" + (r.myself?" attention footnote":"") + "' onclick=\"PLUG.checkrow(this.parentNode,'" +
+		    ar.push("<td class='autoincrement clickable" + (r.myself?" attention footnote":"") + "' onclick=\"PLUG.checkrow(this.parentNode,'" +
 			r.row_id + "');event.stopPropagation();\"" + (r.myself?(" data-title='" + lang.targets_compliance.myself + "'"):"") + ">", r.row_no, "</td>");
 		    ar.push("<td class='string sw95px'>", G.shielding(r.author_name), "</td>");
 		    ar.push("<td class='int'>", G.shielding(r.a_code), "</td>");
@@ -242,7 +242,7 @@ var PLUG = (function() {
 	    ar = _datamsg(lang.empty, perm);
 	}
 	if( typeof data.data_ts == 'string' ) {
-	    ar.push("<tr class='def'><td colspan='" + _getcolumns(perm) + "' class='watermark'>" + lang.data_watermark + 
+	    ar.push("<tr class='def'><td colspan='" + _getcolumns(perm) + "' class='watermark'>" + lang.data_ts + 
 		"&nbsp;" + data.data_ts + "</td></tr>");
 	}
 	if( (z = Math.floor(x/perm.rows) + ((x%perm.rows)?1:0)) > 1 /*pages: */ ) {
@@ -279,7 +279,7 @@ var PLUG = (function() {
 	return ar;
     }
 
-    function _setdata() {
+    function _datareq() {
 	var sp;
 	_tags.tbody.hide();
 	_tags.total.html("");
@@ -371,7 +371,7 @@ var PLUG = (function() {
 	    _tags.more = new Popup();
 	    _tags.popups = {};
 	    _cache.targets = {};
-	    _setdata();
+	    _datareq();
 	},
 	refresh: function() {
 	    if( _today != null ) {
@@ -380,9 +380,10 @@ var PLUG = (function() {
 	    _togglePopup();
 	    _tags.popups = {};
 	    _tags.more.hide();
-	    _setdata();
+	    _datareq();
 	},
 	filter: function(tag, ev) {
+	    _togglePopup();
 	    return Filter.onkeyup(tag, ev, function() {
 		_page(1);
 	    });

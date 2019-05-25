@@ -19,7 +19,7 @@ var PLUG = (function() {
 	ar.push("<span>", lang.shelfs.title1, "</span>&nbsp;");
 	ar.push("<a id='plugCal' href='javascript:void(0);' onclick='PLUG.calendar(this)'>[&nbsp;-&nbsp;]</a>");
 	ar.push("</h1></td><td class='r'>");
-	ar.push("<span>", lang.get_watermark, "</span>&nbsp;<span id='timestamp'>&nbsp;-&nbsp;</span>");
+	ar.push("<span>", lang.received_ts, "</span>&nbsp;<span id='timestamp'>&nbsp;-&nbsp;</span>");
 	ar.push("&nbsp;(<a href='javascript:void(0);' onclick='PLUG.refresh();'>", lang.refresh, "</a>)<span id='plugTotal'></span>");
 	if( perm.csv ) {
 	    ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.csv(this)'>", lang.export.csv, "</a>");
@@ -138,7 +138,7 @@ var PLUG = (function() {
 	    if( (r = data.rows[i]) != null && f.is(r) ) {
 		if( (page-1)*perm.rows <= x && x < page*perm.rows ) {
 		    ar.push("<tr" + (typeof checked != 'undefined' && checked[r.row_id] ? " class='selected'" : "") + ">");
-		    ar.push("<td style='cursor:pointer' class='autoincrement' onclick=\"PLUG.checkrow(this.parentNode,'" +
+		    ar.push("<td class='autoincrement clickable' onclick=\"PLUG.checkrow(this.parentNode,'" +
 			r.row_id + "');event.stopPropagation();\">", r.row_no, "</td>");
 		    ar.push("<td class='date delim'>", G.getdatetime_l(Date.parseISO8601(r.fix_dt)), "</td>");
 		    ar.push("<td class='string sw95px delim'>", G.shielding(r.u_name), "</td>");
@@ -194,7 +194,7 @@ var PLUG = (function() {
 	    ar = _datamsg(lang.empty, perm);
 	}
 	if( typeof data.data_ts == 'string' ) {
-	    ar.push("<tr class='def'><td colspan='" + _getcolumns(perm) + "' class='watermark'>" + lang.data_watermark + 
+	    ar.push("<tr class='def'><td colspan='" + _getcolumns(perm) + "' class='watermark'>" + lang.data_ts + 
 		"&nbsp;" + data.data_ts + "</td></tr>");
 	}
 	if( (z = Math.floor(x/perm.rows) + ((x%perm.rows)?1:0)) > 1 /*pages: */ ) {
@@ -231,7 +231,7 @@ var PLUG = (function() {
 	return ar;
     }
 
-    function _setdata(y, m) {
+    function _datareq(y, m) {
 	var sp;
 	_tags.tbody.hide();
 	_tags.total.html("");
@@ -314,14 +314,15 @@ var PLUG = (function() {
 	    _tags.ts = _("timestamp");
 	    _tags.total = _("plugTotal");
 	    _tags.popups = {};
-	    _setdata(y, m);
+	    _datareq(y, m);
 	},
 	refresh: function() {
 	    _togglePopup();
 	    _tags.popups = {};
-	    _setdata(_cache.y, _cache.m);
+	    _datareq(_cache.y, _cache.m);
 	},
 	filter: function(tag, ev) {
+	    _togglePopup();
 	    return Filter.onkeyup(tag, ev, function() {
 		_page(1);
 	    });
@@ -342,8 +343,8 @@ var PLUG = (function() {
 	    _togglePopup("cal", tag, undefined, function(obj) {
 		return MonthsPopup(function(y, m) {
 		    var tmp = _tags.popups[obj];
-		    _setdata(y, m);
-		    history.pushState({y:y, m:m}, "", G.getref({plug: _code, year: y, month: m}));
+		    _datareq(y, m);
+		    history.replaceState({y:y, m:m}, "", G.getref({plug: _code, year: y, month: m}));
 		    _tags.popups = {}; _tags.popups[obj] = tmp;
 		}, {year: _cache.y, month: _cache.m, uri: G.getajax({plug: _code, calendar: true})})
 	    });
@@ -420,10 +421,5 @@ function startup(tag, y, m, perm) {
 }
 
 window.onpopstate = function(event) {
-    if( event.state != null ) {
-	PLUG.refresh(event.state.y, event.state.m);
-    } else {
-	var d = new Date();
-	PLUG.refresh(d.getYear() + 1900, d.getMonth() + 1);
-    }
+    window.location.reload(true);
 }

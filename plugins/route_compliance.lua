@@ -13,13 +13,12 @@ local bzlib = require 'bzlib'
 
 local function calendar(stor)
     return stor.get(function(tran, func_execute) return func_execute(tran,
--- *** sql query: begin
 [[
-select distinct b_date as fix_date from content_stream where content_ts is not null and content_code='route_compliance'
-    order by b_date
+select distinct b_date as fix_date from content_stream 
+    where content_ts is not null and content_code='route_compliance'
+order by b_date
 ]]
--- *** sql query: end
-	, "//route_compliance/calendar/"
+	, "//route_compliance/calendar"
 	)
     end
     )
@@ -34,7 +33,7 @@ local function data(stor, sestb, date)
 [[
 select my_staff user_id from my_staff(%user_id%, 1::bool_t)
 ]]
-		, "//route_compliance/F.users/"
+		, "//route_compliance/F.users"
 		, {user_id = sestb.erpid}
 	    )
 	elseif sestb.distributor ~= nil then
@@ -43,7 +42,7 @@ select my_staff user_id from my_staff(%user_id%, 1::bool_t)
 select user_id from users
     where distr_ids && string_to_array(%distr_id%,',')::uids_t
 ]]
-		, "//route_compliance/F.users/"
+		, "//route_compliance/F.users"
 		, {distr_id = sestb.distributor}
 	    )
 	elseif sestb.agency ~= nil then
@@ -52,7 +51,7 @@ select user_id from users
 select user_id from users
     where agency_id=any(string_to_array(%agency_id%,','))
 ]]
-		, "//route_compliance/F.users/"
+		, "//route_compliance/F.users"
 		, {agency_id = sestb.agency})
 	end
 	if err == nil or err == false then
@@ -60,7 +59,7 @@ select user_id from users
 [[
 select content_ts, content_type, content_compress, content_blob from content_get('route_compliance', '', %b_date%, %e_date%)
 ]]
-		, "//route_compliance/content/"
+		, "//route_compliance/content"
 		, {b_date = date, e_date = date }
 	    )
 	end
@@ -135,7 +134,7 @@ end
 
 function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor, res)
     local tb, err
-    assert(method == "GET", string.format("function %s() %s request is not supported.", debug.getinfo(1,"n").name, method))
+    assert(method == "GET", "%s request is not supported.", method)
     if params.calendar ~= nil then 
 	tb, err = calendar(stor)
 	if err then
@@ -150,7 +149,7 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
 	end
     else
 	-- validate input data
-	assert(validate.isdate(params.date), ">>> PANIC <<< invalid date.")
+	assert(validate.isdate(params.date), "invalid [date] parameter.")
 	-- execute query
 	tb, err = data(stor, sestb, params.date)
 	if err then

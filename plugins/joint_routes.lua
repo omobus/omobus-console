@@ -15,10 +15,11 @@ local core = require 'core'
 local function calendar(stor)
     return stor.get(function(tran, func_execute) return func_execute(tran,
 [[
-select left(b_date, 4) y, substring(b_date, 6, 2) m, rows from content_stream where content_ts is not null and content_code='joint_routes'
-    order by 1 desc, 2 desc
+select left(b_date, 4) y, substring(b_date, 6, 2) m, rows from content_stream 
+    where content_ts is not null and content_code='joint_routes'
+order by 1 desc, 2 desc
 ]]
-	, "//joint_routes/calendar/"
+	, "//joint_routes/calendar"
 	)
     end
     )
@@ -33,7 +34,7 @@ local function data(stor, permtb, sestb, year, month)
 [[
 select my_staff user_id from my_staff(%user_id%, 1::bool_t)
 ]]
-		, "//joint_routes/F.users/"
+		, "//joint_routes/F.users"
 		, {user_id = sestb.erpid}
 	    )
 	elseif sestb.distributor ~= nil then
@@ -42,7 +43,7 @@ select my_staff user_id from my_staff(%user_id%, 1::bool_t)
 select user_id from users
     where distr_ids && string_to_array(%distr_id%,',')::uids_t
 ]]
-		, "//joint_routes/F.users/"
+		, "//joint_routes/F.users"
 		, {distr_id = sestb.distributor}
 	    )
         elseif sestb.agency ~= nil then
@@ -51,15 +52,8 @@ select user_id from users
 select user_id from users
     where agency_id=any(string_to_array(%agency_id%,','))
 ]]
-		, "//joint_routes/F.users/"
+		, "//joint_routes/F.users"
 		, {agency_id = sestb.agency})
-        else
-	    tb._users, err = func_execute(tran,
-[[
-select user_id from users
-]]
-		, "//joint_routes/F.users/"
-	    )
 	end
 	if err == nil or err == false then
 	    tb.users, err = func_execute(tran,
@@ -67,7 +61,7 @@ select user_id from users
 select user_id, descr, dev_login, area, hidden from users
     order by descr
 ]]
-		, "//joint_routes/users/"
+		, "//joint_routes/users"
 	    )
 	end
 	if err == nil or err == false then
@@ -76,7 +70,7 @@ select user_id, descr, dev_login, area, hidden from users
 select content_ts, content_type, content_compress, content_blob from content_get('joint_routes', '', 
     "monthDate_First"('%y%-%m%-01')::date_t, "monthDate_Last"('%y%-%m%-01')::date_t)
 ]]
-		, "//joint_routes/content/"
+		, "//joint_routes/content"
 		, {y = year, m = month}
 	    )
 	end
@@ -106,6 +100,9 @@ end
 
 local function personalize(sestb, data)
     local p = json.decode(decompress(data.content[1].content_blob, data.content[1].content_compress))
+    local idx_employees = {}
+    local idx_authors = {}
+
     if sestb.erpid ~= nil or sestb.distributor ~= nil or sestb.agency ~= nil then
 	local idx, tb = {}, {}
 	if data._users ~= nil then
@@ -115,20 +112,22 @@ local function personalize(sestb, data)
 	end
 	for i, v in ipairs(p.rows) do
 	    if idx[v.employee_id] ~= nil or (sestb.erpid ~= nil and sestb.erpid == v.author_id) then
+		if v.employee_id ~= nil then idx_employees[v.employee_id] = 1; end
+		if v.author_id ~= nil then idx_authors[v.author_id] = 1; end
 		table.insert(tb, v); 
 		v.row_no = #tb
 	    end
 	end
 	p.rows = tb
+    else
+	for i, v in ipairs(p.rows) do
+	    if v.employee_id ~= nil then idx_employees[v.employee_id] = 1; end
+	    if v.author_id ~= nil then idx_authors[v.author_id] = 1; end
+	end
     end
-    -- build filters:
-    local employees, authors = {}, {}
-    for i, v in ipairs(p.rows) do
-	if v.employee_id ~= nil then employees[v.employee_id] = 1; end
-	if v.author_id ~= nil then authors[v.author_id] = 1; end
-    end
-    p.employees = core.reduce(data.users, 'user_id', employees)
-    p.authors = core.reduce(data.users, 'user_id', authors)
+
+    p.employees = core.reduce(data.users, 'user_id', idx_employees)
+    p.authors = core.reduce(data.users, 'user_id', idx_authors)
 
     return json.encode(p)
 end
@@ -145,11 +144,11 @@ function M.scripts(lang, permtb, sestb, params)
 end
 
 function M.startup(lang, permtb, sestb, params, stor)
-    return 
-	((params.year~=nil and params.month~=nil) and "" or "var d = new Date();") ..
-	"startup(_('pluginCore')," ..
-	((params.year~=nil and params.month~=nil) and (params.year..","..params.month..",") or "d.getYear()+1900,d.getMonth()+1,") ..
-	json.encode(permtb) .. ");"
+    if params.year ~= nil and params.month ~=nil then
+	return string.format("startup(_('pluginCore'),%s,%s,%s);", params.year, params.month, json.encode(permtb))
+    else
+	return string.format("var d = new Date();startup(_('pluginCore'),d.getFullYear(),d.getMonth()+1,%s);", json.encode(permtb))
+    end
 end
 
 function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor, res)
@@ -164,16 +163,21 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
 		scgi.writeHeader(res, 200, {["Content-Type"] = mime.json .. "; charset=utf-8"})
 		scgi.writeBody(res, "{}")
 	    else
+		if sestb.erpid ~= nil or sestb.distributor ~= nil or sestb.agency ~= nil then
+		    for _, v in ipairs(tb) do
+			v.rows = nil
+		    end
+		end
 		scgi.writeHeader(res, 200, {["Content-Type"] = mime.json .. "; charset=utf-8"})
 		scgi.writeBody(res, json.encode(tb))
 	    end
 	else
 	    -- validate input data
-	    assert(params.year ~= nil, string.format("function %s() year is undefined.", debug.getinfo(1,"n").name))
-	    assert(params.month ~= nil, string.format("function %s() month is undefined.", debug.getinfo(1,"n").name))
+	    assert(params.year ~= nil, "undefined [year] parameter.")
+	    assert(params.month ~= nil, "undefined [month] parameter.")
 	    params.year = tonumber(params.year)
 	    params.month = tonumber(params.month)
-	    assert(params.month >= 1 and params.month <= 12, string.format("function %s() month should be between 1 and 12.", debug.getinfo(1,"n").name))
+	    assert(params.month >= 1 and params.month <= 12, "[month] parameter should be between 1 and 12.")
 	    -- execute query
 	    tb, err = data(stor, permtb.columns or {}, sestb, params.year, params.month)
 	    if err then

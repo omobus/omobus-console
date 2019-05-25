@@ -179,7 +179,7 @@ var PLUG = (function() {
 	return ar;
     }
 
-    function _setdata() {
+    function _datareq() {
 	var sp;
 	_tags.tbody.hide();
 	_tags.total.html("");
@@ -288,12 +288,12 @@ var PLUG = (function() {
 	    _tags.ts = _("timestamp");
 	    _tags.total = _("plugTotal");
 	    _tags.popups = {};
-	    _setdata();
+	    _datareq();
 	},
 	refresh: function() {
 	    _togglePopup();
 	    _tags.popups = {};
-	    _setdata();
+	    _datareq();
 	},
 	filter: function(tag, ev) {
 	    return Filter.onkeyup(tag, ev, function() {

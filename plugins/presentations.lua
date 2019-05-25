@@ -15,10 +15,11 @@ local core = require 'core'
 local function calendar(stor)
     return stor.get(function(tran, func_execute) return func_execute(tran,
 [[
-select left(b_date, 4) y, substring(b_date, 6, 2) m, rows from content_stream where content_ts is not null and content_code='stat_presentations'
-    order by 1 desc, 2 desc
+select left(b_date, 4) y, substring(b_date, 6, 2) m, rows from content_stream 
+    where content_ts is not null and content_code='stat_presentations'
+order by 1 desc, 2 desc
 ]]
-	, "//presentations/calendar/"
+	, "//presentations/calendar"
 	)
     end
     )
@@ -33,7 +34,7 @@ local function data(stor, permtb, sestb, year, month)
 [[
 select my_staff user_id from my_staff(%user_id%, 1::bool_t)
 ]]
-		, "//presentations/F.users/"
+		, "//presentations/F.users"
 		, {user_id = sestb.erpid}
 	    )
 	    if err == nil or err == false then
@@ -47,7 +48,7 @@ select account_id from my_regions r, accounts a where r.user_id in (select my_st
     union
 select account_id from (select expand_cities(city_id) city_id from my_cities where user_id in (select my_staff(%user_id%, 1::bool_t))) c, accounts a where c.city_id=a.city_id
 ]]
-		    , "//presentations/F.accounts/"
+		    , "//presentations/F.accounts"
 		    , {user_id = sestb.erpid}
 		)
 	    end
@@ -57,7 +58,7 @@ select account_id from (select expand_cities(city_id) city_id from my_cities whe
 select user_id from users
     where distr_ids && string_to_array(%distr_id%,',')::uids_t
 ]]
-		, "//presentations/F.users/"
+		, "//presentations/F.users"
 		, {distr_id = sestb.distributor}
 	    )
         elseif sestb.agency ~= nil then
@@ -66,15 +67,8 @@ select user_id from users
 select user_id from users
     where agency_id=any(string_to_array(%agency_id%,','))
 ]]
-		, "//presentations/F.users/"
+		, "//presentations/F.users"
 		, {agency_id = sestb.agency})
-        else
-	    tb._users, err = func_execute(tran,
-[[
-select user_id from users
-]]
-		, "//presentations/F.users/"
-	    )
 	end
 	if err == nil or err == false then
 	    tb.users, err = func_execute(tran,
@@ -82,7 +76,7 @@ select user_id from users
 select user_id, descr, dev_login, area, hidden from users
     order by descr
 ]]
-		, "//presentations/users/"
+		, "//presentations/users"
 	    )
 	end
 	if permtb.channel == true and (err == nil or err == false) then
@@ -91,7 +85,7 @@ select user_id, descr, dev_login, area, hidden from users
 select chan_id, descr, hidden from channels
     order by descr
 ]]
-		, "//presentations/channels/"
+		, "//presentations/channels"
 	    )
 	end
 	if err == nil or err == false then
@@ -100,7 +94,7 @@ select chan_id, descr, hidden from channels
 select rc_id, descr, ka_code, hidden from retail_chains
     order by descr
 ]]
-		, "//presentations/retail_chains/"
+		, "//presentations/retail_chains"
 	    )
 	end
 	if err == nil or err == false then
@@ -109,7 +103,7 @@ select rc_id, descr, ka_code, hidden from retail_chains
 select tm_id, descr, hidden from training_materials
     order by descr
 ]]
-		, "//presentations/training_materials/"
+		, "//presentations/training_materials"
 	    )
 	end
 	if err == nil or err == false then
@@ -128,7 +122,7 @@ from training_materials m
 where cardinality(m.brand_ids) > 1
     order by 4 nulls first, 6, 2
 ]]
-		, "//presentations/brands/"
+		, "//presentations/brands"
 	    )
 	end
 	if err == nil or err == false then
@@ -137,7 +131,7 @@ where cardinality(m.brand_ids) > 1
 select content_ts, content_type, content_compress, content_blob from content_get('stat_presentations', '', 
     "monthDate_First"('%y%-%m%-01')::date_t, "monthDate_Last"('%y%-%m%-01')::date_t)
 ]]
-		, "//presentations/content/"
+		, "//presentations/content"
 		, {y = year, m = month}
 	    )
 	end
@@ -151,7 +145,7 @@ local function photo(stor, blob_id)
 [[
 select photo_get(%blob_id%::blob_t) photo
 ]]
-	, "//presentations/photo/"
+	, "//presentations/photo"
 	, {blob_id = blob_id})
     end
     )
@@ -163,7 +157,7 @@ local function thumb(stor, blob_id)
 [[
 select thumb_get(%blob_id%::blob_t) photo
 ]]
-	, "//presentations/thumb/"
+	, "//presentations/thumb"
 	, {blob_id = blob_id})
     end
     )
@@ -190,6 +184,13 @@ end
 
 local function personalize(sestb, data)
     local p = json.decode(decompress(data.content[1].content_blob, data.content[1].content_compress))
+    local idx_users = {}
+    local idx_channels = {}
+    local idx_rcs = {}
+    local idx_tms = {}
+    local idx_brands = {}
+    local idx_heads = {}
+
     if sestb.erpid ~= nil or sestb.distributor ~= nil or sestb.agency ~= nil then
 	local idx0, idx1, tb = {}, {}, {}
 	if data._users ~= nil then
@@ -204,28 +205,34 @@ local function personalize(sestb, data)
 	end
 	for i, v in ipairs(p.rows) do
 	    if idx0[v.user_id] ~= nil or idx1[v.account_id] ~= nil then
+		idx_users[v.user_id] = 1
+		if v.chan_id ~= nil then idx_channels[v.chan_id] = 1; end
+		if v.rc_id ~= nil then idx_rcs[v.rc_id] = 1; end
+		if v.tm_id ~= nil then idx_tms[v.tm_id] = 1; end
+		if v.brand_id ~= nil then idx_brands[v.brand_id] = 1; end
+		if v.head_id ~= nil then idx_heads[v.head_id] = 1; end
 		table.insert(tb, v); 
 		v.row_no = #tb
 	    end
 	end
 	p.rows = tb
+    else
+	for i, v in ipairs(p.rows) do
+	    idx_users[v.user_id] = 1
+	    if v.chan_id ~= nil then idx_channels[v.chan_id] = 1; end
+	    if v.rc_id ~= nil then idx_rcs[v.rc_id] = 1; end
+	    if v.tm_id ~= nil then idx_tms[v.tm_id] = 1; end
+	    if v.brand_id ~= nil then idx_brands[v.brand_id] = 1; end
+	    if v.head_id ~= nil then idx_heads[v.head_id] = 1; end
+	end
     end
-    -- build filters:
-    local x = {u = {}, chan = {}, rc = {}, m = {}, b = {}, e = {}}
-    for i, v in ipairs(p.rows) do
-	x.u[v.user_id] = 1
-	if v.chan_id ~= nil then x.chan[v.chan_id] = 1; end
-	if v.rc_id ~= nil then x.rc[v.rc_id] = 1; end
-	if v.tm_id ~= nil then x.m[v.tm_id] = 1; end
-	if v.brand_id ~= nil then x.b[v.brand_id] = 1; end
-	if v.head_id ~= nil then x.e[v.head_id] = 1; end
-    end
-    p.users = core.reduce(data.users, 'user_id', x.u)
-    p.heads = core.reduce(data.users, 'user_id', x.e)
-    p.channels = core.reduce(data.channels, 'chan_id', x.chan)
-    p.retail_chains = core.reduce(data.retail_chains, 'rc_id', x.rc)
-    p.tms = core.reduce(data.tms, 'tm_id', x.m)
-    p.brands = core.reduce(data.brands, 'brand_id', x.b)
+
+    p.users = core.reduce(data.users, 'user_id', idx_users)
+    p.heads = core.reduce(data.users, 'user_id', idx_heads)
+    p.channels = core.reduce(data.channels, 'chan_id', idx_channels)
+    p.retail_chains = core.reduce(data.retail_chains, 'rc_id', idx_rcs)
+    p.tms = core.reduce(data.tms, 'tm_id', idx_tms)
+    p.brands = core.reduce(data.brands, 'brand_id', idx_brands)
 
     return json.encode(p)
 end
@@ -249,11 +256,11 @@ function M.scripts(lang, permtb, sestb, params)
 end
 
 function M.startup(lang, permtb, sestb, params, stor)
-    return 
-	((params.year~=nil and params.month~=nil) and "" or "var d = new Date();") ..
-	"startup(_('pluginCore')," ..
-	((params.year~=nil and params.month~=nil) and (params.year..","..params.month..",") or "d.getYear()+1900,d.getMonth()+1,") ..
-	json.encode(permtb) .. ");"
+    if params.year ~= nil and params.month ~=nil then
+	return string.format("startup(_('pluginCore'),%s,%s,%s);", params.year, params.month, json.encode(permtb))
+    else
+	return string.format("var d = new Date();startup(_('pluginCore'),d.getFullYear(),d.getMonth()+1,%s);", json.encode(permtb))
+    end
 end
 
 function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor, res)
@@ -261,7 +268,7 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
     if method == "GET" then
 	if params.blob ~= nil then 
 	    -- validate input data
-	    assert(validate.isuid(params.blob_id), string.format("function %s() invalid blob_id.", debug.getinfo(1,"n").name))
+	    assert(validate.isuid(params.blob_id), "invalid [blob_id] parameter.")
 	    -- execute query
 	    tb, err = params.thumb == nil and photo(stor, params.blob_id) or thumb(stor, params.blob_id)
 	    if err then
@@ -283,16 +290,21 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
 		scgi.writeHeader(res, 200, {["Content-Type"] = mime.json .. "; charset=utf-8"})
 		scgi.writeBody(res, "{}")
 	    else
+		if sestb.erpid ~= nil or sestb.distributor ~= nil or sestb.agency ~= nil then
+		    for _, v in ipairs(tb) do
+			v.rows = nil
+		    end
+		end
 		scgi.writeHeader(res, 200, {["Content-Type"] = mime.json .. "; charset=utf-8"})
 		scgi.writeBody(res, json.encode(tb))
 	    end
 	else
 	    -- validate input data
-	    assert(params.year ~= nil, string.format("function %s() year is undefined.", debug.getinfo(1,"n").name))
-	    assert(params.month ~= nil, string.format("function %s() month is undefined.", debug.getinfo(1,"n").name))
+	    assert(params.year ~= nil, "undefined [year] parameter.")
+	    assert(params.month ~= nil, "undefined [month] parameter.")
 	    params.year = tonumber(params.year)
 	    params.month = tonumber(params.month)
-	    assert(params.month >= 1 and params.month <= 12, string.format("function %s() month should be between 1 and 12.", debug.getinfo(1,"n").name))
+	    assert(params.month >= 1 and params.month <= 12, "[month] parameter should be between 1 and 12.")
 	    -- execute query
 	    tb, err = data(stor, permtb.columns or {}, sestb, params.year, params.month)
 	    if err then
