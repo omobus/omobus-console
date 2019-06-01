@@ -11,7 +11,7 @@ M.selectable = {
     },
     analitics = {"targets_compliance"},
     managment = {"routes", "targets", "additions", "deletions", "wishes", "discards", "cancellations", "info_materials", "training_materials", "pos_materials", "planograms"},
-    archive = {"photos_archive"}
+    archives = {"photos_archive"}
 }
 
 M.permissions = {
@@ -51,7 +51,6 @@ M.permissions = {
 
 -- # extra permission:
 M.permissions = require 'core'.deepcopy(M.permissions)
-M.permissions.additions.data.lidate = true
 M.permissions.additions.data.rejected = true
 M.permissions.additions.reject = true
 M.permissions.additions.validate = true

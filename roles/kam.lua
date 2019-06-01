@@ -13,7 +13,7 @@ M.selectable = {
     },
     analitics = {"targets_compliance"},
     managment = {"routes", "targets", "additions", "deletions", "wishes", "discards", "cancellations", "info_materials", "training_materials", "pos_materials", "planograms"},
-    archive = {"photos_archive"}
+    archives = {"photos_archive"}
 }
 
 M.permissions = {
