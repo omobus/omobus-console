@@ -148,7 +148,7 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
 		if err then
 		    scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
 		    scgi.writeBody(res, "Internal server error")
-		elseif tb1 == nil or #tb1 == 0 then
+		elseif tb == nil or #tb == 0 then
 		    scgi.writeHeader(res, 400, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
 		    scgi.writeBody(res, "Not permitted")
 		else
