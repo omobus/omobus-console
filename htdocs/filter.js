@@ -20,7 +20,7 @@ function Filter(arg, short, maptb) {
     Filter.onkeyup = function(tag, ev, func) {
 	var a = true;
 	//console.log(ev.keyCode);
-	if( typeof __filtersTimeout != 'undefined' ) {
+	if( typeof __filtersTimeout != 'undefined' && ev.keyCode != 16 ) {
 	    clearTimeout(__filtersTimeout);
 	    __filtersTimeout = null;
 	}
