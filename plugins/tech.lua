@@ -464,6 +464,9 @@ function M.startup(lang, permtb, sestb, params, stor)
     if permtb.zstatus == true then
 	table.insert(ar, "__allowZstatusChanging = true;")
     end
+    if permtb.columns ~= nil then
+	table.insert(ar, string.format("__allowedColumns = %s;", json.encode(permtb.columns)))
+    end
     if params.user_id ~= nil and params.date ~= nil then
 	local u_name = uname(stor, params.user_id, params.date)
 	assert(u_name ~= nil)

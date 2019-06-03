@@ -7,7 +7,13 @@ var PLUG = (function() {
     var _tabs = [], _selected = {tab:0,ref:null}, _refs = {}, _cache = {}, _tags = {};
 
     function _getcolumns() {
-	return 20;
+	var a = 17;
+	if( typeof __allowedColumns == 'object' ) {
+	    if( __allowedColumns.area ) a++;
+	    if( __allowedColumns.department ) a++;
+	    if( __allowedColumns.distributor ) a++;
+	}
+	return a;
     }
 
     function _getbody() {
@@ -53,12 +59,19 @@ var PLUG = (function() {
 	ar.push("<th colspan='3'>", lang.workday, "</th>");
 	ar.push("<th colspan='2'>", lang.tech.exchange.sync, "</th>");
 	ar.push("<th colspan='2'>", lang.tech.exchange.docs, "</th>");
-	ar.push("<th colspan='2'>", lang.tech.pos.title, "</th>");
 	ar.push("<th colspan='2'>", lang.tech.acts.title, "</th>");
 	ar.push("<th colspan='2'>", lang.tech.docs.title, "</th>");
+	if( typeof __allowedColumns == 'object' && __allowedColumns.area ) {
+	    ar.push("<th rowspan='2'>", lang.area, "</th>");
+	}
+	if( typeof __allowedColumns == 'object' && __allowedColumns.department ) {
+	    ar.push("<th rowspan='2'>", lang.departmentAbbr, "</th>");
+	}
+	if( typeof __allowedColumns == 'object' && __allowedColumns.distributor ) {
+	    ar.push("<th rowspan='2'>", lang.distributor, "</th>");
+	}
 	ar.push("<th rowspan='2' width='60px'>", lang.mileage, "</th>");
 	ar.push("<th rowspan='2' width='50px'>", lang.tech.pause, "</th>");
-	ar.push("<th rowspan='2'>", lang.area, "</th>");
 	ar.push("<th rowspan='2'>", lang.dev_login, "</th>");
 	ar.push("</tr><tr>");
 	ar.push("<th>", lang.b_date, "</th>");
@@ -68,10 +81,8 @@ var PLUG = (function() {
 	ar.push("<th>", lang.tech.time, "</th>");
 	ar.push("<th Xwidth='40px'>", lang.tech.total, "</th>");
 	ar.push("<th>", lang.tech.time, "</th>");
-	ar.push("<th Xwidth='40px'>", lang.tech.pos.valid, "</th>");
-	ar.push("<th Xwidth='40px'>", lang.tech.pos.empty, "</th>");
 	ar.push("<th Xwidth='40px'>", lang.tech.total, "</th>");
-	ar.push("<th Xwidth='40px'>", lang.tech.acts.v, "</th>");
+	ar.push("<th>", lang.tech.time, "</th>");
 	ar.push("<th Xwidth='40px'>", lang.tech.total, "</th>");
 	ar.push("<th>", lang.tech.time, "</th>");
 	ar.push("</tr>", G.thnums(_getcolumns()), "</thead><tbody id='maintb'></tbody></table>");
@@ -86,7 +97,7 @@ var PLUG = (function() {
 	    }
 	}
 	a.push(_tags.f.val());
-	return Filter(a.join(' '), false, {user_id:true, dev_login:true, u_name:true, pid:true, area:true, pause:true});
+	return Filter(a.join(' '), false, {user_id:true, dev_login:true, u_name:true, pid:true, area:true, deps:true, distrs:true, pause:true});
     }
 
     function _datamsg(msg) {
@@ -120,15 +131,31 @@ var PLUG = (function() {
 		ar.push("<td class='time", xs,"'>", G.shielding(r.exch_sync_success_time), "</td>");
 		ar.push("<td class='int", xs,"'>", G.getint_l(r.exch_docs_success_total), "</td>");
 		ar.push("<td class='time", xs,"'>", G.shielding(r.exch_docs_success_time), "</td>");
-		ar.push("<td class='int", xs,"'>", G.getint_l(r.pos_exist), "</td>");
-		ar.push("<td class='int", xs,"'>", G.getint_l(r.pos_empty), "</td>");
 		ar.push("<td class='int", xs,"'>", G.getint_l(r.acts_total), "</td>");
-		ar.push("<td class='int", xs,"'>", G.getint_l(r.acts_v), "</td>");
+		ar.push("<td class='time", xs,"'>", G.shielding(r.acts_time), "</td>");
 		ar.push("<td class='int", xs,"'>", G.getint_l(r.docs_total), "</td>");
 		ar.push("<td class='time", xs,"'>", G.shielding(r.docs_time), "</td>");
+		if( typeof __allowedColumns == 'object' && __allowedColumns.area ) {
+		    ar.push("<td class='ref", xs,"'>", G.shielding(r.area), "</td>");
+		}
+		if( typeof __allowedColumns == 'object' && __allowedColumns.department ) {
+		    t = G.shielding(r.deps).replace(rx,' ');
+		    if( !String.isEmpty(r.deps) && r.deps.length > 5 ) {
+			ar.push("<td class='ref footnote{1}' data-title='{0}'>".format_a(t, xs), G.shielding(r.deps).trunc(5), "</td>");
+		    } else {
+			ar.push("<td class='ref", xs,"'>", G.shielding(r.deps), "</td>");
+		    }
+		}
+		if( typeof __allowedColumns == 'object' && __allowedColumns.distributor ) {
+		    t = G.shielding(r.distrs).replace(rx,' ');
+		    if( !String.isEmpty(r.distrs) && r.distrs.length > 15 ) {
+			ar.push("<td class='ref footnote{1}' data-title='{0}'>".format_a(t, xs), G.shielding(r.distrs).trunc(15), "</td>");
+		    } else {
+			ar.push("<td class='ref", xs,"'>", G.shielding(r.distrs), "</td>");
+		    }
+		}
 		ar.push("<td class='int", xs,"'>", (r.dist != null && r.dist/1000 > 0 ? parseFloat(r.dist/1000.0).toFixed(1) : lang.dash), "</td>");
 		ar.push("<td class='int", xs,"'>", (r.pause == null ? lang.dash : r.pause), "</td>");
-		ar.push("<td class='ref", xs,"'>", G.shielding(r.area), "</td>");
 		ar.push("<td class='int", xs,"'>", G.shielding(r.dev_login), "</td>");
 		ar.push("</tr>");
 		x++;
@@ -417,12 +444,6 @@ var PLUG = (function() {
 	copy: function(text) {
 	    navigator.clipboard.writeText(text);
 	    Toast.show(lang.notices.clipboard);
-	    /*navigator.permissions.query({name: "clipboard-write"}).then(function(result) {
-		if (result.state == "granted" || result.state == "prompt") {
-		    navigator.clipboard.writeText(text);
-		    Toast.show(lang.notices.clipboard);
-		}
-	    });*/
 	    console.log(text);
 	}
     }

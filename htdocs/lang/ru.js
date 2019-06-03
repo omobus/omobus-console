@@ -97,6 +97,7 @@ var lang = {
     delivery_date: "Дата доставки",
     delivery_types_everything: "Все виды доставки",
     department: "Подразделение",
+    departmentAbbr: "Подр.",
     dev_login: "<i>Login</i> в OMOBUS",
     dev_id: "<i>Уникальный</i> код устройства",
     discount: "Скидка",
@@ -372,8 +373,7 @@ var lang = {
 	total: "Всего",
 	time: "Послед.",
 	exchange: {sync: "Синхронизаций (успешных)", docs: "Отправка документов"},
-	pos: {title: "Позиций", valid: "Получ.", empty: "Пропущ."},
-	acts: {title: "Активностей", v: "Посещ."},
+	acts: {title: "Активностей"},
 	docs: {title: "Документов"},
 	pause: "Пауза, дн.",
 	a_list: {title: "Телеметрия", descr: "Описание"},
@@ -414,7 +414,8 @@ var lang = {
 	    not_delivered: "не доставлено",
 	    docs: "Список созданных документов",
 	    photo: "нажмите для просмотра приложенной фотографии",
-	    more: "Журнал созданных документов"
+	    more: "Журнал созданных документов",
+	    positions: "Зафиксировано позиций (получено / пропущено)"
 	}
     },
     testings: {
