@@ -73,7 +73,7 @@ var PLUG = (function() {
 		ar.push("<td class='string" + (r.rejected ? " disabled" : "") +"'>" + G.shielding(r.note) + "</td>");
 		ar.push("<td class='date" + (r.rejected ? " disabled" : "") +"'>" + G.getdate_l(Date.parseISO8601(r.route_date)) + "</td>");
 		ar.push("<td class='ref' style='width: 60px; white-space: nowrap;'>");
-		if( perm.validate && !r.validated && !r.rejected && !r.closed ) {
+		if( perm.validate && !r.validated && !r.rejected ) {
 		    ar.push("<span id='aV" + r.row_no + "'><a href='javascript:PLUG.validate(" + 
 			r.row_no + ", \"" + r.account_id + "\", \"" + r.user_id + "\", \"" + r.route_date + "\", \"" + r.activity_type_id + 
 			    "\");'>" + lang.validate.ref + "</a></span>");
@@ -85,8 +85,6 @@ var PLUG = (function() {
 		    ar.push("<td class='ref' style='width: 60px; white-space: nowrap;'>");
 		    if( r.rejected ) {
 			ar.push(lang.plus);
-//		    } else if( r.closed ) {
-//			ar.push('');
 		    } else {
 			ar.push("<span id='aR" + r.row_no + "'><a href='javascript:PLUG.reject(" + 
 			    r.row_no + ", \"" + r.account_id + "\", \"" + r.user_id + "\", \"" + r.route_date + "\", \"" + r.activity_type_id + 

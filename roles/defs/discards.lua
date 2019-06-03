@@ -5,6 +5,6 @@ local M = {} -- public interface
 
 M.validate = false
 M.reject = false
-M.v = {registered=true, validated=true, rejected=false, closed=false}
+M.v = {registered=true, validated=true, rejected=false, closed=true}
 
 return M
