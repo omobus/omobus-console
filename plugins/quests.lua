@@ -166,6 +166,7 @@ local function personalize(sestb, data)
     local idx_rcs = {}
     local idx_qnames = {}
     local idx_qrows = {}
+    local idx_heads = {}
 
     if sestb.erpid ~= nil or sestb.distributor ~= nil or sestb.agency ~= nil then
 	local idx0, idx1, tb = {}, {}, {}
