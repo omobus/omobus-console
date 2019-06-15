@@ -120,11 +120,11 @@ var PLUG = (function() {
 		    }
 		    ar.push("<td class='int'>", G.getint_l(r.participants), "</td>");
 		    ar.push("<td class='ref'>");
-		    if( r.blob_id == null || r.blob_id == "" ) {
-			ar.push("&nbsp;");
-		    } else {
-			ar.push("<img class='clickable' onclick='PLUG.slideshow(" + r.blob_id + ")' height='90px' " + (k>=20?"data-original='":"src='") + 
-			    G.getajax({plug: _code, blob: "yes", thumb: "yes", blob_id: r.blob_id}) + "' />");
+		    if( Array.isArray(r.photos) ) {
+			r.photos.forEach(function(arg0, arg1, arg2) {
+			    ar.push("<p><a href='javascript:void(0)' onclick='PLUG.slideshow([" + arg2.join(',') + "]," +
+				(arg1+1) + ")'>[&nbsp;" + (arg1+1) + "&nbsp;]</a></p>");
+			});
 		    }
 		    ar.push("</td>");
 		    ar.push("<td class='string note" + (perm.columns != null && perm.columns.head == true ? " delim" : "") + 
@@ -338,8 +338,10 @@ var PLUG = (function() {
 		})
 	    });
 	},
-	slideshow: function(blob_id) {
-	    SlideshowSimple([G.getajax({plug: _code, blob: "yes", blob_id: blob_id})]).show();
+	slideshow: function(blobs, position) {
+	    var ar = [];
+	    blobs.forEach(function(arg) { ar.push(G.getajax({plug: _code, blob: "yes", blob_id: arg})); });
+	    SlideshowSimple(ar, {idx: position}).show();
 	},
 	csv: function() {
 	    var ar = [];
@@ -354,9 +356,10 @@ var PLUG = (function() {
 	    var ar = [], exist = {};
 	    if( _cache.data != null && Array.isArray(_cache.data._rows) ) {
 		_cache.data._rows.forEach(function(r, i) {
-		    if( r.blob_id != null && exist.hasOwnProperty(r.blob_id) == false ) {
-			ar.push({params: r, blob_id: r.blob_id});
-			exist[r.blob_id] = true;
+		    if( r.photos != null ) {
+			for( var n = 0, size = r.photos.length; n < size; n++ ) {
+			    ar.push({params: r, blob_id: r.photos[n]});
+			}
 		    }
 		});
 	    }
