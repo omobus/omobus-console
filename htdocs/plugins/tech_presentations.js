@@ -18,7 +18,7 @@ PLUG.registerRef("presentation", (function() {
 	ar.push("<th>", lang.brand, "</th>");
 	ar.push("<th>", lang.participants, "</th>");
 	ar.push("<th>", lang.note, "</th>");
-	ar.push("<th width='95px'>", lang.photo, "</th>");
+	ar.push("<th>", lang.photo, "</th>");
 	ar.push("</tr>", G.thnums(_columns), "</thead>");
 	ar.push("<tbody id='xztb'></tbody></table>");
 	return ar;
@@ -47,11 +47,14 @@ PLUG.registerRef("presentation", (function() {
 	    ar.push("<td class='int'>", G.getint_l(r.participants), "</td>");
 	    ar.push("<td class='string'>", G.shielding(r.doc_note), "</td>");
 	    ar.push("<td class='ref'>");
-	    if( r.blob_id == null || r.blob_id == "" ) {
-		ar.push("&nbsp;");
-	    } else {
-		ar.push("<a href='javascript:void(0);' onclick='PLUG.getRef(\"presentation\").slideshow(\"", r.blob_id, "\")'>",
-		    lang.view, "</a>");
+	    if( Array.isArray(r.photos) ) {
+		r.photos.forEach(function(arg0, arg1, arg2) {
+		    if( arg1 > 0 ) {
+			ar.push("&nbsp;&nbsp;");
+		    }
+		    ar.push("<a href='javascript:void(0)' onclick='PLUG.getRef(\"confirmation\").slideshow([", arg2.join(','), "],",
+			(arg1+1), ")'>[&nbsp;", (arg1+1), "&nbsp;]</a>");
+		});
 	    }
 	    ar.push("</td>");
 	    ar.push("</tr>");
@@ -109,8 +112,10 @@ PLUG.registerRef("presentation", (function() {
 	    _cache.data = {};
 	},
 
-	slideshow: function(blob_id) {
-	    SlideshowSimple([G.getajax({plug: "tech", blob: "yes", blob_id: blob_id})]).show();
+	slideshow: function(blobs, position) {
+	    var ar = [];
+	    blobs.forEach(function(arg) { ar.push(G.getajax({plug: "tech", blob: "yes", blob_id: arg})); });
+	    SlideshowSimple(ar, {idx: position}).show();
 	}
     }
 })() );

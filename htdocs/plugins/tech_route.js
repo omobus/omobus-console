@@ -742,12 +742,12 @@ var __route = (function() {
 		ar.push("<td class='string'>", G.shielding(r.tms.join("; ")), "</td>");
 		ar.push("<td class='int'>", G.getint_l(r.participants), "</td>");
 		ar.push("<td class='string'>", G.shielding(r.doc_note), "</td>");
-		ar.push("<td class='ref' width='95px'>");
-		if( String.isEmpty(r.blob_id) ) {
-		    ar.push("&nbsp;");
-		} else {
-		    ar.push("<a href='javascript:void(0);' onclick='__route.slideshow([\"", r.blob_id, "\"],1)'>",
-			lang.view, "</a>");
+		ar.push("<td class='ref'>");
+		if( Array.isArray(r.photos) ) {
+		    r.photos.forEach(function(arg0, arg1, arg2) {
+			ar.push("<p><a href='javascript:void(0)' onclick='__route.slideshow([", arg2.join(','), "],",
+			    (arg1+1), ")'>[&nbsp;", (arg1+1), "&nbsp;]</a></p>");
+		    });
 		}
 		ar.push("</td>");
 		ar.push("</tr>");
