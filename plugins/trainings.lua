@@ -167,6 +167,17 @@ select content_ts, content_type, content_compress, content_blob from content_get
     )
 end
 
+local function photo(stor, blob_id)
+    return stor.get(function(tran, func_execute) return func_execute(tran,
+[[
+select photo_get(%blob_id%::blob_t) photo
+]]
+	, "//presentations/photo"
+	, {blob_id = blob_id})
+    end
+    )
+end
+
 local function decompress(content_blob, content_compress)
     if content_compress ~= nil and #content_compress > 0 then
 	local sz_in, sz_out;
@@ -267,6 +278,7 @@ function M.scripts(lang, permtb, sestb, params)
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.brands.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.trainingtypes.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.users.js"> </script>')
+    table.insert(ar, '<script src="' .. V.static_prefix .. '/slideshow.simple.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/plugins/trainings.js"> </script>')
     return table.concat(ar,"\n")
 end
@@ -282,7 +294,22 @@ end
 function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor, res)
     local tb, err
     if method == "GET" then
-	if params.calendar ~= nil then 
+	if params.blob ~= nil then
+	    -- validate input data
+	    assert(validate.isuid(params.blob_id), "invalid [blob_id] parameter.")
+	    -- execute query
+	    tb, err = photo(stor, params.blob_id)
+	    if err then
+		scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
+		scgi.writeBody(res, "Internal server error")
+	    elseif tb == nil or #tb ~= 1 or tb[1].photo == nil then
+		scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
+		scgi.writeBody(res, "Invalid input parameters")
+	    else
+		scgi.writeHeader(res, 200, {["Content-Type"] = mime.jpeg})
+		scgi.writeBody(res, tb[1].photo)
+	    end
+	elseif params.calendar ~= nil then
 	    tb, err = calendar(stor)
 	    if err then
 		scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
