@@ -151,18 +151,6 @@ select photo_get(%blob_id%::blob_t) photo
     )
 end
 
-
-local function thumb(stor, blob_id)
-    return stor.get(function(tran, func_execute) return func_execute(tran,
-[[
-select thumb_get(%blob_id%::blob_t) photo
-]]
-	, "//presentations/thumb"
-	, {blob_id = blob_id})
-    end
-    )
-end
-
 local function decompress(content_blob, content_compress)
     if content_compress ~= nil and #content_compress > 0 then
 	local sz_in, sz_out;
@@ -270,7 +258,7 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
 	    -- validate input data
 	    assert(validate.isuid(params.blob_id), "invalid [blob_id] parameter.")
 	    -- execute query
-	    tb, err = params.thumb == nil and photo(stor, params.blob_id) or thumb(stor, params.blob_id)
+	    tb, err = photo(stor, params.blob_id)
 	    if err then
 		scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
 		scgi.writeBody(res, "Internal server error")
