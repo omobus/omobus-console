@@ -4,7 +4,7 @@
 PLUG.registerRef("training", (function() {
     /* private properties & methods */
     var _cache = {}; // internal cache object for preventing reloading data
-    var _columns = 10;
+    var _columns = 11;
 
     function _gettable() {
 	var ar = [];
@@ -19,6 +19,7 @@ PLUG.registerRef("training", (function() {
 	ar.push("<th>", lang.contact, "</th>");
 	ar.push("<th>", lang.training_type, "</th>");
 	ar.push("<th>", lang.note, "</th>");
+	ar.push("<th>", lang.photo, "</th>");
 	ar.push("</tr>", G.thnums(_columns), "</thead><tbody id='xztb'></tbody></table>");
 	return ar;
     }
@@ -45,6 +46,17 @@ PLUG.registerRef("training", (function() {
 		surname: G.shielding(r.surname)}), "</td>");
 	    ar.push("<td class='ref'>", G.shielding(r.training_type), "</td>");
 	    ar.push("<td class='string'>", G.shielding(r.doc_note), "</td>");
+	    ar.push("<td class='ref'>");
+	    if( Array.isArray(r.photos) ) {
+		r.photos.forEach(function(arg0, arg1, arg2) {
+		    if( arg1 > 0 ) {
+			ar.push("&nbsp;&nbsp;");
+		    }
+		    ar.push("<a href='javascript:void(0)' onclick='PLUG.getRef(\"training\").slideshow([", arg2.join(','), "],",
+			(arg1+1), ")'>[&nbsp;", (arg1+1), "&nbsp;]</a>");
+		});
+	    }
+	    ar.push("</td>");
 	    ar.push("</tr>");
 	}
 	if( ar.length == 0 ) {
@@ -98,6 +110,12 @@ PLUG.registerRef("training", (function() {
 
 	dropcache: function() {
 	    _cache.data = {};
+	},
+
+	slideshow: function(blobs, position) {
+	    var ar = [];
+	    blobs.forEach(function(arg) { ar.push(G.getajax({plug: "tech", blob: "yes", blob_id: arg})); });
+	    SlideshowSimple(ar, {idx: position}).show();
 	}
     }
 })() );
