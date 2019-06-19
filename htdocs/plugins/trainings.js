@@ -4,7 +4,7 @@
 var PLUG = (function() {
     /* private properties & methods */
     var _code = "trainings";
-    var _cache = {}, _perm = {}, _tags = {};
+    var _cache = {}, _perm = {}, _tags = {}, _F = false /* abort exporting photos */;;
 
     function _fmtcontact(d) {
 	return lang.personFormat.format({name: G.shielding(d.name), patronymic: G.shielding(d.patronymic), surname: G.shielding(d.surname)});
@@ -29,6 +29,11 @@ var PLUG = (function() {
 	if( perm.csv ) {
 	    ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.csv(this)'>", lang.export.csv, "</a>");
 	}
+	if( perm.zip ) {
+	    ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.zip(this,_(\"L\"),_(\"progress\"))'>",
+		lang.export.photo, "</a><span id='L' style='display: none;'><span id='progress'></span>&nbsp;(<a href='javascript:void(0)' " +
+		    "onclick='PLUG.abort();'>", lang.abort, "</a>)</span>");
+	}
 	ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<input class='search' type='text' maxlength='96' autocomplete='off' placeholder='",
 	    lang.search, "' id='plugFilter' onkeyup='return PLUG.filter(this, event);' onpaste='PLUG.filter(this, event); return true;' />");
 	ar.push("</td></tr></table>");
@@ -49,6 +54,7 @@ var PLUG = (function() {
 	ar.push("<th><a href='javascript:void(0)' onclick='PLUG.contacts(this, 0.65)'>", lang.contact, "</a></th>");
 	ar.push("<th><a href='javascript:void(0)' onclick='PLUG.jobs(this, 0.70)'>", lang.job_title, "</a></th>");
 	ar.push("<th><a href='javascript:void(0)' onclick='PLUG.types(this, 0.85)'>", lang.training_type, "</a></th>");
+	ar.push("<th>", lang.photo, "</th>");
 	ar.push("<th>", lang.note, "</th>");
 	if( perm.columns != null && perm.columns.head == true ) {
 	    ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"head\",0.90)'>", lang.head_name, "</a></th>");
@@ -65,6 +71,7 @@ var PLUG = (function() {
 	ar.push(TrainingTypesPopup.container());
 	ar.push(UsersPopup.container());
 	ar.push(UsersPopup.container("headsPopup"));
+	ar.push(SlideshowSimple.container());
 	return ar;
     }
 
@@ -125,6 +132,14 @@ var PLUG = (function() {
 		    ar.push("<td class='string'>", _fmtcontact(r), "</td>");
 		    ar.push("<td class='ref'>", G.shielding(r.job_title), "</td>");
 		    ar.push("<td class='ref'>", G.shielding(r.training_type), "</td>");
+		    ar.push("<td class='ref'>");
+		    if( Array.isArray(r.photos) ) {
+			r.photos.forEach(function(arg0, arg1, arg2) {
+			    ar.push("<p><a href='javascript:void(0)' onclick='PLUG.slideshow([" + arg2.join(',') + "]," +
+				(arg1+1) + ")'>[&nbsp;" + (arg1+1) + "&nbsp;]</a></p>");
+			});
+		    }
+		    ar.push("</td>");
 		    ar.push("<td class='string note" + (perm.columns != null && perm.columns.head == true ? " delim" : "") + 
 			"'>", G.shielding(r.doc_note), "</td>");
 		    if( perm.columns != null && perm.columns.head == true ) {
@@ -355,6 +370,11 @@ var PLUG = (function() {
 		})
 	    });
 	},
+	slideshow: function(blobs, position) {
+	    var ar = [];
+	    blobs.forEach(function(arg) { ar.push(G.getajax({plug: _code, blob: "yes", blob_id: arg})); });
+	    SlideshowSimple(ar, {idx: position}).show();
+	},
 	csv: function() {
 	    var ar = [];
 	    if( _cache.data != null && Array.isArray(_cache.data._rows) ) {
@@ -363,6 +383,24 @@ var PLUG = (function() {
 		});
 	    }
 	    G.tocsv(_code, ar, _perm.csv);
+	},
+	zip: function(tag0, tag1, span) {
+	    var ar = [], exist = {};
+	    if( _cache.data != null && Array.isArray(_cache.data._rows) ) {
+		_cache.data._rows.forEach(function(r, i) {
+		    if( r.photos != null ) {
+			for( var n = 0, size = r.photos.length; n < size; n++ ) {
+			    ar.push({params: r, blob_id: r.photos[n]});
+			}
+		    }
+		});
+	    }
+	    _F = false;
+	    G.tozip(_code, ar, _perm.zip != null ? _perm.zip.photo : null, _perm.zip != null ? _perm.zip.max : null,
+		function() {return _F;}, tag0, tag1, span);
+	},
+	abort: function() {
+	    _F = true;
 	}
     }
 })();
