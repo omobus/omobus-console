@@ -21,20 +21,22 @@ var PLUG = (function() {
 	ar.push("<table class='headerbar' width='100%'><tr>");
 	ar.push("<td><h1><span>", lang.photos_archive.title, "</span></h1></td>");
 	ar.push("<td class='r'>");
-	ar.push("<span>", lang.received_ts, "</span>&nbsp;<span id='timestamp'>&nbsp;-&nbsp;</span>");
-	ar.push("&nbsp;(<a href='javascript:void(0);' onclick='PLUG.refresh();'>", lang.refresh, "</a>)<span id='plugTotal'></span>");
-	ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.placements(this,0.7)' X-everything='",
-	    lang.placement_everything, "'>", lang.placement_everything, "</a>");
-	if( perm.columns != null && perm.columns.brand == true ) {
-	    ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.brands(this,0.7)' X-everything='", 
-		lang.brand_everything, "'>", lang.brand_everything, "</a>");
+	if( Array.isArray(years) && years.length > 0 ) {
+	    ar.push("<span>", lang.received_ts, "</span>&nbsp;<span id='timestamp'>&nbsp;-&nbsp;</span>");
+	    ar.push("&nbsp;(<a href='javascript:void(0);' onclick='PLUG.refresh();'>", lang.refresh, "</a>)<span id='plugTotal'></span>");
+	    ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.placements(this,0.7)' X-everything='",
+		lang.placement_everything, "'>", lang.placement_everything, "</a>");
+	    if( perm.columns != null && perm.columns.brand == true ) {
+		ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.brands(this,0.7)' X-everything='", 
+		    lang.brand_everything, "'>", lang.brand_everything, "</a>");
+	    }
+	    if( perm.columns != null && perm.columns.photo_type == true ) {
+		ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.types(this,0.7)' X-everything='",
+		    lang.photos.everything, "'>", lang.photos.everything, "</a>");
+	    }
+	    ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<input class='search' type='text' maxlength='96' autocomplete='off' placeholder='",
+		lang.search, "' id='plugFilter' onkeyup='return PLUG.filter(this, event);' onpaste='PLUG.filter(this, event); return true;' />");
 	}
-	if( perm.columns != null && perm.columns.photo_type == true ) {
-	    ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.types(this,0.7)' X-everything='",
-		lang.photos.everything, "'>", lang.photos.everything, "</a>");
-	}
-	ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<input class='search' type='text' maxlength='96' autocomplete='off' placeholder='",
-	    lang.search, "' id='plugFilter' onkeyup='return PLUG.filter(this, event);' onpaste='PLUG.filter(this, event); return true;' />");
 	ar.push("</td></tr></table>");
 	ar.push("<table width='100%' class='report'><thead><tr>");
 	ar.push("<th rowspan='2' class='autoincrement'>", lang.num, "</th>");
