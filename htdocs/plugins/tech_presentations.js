@@ -52,7 +52,7 @@ PLUG.registerRef("presentation", (function() {
 		    if( arg1 > 0 ) {
 			ar.push("&nbsp;&nbsp;");
 		    }
-		    ar.push("<a href='javascript:void(0)' onclick='PLUG.getRef(\"confirmation\").slideshow([", arg2.join(','), "],",
+		    ar.push("<a href='javascript:void(0)' onclick='PLUG.getRef(\"presentation\").slideshow([", arg2.join(','), "],",
 			(arg1+1), ")'>[&nbsp;", (arg1+1), "&nbsp;]</a>");
 		});
 	    }

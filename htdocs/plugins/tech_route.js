@@ -981,14 +981,24 @@ var __route = (function() {
 		ar.push("</div>");
 		ar.push("<table width='100%' class='report'>");
 		ar.push("<tr class='def'>");
-		ar.push("<td class='divider' width='350px'>", lang.training_material, "</td>");
-		ar.push("<td class='divider' width='350px'>", lang.contact, "</td>");
+		ar.push("<td class='divider' width='300px'>", lang.training_material, "</td>");
+		ar.push("<td class='divider' width='300px'>", lang.contact, "</td>");
 		ar.push("<td class='divider'>", lang.note, "</td>");
+		ar.push("<td class='divider'>", lang.photo, "</td>");
 		ar.push("</tr>");
 		ar.push("<tr>");
 		ar.push("<td class='string'>", G.shielding(r.tms.join("; ")), "</td>");
 		ar.push("<td class='ыекштп'>", xxx.join("; "), "</td>");
 		ar.push("<td class='string'>", G.shielding(r.doc_note), "</td>");
+		ar.push("<td class='ref'>");
+		if( Array.isArray(r.photos) ) {
+		    r.photos.forEach(function(arg0, arg1, arg2) {
+			ar.push("<p><a href='javascript:void(0)' onclick='__route.slideshow([", arg2.join(','), "],",
+			    (arg1+1), ")'>[&nbsp;", (arg1+1), "&nbsp;]</a></p>");
+		    });
+		}
+		ar.push("</td>");
+
 		ar.push("</tr>");
 		ar.push("</table>");
 	    } else if( r._t == "wish" ) {
