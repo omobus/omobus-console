@@ -11,7 +11,7 @@ var PLUG = (function() {
     }
 
     function _getcolumns(perm) {
-	return 11 + (perm.columns == null ? 0 : (
+	return 12 + (perm.columns == null ? 0 : (
 	    (perm.columns.channel == true ? 1 : 0) + 
 	    (perm.columns.brand == true ? 1 : 0) +
 	    (perm.columns.head == true ? 1 : 0)

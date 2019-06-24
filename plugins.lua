@@ -10,8 +10,6 @@ local modules = {
 
 	additions 		= require 'plugins.additions',
 	advt 			= require 'plugins.advt',
-photos_archive 			= require 'plugins.photos_archive',
-
 	audits 			= require 'plugins.audits',
 	cancellations 		= require 'plugins.cancellations',
 	comments 		= require 'plugins.comments',
@@ -22,6 +20,7 @@ photos_archive 			= require 'plugins.photos_archive',
 	joint_routes 		= require 'plugins.joint_routes',
 	orders 			= require 'plugins.orders',
 	photos 			= require 'plugins.photos',
+	photos_archive 			= require 'plugins.photos_archive',
 	planograms 		= require 'plugins.planograms',
 	pos_materials 		= require 'plugins.pos_materials',
 	presentations 		= require 'plugins.presentations',

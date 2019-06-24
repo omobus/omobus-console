@@ -65,7 +65,7 @@ var PLUG = (function() {
 	    ar.push("<th rowspan='2'>", lang.area, "</th>");
 	}
 	if( typeof __allowedColumns == 'object' && __allowedColumns.department ) {
-	    ar.push("<th rowspan='2'>", lang.departmentAbbr, "</th>");
+	    ar.push("<th rowspan='2' width='50px'>", lang.departmentAbbr, "</th>");
 	}
 	if( typeof __allowedColumns == 'object' && __allowedColumns.distributor ) {
 	    ar.push("<th rowspan='2'>", lang.distributor, "</th>");
