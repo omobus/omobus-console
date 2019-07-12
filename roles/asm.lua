@@ -9,7 +9,7 @@ M.home = "tech"
 M.selectable = {
     reports = {
 	daily = {"tech", "route_compliance"},
-	monthly = {"joint_routes", "confirmations", "orders", "reclamations", "comments", "photos", "testings", "trainings", "presentations", "audits", "shelfs", "quests", "advt", "prices"}
+	monthly = {"joint_routes", "confirmations", "orders", "reclamations", "comments", "photos", "testings", "trainings", "presentations", "audits", "shelfs", "quests", "advt", "prices", "promos"}
     },
     analitics = {"targets_compliance"},
     managment = {"routes", "targets", "additions", "deletions", "wishes", "discards", "cancellations", "info_materials", "training_materials", "pos_materials", "planograms"},
@@ -36,6 +36,7 @@ M.permissions = {
     pos_materials 	= require 'roles.defs._ro',
     presentations 	= require 'roles.defs.presentations',
     prices 		= require 'roles.defs.prices',
+    promos 		= require 'roles.defs.promos',
     quests 		= require 'roles.defs.quests',
     reclamations 	= require 'roles.defs.reclamations',
     route_compliance 	= require 'roles.defs.route_compliance',
