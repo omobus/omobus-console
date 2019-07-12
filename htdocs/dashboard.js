@@ -62,7 +62,7 @@ var Dashboard = (function() {
 	if( rules.dumps == null || rules.dumps.depth == null ) {
 	    ar.push(lang.dumps_notice.everything);
 	} else {
-	    ar.push(lang.dumps_notice.limited.format_a(rules.dumps.depth));
+	    ar.push(lang.dumps_notice.limited.format_a(G.getdate_l(Date.parseISO8601(rules.dumps.depth))));
 	}
 	ar.push("<hr />");
 	if( rules.dumps == null || !Array.isArray(rules.dumps.rows) ) {
