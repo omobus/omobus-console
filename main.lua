@@ -125,7 +125,8 @@ order by row_no limit 3
 
 	local sysparams, _ = func_execute(tran,
 [[
-select param_id, param_value from sysparams where param_id='dumps:depth'
+select param_id, ("monthDate_First"(current_date - "paramInteger"('dumps:depth')))::date_t param_value from sysparams 
+    where param_id='dumps:depth' and param_value is not null
 ]]
 	    , "//main/sysparams"
 	)
