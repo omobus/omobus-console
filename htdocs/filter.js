@@ -58,8 +58,14 @@ function Filter(arg, short, maptb) {
 Filter.prototype._enumerateKeys = function(ar, cb, prefix) {
     for( var key in ar ) {
 	var val = ar[key];
-	if( typeof val == 'object' && !Array.isArray(val) ) {
-	    this._enumerateKeys(val, cb, key + '.');
+	if( typeof val == 'object' ) {
+	    if( Array.isArray(val) ) {
+		for( var i = 0, s = val.length; i < s; i++ ) {
+		    this._enumerateKeys(val[i], cb, key + '.');
+		}
+	    } else {
+		this._enumerateKeys(val, cb, key + '.');
+	    }
 	} else {
 	    if( val != null ) {
 		cb(prefix == null ? key : (prefix + key), val)
@@ -108,7 +114,7 @@ Filter.prototype.is = function(arg) {
         return true;
     }
     var s = this._dump(arg), x;
-    //console.log(s);
+    //console.log(s); console.log("------------- ");
     for( var i = 0; i < this._ar.length; i++ ) {
 	if( (x = this._ar[i]) == null || !x.test(s) ) {
 	    return false;
