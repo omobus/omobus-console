@@ -62,7 +62,7 @@ PLUG.registerRef("shelf", (function() {
 		    if( arg1 > 0 ) {
 			ar.push("&nbsp;&nbsp;");
 		    }
-		    ar.push("<a href='javascript:void(0)' onclick='PLUG.getRef(\"shelf\").slideshow([", arg2.join(','), "],",
+		    ar.push("<a href='javascript:void(0)' onclick='PLUG.slideshow([", arg2.join(','), "],",
 			(arg1+1), ")'>[&nbsp;", (arg1+1), "&nbsp;]</a>");
 		});
 	    }
@@ -150,12 +150,6 @@ PLUG.registerRef("shelf", (function() {
 	dropcache: function() {
 	    _cache.data = {};
 	    _cache.ptr = null;
-	},
-
-	slideshow: function(blobs, position) {
-	    var ar = [];
-	    blobs.forEach(function(arg) { ar.push(G.getajax({plug: "tech", blob: "yes", blob_id: arg})); });
-	    SlideshowSimple(ar, {idx: position}).show();
 	},
 
 	more: function(row_no) {

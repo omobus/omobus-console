@@ -52,7 +52,7 @@ PLUG.registerRef("training", (function() {
 		    if( arg1 > 0 ) {
 			ar.push("&nbsp;&nbsp;");
 		    }
-		    ar.push("<a href='javascript:void(0)' onclick='PLUG.getRef(\"training\").slideshow([", arg2.join(','), "],",
+		    ar.push("<a href='javascript:void(0)' onclick='PLUG.slideshow([", arg2.join(','), "],",
 			(arg1+1), ")'>[&nbsp;", (arg1+1), "&nbsp;]</a>");
 		});
 	    }
@@ -110,12 +110,6 @@ PLUG.registerRef("training", (function() {
 
 	dropcache: function() {
 	    _cache.data = {};
-	},
-
-	slideshow: function(blobs, position) {
-	    var ar = [];
-	    blobs.forEach(function(arg) { ar.push(G.getajax({plug: "tech", blob: "yes", blob_id: arg})); });
-	    SlideshowSimple(ar, {idx: position}).show();
 	}
     }
 })() );

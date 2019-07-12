@@ -34,7 +34,7 @@ PLUG.registerRef("presentation", (function() {
 	var ar = [], r, k;
 	for( var i = 0, size = Array.isArray(data.rows) ? data.rows.length : 0; i < size; i++ ) {
 	    r = data.rows[i];
-	    k = "{0}${1}${2}".format_a(u_id, G.getdate(date), r.doc_id);
+	    k = "{0}${1}${2}".format_a(u_id, G.getdate(date), r.row_id);
 	    ar.push("<tr ", (typeof checked != 'undefined' && checked[k]) ? "class='selected'" : "", ">");
 	    ar.push("<td class='clickable autoincrement' onclick='PLUG.getRef(\"presentation\").checkrow(this.parentNode,\"",
 		k, "\")'>", r.row_no, "</td>");
@@ -52,7 +52,7 @@ PLUG.registerRef("presentation", (function() {
 		    if( arg1 > 0 ) {
 			ar.push("&nbsp;&nbsp;");
 		    }
-		    ar.push("<a href='javascript:void(0)' onclick='PLUG.getRef(\"presentation\").slideshow([", arg2.join(','), "],",
+		    ar.push("<a href='javascript:void(0)' onclick='PLUG.slideshow([", arg2.join(','), "],",
 			(arg1+1), ")'>[&nbsp;", (arg1+1), "&nbsp;]</a>");
 		});
 	    }
@@ -110,12 +110,6 @@ PLUG.registerRef("presentation", (function() {
 
 	dropcache: function() {
 	    _cache.data = {};
-	},
-
-	slideshow: function(blobs, position) {
-	    var ar = [];
-	    blobs.forEach(function(arg) { ar.push(G.getajax({plug: "tech", blob: "yes", blob_id: arg})); });
-	    SlideshowSimple(ar, {idx: position}).show();
 	}
     }
 })() );

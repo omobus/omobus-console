@@ -445,6 +445,11 @@ var PLUG = (function() {
 	    navigator.clipboard.writeText(text);
 	    Toast.show(lang.notices.clipboard);
 	    console.log(text);
+	},
+	slideshow: function(blobs, position) {
+	    var ar = [];
+	    blobs.forEach(function(arg) { ar.push(G.getajax({plug: "tech", blob: "yes", blob_id: arg})); });
+	    SlideshowSimple(ar, {idx: position}).show();
 	}
     }
 })();

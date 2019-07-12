@@ -48,7 +48,7 @@ PLUG.registerRef("target", (function() {
 	    if( r.blob_id == null || r.blob_id == "" ) {
 		ar.push("&nbsp;");
 	    } else {
-		ar.push("<a href='javascript:void(0);' onclick='PLUG.getRef(\"target\").slideshow(\"", r.blob_id, "\")'>",
+		ar.push("<a href='javascript:void(0);' onclick='PLUG.slideshow([", r.blob_id, "])'>",
 		    lang.view, "</a>");
 	    }
 	    ar.push("</td>");
@@ -105,10 +105,6 @@ PLUG.registerRef("target", (function() {
 
 	dropcache: function() {
 	    _cache.data = {};
-	},
-
-	slideshow: function(blob_id) {
-	    SlideshowSimple([G.getajax({plug: "tech", blob: "yes", blob_id: blob_id})]).show();
 	}
     }
 })() );
