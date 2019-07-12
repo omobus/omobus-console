@@ -127,7 +127,7 @@ var __route = (function() {
 		ptr = data.deletions == null ? null : data.deletions[r.account_id];
 		ar.push("<td class='string", ptr == null ? "" : " strikethrough footnote' data-title='{0}{1}.".format_a(lang.tech.route.deletion,_deletion(ptr).join(' ')), 
 		    (ptr == null || String.isEmpty(ptr.blob_id)) ? "" : 
-			"' onclick='__route.slideshow([{0}],1)".format_a(ptr.blob_id),
+			"' onclick='PLUG.slideshow([{0}],1)".format_a(ptr.blob_id),
 		    "'>", G.shielding(a.descr), "</td>");
 		ar.push("<td class='string'>", G.shielding(a.address), "</td>");
 		ar.push("<td class='ref'>", G.shielding(r.chan), "</td>");
@@ -156,7 +156,7 @@ var __route = (function() {
 		var blobs = []
 		if( Array.isArray(r.photos) ) {
 		    r.photos.forEach(function(arg0, arg1, arg2) {
-			blobs.push("<a href='javascript:void(0)' onclick='__route.slideshow([{0}],{1})'>[&nbsp;{2}&nbsp;]</a>".
+			blobs.push("<a href='javascript:void(0)' onclick='PLUG.slideshow([{0}],{1})'>[&nbsp;{2}&nbsp;]</a>".
 			    format_a(arg2.join(','), arg1+1, arg1+1));
 		    });
 		}
@@ -476,7 +476,7 @@ var __route = (function() {
 			ar.push("<td class='ref def' rowspan='", r.criterias.length, "'>");
 			if( Array.isArray(r.photos) ) {
 			    r.photos.forEach(function(arg0, arg1, arg2) {
-				ar.push("<p><a href='javascript:void(0)' onclick='__route.slideshow([", arg2.join(','), "],",
+				ar.push("<p><a href='javascript:void(0)' onclick='PLUG.slideshow([", arg2.join(','), "],",
 				    (arg1+1), ")'>[&nbsp;", (arg1+1), "&nbsp;]</a></p>");
 			    });
 			}
@@ -526,7 +526,7 @@ var __route = (function() {
 		if( String.isEmpty(r.blob_id) ) {
 		    ar.push("&nbsp;");
 		} else {
-		    ar.push("<a href='javascript:void(0);' onclick='__route.slideshow([\"", r.blob_id, "\"],1)'>",
+		    ar.push("<a href='javascript:void(0);' onclick='PLUG.slideshow([\"", r.blob_id, "\"],1)'>",
 			lang.view, "</a>");
 		}
 		ar.push("</td>");
@@ -554,7 +554,7 @@ var __route = (function() {
 		ar.push("<td class='ref'>");
 		if( Array.isArray(r.photos) ) {
 		    r.photos.forEach(function(arg0, arg1, arg2) {
-			ar.push("<p><a href='javascript:void(0)' onclick='__route.slideshow([", arg2.join(','), "],",
+			ar.push("<p><a href='javascript:void(0)' onclick='PLUG.slideshow([", arg2.join(','), "],",
 			    (arg1+1), ")'>[&nbsp;", (arg1+1), "&nbsp;]</a></p>");
 		    });
 		}
@@ -578,7 +578,7 @@ var __route = (function() {
 		if( String.isEmpty(r.blob_id) ) {
 		    ar.push("&nbsp;");
 		} else {
-		    ar.push("<a href='javascript:void(0);' onclick='__route.slideshow([\"", r.blob_id, "\"],1)'>",
+		    ar.push("<a href='javascript:void(0);' onclick='PLUG.slideshow([\"", r.blob_id, "\"],1)'>",
 			lang.view, "</a>");
 		}
 		ar.push("</td>");
@@ -681,7 +681,7 @@ var __route = (function() {
 		if( String.isEmpty(r.blob_id) ) {
 		    ar.push("&nbsp;");
 		} else {
-		    ar.push("<img class='clickable' onclick='__route.slideshow([", r.blob_id, "],1)' height='90px' src='",
+		    ar.push("<img class='clickable' onclick='PLUG.slideshow([", r.blob_id, "],1)' height='90px' src='",
 			G.getajax({plug: "tech", blob: "yes", thumb: "yes", blob_id: r.blob_id}), "' />");
 		}
 		ar.push("</td>");
@@ -739,13 +739,22 @@ var __route = (function() {
 		ar.push("<td class='divider'>", lang.photo, "</td>");
 		ar.push("</tr>");
 		ar.push("<tr>");
-		ar.push("<td class='string'>", G.shielding(r.tms.join("; ")), "</td>");
+		ar.push("<td class='ref'>");
+		if( Array.isArray(r.tms) ) {
+		    r.tms.forEach(function(arg0, arg1) {
+			if( arg1 > 0 ) {
+			    ar.push("<br/>");
+			}
+			ar.push(G.shielding(arg0));
+		    });
+		}
+		ar.push("</td>");
 		ar.push("<td class='int'>", G.getint_l(r.participants), "</td>");
 		ar.push("<td class='string'>", G.shielding(r.doc_note), "</td>");
 		ar.push("<td class='ref'>");
 		if( Array.isArray(r.photos) ) {
 		    r.photos.forEach(function(arg0, arg1, arg2) {
-			ar.push("<p><a href='javascript:void(0)' onclick='__route.slideshow([", arg2.join(','), "],",
+			ar.push("<p><a href='javascript:void(0)' onclick='PLUG.slideshow([", arg2.join(','), "],",
 			    (arg1+1), ")'>[&nbsp;", (arg1+1), "&nbsp;]</a></p>");
 		    });
 		}
@@ -777,6 +786,44 @@ var __route = (function() {
 		    ar.push("<td class='bool'>", String.isEmpty(arg0.scratch) ? "" : "&#x267A;", "</td>");
 		    ar.push("</tr>");
 		});
+		ar.push("</table>");
+	    } else if( r._t == "promo" ) {
+		ar.push("<div>");
+		ar.push("<h2>", "{0} {1} {2} / {3}".format_a(lang.doctypes[r._t], lang.num, r.doc_no, r.doc_id), "</h2>");
+		ar.push("<span class='watermark'>", "{0}: {1}".format_a(lang.fix_time, G.getlongtime_l(r.fix_dt)), 
+		    "&nbsp;&nbsp;&nbsp;(", lang.seconds.format_a(r.duration), ")", "</span>");
+		ar.push("</div>");
+		ar.push("<table width='100%' class='report'>");
+		ar.push("<tr class='def'>");
+		ar.push("<td class='divider'>", lang.categ_name, "</td>");
+		ar.push("<td class='divider'>", lang.brand, "</td>");
+		ar.push("<td class='divider' Xwidth='300px'>", lang.promos.type, "</td>");
+		ar.push("<td class='divider'>", lang.note, "</td>");
+		ar.push("<td class='divider'>", lang.photo, "</td>");
+		ar.push("</tr>");
+		ar.push("<tr>");
+		ar.push("<td class='ref'>", G.shielding(r.categ), "</td>");
+		ar.push("<td class='ref'>", G.shielding(r.brand), "</td>");
+		ar.push("<td class='ref'>");
+		if( Array.isArray(r.promo_types) ) {
+		    r.promo_types.forEach(function(arg0, arg1) {
+			if( arg1 > 0 ) {
+			    ar.push("<br/>");
+			}
+			ar.push(G.shielding(arg0));
+		    });
+		}
+		ar.push("</td>");
+		ar.push("<td class='string'>", G.shielding(r.doc_note), "</td>");
+		ar.push("<td class='ref'>");
+		if( Array.isArray(r.photos) ) {
+		    r.photos.forEach(function(arg0, arg1, arg2) {
+			ar.push("<p><a href='javascript:void(0)' onclick='PLUG.slideshow([", arg2.join(','), "],",
+			    (arg1+1), ")'>[&nbsp;", (arg1+1), "&nbsp;]</a></p>");
+		    });
+		}
+		ar.push("</td>");
+		ar.push("</tr>");
 		ar.push("</table>");
 	    } else if( r._t == "quest" ) {
 		ar.push("<div>");
@@ -882,7 +929,7 @@ var __route = (function() {
 			ar.push("<td class='ref def' rowspan='", r.brands.length, "'>");
 			if( Array.isArray(r.photos) ) {
 			    r.photos.forEach(function(arg0, arg1, arg2) {
-				ar.push("<p><a href='javascript:void(0)' onclick='__route.slideshow([", arg2.join(','), "],",
+				ar.push("<p><a href='javascript:void(0)' onclick='PLUG.slideshow([", arg2.join(','), "],",
 				    (arg1+1), ")'>[&nbsp;", (arg1+1), "&nbsp;]</a></p>");
 			    });
 			}
@@ -936,7 +983,7 @@ var __route = (function() {
 		if( String.isEmpty(r.blob_id) ) {
 		    ar.push("&nbsp;");
 		} else {
-		    ar.push("<a href='javascript:void(0);' onclick='__route.slideshow([\"", r.blob_id, "\"],1)'>",
+		    ar.push("<a href='javascript:void(0);' onclick='PLUG.slideshow([\"", r.blob_id, "\"],1)'>",
 			lang.view, "</a>");
 		}
 		ar.push("</td>");
@@ -968,11 +1015,6 @@ var __route = (function() {
 		});
 		ar.push("</table>");
 	    } else if( r._t == "training" ) {
-		var xxx = [];
-		r.contacts.forEach(function(arg0) { 
-		    xxx.push(lang.personFormat.format({name: G.shielding(arg0.name), patronymic: G.shielding(arg0.patronymic), 
-			surname: G.shielding(arg0.surname)}).trim());
-		});
 		ar.push("<div>");
 		ar.push("<h2>", "{0} {1} {2} / {3}".format_a(lang.doctypes[r._t], lang.num, r.doc_no, r.doc_id), 
 		    "<span class='r'>", G.shielding(r.training_type).trunc(20), "</span>", "</h2>");
@@ -987,13 +1029,32 @@ var __route = (function() {
 		ar.push("<td class='divider'>", lang.photo, "</td>");
 		ar.push("</tr>");
 		ar.push("<tr>");
-		ar.push("<td class='string'>", G.shielding(r.tms.join("; ")), "</td>");
-		ar.push("<td class='ыекштп'>", xxx.join("; "), "</td>");
+		ar.push("<td class='ref'>");
+		if( Array.isArray(r.tms) ) {
+		    r.tms.forEach(function(arg0, arg1) {
+			if( arg1 > 0 ) {
+			    ar.push("<br/>");
+			}
+			ar.push(G.shielding(arg0));
+		    });
+		}
+		ar.push("</td>");
+		ar.push("<td class='ref'>");
+		if( Array.isArray(r.contacts) ) {
+		    r.contacts.forEach(function(arg0, arg1) {
+			if( arg1 > 0 ) {
+			    ar.push("<br/>");
+			}
+			ar.push(lang.personFormat.format({name: G.shielding(arg0.name), patronymic: G.shielding(arg0.patronymic), 
+			    surname: G.shielding(arg0.surname)}).trim());
+		    });
+		}
+		ar.push("</td>");
 		ar.push("<td class='string'>", G.shielding(r.doc_note), "</td>");
 		ar.push("<td class='ref'>");
 		if( Array.isArray(r.photos) ) {
 		    r.photos.forEach(function(arg0, arg1, arg2) {
-			ar.push("<p><a href='javascript:void(0)' onclick='__route.slideshow([", arg2.join(','), "],",
+			ar.push("<p><a href='javascript:void(0)' onclick='PLUG.slideshow([", arg2.join(','), "],",
 			    (arg1+1), ")'>[&nbsp;", (arg1+1), "&nbsp;]</a></p>");
 		    });
 		}
@@ -1143,6 +1204,7 @@ var __route = (function() {
 	fn("presence");
 	fn("presentation");
 	fn("price");
+	fn("promo");
 	fn("quest");
 	fn("rating");
 	fn("reclamation");
@@ -1209,12 +1271,6 @@ var __route = (function() {
 
 	dropcache: function() {
 	    _cache.data = {};
-	},
-
-	slideshow: function(blobs, position) {
-	    var ar = [];
-	    blobs.forEach(function(arg) { ar.push(G.getajax({plug: "tech", blob: "yes", blob_id: arg})); });
-	    SlideshowSimple(ar, {idx: position}).show();
 	},
 
 	more: function(user_id, account_id) {

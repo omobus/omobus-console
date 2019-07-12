@@ -28,8 +28,17 @@ var G = (function() {
 	    _thousdelim(parseFloat(n).toFixed(prec).toString());
     }
 
-    function _fmturi(code, params, extra) {
+    function _fmturi(code, params, extra, absolute) {
 	var ar = [], delim = "?";
+	if( typeof absolute != 'undefined' && absolute ) {
+	    if( typeof window.location.protocol != 'undefined' ) {
+		ar.push(window.location.protocol, "//");
+	    }
+	    ar.push(window.location.hostname);
+	    if( Number.isInteger(window.location.port) ) {
+		ar.push(":", window.location.port);
+	    }
+	}
 	ar.push("/console/", code);
 	if( params != null && typeof params == 'object' ) {
 	    for( var prop in params ) {
@@ -115,6 +124,7 @@ var G = (function() {
 	getlogin: function(params) { return _fmturi("login", params, {lang:lang.__code}); },
 	getdumpref: function(params) { return _fmturi("dump", params, {sid:_sid}); },
 	getstaticref: function(name) { return _sprefix + "/" + name; },
+	getphotoref: function(ref, absolute) { return _fmturi("photo", {ref: ref}, null, absolute); },
 
 /* OBSOLETE: begin */
 	getobjcache: function(code, cookie) {
