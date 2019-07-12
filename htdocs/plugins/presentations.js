@@ -102,9 +102,9 @@ var PLUG = (function() {
 	for( var i = 0, k = 0; i < size; i++ ) {
 	    if( (r = data.rows[i]) != null && f.is(r) ) {
 		if( (page-1)*perm.rows <= x && x < page*perm.rows ) {
-		    ar.push("<tr" + (typeof checked != 'undefined' && checked[r.doc_id] ? " class='selected'" : "") + ">");
+		    ar.push("<tr" + (typeof checked != 'undefined' && checked[r.row_id] ? " class='selected'" : "") + ">");
 		    ar.push("<td class='autoincrement clickable' onclick=\"PLUG.checkrow(this.parentNode,'" +
-			r.doc_id + "');event.stopPropagation();\">", r.row_no, "</td>");
+			r.row_id + "');event.stopPropagation();\">", r.row_no, "</td>");
 		    ar.push("<td class='date delim'>", G.getdatetime_l(Date.parseISO8601(r.fix_dt)), "</td>");
 		    ar.push("<td class='string sw95px delim'>", G.shielding(r.u_name), "</td>");
 		    ar.push("<td class='int'>", G.shielding(r.a_code), "</td>");
@@ -193,7 +193,6 @@ var PLUG = (function() {
 	    if( xhr.status == 200 && data != null && typeof data == 'object' ) {
 		_cache.data = data;
 		_tags.tbody.html(_datatbl(data, 1, _tags.total, _getfilter(), _cache.checked, _perm).join(""));
-		new LazyLoad();
 	    } else {
 		_tags.tbody.html(_datamsg(lang.failure, _perm).join(""));
 	    }
@@ -213,7 +212,6 @@ var PLUG = (function() {
 	    sp = spinnerLarge(_tags.body, "50%", "50%");
 	    setTimeout(function() {
 		_tags.tbody.html(_datatbl(_cache.data, page, _tags.total, _getfilter(), _cache.checked, _perm).join(""));
-		new LazyLoad();
 		_tags.tbody.show();
 		sp.stop();
 	    }, 0);
