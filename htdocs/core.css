@@ -75,6 +75,7 @@ hr {
     color: #080c57;
     font-size: 13pt;
     font-weight: bold;
+    cursor: pointer;
 }
 
 .logosubtitle {
