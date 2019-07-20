@@ -46,7 +46,7 @@ M.data 		= {
 
 -- *** Archive data storage parameters ***
 M.ark 		= {
-    host 	= "176.114.222.130",
+    host 	= "192.168.130.8",
     port 	= 8080,
     connect_timeout = 10,
     recv_timeout= 25, -- maximum timiout for waiting omobus-ark web service data
