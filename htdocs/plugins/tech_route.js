@@ -24,8 +24,8 @@ var __route = (function() {
 	ar.push("<th>", lang.poten, "</th>");
 	ar.push("<th class='timesec'>", lang.b_date, "</th>");
 	ar.push("<th class='timesec'>", lang.e_date, "</th>");
-	ar.push("<th width='65px'>", lang.tech.route.duration, "</th>");
-	ar.push("<th colspan='2'>", lang.dist, "</th>");
+	ar.push("<th width='45px'>", lang.tech.route.duration, "</th>");
+	ar.push("<th width='75px' colspan='2'>", lang.dist, "</th>");
 	ar.push("<th>", lang.tech.route.activity_type, "</th>");
 	ar.push("<th class='bool'>", "&#8281;", "</th>");
 	ar.push("</tr>", G.thnums(_columns), "</thead>");
@@ -138,9 +138,9 @@ var __route = (function() {
 		ar.push("<td class='int", (r.strict == null || r.strict == 0 || r.duration == null || data.rules == null || (data.rules.duration.min <= r.duration && 
 		    r.duration <= data.rules.duration.max)) ? "" : " attention", "'>", r.duration == null ? "" : r.duration, "</td>");
 		ar.push("<td class='int", (r.strict == null || r.strict == 0 || r.dist == null || data.rules == null || data.rules.distance.max >= r.dist) ? 
-		    "" : " attention", "' width='50px;'>", r.closed ? G.getint_l(r.dist) : "", "</td>");
+		    "" : " attention", "' Xwidth='50px;'>", r.closed ? G.getint_l(r.dist) : "", "</td>");
 		ar.push("<td class='int", (r.strict == null || r.strict == 0 || r.dist_e == null || data.rules == null || data.rules.distance.max >= r.dist_e) ? 
-		    "" : " attention", "' width='50px;'>", r.closed ? G.getint_l(r.dist_e) : "", "</td>");
+		    "" : " attention", "' Xwidth='50px;'>", r.closed ? G.getint_l(r.dist_e) : "", "</td>");
 		ptr = data.discards == null ? null : data.discards[r.account_id];
 		ar.push("<td class='ref", ptr == null ? "" : (" strikethrough footnote_L' data-title='" + lang.tech.route.discard.format_a(_discard(ptr).join('. '))),
 		    "'>", G.shielding(r.activity_type), "</td>");
