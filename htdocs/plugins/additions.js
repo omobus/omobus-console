@@ -8,7 +8,7 @@ var PLUG = (function() {
     var _statusColumn = 2;
 
     function _getcolumns(perm) {
-	return 9 + (perm.columns == null ? 0 : (
+	return 10 + (perm.columns == null ? 0 : (
 	    (perm.columns.channel == true ? 1 : 0) +
 	    (perm.columns.head == true ? 1 : 0)
 	));
@@ -29,6 +29,7 @@ var PLUG = (function() {
 	ar.push("<th class='date'>", lang.created_date, "</th>");
 	ar.push("<th class='bool'>", "&#x2610;", "</th>");
 	ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"user\",0.2)'>", lang.u_name, "</a></th>");
+	ar.push("<th>", lang.a_code, "</th>");
 	ar.push("<th>", lang.a_name, "</th>");
 	ar.push("<th>", "{0} / {1}".format_a(lang.address,lang.legal_address), "</th>");
 	if( perm.columns != null && perm.columns.channel == true ) {
@@ -62,7 +63,7 @@ var PLUG = (function() {
 	    doc_id:true,
 	    fix_dt:true, 
 	    user_id:true, dev_login:true, u_name:true,
-	    a_name:true, address:true, legal_address:true,
+	    a_code:true, a_name:true, address:true, legal_address:true,
 	    chan_id:true, chan:true, 
 	    addition_type_id:true, addition_type:true, 
 	    head_id:true
@@ -94,7 +95,8 @@ var PLUG = (function() {
 			ar.push("<td class='bool'>", "&nbsp", "</td>");
 		    }
 		    ar.push("<td class='string sw95px", r.rejected ? " disabled" : "", "'>", G.shielding(r.u_name), "</td>");
-		    ar.push("<td class='string", r.rejected ? " disabled" : "", "'>");
+		    ar.push("<td class='string", r.rejected ? " disabled" : "", "'>", G.shielding(r.a_code), "</td>");
+		    ar.push("<td class='string a_name", r.rejected ? " disabled" : "", "'>");
 		    ar.push(G.shielding(r.a_name));
 		    if( !String.isEmpty(r.number) ) {
 			ar.push("<hr/><div class='row remark'><i>", G.shielding(r.number), "</i></div>");
@@ -128,7 +130,7 @@ var PLUG = (function() {
 			ar.push("</div>","</div>");
 		    }
 		    ar.push("</td>");
-		    ar.push("<td class='ref", r.rejected ? " disabled" : "","'>");
+		    ar.push("<td class='ref note", r.rejected ? " disabled" : "","'>");
 		    if( Array.isArray(r.attrs) ) {
 			r.attrs.forEach(function(arg0, arg1, arg2) {
 			    ar.push("<div class='row'>", G.shielding(arg0), "</div>");

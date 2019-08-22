@@ -20,7 +20,7 @@ local function data(permtb, stor, sestb)
 select
     j.doc_id,
     j.validated, j.hidden rejected,
-    j.account a_name, j.address, j.legal_address, j.number,
+    a.code a_code, j.account a_name, j.address, j.legal_address, j.number,
     j.addition_type_id, t.descr addition_type,
     j.chan_id, ch.descr chan,
     j.note,
@@ -32,13 +32,15 @@ select
     j.validator_id v_code, v.descr v_name,
     u.executivehead_id head_id, ex.descr head_name
 from j_additions j
+    left join accounts a on a.account_id = j.guid
     left join addition_types t on t.addition_type_id = j.addition_type_id
     left join channels ch on j.chan_id = ch.chan_id
     left join users u on u.user_id = j.user_id
     left join users ex on ex.user_id = u.executivehead_id
     left join users v on v.user_id = j.validator_id
-where
-    $(0)(
+where $(0)
+    (a.approved is null or a.approved = 0) and
+    (
 	(j.validated = 0 and j.hidden = 0 and %registered% = 1)
 	or (j.validated = 1 and j.hidden = 0 and %validated% = 1)
 	or (j.hidden = 1 and %rejected% = 1)

@@ -1138,9 +1138,16 @@ hr {
     text-align: right;
 }
 
+.report td.a_name {
+    word-break: break-word;
+    min-width: 80px;
+    max-width: 140px;
+}
+
 .report td.note {
     word-break: break-word;
     min-width: 70px;
+    max-width: 200px;
 }
 
 .report td.disabled {
