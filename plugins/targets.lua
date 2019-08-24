@@ -24,7 +24,7 @@ local function get_data(stor, erpid)
 -- *** sql query: begin
 [[
 select 
-    x.target_id, x.target_type_id, t.descr target_type, x.subject, x.body, x.b_date, x.e_date, x.dep_id, d.descr department, x.country_id, c.descr country,
+    x.target_id, x.target_type_id, t.descr target_type, x.subject, x.body, x.b_date, x.e_date, x.dep_id, d.descr department,
     array_to_string(x.region_ids, ',') region_ids, (select string_agg(descr, '<br/>') from regions where region_id=any(x.region_ids)) regions,
     array_to_string(x.city_ids, ',') city_ids, (select string_agg(descr, '<br/>') from cities where city_id=any(x.city_ids)) cities,
     array_to_string(x.rc_ids, ',') rc_ids, (select string_agg(descr, '<br/>') from retail_chains where rc_id=any(x.rc_ids)) retail_chains,
@@ -35,7 +35,6 @@ select
     x.author_id, case when u.user_id is null then x.author_id else u.descr end author
 from targets x
     left join departments d on x.dep_id=d.dep_id
-    left join countries c on x.country_id=c.country_id
     left join target_types t on x.target_type_id=t.target_type_id
     left join users u on u.user_id=x.author_id
 where x.hidden=0 
@@ -52,11 +51,6 @@ order by x.b_date desc, x.e_date, x.subject
 	    tb.departments, err = func_execute(tran, 
 		"select dep_id, descr from departments where hidden=0 order by descr", 
 		"//targets/departments/")
-	end
-	if err == nil or err == false then
-	    tb.countries, err = func_execute(tran, 
-		"select country_id, descr from countries where hidden=0 order by descr", 
-		"//targets/countries/")
 	end
 	if err == nil or err == false then
 	    tb.types, err = func_execute(tran, 
@@ -118,7 +112,7 @@ local function post(stor, uid, params)
     return stor.put(function(tran, func_execute) return func_execute(tran,
 -- *** sql query: begin
 [[
-select console.req_target(%req_uid%, (%type_id%, %subject%, %body%, %b_date%, %e_date%, %country_id%, %dep_id%, string_to_array(%account_ids%,','), 
+select console.req_target(%req_uid%, (%type_id%, %subject%, %body%, %b_date%, %e_date%, %dep_id%, string_to_array(%account_ids%,','), 
     string_to_array(%region_ids%,','), string_to_array(%city_ids%,','), string_to_array(%rc_ids%,','), string_to_array(%chan_ids%,','), string_to_array(%poten_ids%,','))::console.target_t)
 ]]
 -- *** sql query: end
@@ -136,7 +130,7 @@ local function put(stor, uid, target_id, params)
     return stor.put(function(tran, func_execute) return func_execute(tran,
 -- *** sql query: begin
 [[
-select console.req_target(%req_uid%, %target_id%, (%type_id%, %subject%, %body%, %b_date%, %e_date%, %country_id%, %dep_id%, string_to_array(%account_ids%,','), 
+select console.req_target(%req_uid%, %target_id%, (%type_id%, %subject%, %body%, %b_date%, %e_date%, %dep_id%, string_to_array(%account_ids%,','), 
     string_to_array(%region_ids%,','), string_to_array(%city_ids%,','), string_to_array(%rc_ids%,','), string_to_array(%chan_ids%,','), string_to_array(%poten_ids%,','))::console.target_t)
 ]]
 -- *** sql query: end
@@ -198,7 +192,6 @@ local function ajax_new(permtb, sestb, params, content, stor, res)
 	string.format("function %s() >>> PANIC <<< invalid b_date.", debug.getinfo(1,"n").name))
     assert(p.b_date <= p.e_date,
 	string.format("function %s() >>> PANIC <<< invalid e_date.", debug.getinfo(1,"n").name))
-    if p.country_id == nil or #p.country_id == 0 then p.country_id = stor.NULL end
     if p.dep_id == nil or #p.dep_id == 0 then p.dep_id = stor.NULL end
     if p.account_ids == nil then p.account_ids = stor.NULL end
     if p.region_ids == nil then p.region_ids = stor.NULL end
@@ -234,7 +227,6 @@ local function ajax_edit(permtb, sestb, params, content, stor, res)
 	string.format("function %s() >>> PANIC <<< invalid b_date.", debug.getinfo(1,"n").name))
     assert(p.b_date <= p.e_date,
 	string.format("function %s() >>> PANIC <<< invalid e_date.", debug.getinfo(1,"n").name))
-    if p.country_id == nil or #p.country_id == 0 then p.country_id = stor.NULL end
     if p.dep_id == nil or #p.dep_id == 0 then p.dep_id = stor.NULL end
     if p.account_ids == nil then p.account_ids = stor.NULL end
     if p.region_ids == nil then p.region_ids = stor.NULL end
