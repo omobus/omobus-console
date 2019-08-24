@@ -97,9 +97,10 @@ var PLUG = (function() {
     function _getstatus(r) {
 	var ar = [], z;
 	ar.push("<div>", G.shielding(r.target_type), "</div>");
-	ar.push("<div>", G.shielding(r.body), "</div>");
 	ar.push("<div>" + lang.validity + ":&nbsp;" + lang.b_date2 + "&nbsp;<i>" + G.getlongday_l(Date.parseISO8601(r.b_date)) +
 	    "</i>&nbsp;" + lang.e_date2 + "&nbsp;<i>" + G.getlongday_l(Date.parseISO8601(r.e_date)) + "</i></div>");
+	ar.push("<hr />");
+	ar.push("<div>", G.shielding(r.body), "</div>");
 	ar.push("<hr />");
 	ar.push("<div class='r watermark'>", "{0} / {1}".format_a(G.shielding(r.target_id), r.updated_ts), "</div>");
 	return ar;
