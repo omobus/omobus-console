@@ -29,7 +29,7 @@ var PLUG = (function() {
     }
 
     function _getcolumns(perm) {
-	return 11;
+	return 10;
     }
 
     function _getbody(perm) {
@@ -46,7 +46,6 @@ var PLUG = (function() {
 	    "<th rowspan='2'>" + lang.targets.type + "</th>" + 
 	    "<th colspan='2'>" + lang.validity + "</th>" + 
 	    "<th rowspan='2'>" + lang.targets.accounts.caption + "</th>" + 
-	    "<th rowspan='2'>" + lang.country + "</th>" + 
 	    "<th rowspan='2'>" + lang.department + "</th>" + 
 	    "<th rowspan='2'>" + lang.remove.cap + "</th>" + 
 	    "<th rowspan='2'>" + lang.author + "</th>" + 
@@ -118,7 +117,6 @@ var PLUG = (function() {
 		ar.push("<td class='date" + t + "'>" + G.getdate_l(Date.parseISO8601(r.b_date)) + "</td>");
 		ar.push("<td class='date" + t + "'>" + G.getdate_l(Date.parseISO8601(r.e_date)) + "</td>");
 		ar.push("<td class='ref" + t + "' width='230px;'>" + _accounts(r).join("") + "</td>");
-		ar.push("<td class='ref" + t + "' width='100px;'>" + G.shielding(r.country) + "</td>");
 		ar.push("<td class='ref" + t + "' width='100px;'>" + G.shielding(r.department) + "</td>");
 		if( r.hidden ) {
 		    ar.push("<td class='bool'>" + lang.plus + "</td>");
@@ -148,7 +146,6 @@ var PLUG = (function() {
 	    if( xhr.status == 200 && data != null && typeof data == 'object' ) {
 		_fixrows(data.targets);
 		data.types_i = data.types ? data.types.createIndexBy('target_type_id') : null;
-		data.countries_i = data.countries ? data.countries.createIndexBy('country_id') : null;
 		data.departments_i = data.departments ? data.departments.createIndexBy('dep_id') : null;
 		tbody.html(_success(data, f, _getobjcache(), _perm).join(""));
 		_cache = data;
@@ -263,7 +260,6 @@ var PLUG = (function() {
 	    if( (a.type = data.types_i[row.target_type_id]) == null ) {
 		a.type = data.types[0];
 	    }
-	    a.country = (row.country_id ? data.countries_i[row.country_id] : null);
 	    a.dep = (row.dep_id ? data.departments_i[row.dep_id] : null);
 	    a.b_date = Date.parseISO8601(row.b_date);
 	    a.e_date = Date.parseISO8601(row.e_date);
@@ -277,7 +273,6 @@ var PLUG = (function() {
 	    a.subject = '';
 	    a.body = '';
 	    a.type = data.types[0];
-	    a.country = null;
 	    a.dep = null;
 	    a.b_date = a._b_date;
 	    a.e_date = new Date(a._b_date.getFullYear(), a._b_date.getMonth() + 1, 0);
@@ -336,13 +331,6 @@ var PLUG = (function() {
 	    a.push("<div class='row'>" + lang.targets.accounts.caption + ":&nbsp;<a id='account' href='javascript:PLUG.e.a();'>" + 
 		(t ? lang.targets.ref1.format_a(t) : lang.targets.ref0) + "</a>");
 	    a.push("<div style='float: right'><a id='acleanup' class='cleanup' " + (t?"":"style='display: none;'") + " href='javascript:PLUG.e._cleanup()'>" + 
-		lang.remove.ref + "</a></div>");
-	    a.push("</div>");
-	}
-	if( context._data.countries ) {
-	    a.push("<div class='row'>" + lang.country + ":&nbsp;<a id='country' href='javascript:PLUG.e.country();'>" + 
-		(context.country ? context.country.descr :  lang.country_everyone.toLowerCase()) + "</a>");
-	    a.push("<div style='float: right'><a id='ccleanup' class='cleanup' " + (context.country?"":"style='display: none;'") + " href='javascript:PLUG.e._setcountry()'>" + 
 		lang.remove.ref + "</a></div>");
 	    a.push("</div>");
 	}
@@ -434,7 +422,6 @@ var PLUG = (function() {
 	    subject: context.subject, body: context.body,
 	    b_date: G.getdate(context.b_date), e_date: G.getdate(context.e_date),
 	    type_id: context.type.target_type_id,
-	    country_id: context.country ? context.country.country_id : null,
 	    dep_id: context.dep ? context.dep.dep_id : null,
 	    rc_ids: _fmtArray(context.retail_chains, "rc_id"),
 	    chan_ids: _fmtArray(context.channels, "chan_id"),
@@ -601,12 +588,6 @@ var PLUG = (function() {
 		    }, "type")
 		);
 	    },
-	    country: function() {
-		_showpopup(_context._popup, _elem.box.find("#country"), _getsimplelist(_context._data.countries, function(r) {
-			return _context.country && r.country_id == _context.country.country_id;
-		    }, "country")
-		);
-	    },
 	    dep: function() {
 		_showpopup(_context._popup, _elem.box.find("#dep"), _getsimplelist(_context._data.departments, function(r) {
 			return _context.dep && r.dep_id == _context.dep.dep_id;
@@ -652,18 +633,6 @@ var PLUG = (function() {
 	    _settype: function(i) {
 		_context.type = _context._data.types[i];
 		_elem.box.find("#type").text(_context.type.descr);
-		_redrawbox(_context);
-	    },
-	    _setcountry: function(i) {
-		if( i == null ) {
-		    _context.country = null;
-		    _elem.box.find("#country").text(lang.country_everyone);
-		    _elem.box.find("#ccleanup").hide();
-		} else {
-		    _context.country = _context._data.countries[i];
-		    _elem.box.find("#country").text(_context.country.descr);
-		    _elem.box.find("#ccleanup").show();
-		}
 		_redrawbox(_context);
 	    },
 	    _setdep: function(i) {
