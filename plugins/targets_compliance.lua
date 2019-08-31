@@ -109,7 +109,7 @@ select target_type_id, descr, hidden from target_types
 	if err == nil or err == false then
 	    tb.confirmation_types, err = func_execute(tran,
 [[
-select confirm_id, descr, hidden from confirmation_types
+select confirmation_type_id, descr, hidden from confirmation_types
     order by descr
 ]]
 		, "//targets_compliance/confirmation_types"
@@ -212,7 +212,7 @@ local function personalize(sestb, data)
 		if v.confirmations ~= nil then
 		    for j, w in ipairs(v.confirmations) do
 			if w.performer_id ~= nil then idx_performers[w.performer_id] = 1; end
-			if w.confirm_id ~= nil then idx_confirms[w.confirm_id] = 1; end
+			if w.confirmation_type_id ~= nil then idx_confirms[w.confirmation_type_id] = 1; end
 			if w.head_id ~= nil then idx_heads[w.head_id] = 1; end
 			break -- (the earliest confirmation only)
 		    end
@@ -231,7 +231,7 @@ local function personalize(sestb, data)
 	    if v.confirmations ~= nil then
 		for j, w in ipairs(v.confirmations) do
 		    if w.performer_id ~= nil then idx_performers[w.performer_id] = 1; end
-		    if w.confirm_id ~= nil then idx_confirms[w.confirm_id] = 1; end
+		    if w.confirmation_type_id ~= nil then idx_confirms[w.confirmation_type_id] = 1; end
 		    if w.head_id ~= nil then idx_heads[w.head_id] = 1; end
 		    break -- (the earliest confirmation only)
 		end
@@ -246,7 +246,7 @@ local function personalize(sestb, data)
     p.channels = core.reduce(data.channels, 'chan_id', idx_channels)
     p.retail_chains = core.reduce(data.retail_chains, 'rc_id', idx_rcs)
     p.target_types = core.reduce(data.target_types, 'target_type_id', idx_types)
-    p.confirmation_types = core.reduce(data.confirmation_types, 'confirm_id', idx_confirms)
+    p.confirmation_types = core.reduce(data.confirmation_types, 'confirmation_type_id', idx_confirms)
 
     return json.encode(p)
 end

@@ -83,7 +83,7 @@ var PLUG = (function() {
 	    b_date:true, 
 	    "L.performer_id":true,
 	    "L.head_id":true, 
-	    "L.confirm_id":true
+	    "L.confirmation_type_id":true
 	});
     }
 
@@ -434,7 +434,7 @@ var PLUG = (function() {
 	confirmation_types: function(tag, offset) {
 	    _togglePopup("confirmation_types", tag, offset, function(obj) {
 		return ConfirmationTypesPopup(_cache.data[obj], function(arg, i, ar) {
-		    _onpopup(tag, arg, "confirm_id");
+		    _onpopup(tag, arg, "confirmation_type_id");
 		})
 	    });
 	},

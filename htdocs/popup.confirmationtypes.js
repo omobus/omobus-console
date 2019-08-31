@@ -19,7 +19,7 @@ function ConfirmationTypesPopup(rows, selection, params /* params = { everything
     }
     if( params.container.hasAttribute("X-uid") ) {
 	rows.forEach(function(arg) { 
-	    if( arg.confirm_id == this ) {
+	    if( arg.confirmation_type_id == this ) {
 		arg._selected = true;
 	    }
 	}, params.container.getAttribute("X-uid"));
@@ -140,7 +140,7 @@ ConfirmationTypesPopup.prototype._onselect = function(index) {
 	if( typeof this._selection == 'function' ) {
 	    this._selection(this._rows[index], index, this._rows);
 	}
-	this._container.setAttribute('X-uid', this._rows[index].confirm_id);
+	this._container.setAttribute('X-uid', this._rows[index].confirmation_type_id);
     }
 }
 

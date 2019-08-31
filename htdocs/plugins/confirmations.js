@@ -86,7 +86,7 @@ var PLUG = (function() {
 	    rc_id:true, rc:true, ka_code:true, 
 	    region:true, 
 	    city:true, 
-	    confirm_id:true, confirm:true,
+	    confirmation_type_id:true, confirm:true,
 	    doc_note:true,
 	    target_id:true, subject:true, body:true, b_date:true, e_date:true, 
 	    author_id:true,
@@ -341,7 +341,7 @@ var PLUG = (function() {
 	confirmation_types: function(tag, offset) {
 	    _togglePopup("confirmation_types", tag, offset, function(obj) {
 		return ConfirmationTypesPopup(_cache.data[obj], function(arg, i, ar) {
-		    _onpopup(tag, arg, "confirm_id");
+		    _onpopup(tag, arg, "confirmation_type_id");
 		})
 	    });
 	},

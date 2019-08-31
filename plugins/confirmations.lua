@@ -100,7 +100,7 @@ select rc_id, descr, ka_code, hidden from retail_chains
 	if err == nil or err == false then
 	    tb.types, err = func_execute(tran,
 [[
-select confirm_id, descr, hidden from confirmation_types
+select confirmation_type_id, descr, hidden from confirmation_types
     order by descr
 ]]
 		, "//confirmations/confirmation_types"
@@ -177,7 +177,7 @@ local function personalize(sestb, data)
 		idx_users[v.user_id] = 1
 		if v.chan_id ~= nil then idx_channels[v.chan_id] = 1; end
 		if v.rc_id ~= nil then idx_rcs[v.rc_id] = 1; end
-		if v.confirm_id ~= nil then idx_types[v.confirm_id] = 1; end
+		if v.confirmation_type_id ~= nil then idx_types[v.confirmation_type_id] = 1; end
 		if v.author_id ~= nil then idx_authors[v.author_id] = 1; end
 		if v.head_id ~= nil then idx_heads[v.head_id] = 1; end
 		table.insert(tb, v); 
@@ -190,7 +190,7 @@ local function personalize(sestb, data)
 	    idx_users[v.user_id] = 1
 	    if v.chan_id ~= nil then idx_channels[v.chan_id] = 1; end
 	    if v.rc_id ~= nil then idx_rcs[v.rc_id] = 1; end
-	    if v.confirm_id ~= nil then idx_types[v.confirm_id] = 1; end
+	    if v.confirmation_type_id ~= nil then idx_types[v.confirmation_type_id] = 1; end
 	    if v.author_id ~= nil then idx_authors[v.author_id] = 1; end
 	    if v.head_id ~= nil then idx_heads[v.head_id] = 1; end
 	end
@@ -201,7 +201,7 @@ local function personalize(sestb, data)
     p.authors = core.reduce(data.users, 'user_id', idx_authors)
     p.channels = core.reduce(data.channels, 'chan_id', idx_channels)
     p.retail_chains = core.reduce(data.retail_chains, 'rc_id', idx_rcs)
-    p.confirmation_types = core.reduce(data.types, 'confirm_id', idx_types)
+    p.confirmation_types = core.reduce(data.types, 'confirmation_type_id', idx_types)
 
     return json.encode(p)
 end
