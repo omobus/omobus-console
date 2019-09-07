@@ -7,6 +7,7 @@ local V = require 'version'
 local mime = require 'mime'
 local scgi = require 'scgi'
 local json = require 'json'
+local uri = require 'url'
 local validate = require 'validate'
 local zlib = require 'zlib'
 local bzlib = require 'bzlib'
@@ -79,7 +80,7 @@ select user_id, descr, dev_login, area, hidden from users
 		, "//confirmations/users"
 	    )
 	end
-	if permtb.channel == true and (err == nil or err == false) then
+	if permtb.columns ~= nil and permtb.columns.channel == true and (err == nil or err == false) then
 	    tb.channels, err = func_execute(tran,
 [[
 select chan_id, descr, hidden from channels
@@ -110,12 +111,25 @@ select confirmation_type_id, descr, hidden from confirmation_types
 	    tb.content, err = func_execute(tran,
 [[
 select content_ts, content_type, content_compress, content_blob from content_get('stat_confirmations', '', 
-    "monthDate_First"('%y%-%m%-01')::date_t, "monthDate_Last"('%y%-%m%-01')::date_t)
+    "monthDate_First"('%y%-%m%-01'), "monthDate_Last"('%y%-%m%-01'))
 ]]
 		, "//confirmations/content"
 		, {y = year, m = month}
 	    )
 	end
+	if permtb.remark == true and (err == nil or err == false) then
+	    tb.remarks, err = func_execute(tran,
+[[
+select doc_id, status, note from j_remarks where doc_id in (
+	select doc_id from h_confirmation where "monthDate_First"('%y%-%m%-01')::date_t <= left(fix_dt,10) and left(fix_dt,10) <= "monthDate_Last"('%y%-%m%-01')::date_t
+    ) and updated_ts > (select max(content_ts) from content_stream where content_code = 'stat_confirmations' and user_id = ''
+	    and b_date = "monthDate_First"('%y%-%m%-01')::date_t and e_date = "monthDate_Last"('%y%-%m%-01')::date_t)
+]]
+		, "//confirmations/remarks"
+		, {y = year, m = month}
+	    )
+        end
+
 	return tb, err
     end
     )
@@ -129,6 +143,28 @@ select photo_get(%blob_id%::blob_t) photo
 	, "//confirmations/photo"
 	, {blob_id = blob_id})
     end
+    )
+end
+
+local function thumb(stor, blob_id)
+    return stor.get(function(tran, func_execute) return func_execute(tran,
+[[
+select thumb_get(%blob_id%::blob_t) photo
+]]
+	, "//confirmations/thumb"
+	, {blob_id = blob_id})
+    end
+    )
+end
+
+local function remark(stor, uid, cmd, doc_id, note, attrs)
+    return stor.get(function(tran, func_execute) return func_execute(tran,
+[[
+select console.req_remark(%req_uid%, %cmd%, %doc_id%, %msg%, %attrs%) "rows"
+]]
+	, "//confirmations/remark"
+	, {req_uid = uid, cmd = cmd, doc_id = doc_id, msg = note or stor.NULL, attrs = attrs or stor.NULL})
+    end, false
     )
 end
 
@@ -159,6 +195,13 @@ local function personalize(sestb, data)
     local idx_types = {}
     local idx_heads = {}
     local idx_authors = {}
+    local idx_remark = {}
+
+    if data.remarks ~= nil then
+	for i, v in ipairs(data.remarks) do
+	    idx_remark[v.doc_id] = {status = v.status, note = v.note}
+	end
+    end
 
     if sestb.erpid ~= nil or sestb.distributor ~= nil or sestb.agency ~= nil then
 	local idx0, idx1, tb = {}, {}, {}
@@ -174,12 +217,14 @@ local function personalize(sestb, data)
 	end
 	for i, v in ipairs(p.rows) do
 	    if idx0[v.user_id] ~= nil or idx1[v.account_id] ~= nil then
+		local u = idx_remark[v.doc_id]
 		idx_users[v.user_id] = 1
 		if v.chan_id ~= nil then idx_channels[v.chan_id] = 1; end
 		if v.rc_id ~= nil then idx_rcs[v.rc_id] = 1; end
 		if v.confirmation_type_id ~= nil then idx_types[v.confirmation_type_id] = 1; end
 		if v.author_id ~= nil then idx_authors[v.author_id] = 1; end
 		if v.head_id ~= nil then idx_heads[v.head_id] = 1; end
+		if u ~= nil then v.remark = u; end
 		table.insert(tb, v); 
 		v.row_no = #tb
 	    end
@@ -187,12 +232,14 @@ local function personalize(sestb, data)
 	p.rows = tb
     else
 	for i, v in ipairs(p.rows) do
+	    local u = idx_remark[v.doc_id]
 	    idx_users[v.user_id] = 1
 	    if v.chan_id ~= nil then idx_channels[v.chan_id] = 1; end
 	    if v.rc_id ~= nil then idx_rcs[v.rc_id] = 1; end
 	    if v.confirmation_type_id ~= nil then idx_types[v.confirmation_type_id] = 1; end
 	    if v.author_id ~= nil then idx_authors[v.author_id] = 1; end
 	    if v.head_id ~= nil then idx_heads[v.head_id] = 1; end
+	    if u ~= nil then v.remark = u; end
 	end
     end
 
@@ -210,6 +257,7 @@ end
 -- *** plugin interface: begin
 function M.scripts(lang, permtb, sestb, params)
     local ar = {}
+    table.insert(ar, '<script src="' .. V.static_prefix .. '/libs/lazyload-4.0.4.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/libs/jszip-2.5.0.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/libs/filesaver-0.1.0.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.js"> </script>')
@@ -238,7 +286,7 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
 	    -- validate input data
 	    assert(validate.isuid(params.blob_id), "invalid [blob_id] parameter.")
 	    -- execute query
-	    tb, err = photo(stor, params.blob_id)
+	    tb, err = params.thumb == nil and photo(stor, params.blob_id) or thumb(stor, params.blob_id)
 	    if err then
 		scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
 		scgi.writeBody(res, "Internal server error")
@@ -274,7 +322,7 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
 	    params.month = tonumber(params.month)
 	    assert(params.month >= 1 and params.month <= 12, "[month] parameter should be between 1 and 12.")
 	    -- execute query
-	    tb, err = data(stor, permtb.columns or {}, sestb, params.year, params.month)
+	    tb, err = data(stor, permtb, sestb, params.year, params.month)
 	    if err then
 		scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
 		scgi.writeBody(res, "Internal server error")
@@ -285,6 +333,47 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
 		scgi.writeHeader(res, 200, {["Content-Type"] = tb.content[1].content_type .. "; charset=utf-8", ["Content-Encoding"] = "deflate"})
 		scgi.writeBody(res, compress(personalize(sestb, tb)))
 	    end
+	end
+    elseif method == "PUT" then
+	if permtb.remark == true then
+	    local p, tb, err
+	    if type(content) == "string" then p = uri.parseQuery(content) end
+	    assert(validate.isuid(p.doc_id), "invalid [doc_id] parameter.")
+	    tb, err = remark(stor, sestb.erpid or sestb.username, 'accept', p.doc_id, p.note, p.attrs)
+	    if err then
+		scgi.writeHeader(res, 500, {["Content-Type"] = mime.json .. "; charset=utf-8"})
+		scgi.writeBody(res, "{\"status\":\"failed\",\"msg\":\"Internal server error\"}")
+	    elseif tb == nil or #tb ~= 1 or tb[1].rows == nil or tb[1].rows == 0 then
+		scgi.writeHeader(res, 409, {["Content-Type"] = mime.json .. "; charset=utf-8"})
+		scgi.writeBody(res, "{\"status\":\"failed\",\"msg\":\"Invalid input parameters\"}")
+	    else
+		scgi.writeHeader(res, 200, {["Content-Type"] = mime.json})
+		scgi.writeBody(res, "{\"status\":\"success\"}")
+	    end
+	else
+	    scgi.writeHeader(res, 400, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
+	    scgi.writeBody(res, "Bad request. Operation does not permitted.")
+	end
+    elseif method == "DELETE" then
+	if permtb.remark == true then
+	    local p, tb, err
+	    if type(content) == "string" then p = uri.parseQuery(content) end
+	    assert(validate.isuid(p.doc_id), "invalid [doc_id] parameter.")
+	    assert(p.note ~= nil and #p.note, "invalid [note] parameter.")
+	    tb, err = remark(stor, sestb.erpid or sestb.username, 'reject', p.doc_id, p.note, p.attrs)
+	    if err then
+		scgi.writeHeader(res, 500, {["Content-Type"] = mime.json .. "; charset=utf-8"})
+		scgi.writeBody(res, "{\"status\":\"failed\",\"msg\":\"Internal server error\"}")
+	    elseif tb == nil or #tb ~= 1 or tb[1].rows == nil or tb[1].rows == 0 then
+		scgi.writeHeader(res, 409, {["Content-Type"] = mime.json .. "; charset=utf-8"})
+		scgi.writeBody(res, "{\"status\":\"failed\",\"msg\":\"Invalid input parameters\"}")
+	    else
+		scgi.writeHeader(res, 200, {["Content-Type"] = mime.json})
+		scgi.writeBody(res, "{\"status\":\"success\"}")
+	    end
+	else
+	    scgi.writeHeader(res, 400, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
+	    scgi.writeBody(res, "Bad request. Operation does not permitted.")
 	end
     else
 	scgi.writeHeader(res, 400, {["Content-Type"] = mime.txt .. "; charset=utf-8"})

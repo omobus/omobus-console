@@ -302,8 +302,8 @@ var PLUG = (function() {
 	    lang.targets.body.placeholder + "'>" + context.body + "</textarea></div>");
 	a.push("<div class='row'>" + lang.targets.type + ":&nbsp;<a id='type' href='javascript:PLUG.e.type();'>" + 
 	    context.type.descr + "</a></div>");
-	a.push("<div class='row'>" + lang.validity + ":&nbsp;" + lang.b_date2 + "&nbsp;<a id='b_date' href='javascript:PLUG.e.b_date();'>" +
-	    G.getlongday_l(context.b_date).toLowerCase() + "</a>&nbsp;" + lang.e_date2 + "&nbsp;<a id='e_date' href='javascript:PLUG.e.e_date();'>" + 
+	a.push("<div class='row'>" + lang.validity + ":&nbsp;<a id='b_date' href='javascript:PLUG.e.b_date();'>" +
+	    G.getlongday_l(context.b_date).toLowerCase() + "</a>&nbsp;-&nbsp;<a id='e_date' href='javascript:PLUG.e.e_date();'>" + 
 	    G.getlongday_l(context.e_date).toLowerCase() + "</a></div>");
 	if( context._data.regions ) {
 	    a.push("<div class='row'>" + lang.region + ":&nbsp;<a id='region' href='javascript:PLUG.e.region();'>" + 

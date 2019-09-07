@@ -7,7 +7,7 @@ var PLUG = (function() {
     var _cache = {}, _perm = {}, _tags = {}, _F = false /* abort export photos */;
 
     function _getcolumns(perm) {
-	return 10 + (perm.columns == null ? 0 : (
+	return 9 + (perm.columns == null ? 0 : (
 	    (perm.columns.channel == true ? 1 : 0) + 
 	    (perm.columns.head == true ? 1 : 0) +
 	    (perm.columns.author == true ? 1 : 0)
@@ -44,9 +44,8 @@ var PLUG = (function() {
 	    ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.channels(this)'>", lang.chan_name, "</a></th>");
 	}
 	ar.push("<th>", lang.targets.subject.caption, "</th>");
-	ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.confirmation_types(this, 0.6)'>", lang.confirmations.type, "</a></th>");
 	ar.push("<th>", lang.photo, "</th>");
-	ar.push("<th>", lang.note, "</th>");
+	ar.push("<th width='260px'><a href='javascript:void(0)' onclick='PLUG.confirmation_types(this,0.65)'>", lang.targets_compliance.confirmations, "</a></th>");
 	if( perm.columns != null && perm.columns.head == true ) {
 	    ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"head\",0.90)'>", lang.head_name, "</a></th>");
 	}
@@ -94,16 +93,49 @@ var PLUG = (function() {
 	});
     }
 
-    function _getstatus(r) {
+    function _targettbl(r) {
 	var ar = [], z;
 	ar.push("<div>", G.shielding(r.target_type), "</div>");
-	ar.push("<div>" + lang.validity + ":&nbsp;" + lang.b_date2 + "&nbsp;<i>" + G.getlongday_l(Date.parseISO8601(r.b_date)) +
-	    "</i>&nbsp;" + lang.e_date2 + "&nbsp;<i>" + G.getlongday_l(Date.parseISO8601(r.e_date)) + "</i></div>");
+	ar.push("<div>", "{0}:&nbsp;<i>{1}</i>&nbsp;-&nbsp;<i>{2}</i>".format_a(lang.validity, G.getlongday_l(Date.parseISO8601(r.b_date)),
+	    G.getlongday_l(Date.parseISO8601(r.e_date))), "</div>");
 	ar.push("<hr />");
 	ar.push("<div>", G.shielding(r.body), "</div>");
 	ar.push("<hr />");
 	ar.push("<div class='r watermark'>", "{0} / {1}".format_a(G.shielding(r.target_id), r.updated_ts), "</div>");
 	return ar;
+    }
+
+    function _remarktbl(data) {
+	var ar = [];
+	ar.push("<h1>", lang.remark.caption, "</h1>");
+	ar.push("<div onclick='event.stopPropagation();'>");
+	ar.push("<p>");
+	ar.push("<div class='row'>", lang.notices.remark, "</div>");
+	ar.push("</p>");
+	ar.push("<div class='row attention gone' id='re:alert'></div>");
+	ar.push("<div class='row'><textarea id='re:note' rows='3' maxlength='1024' autocomplete='off' placeholder='",
+	    lang.remark.placeholder, "'></textarea></div>");
+	ar.push("<br/>");
+	ar.push("<div align='center'>");
+	ar.push("<button id='re:accept' disabled='true'>", lang.remark.accept, "</button>");
+	ar.push("&nbsp;&nbsp;");
+	ar.push("<button id='re:reject' disabled='true'>", lang.remark.reject, "</button>");
+	ar.push("</div>");
+	ar.push("</div>");
+	return ar;
+    }
+
+    function _remarkStyle(r) {
+	var xs = [];
+	if( typeof r != 'undefined' ) {
+	    if( r.status == 'accepted' || r.status == 'rejected' ) {
+		xs.push(" ", r.status, " footnote_L' data-title='", lang.remark[r.status]);
+		if( !String.isEmpty(r.note) ) {
+		    xs.push(": ", G.shielding(r.note));
+		}
+	    }
+	}
+	return xs;
     }
 
     function _datamsg(msg, perm) {
@@ -113,33 +145,67 @@ var PLUG = (function() {
     function _datatbl(data, page, total, f, checked, perm) {
 	var ar = [], size = Array.isArray(data.rows) ? data.rows.length : 0, x = 0, r, z;
 	data._rows = [];
-	for( var i = 0; i < size; i++ ) {
+	for( var i = 0, k = 0; i < size; i++ ) {
 	    if( (r = data.rows[i]) != null && f.is(r) ) {
 		if( (page-1)*perm.rows <= x && x < page*perm.rows ) {
+		    var b = 1, blobs = [];
+		    if( !(r.blob_id == null || r.blob_id == "") ) {
+			blobs.push(r.blob_id);
+		    }
+		    if( Array.isArray(r.photos) ) {
+			r.photos.forEach(function(arg) {
+			    blobs.push(arg);
+			});
+		    }
 		    ar.push("<tr" + (typeof checked != 'undefined' && checked[r.doc_id] ? " class='selected'" : "") + ">");
 		    ar.push("<td class='autoincrement clickable' onclick=\"PLUG.checkrow(this.parentNode,'" +
 			r.doc_id + "');event.stopPropagation();\">", r.row_no, "</td>");
-		    ar.push("<td class='date delim'>", G.getdatetime_l(Date.parseISO8601(r.fix_dt)), "</td>");
-		    ar.push("<td class='string sw95px delim'>", G.shielding(r.u_name), "</td>");
+		    ar.push("<td class='date'>", G.getdatetime_l(Date.parseISO8601(r.fix_dt)), "</td>");
+		    ar.push("<td class='string sw95px'>", G.shielding(r.u_name), "</td>");
 		    ar.push("<td class='int'>", G.shielding(r.a_code), "</td>");
-		    ar.push("<td class='string'>", G.shielding(r.a_name), "</td>");
-		    ar.push("<td class='string note" + (perm.columns != null && perm.columns.channel == true ? "" : " delim") + 
-			"'>", G.shielding(r.address), "</td>");
+		    ar.push("<td class='string a_name'>", G.shielding(r.a_name), "</td>");
+		    ar.push("<td class='string note'>", G.shielding(r.address), "</td>");
 		    if( perm.columns != null && perm.columns.channel == true ) {
-			ar.push("<td class='ref sw95px delim'>", G.shielding(r.chan), "</td>");
+			ar.push("<td class='ref sw95px'>", G.shielding(r.chan), "</td>");
 		    }
 		    ar.push("<td class='ref'><span onclick='PLUG.more(this," + r.row_no + ",0.70)'>", G.shielding(r.subject), "</span></td>");
-		    ar.push("<td class='ref note'>", G.shielding(r.confirm), "</td>");
 		    ar.push("<td class='ref'>");
-		    if( Array.isArray(r.photos) ) {
-			r.photos.forEach(function(arg0, arg1, arg2) {
-			    ar.push("<p><a href='javascript:void(0)' onclick='PLUG.slideshow([" + arg2.join(',') + "]," +
-				(arg1+1) + ")'>[&nbsp;" + (arg1+1) + "&nbsp;]</a></p>");
-			});
+		    if( r.blob_id == null || r.blob_id == "" ) {
+			ar.push("&nbsp;");
+		    } else {
+			ar.push("<img class='clickable' onclick='PLUG.slideshow([" + blobs.join(',') + "]," + b + ")' height='90px' " +
+			    (k>=20?"data-original='":"src='") + G.getajax({plug: _code, blob: "yes", thumb: "yes", blob_id: r.blob_id}) + "'/>");
+			b++;
 		    }
 		    ar.push("</td>");
-		    ar.push("<td class='string note" + (perm.columns != null && (perm.columns.head == true || perm.columns.author == true) ? " delim" : "") + 
-			"'>", G.shielding(r.doc_note), "</td>");
+		    ar.push("<td class='ref", _remarkStyle(r.remark).join(''), "'>");
+		    ar.push("<div>");
+		    ar.push("<div class='row'>");
+		    if( perm.remark == true ) {
+			ar.push("<span onclick='PLUG.remark(this," + r.row_no + ",0.80)'>");
+		    }
+		    ar.push(G.shielding(r.confirm, lang.dash));
+		    if( perm.remark == true ) {
+			ar.push("</span>");
+		    }
+		    ar.push("</div>");
+		    if( !String.isEmpty(r.doc_note) ) {
+			ar.push("<div class='row'><b>", G.shielding(r.doc_note), "</b></div>");
+		    }
+		    if( Array.isArray(r.photos) ) {
+			ar.push("<div class='row'>");
+			r.photos.forEach(function(arg1, index1, array1) {
+			    if( index1 > 0 ) {
+				ar.push("&nbsp;&nbsp;");
+			    }
+			    ar.push("<a href='javascript:void(0)' onclick='PLUG.slideshow([" + blobs.join(',') + "]," + b + ")'>[&nbsp;" +
+				(index1+1) + "&nbsp;]</a>");
+			    b++;
+			});
+			ar.push("</div>");
+		    }
+		    ar.push("</div>");
+		    ar.push("</td>");
 		    if( perm.columns != null && perm.columns.head == true ) {
 			ar.push("<td class='string sw95px'>", G.shielding(r.head_name), "</td>");
 		    }
@@ -147,6 +213,7 @@ var PLUG = (function() {
 			ar.push("<td class='string sw95px'>", G.shielding(r.author_name), "</td>");
 		    }
 		    ar.push("</tr>");
+		    k++;
 		}
 		data._rows.push(r);
 		x++;
@@ -206,6 +273,7 @@ var PLUG = (function() {
 	    if( xhr.status == 200 && data != null && typeof data == 'object' ) {
 		_cache.data = data;
 		_tags.tbody.html(_datatbl(data, 1, _tags.total, _getfilter(), _cache.checked, _perm).join(""));
+		new LazyLoad();
 	    } else {
 		_tags.tbody.html(_datamsg(lang.failure, _perm).join(""));
 	    }
@@ -226,6 +294,7 @@ var PLUG = (function() {
 	    sp = spinnerLarge(_tags.body, "50%", "50%");
 	    setTimeout(function() {
 		_tags.tbody.html(_datatbl(_cache.data, page, _tags.total, _getfilter(), _cache.checked, _perm).join(""));
+		new LazyLoad();
 		_tags.tbody.show();
 		sp.stop();
 	    }, 0);
@@ -281,6 +350,7 @@ var PLUG = (function() {
 	    _tags.total = _("plugTotal");
 	    _tags.more = new Popup();
 	    _tags.popups = {};
+	    _cache.remarks = {}
 	    _datareq(y, m);
 	},
 	refresh: function() {
@@ -346,12 +416,93 @@ var PLUG = (function() {
 	    });
 	},
 	more: function(tag, row_no, offset) {
-	    if( _cache._more_row_no != null && _cache._more_row_no != row_no ) {
+	    var u = 'more:{0}'.format_a(row_no);
+	    if( _cache._more_row_no != null && _cache._more_row_no != u ) {
 		_tags.more.hide();
 	    }
-	    _tags.more.set(_getstatus(_cache.data.rows[row_no-1]).join(''));
+	    _tags.more.set(_targettbl(_cache.data.rows[row_no-1]).join(''));
 	    _tags.more.toggle(tag, offset);
-	    _cache._more_row_no = row_no;
+	    _cache._more_row_no = u;
+	},
+	remark: function(tag, row_no, offset) {
+	    var reaccept, rereject, renote, realert;
+	    var u = 'remark:{0}'.format_a(row_no);
+	    var r = _cache.data.rows[row_no-1];
+	    var ptr = _cache.remarks[r.doc_id] || {status:(r.remark||{}).status,note:""};
+	    var commit = function(self, method) {
+		var sp = spinnerSmall(self, self.position().top + self.height()/2 - _tags.more.position().top, self.position().left + 16 - _tags.more.position().left);
+		var xhr = G.xhr(method, G.getajax({plug: _code}), "", function(xhr) {
+		    if( xhr.status == 200 ) {
+			ptr.status = method == 'PUT' ? 'accepted' : /*method == 'DELETE'*/'rejected';
+			var cell = tag.parentNode.parentNode.parentNode;
+			cell.removeClass('accepted');
+			cell.removeClass('rejected');
+			cell.addClass(ptr.status);
+			cell.addClass('footnote_L');
+			cell.setAttribute('data-title', (String.isEmpty(ptr.note) ? "{0}" : "{0}: {1}").format_a(lang.remark[ptr.status], ptr.note));
+			_tags.more.hide();
+			Toast.show(lang.success.remark);
+			r.remark = ptr;
+			ptr = null;
+			_cache.remarks[r.doc_id] = null;
+		    } else {
+			enable();
+			alarm(xhr.status == 409 ? lang.errors.remark.exist : lang.errors.runtime);
+		    }
+		    sp.stop();
+		});
+		disable();
+		xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+		xhr.send(G.formParamsURI({doc_id: r.doc_id, note: ptr.note}));
+	    }
+	    var alarm = function(arg) {
+		realert.html(arg);
+		realert.show();
+	    }
+	    var enable = function() {
+		reaccept.disabled = ptr.status == 'accepted';
+		rereject.disabled = ptr.status == 'rejected' || String.isEmpty(ptr.note);
+		renote.disabled = false;
+	    }
+	    var disable = function() {
+		reaccept.disabled = true;
+		rereject.disabled = true;
+		renote.disabled = true;
+	    }
+	    if( _cache._more_row_no != null && _cache._more_row_no != u ) {
+		_tags.more.hide();
+	    }
+	    _tags.more.set(_remarktbl(r).join(''));
+	    realert = _("re:alert");
+	    renote = _("re:note");
+	    reaccept = _("re:accept");
+	    rereject = _("re:reject");
+	    renote.oninput = function() {
+		ptr.note = renote.value.trim();
+		enable();
+		realert.hide();
+	    }
+	    if( ptr.status != 'accepted' ) {
+		reaccept.onclick = function() {
+		    realert.hide();
+		    commit(this, "PUT");
+		}
+	    }
+	    if( ptr.status != 'rejected' ) {
+		rereject.onclick = function() {
+		    realert.hide();
+		    if( String.isEmpty(ptr.note) ) {
+			alarm(lang.errors.remark.note);
+		    } else {
+			commit(this, "DELETE");
+		    }
+		}
+	    }
+	    renote.text(ptr.note);
+	    _tags.more.toggle(tag, offset);
+	    _cache._more_row_no = u;
+	    _cache.remarks[r.doc_id] = ptr;
+	    enable();
 	},
 	slideshow: function(blobs, position) {
 	    var ar = [];

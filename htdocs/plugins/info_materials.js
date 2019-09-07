@@ -237,8 +237,8 @@ var PLUG = (function() {
 	a.push("<div id='msg' class='row attention gone'></div>");
 	a.push("<div class='row'><input type='text' maxlength='192' autocomplete='off' oninput='PLUG.e.caption(this.value)' placeholder='" +
 	    lang.info_materials.placeholder + "' value='" + context.name + "'/></div>");
-	a.push("<div class='row'>" + lang.validity + ":&nbsp;" + lang.b_date2 + "&nbsp;<a id='b_date' href='javascript:PLUG.e.b_date();'>" +
-	    G.getlongday_l(context.b_date).toLowerCase() + "</a>&nbsp;" + lang.e_date2 + "&nbsp;<a id='e_date' href='javascript:PLUG.e.e_date();'>" +
+	a.push("<div class='row'>" + lang.validity + ":&nbsp;<a id='b_date' href='javascript:PLUG.e.b_date();'>" +
+	    G.getlongday_l(context.b_date).toLowerCase() + "</a>&nbsp;-&nbsp;<a id='e_date' href='javascript:PLUG.e.e_date();'>" +
 	    G.getlongday_l(context.e_date).toLowerCase() + "</a></div>");
 	if( context._data.countries ) {
 	    a.push("<div class='row'>" + lang.country + ":&nbsp;<a id='country' href='javascript:PLUG.e.country();'>" +

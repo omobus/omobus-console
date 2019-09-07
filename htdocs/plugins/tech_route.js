@@ -1297,7 +1297,7 @@ var __route = (function() {
 		var xhr = G.xhr(method, G.getajax({plug: 'tech'}), "", function(xhr) {
 		    if( xhr.status == 200 ) {
 			ptr.zstatus = method == 'PUT' ? 'accepted' : /*method == 'DELETE'*/'rejected';
-			ptr.znote = znote.value.trim();
+			ptr.znote = ptr._znote;
 			tag.removeClass('accepted');
 			tag.removeClass('rejected');
 			tag.addClass(ptr.zstatus);
@@ -1306,6 +1306,7 @@ var __route = (function() {
 			    (String.isEmpty(ptr.znote) ? "" : ": {0}".format_a(ptr.znote)));
 			x.hide();
 			Toast.show(lang.success.zstatus);
+			ptr._znote = null;
 		    } else {
 			enable();
 			alarm(xhr.status == 409 ? lang.errors.zstatus.exist : lang.errors.runtime);
@@ -1314,7 +1315,7 @@ var __route = (function() {
 		});
 		disable();
 		xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-		xhr.send(G.formParamsURI({guid: guid, note: znote.value.trim()}));
+		xhr.send(G.formParamsURI({guid: guid, note: ptr._znote}));
 	    }
 	    var alarm = function(arg) {
 		zalert.html(arg);
@@ -1322,7 +1323,7 @@ var __route = (function() {
 	    }
 	    var enable = function() {
 		zaccept.disabled = ptr.zstatus == 'accepted';
-		zreject.disabled = ptr.zstatus == 'rejected' || String.isEmpty(znote.value.trim());
+		zreject.disabled = ptr.zstatus == 'rejected' || String.isEmpty(ptr._znote);
 		znote.disabled = false;
 	    }
 	    var disable = function() {
@@ -1341,20 +1342,24 @@ var __route = (function() {
 	    znote = _("znote");
 	    zaccept = _("zaccept");
 	    zreject = _("zreject");
+	    if( typeof ptr._znote != 'undefined' ) {
+		znote.text(ptr._znote);
+	    }
 	    znote.oninput = function() {
+		ptr._znote = znote.value.trim();
 		enable();
 		zalert.hide();
 	    }
-	    if( ptr.znote != 'accepted' ) {
+	    if( ptr.zstatus != 'accepted' ) {
 		zaccept.onclick = function() {
 		    zalert.hide();
 		    commit(this, "PUT");
 		}
 	    }
-	    if( ptr.znote != 'rejected' ) {
+	    if( ptr.zstatus != 'rejected' ) {
 		zreject.onclick = function() {
 		    zalert.hide();
-		    if( String.isEmpty(znote.value.trim()) ) {
+		    if( String.isEmpty(ptr._znote) ) {
 			alarm(lang.errors.zstatus.note);
 		    } else {
 			commit(this, "DELETE");

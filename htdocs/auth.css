@@ -18,7 +18,7 @@ body {
 .logosubtitle {
     color: #a3a3a3;
     font-size: 9pt;
-    font-weight: bold;
+    /*font-weight: bold;*/
 }
 
 .auth {

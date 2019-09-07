@@ -51,8 +51,9 @@ M.permissions = {
 
 -- # extra permission:
 M.permissions = require 'core'.deepcopy(M.permissions)
+M.permissions.confirmations.remark = true
 M.permissions.photos.target = true
-M.permissions.targets_compliance.target = true
+M.permissions.targets_compliance.remark = true
 M.permissions.tech.target = true
 
 return M

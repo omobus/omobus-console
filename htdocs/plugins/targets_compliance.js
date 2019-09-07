@@ -44,7 +44,7 @@ var PLUG = (function() {
 	ar.push("<th><a href='javascript:void(0)' onclick='PLUG.target_types(this,0.50)'>", lang.targets.subject.caption, "</a></th>");
 	ar.push("<th>", lang.validity, "</th>");
 	ar.push("<th>", lang.photo, "</th>");
-	ar.push("<th width='260'><a href='javascript:void(0)' onclick='PLUG.confirmation_types(this,0.65)'>", lang.targets_compliance.confirmations, "</a></th>");
+	ar.push("<th width='260px'><a href='javascript:void(0)' onclick='PLUG.confirmation_types(this,0.65)'>", lang.targets_compliance.confirmations, "</a></th>");
 	ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"performer\",0.80)'>", lang.performer_name, "</a></th>");
 	ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"head\",0.90)'>", lang.head_name, "</a></th>");
 	ar.push("</tr>", G.thnums(_getcolumns(perm)), "</thead>");
@@ -87,33 +87,61 @@ var PLUG = (function() {
 	});
     }
 
-    function _getstatus(r) {
+    function _targettbl(r) {
 	var ar = [], z;
 	ar.push("<div><i>", G.shielding(r.target_type), "</i></div>");
+	ar.push("<div>", "{0}:&nbsp;<i>{1}</i>&nbsp;-&nbsp;<i>{2}</i>".format_a(lang.validity, G.getlongday_l(Date.parseISO8601(r.b_date)),
+	    G.getlongday_l(Date.parseISO8601(r.e_date))), "</div>");
+	ar.push("<hr />");
 	ar.push("<div>", G.shielding(r.body), "</div>");
-	ar.push("<div>" + lang.validity + ":&nbsp;" + lang.b_date2 + "&nbsp;<i>" + G.getlongday_l(Date.parseISO8601(r.b_date)) +
-	    "</i>&nbsp;" + lang.e_date2 + "&nbsp;<i>" + G.getlongday_l(Date.parseISO8601(r.e_date)) + "</i></div>");
 	ar.push("<hr />");
 	ar.push("<div class='r watermark'>", "{0} / {1}".format_a(G.shielding(r.target_id), r.updated_ts), "</div>");
 	return ar;
     }
 
-    function _gettarget(doc_id) {
+    function _remarktbl(data) {
 	var ar = [];
-	ar.push("<h1>", lang.targets.title2, "</h1>");
+	ar.push("<h1>", lang.remark.caption, "</h1>");
 	ar.push("<div onclick='event.stopPropagation();'>");
-	ar.push("<div class='row'>", lang.notices.target, "</div>");
-	ar.push("<div class='row attention gone' id='alert:" + doc_id + "'></div>");
-	ar.push("<div class='row'><input id='sub:" + doc_id + "' type='text' maxlength='128' autocomplete='off' placeholder='" + 
-	    lang.targets.subject.placeholder + "'/></div>");
-	ar.push("<div class='row'><textarea id='msg:" + doc_id + "' rows='6' maxlength='2048' autocomplete='off' placeholder='" + 
-	    lang.targets.body.placeholder + "'></textarea></div>");
-	ar.push("<div class='row'><input id='strict:" + doc_id + "' type='checkbox'/>&nbsp;<lable for='strict:" + doc_id + "'>" +
-	    lang.targets.strict + "</lablel></div>");
+	ar.push("<p>");
+	ar.push("<div class='row'>", lang.notices.remark, "</div>");
+	ar.push("</p>");
+	ar.push("<div class='row attention gone' id='re:alert'></div>");
+	ar.push("<div class='row'><textarea id='re:note' rows='3' maxlength='1024' autocomplete='off' placeholder='",
+	    lang.remark.placeholder, "'></textarea></div>");
 	ar.push("<br/>");
-	ar.push("<div align='center'><button id='commit:" + doc_id + "' disabled='true'>", lang.save, "</button></div>");
+	ar.push("<div align='center'>");
+	ar.push("<button id='re:accept' disabled='true'>", lang.remark.accept, "</button>");
+	ar.push("&nbsp;&nbsp;");
+	ar.push("<button id='re:reject' disabled='true'>", lang.remark.reject, "</button>");
+	ar.push("</div>");
 	ar.push("</div>");
 	return ar;
+    }
+
+    function _remarkStyle(r) {
+	var xs = [];
+	if( typeof r != 'undefined' ) {
+	    if( r.status == 'accepted' || r.status == 'rejected' ) {
+		xs.push(" footnote_L' data-title='", lang.remark[r.status]);
+		if( !String.isEmpty(r.note) ) {
+		    xs.push(": ", G.shielding(r.note));
+		}
+	    }
+	}
+	return xs;
+    }
+
+    function _remarkStatus(r) {
+	var xs = [];
+	if( typeof r != 'undefined' ) {
+	    if( r.status == 'accepted' ) {
+		return "&#x1F600;";
+	    } else if( r.status == 'rejected' ) {
+		return "&#10071;";
+	    }
+	}
+	return '';
     }
 
     function _datamsg(msg, perm) {
@@ -144,7 +172,7 @@ var PLUG = (function() {
 			r.row_id + "');event.stopPropagation();\"" + (r.myself?(" data-title='" + lang.targets_compliance.myself + "'"):"") + ">", r.row_no, "</td>");
 		    ar.push("<td class='string sw95px'>", G.shielding(r.author_name), "</td>");
 		    ar.push("<td class='int'>", G.shielding(r.a_code), "</td>");
-		    ar.push("<td class='string" + (r.a_hidden ? " strikethrough attention" : "") + "'>", G.shielding(r.a_name), "</td>");
+		    ar.push("<td class='string a_name" + (r.a_hidden ? " strikethrough attention" : "") + "'>", G.shielding(r.a_name), "</td>");
 		    ar.push("<td class='string note" + (r.a_hidden ? " strikethrough attention" : "") + "'>", G.shielding(r.address), "</td>");
 		    if( perm.columns != null && perm.columns.channel == true ) {
 			ar.push("<td class='ref sw95px'>", G.shielding(r.chan), "</td>");
@@ -164,14 +192,15 @@ var PLUG = (function() {
 		    ar.push("</td>");
 		    ar.push("<td class='ref'>");
 		    if( r.L != null ) {
-			ar.push("<div>","<div class='row'>");
-			if( perm.target == true ) {
-			    ar.push("<span onclick='PLUG.target(this,\"", r.L.doc_id, "\",0.80)'>");
+			ar.push("<div>","<div class='row", _remarkStyle(r.L.remark).join(''), "'>");
+			if( perm.remark == true ) {
+			    ar.push("<span onclick='PLUG.remark(this,\"", r.row_no, "\",0.80)'>");
 			}
 			ar.push(G.shielding(r.L.confirm, lang.dash));
-			if( perm.target == true ) {
+			if( perm.remark == true ) {
 			    ar.push("</span>");
 			}
+			ar.push("<div>", _remarkStatus(r.L.remark), "</div>");
 			ar.push("</div>");
 			if( !String.isEmpty(r.L.doc_note) ) {
 			    ar.push("<div class='row'><b>", G.shielding(r.L.doc_note), "</b></div>");
@@ -198,7 +227,10 @@ var PLUG = (function() {
 				    if( r.L.performer_id != arg.performer_id ) {
 					ar.push("<div class='row watermark'>", G.shielding(arg.performer_name), "</div>");
 				    }
-				    ar.push("<div class='row'>", G.shielding(arg.confirm, lang.dash), "</div>");
+				    ar.push("<div class='row", _remarkStyle(arg.remark).join(''), "'>");
+				    ar.push(G.shielding(arg.confirm, lang.dash));
+				    ar.push(_remarkStatus(r.L.remark));
+				    ar.push("</div>");
 				    if( !String.isEmpty(arg.doc_note) ) {
 					ar.push("<div class='row'><b>", G.shielding(arg.doc_note), "</b></div>");
 				    }
@@ -370,7 +402,7 @@ var PLUG = (function() {
 	    _tags.total = _("plugTotal");
 	    _tags.more = new Popup();
 	    _tags.popups = {};
-	    _cache.targets = {};
+	    _cache.remarks = {};
 	    _datareq();
 	},
 	refresh: function() {
@@ -449,71 +481,89 @@ var PLUG = (function() {
 	    if( _cache._more_row_no != null && _cache._more_row_no != row_no ) {
 		_tags.more.hide();
 	    }
-	    _tags.more.set(_getstatus(_cache.data.rows[row_no-1]).join(''));
+	    _tags.more.set(_targettbl(_cache.data.rows[row_no-1]).join(''));
 	    _tags.more.toggle(tag, offset);
 	    _cache._more_row_no = row_no;
 	},
-	target: function(tag, doc_id, offset) {
-	    var commit, sub, msg, strict, offset, params;
-	    if( !_cache.targets.hasOwnProperty(doc_id) ) {
-		_cache.targets[doc_id] = {};
+	remark: function(tag, row_no, offset) {
+	    var reaccept, rereject, renote, realert;
+	    var u = 'remark:{0}'.format_a(row_no);
+	    var r = _cache.data.rows[row_no-1].L;
+	    var ptr = _cache.remarks[r.doc_id] || {status:(r.remark||{}).status,note:""};
+	    var commit = function(self, method) {
+		var sp = spinnerSmall(self, self.position().top + self.height()/2 - _tags.more.position().top, self.position().left + 16 - _tags.more.position().left);
+		var xhr = G.xhr(method, G.getajax({plug: _code}), "", function(xhr) {
+		    if( xhr.status == 200 ) {
+			ptr.status = method == 'PUT' ? 'accepted' : /*method == 'DELETE'*/'rejected';
+			var div = tag.parentNode;
+			div.addClass('footnote_L');
+			div.setAttribute('data-title', (String.isEmpty(ptr.note) ? "{0}" : "{0}: {1}").format_a(lang.remark[ptr.status], ptr.note));
+			if( (div = div.getElementsByTagName('div')) != null && div.length > 0 ) {
+			    div[0].html(_remarkStatus(ptr));
+			}
+			_tags.more.hide();
+			Toast.show(lang.success.remark);
+			r.remark = ptr;
+			ptr = null;
+			_cache.remarks[r.doc_id] = null;
+		    } else {
+			enable();
+			alarm(xhr.status == 409 ? lang.errors.remark.exist : lang.errors.runtime);
+		    }
+		    sp.stop();
+		});
+		disable();
+		xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+		xhr.send(G.formParamsURI({doc_id: r.doc_id, note: ptr.note}));
 	    }
-	    if( _cache._more_row_no != null && _cache._more_row_no != doc_id ) {
+	    var alarm = function(arg) {
+		realert.html(arg);
+		realert.show();
+	    }
+	    var enable = function() {
+		reaccept.disabled = ptr.status == 'accepted';
+		rereject.disabled = ptr.status == 'rejected' || String.isEmpty(ptr.note);
+		renote.disabled = false;
+	    }
+	    var disable = function() {
+		reaccept.disabled = true;
+		rereject.disabled = true;
+		renote.disabled = true;
+	    }
+	    if( _cache._more_row_no != null && _cache._more_row_no != u ) {
 		_tags.more.hide();
 	    }
-	    _tags.more.set(_gettarget(doc_id).join(''));
-	    _tags.more.toggle(tag, offset);
-	    _cache._more_row_no = doc_id;
-	    params = _cache.targets[doc_id];
-	    offset = _tags.more.position().top;
-	    commit = _("commit:{0}".format_a(doc_id));
-	    sub = _("sub:{0}".format_a(doc_id));
-	    msg = _("msg:{0}".format_a(doc_id));
-	    strict = _("strict:{0}".format_a(doc_id));
-	    sub.value = params.sub || "";
-	    msg.value = params.msg || "";
-	    strict.checked = params.strict;
-	    commit.disabled = String.isEmpty(params.sub) || String.isEmpty(params.msg);
-	    sub.oninput = function() { 
-		params.sub = this.value.trim();
-		commit.disabled = String.isEmpty(params.sub) || String.isEmpty(params.msg);
-	    };
-	    msg.oninput = function() { 
-		params.msg = this.value.trim();
-		commit.disabled = String.isEmpty(params.sub) || String.isEmpty(params.msg);
-	    };
-	    strict.onchange = function() { 
-		params.strict = this.checked; 
-	    };
-	    commit.onclick = function() {
-		var self = this, a = _("alert:{0}".format_a(doc_id));
-		a.hide();
-		if( String.isEmpty(params.sub) ) {
-		    a.html(lang.errors.target.sub);
-		    a.show();
-		} else if( String.isEmpty(params.msg) ) {
-		    a.html(lang.errors.target.body);
-		    a.show();
-		} else {
-		    var sp = spinnerSmall(this, this.position().top + this.height()/2 - offset, "auto");
-		    var xhr = G.xhr("POST", G.getajax({plug: _code, doc_id: doc_id}), "", function(xhr) {
-			if( xhr.status == 200 ) {
-			    _cache.targets[doc_id] = params = {};
-			    _tags.more.hide();
-			    Toast.show(lang.success.target);
-			} else {
-			    self.disabled = false;
-			    a.html(xhr.status == 409 ? lang.errors.target.exist : lang.errors.runtime);
-			    a.show();
-			}
-			sp.stop();
-		    });
-		    params.doc_id = doc_id;
-		    this.disabled = true;
-		    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-		    xhr.send(G.formParamsURI(params));
+	    _tags.more.set(_remarktbl(r).join(''));
+	    realert = _("re:alert");
+	    renote = _("re:note");
+	    reaccept = _("re:accept");
+	    rereject = _("re:reject");
+	    renote.oninput = function() {
+	    ptr.note = renote.value.trim();
+		enable();
+		realert.hide();
+	    }
+	    if( ptr.status != 'accepted' ) {
+		reaccept.onclick = function() {
+		    realert.hide();
+		    commit(this, "PUT");
 		}
 	    }
+	    if( ptr.status != 'rejected' ) {
+		rereject.onclick = function() {
+		    realert.hide();
+		    if( String.isEmpty(ptr.note) ) {
+			alarm(lang.errors.remark.note);
+		    } else {
+			commit(this, "DELETE");
+		    }
+		}
+	    }
+	    renote.text(ptr.note);
+	    _tags.more.toggle(tag, offset);
+	    _cache._more_row_no = u;
+	    _cache.remarks[r.doc_id] = ptr;
+	    enable();
 	},
 	other: function(tag, container) {
 	    if( container.hasClass('gone') ) {
