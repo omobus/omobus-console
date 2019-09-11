@@ -120,14 +120,31 @@ select content_ts, content_type, content_compress, content_blob from content_get
 	if permtb.remark == true and (err == nil or err == false) then
 	    tb.remarks, err = func_execute(tran,
 [[
-select doc_id, status, note from j_remarks where doc_id in (
+select 
+    doc_id, status, t.descr "type", note 
+from j_remarks j
+    left join remark_types t on t.remark_type_id = j.remark_type_id
+where 
+    j.doc_id in (
 	select doc_id from h_confirmation where "monthDate_First"('%y%-%m%-01')::date_t <= left(fix_dt,10) and left(fix_dt,10) <= "monthDate_Last"('%y%-%m%-01')::date_t
-    ) and updated_ts > (select max(content_ts) from content_stream where content_code = 'stat_confirmations' and user_id = ''
-	    and b_date = "monthDate_First"('%y%-%m%-01')::date_t and e_date = "monthDate_Last"('%y%-%m%-01')::date_t)
+    ) and j.updated_ts > (
+	select max(content_ts) from content_stream where content_code = 'stat_confirmations' and user_id = ''
+	    and b_date = "monthDate_First"('%y%-%m%-01')::date_t and e_date = "monthDate_Last"('%y%-%m%-01')::date_t
+    )
 ]]
 		, "//confirmations/remarks"
 		, {y = year, m = month}
 	    )
+	    if err == nil or err == false then
+		tb.remark_types, err = func_execute(tran,
+[[
+select remark_type_id, descr from remark_types
+    where hidden = 0
+order by row_no, descr
+]]
+		    , "//confirmations/remark_types"
+		)
+	    end
         end
 
 	return tb, err
@@ -157,13 +174,13 @@ select thumb_get(%blob_id%::blob_t) photo
     )
 end
 
-local function remark(stor, uid, cmd, doc_id, note, attrs)
+local function remark(stor, uid, cmd, doc_id, remark_type_id, note)
     return stor.get(function(tran, func_execute) return func_execute(tran,
 [[
-select console.req_remark(%req_uid%, %cmd%, %doc_id%, %msg%, %attrs%) "rows"
+select console.req_remark(%req_uid%, %cmd%, %doc_id%, %remark_type_id%, %msg%) "rows"
 ]]
 	, "//confirmations/remark"
-	, {req_uid = uid, cmd = cmd, doc_id = doc_id, msg = note or stor.NULL, attrs = attrs or stor.NULL})
+	, {req_uid = uid, cmd = cmd, doc_id = doc_id, remark_type_id = remark_type_id or stor.NULL, msg = note or stor.NULL})
     end, false
     )
 end
@@ -199,7 +216,7 @@ local function personalize(sestb, data)
 
     if data.remarks ~= nil then
 	for i, v in ipairs(data.remarks) do
-	    idx_remark[v.doc_id] = {status = v.status, note = v.note}
+	    idx_remark[v.doc_id] = {status = v.status, ["type"] = v.type, note = v.note}
 	end
     end
 
@@ -249,6 +266,7 @@ local function personalize(sestb, data)
     p.channels = core.reduce(data.channels, 'chan_id', idx_channels)
     p.retail_chains = core.reduce(data.retail_chains, 'rc_id', idx_rcs)
     p.confirmation_types = core.reduce(data.types, 'confirmation_type_id', idx_types)
+    p.remark_types = data.remark_types
 
     return json.encode(p)
 end
@@ -339,7 +357,8 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
 	    local p, tb, err
 	    if type(content) == "string" then p = uri.parseQuery(content) end
 	    assert(validate.isuid(p.doc_id), "invalid [doc_id] parameter.")
-	    tb, err = remark(stor, sestb.erpid or sestb.username, 'accept', p.doc_id, p.note, p.attrs)
+	    assert(p.remark_type_id == nil or validate.isuid(p.remark_type_id), "invalid [remark_type_id] parameter.")
+	    tb, err = remark(stor, sestb.erpid or sestb.username, 'accept', p.doc_id, p.remark_type_id, p.note)
 	    if err then
 		scgi.writeHeader(res, 500, {["Content-Type"] = mime.json .. "; charset=utf-8"})
 		scgi.writeBody(res, "{\"status\":\"failed\",\"msg\":\"Internal server error\"}")
@@ -359,8 +378,9 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
 	    local p, tb, err
 	    if type(content) == "string" then p = uri.parseQuery(content) end
 	    assert(validate.isuid(p.doc_id), "invalid [doc_id] parameter.")
+	    assert(p.remark_type_id == nil or validate.isuid(p.remark_type_id), "invalid [remark_type_id] parameter.")
 	    assert(p.note ~= nil and #p.note, "invalid [note] parameter.")
-	    tb, err = remark(stor, sestb.erpid or sestb.username, 'reject', p.doc_id, p.note, p.attrs)
+	    tb, err = remark(stor, sestb.erpid or sestb.username, 'reject', p.doc_id, p.remark_type_id, p.note)
 	    if err then
 		scgi.writeHeader(res, 500, {["Content-Type"] = mime.json .. "; charset=utf-8"})
 		scgi.writeBody(res, "{\"status\":\"failed\",\"msg\":\"Internal server error\"}")
