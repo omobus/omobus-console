@@ -559,10 +559,21 @@ var PLUG = (function() {
 	    SlideshowSimple(ar, {idx: position}).show();
 	},
 	csv: function() {
-	    var ar = [], f = _getfilter();
+	    var ar = [], t, key, val, buf;
 	    if( _cache.data != null && Array.isArray(_cache.data._rows) ) {
 		_cache.data._rows.forEach(function(r, i) {
-		    ar.push(r);
+		    t = {}
+		    for( key in r ) {
+			if( (val = r[key]) != null ) {
+			    if( key == 'refs' && Array.isArray(val) ) {
+				buf = [];
+				val.forEach(function(n) { buf.push(G.getphotoref(n, true)); });
+				val = buf.join("    ");
+			    }
+			    t[key] = val;
+			}
+		    }
+		    ar.push(t);
 		});
 	    }
 	    G.tocsv(_code, ar, _perm.csv);
