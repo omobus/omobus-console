@@ -4,7 +4,7 @@
 var PLUG = (function() {
     /* private properties & methods */
     var _code = "confirmations";
-    var _cache = {}, _perm = {}, _tags = {}, _F = false /* abort export photos */;
+    var _cache = {}, _perm = {}, _tags = {}, _F = false /* abort export photos */, _onlyUnchecked = null;
 
     function _getcolumns(perm) {
 	return 9 + (perm.columns == null ? 0 : (
@@ -29,6 +29,10 @@ var PLUG = (function() {
 	    ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.zip(this,_(\"L\"),_(\"progress\"))'>", 
 		lang.export.photo, "</a><span id='L' style='display: none;'><span id='progress'></span>&nbsp;(<a href='javascript:void(0)' " + 
 		"onclick='PLUG.abort();'>", lang.abort, "</a>)</span>");
+	}
+	if( perm.remark ) {
+	    ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.toggle(this)'>",
+		lang.remark.unchecked, "</a>");
 	}
 	ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<input class='search' type='text' maxlength='96' autocomplete='off' placeholder='",
 	    lang.search, "' id='plugFilter' onkeyup='return PLUG.filter(this, event);' onpaste='PLUG.filter(this, event); return true;' />");
@@ -170,7 +174,7 @@ var PLUG = (function() {
 	var ar = [], size = Array.isArray(data.rows) ? data.rows.length : 0, x = 0, r, z;
 	data._rows = [];
 	for( var i = 0, k = 0; i < size; i++ ) {
-	    if( (r = data.rows[i]) != null && f.is(r) ) {
+	    if( (r = data.rows[i]) != null && f.is(r) && (_onlyUnchecked == null || typeof r.remark == 'undefined') ) {
 		if( (page-1)*perm.rows <= x && x < page*perm.rows ) {
 		    var b = 1, blobs = [];
 		    if( !(r.blob_id == null || r.blob_id == "") ) {
@@ -410,6 +414,16 @@ var PLUG = (function() {
 		    _tags.popups = {}; _tags.popups[obj] = tmp;
 		}, {year: _cache.y, month: _cache.m, uri: G.getajax({plug: _code, calendar: true})})
 	    });
+	},
+	toggle: function(tag) {
+	    if( _onlyUnchecked == null ) {
+		_onlyUnchecked = true;
+		tag.addClass('important');
+	    } else {
+		_onlyUnchecked = null;
+		tag.removeClass('important');
+	    }
+	    _page(1);
 	},
 	users: function(tag, type, offset) {
 	    _togglePopup(type+"s", tag, offset, function(obj) {
