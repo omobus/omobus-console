@@ -116,7 +116,7 @@ var PLUG = (function() {
 		    ar.push("<td class='autoincrement clickable' onclick=\"PLUG.checkrow(this.parentNode,'" +
 			r.account_id + "');event.stopPropagation();\">", r.row_no, "</td>");
 		    ar.push("<td class='int", xs, "'>", G.shielding(r.code), "</td>");
-		    ar.push("<td class='string", xs, "'>", G.shielding(r.descr), "</td>");
+		    ar.push("<td class='string a_name", xs, "'>", G.shielding(r.descr), "</td>");
 		    ar.push("<td class='string note", xs, "'>", G.shielding(r.address), "</td>");
 		    if( perm.columns != null && perm.columns.region == true ) {
 			ar.push("<td class='ref sw95px", xs, "'>", G.shielding(r.region), "</td>");
