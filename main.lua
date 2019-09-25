@@ -308,14 +308,15 @@ function websvc_main()
 		login_page(lang, params, env.REMOTE_ADDR, env.HTTP_USER_AGENT, res)
 	    elseif script == REF("/auth") then
 		stor.init()
-		sid = auth.mySID(lang, (env.REQUEST_METHOD == "POST" and type(content) == "string") and uri.parseQuery(content) or params, env.REMOTE_ADDR, stor)
+		local pp = (env.REQUEST_METHOD == "POST" and type(content) == "string") and uri.parseQuery(content) or params
+		sid = auth.mySID(lang, pp, env.REMOTE_ADDR, stor)
 		if sid == nil then
 		    scgi.writeHeader(res, 400, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
 		    scgi.writeBody(res, 'Invalid username or password')
 		else
 		    scgi.writeHeader(res, 200, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
 		    scgi.writeBody(res, string.format("%s?sid=%s&lang=%s", REF("/default"), sid, lang))
-		    log.i(string.format("[audit] IP:%s user is logged on as %s. SID=%s.", env.REMOTE_ADDR, params.username, sid))
+		    log.i(string.format("[audit] IP:%s user is logged on as %s. SID=%s.", env.REMOTE_ADDR, pp.username, sid))
 		end
 		stor.cleanup()
 	    elseif script == REF("/logout") then
