@@ -148,8 +148,8 @@ var PLUG = (function() {
 		}
 		if( typeof __allowedColumns == 'object' && __allowedColumns.distributor ) {
 		    t = G.shielding(r.distrs).replace(rx,' ');
-		    if( !String.isEmpty(r.distrs) && r.distrs.length > 15 ) {
-			ar.push("<td class='ref footnote{1}' data-title='{0}'>".format_a(t, xs), G.shielding(r.distrs).trunc(15), "</td>");
+		    if( !String.isEmpty(r.distrs) && r.distrs.length > 14 ) {
+			ar.push("<td class='ref footnote{1}' data-title='{0}'>".format_a(t, xs), G.shielding(r.distrs).trunc(14), "</td>");
 		    } else {
 			ar.push("<td class='ref", xs,"'>", G.shielding(r.distrs), "</td>");
 		    }
