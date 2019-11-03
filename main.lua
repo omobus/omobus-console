@@ -92,7 +92,7 @@ select thumb_get(%guid%::uuid) photo
     end
 end
 
-local function userparams(stor, user_id, country_id, distr_id)
+local function userparams(stor, user_id)
     return stor.get(function(tran, func_execute) 
 	local tb = {}
 	if user_id ~= nil then
@@ -108,19 +108,23 @@ select user_id, descr from users where user_id=%user_id%
 
 	tb.support, _ = func_execute(tran,
 [[
-select descr, phone, mobile, email, working_hours from support 
-    where hidden = 0 and (country_id is null or country_id='' or country_id=%country_id% or 
-	country_id in (select unnest(country_ids) from users where user_id=%user_id%)) and 
-	(distr_id is null or distr_id = '' or distr_id=%distr_id%)
-order by row_no limit 3
-
+select 
+    case 
+	when sup.country_id is null or sup.country_id='' then sup.descr 
+	else format('%s (%s)', sup.descr, coalesce(c.descr,sup.country_id)) 
+    end descr,
+    sup.phone, 
+    sup.email 
+from support sup
+    left join countries c on c.country_id=sup.country_id
+where sup.hidden = 0 and (
+	sup.country_id is null or sup.country_id='' or 
+	    sup.country_id in (select country_id from users where user_id=%user_id%)
+    )
+order by row_no limit 10
 ]]
 	    , "//main/support"
-	    , {
-		country_id = country_id ~= nil and country_id or '', 
-		distr_id = distr_id ~= nil and distr_id or '', 
-		user_id = user_id ~= nil and user_id or ''
-	    }
+	    , { user_id = user_id ~= nil and user_id or '' }
 	)
 
 	local sysparams, _ = func_execute(tran,
@@ -225,12 +229,12 @@ local function default_page(lang, sestb, params, res, plug_data)
     table.insert(ar, '</td>')
     table.insert(ar, '</tr></table>')
     table.insert(ar, '<hr />')
-    table.insert(ar, '<div id="pluginCore"> </div>')
+    table.insert(ar, '<div id="pluginContainer"> </div>')
     table.insert(ar, '<div id="supportContainer" class="ballon"><div class="arrow"></div><div class="body"></div></div>')
     table.insert(ar, '<div id="pluginsContainer" class="ballon"><div class="arrow"></div><div class="body"></div></div>')
     table.insert(ar, '<div id="dumpsContainer" class="ballon"><div class="arrow"></div><div class="body"></div></div>')
     table.insert(ar, '<div id="toastContainer" class="toast"></div>')
-    table.insert(ar, '<div id="progressContainer" class="progress"></div>')
+    table.insert(ar, '<div id="progressContainer" class="progress"><div class="spinner"></div></div>')
     table.insert(ar, '</body>')
     table.insert(ar, '</html>')
     scgi.writeHeader(res, 200, {["Content-Type"] = mime.html .. "; charset=utf-8"})
@@ -393,7 +397,7 @@ function websvc_main()
 			    else
 				startup_script(lang, 
 				    sestb,
-				    userparams(stor, sestb.erpid, env.GEOIP_COUNTRY_CODE, sestb.distributor), 
+				    userparams(stor, sestb.erpid), 
 				    roletb.selectable,
 				    dumps.list(config, sestb.username),
 				    res, 
