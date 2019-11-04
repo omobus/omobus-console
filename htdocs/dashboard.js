@@ -95,13 +95,14 @@ var Dashboard = (function() {
 	ar.push("<hr />");
 	for( var i = 0, size = Array.isArray(rules.supports) ? rules.supports.length : 0; i < size; i++ ) {
 	    d = rules.supports[i];
-	    if( !String.isEmpty(d.descr) ) ar.push("<div><b>", d.descr, "</b></div>");
-	    if( !String.isEmpty(d.phone) ) ar.push("<div>", lang.phone, ":&nbsp;<b>" + d.phone + "</b></div>");
-	    if( !String.isEmpty(d.mobile) ) ar.push("<div>", lang.mobile, ":&nbsp;<b>" + d.mobile + "</b></div>");
-	    if( !String.isEmpty(d.email) ) ar.push("<div>", lang.email, ":&nbsp;<a href='mailto:" + d.email + "'>" + d.email + "</a></div>");
-	    if( !String.isEmpty(d.working_hours) ) ar.push("<div>", lang.working_hours + ":&nbsp;<b>" + d.working_hours + "</b></div>");
-	    ar.push("<hr />");
+	    var z = [];
+	    if( !String.isEmpty(d.phone) ) { z.push("<b>" + G.shielding(d.phone) + "</b>"); }
+	    if( !String.isEmpty(d.email) ) { z.push("<a href='mailto:" + d.email + "'>" + G.shielding(d.email) + "</a>"); }
+	    if( !z.isEmpty() ) {
+		 ar.push("<div class='row'>", G.shielding(d.descr), ":&nbsp;", z.join(",&nbsp;"), "</div>");
+	    }
 	}
+	ar.push("<hr />");
 	ar.push(lang.support_notice);
 	ar.push("<br /><a href='" + G.getref({plug: "tickets"}) + "'>", lang.tickets.title4, "</a>");
 	return ar;
