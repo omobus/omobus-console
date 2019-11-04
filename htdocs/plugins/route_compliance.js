@@ -158,6 +158,8 @@ var PLUG = (function() {
 	}
 	if( x > 0 ) {
 	    total.html((x != size ? "&nbsp;&nbsp;({0}/{1})" : "&nbsp;&nbsp;({1})").format_a(x, size));
+	} else {
+	    total.html("");
 	}
 	if( ar.length == 0 ) {
 	    ar = _datamsg(lang.empty, perm);
@@ -169,10 +171,7 @@ var PLUG = (function() {
     }
 
     function _datareq() {
-	var sp;
-	_tags.tbody.hide();
-	_tags.total.html("");
-	sp = spinnerLarge(_tags.body, "50%", "50%");
+	ProgressDialog.show();
 	_cache.data = null; // drops the internal cache
 	G.xhr("GET", G.getajax({plug: _code, code: "tech", date: G.getdate(_cache.date)}), "json", function(xhr, data) {
 	    if( xhr.status == 200 && data != null && typeof data == 'object' ) {
@@ -183,23 +182,19 @@ var PLUG = (function() {
 		_tags.rule2.text(lang.more_meter.format_a(typeof data.rules == 'object' ? data.rules.distance.max : lang.dash));
 	    } else {
 		_tags.tbody.html(_datamsg(lang.failure, _perm).join(""));
+		_tags.total.html("");
 	    }
-	    _tags.tbody.show();
-	    sp.stop();
+	    ProgressDialog.hide();
 	    _tags.ts.html(G.getdatetime_l(new Date()));
 	}).send();
     }
 
     function _filterdata() {
-	var sp;
 	if( _cache.data != null ) {
-	    _tags.tbody.hide();
-	    _tags.total.html("");
-	    sp = spinnerLarge(_tags.body, "50%", "50%");
+	    ProgressDialog.show();
 	    setTimeout(function() {
 		_tags.tbody.html(_datatbl(_cache.data, _tags.total, _cache.date, _getfilter(), _cache.checked, _perm).join(""));
-		_tags.tbody.show();
-		sp.stop();
+		ProgressDialog.hide();
 	    }, 0);
 	}
     }
@@ -275,8 +270,8 @@ var PLUG = (function() {
 })();
 
 
-function startup(tag, date, perm) {
-    PLUG.startup(tag, date, perm);
+function startup(date, perm) {
+    PLUG.startup(_('pluginContainer'), date, perm);
 }
 
 window.onpopstate = function(event) {

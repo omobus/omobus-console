@@ -127,8 +127,8 @@ function M.scripts(lang, permtb, sestb, params)
 end
 
 function M.startup(lang, permtb, sestb, params, stor)
-    return "startup(_('pluginCore')," .. 
-	(params.date~=nil and ("'"..params.date.."',") or "new Date(),") .. 
+    return "startup(" .. 
+	((params.date~=nil and validate.isdate(params.date)) and ("'"..params.date.."',") or "new Date(),") .. 
 	json.encode(permtb) .. ");"
 end
 
