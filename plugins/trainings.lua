@@ -284,10 +284,16 @@ function M.scripts(lang, permtb, sestb, params)
 end
 
 function M.startup(lang, permtb, sestb, params, stor)
-    if params.year ~= nil and params.month ~=nil then
-	return string.format("startup(_('pluginCore'),%s,%s,%s);", params.year, params.month, json.encode(permtb))
+    if params.year ~= nil and type(params.year) ~= 'number' then
+	params.year = tonumber(params.year)
+    end
+    if params.month ~= nil and type(params.month) ~= 'number' then
+	params.month = tonumber(params.month)
+    end
+    if params.year ~= nil and params.month ~= nil then
+	return string.format("startup({y:%s,m:%s},%s);", params.year, params.month, json.encode(permtb))
     else
-	return string.format("var d = new Date();startup(_('pluginCore'),d.getFullYear(),d.getMonth()+1,%s);", json.encode(permtb))
+	return string.format("startup(null,%s);", json.encode(permtb))
     end
 end
 
