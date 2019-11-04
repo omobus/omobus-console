@@ -3,7 +3,7 @@
 
 var ProgressDialog = (function() {
     /* private properties & methods */
-    var _container, _sp;
+    var _container, _onkeyup;
 
     /* public properties & methods */
     return {
@@ -11,18 +11,17 @@ var ProgressDialog = (function() {
 	    if( _container == null ) {
 		_container = _("progressContainer");
 	    }
-	    if( _sp == null ) {
-		_sp = spinnerLarge(_container, "50%", "50%");
-	    }
+	    _onkeyup = window.onkeyup;
+	    window.onkeyup = function(ev) { return true };
 	    _container.show();
 	},
 	hide: function() {
 	    if( _container == null ) {
 		_container = _("progressContainer");
 	    }
-	    if( _sp != null ) {
-		_sp.stop;
-		_sp = null;
+	    if( _onkeyup != null ) {
+		window.onkeyup = _onkeyup;
+		_onkeyup = null;
 	    }
 	    _container.hide();
 	}
