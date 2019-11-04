@@ -292,6 +292,8 @@ var PLUG = (function() {
 	}
 	if( x > 0 ) {
 	    total.html((x != size ? "&nbsp;&nbsp;({0}/{1})" : "&nbsp;&nbsp;({1})").format_a(x, size));
+	} else {
+	    total.html("");
 	}
 	if( ar.length == 0 ) {
 	    ar = _datamsg(lang.empty, perm);
@@ -335,10 +337,7 @@ var PLUG = (function() {
     }
 
     function _datareq() {
-	var sp;
-	_tags.tbody.hide();
-	_tags.total.html("");
-	sp = spinnerLarge(_tags.body, "50%", "50%");
+	ProgressDialog.show();
 	_cache.data = null; // drop the internal cache
 	G.xhr("GET", G.getajax({plug: _code}), "json-js", function(xhr, data) {
 	    if( xhr.status == 200 && data != null && typeof data == 'object' ) {
@@ -354,25 +353,20 @@ var PLUG = (function() {
 		new LazyLoad();
 	    } else {
 		_tags.tbody.html(_datamsg(lang.failure, _perm).join(""));
+		_tags.total.html("");
 	    }
 	    _tags.ts.html(G.getdatetime_l(new Date()));
-	    _tags.tbody.show();
-	    sp.stop();
+	    ProgressDialog.hide();
 	}).send();
     }
 
     function _page(page) {
-	var sp;
 	if( _cache.data != null ) {
-	    _tags.more.hide();
-	    _tags.tbody.hide();
-	    _tags.total.html("");
-	    sp = spinnerLarge(_tags.body, "50%", "50%");
+	    ProgressDialog.show();
 	    setTimeout(function() {
 		_tags.tbody.html(_datatbl(_cache.data, page, _tags.total, _getfilter(), _cache.checked, _perm).join(""));
 		new LazyLoad();
-		_tags.tbody.show();
-		sp.stop();
+		ProgressDialog.hide();
 	    }, 0);
 	}
     }
@@ -514,7 +508,6 @@ var PLUG = (function() {
 	    var r = _cache.data.rows[row_no-1].L;
 	    var ptr = _cache.remarks[r.doc_id] || {status:(r.remark||{}).status,remark_type_id:null,type:null,note:null};
 	    var commit = function(self, method) {
-		var sp = spinnerSmall(self, self.position().top + self.height()/2 - _tags.more.position().top, self.position().left + 16 - _tags.more.position().left);
 		var xhr = G.xhr(method, G.getajax({plug: _code}), "", function(xhr) {
 		    if( xhr.status == 200 ) {
 			ptr.status = method == 'PUT' ? 'accepted' : /*method == 'DELETE'*/'rejected';
@@ -537,8 +530,9 @@ var PLUG = (function() {
 			enable();
 			alarm(xhr.status == 409 ? lang.errors.remark.exist : lang.errors.runtime);
 		    }
-		    sp.stop();
+		    _tags.more.stopSpinner();
 		});
+		_tags.more.startSpinner();
 		disable();
 		xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 		var params = {doc_id: r.doc_id};
@@ -665,6 +659,6 @@ var PLUG = (function() {
 })();
 
 
-function startup(tag, perm) {
-    PLUG.startup({body: tag}, perm);
+function startup(perm) {
+    PLUG.startup({body: _('pluginContainer')}, perm);
 }

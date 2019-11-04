@@ -307,7 +307,7 @@ function M.scripts(lang, permtb, sestb, params)
 end
 
 function M.startup(lang, permtb, sestb, params, stor)
-    return "startup(_('pluginCore')," .. json.encode(permtb) .. ");"
+    return "startup(" .. json.encode(permtb) .. ");"
 end
 
 function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor, res)
