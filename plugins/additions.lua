@@ -186,7 +186,7 @@ function M.scripts(lang, permtb, sestb, params)
 end
 
 function M.startup(lang, permtb, sestb, params, stor)
-    return string.format("startup(_('pluginCore'),%s);", json.encode(permtb));
+    return string.format("startup(%s);", json.encode(permtb));
 end
 
 function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor, res)
