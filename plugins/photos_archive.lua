@@ -110,7 +110,10 @@ end
 
 function M.startup(lang, permtb, sestb, params, stor)
     local tb, err = ark.getJSON('photos')
-    return string.format("startup(_('pluginCore'),%s,%s,%s);", 
+    if params.year ~= nil and type(params.year) ~= 'number' then
+	params.year = tonumber(params.year)
+    end
+    return string.format("startup(%s,%s,%s);", 
 	params.year == nil and "new Date().getFullYear()" or params.year, 
 	(err or tb == nil) and "null" or json.encode(tb), 
 	json.encode(permtb)
