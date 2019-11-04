@@ -1,6 +1,8 @@
 /* -*- JavaScript -*- */
 /* Copyright (c) 2006 - 2019 omobus-console authors, see the included COPYRIGHT file. */
 
+/** OBSOLETE **/
+
 function DailyCalendar(onrefresh, onselect) {
     this._onrefresh = onrefresh; this._onselect = onselect;
     this._index = [];

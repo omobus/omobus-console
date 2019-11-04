@@ -1,6 +1,8 @@
 /* -*- JavaScript -*- */
 /* Copyright (c) 2006 - 2019 omobus-console authors, see the included COPYRIGHT file. */
 
+/* OBSOLETE: */
+
 function spinnerSmall(tag, top, left) {
     var p = tag.position();
     if( typeof top == 'undefined' || top == "center" ) {
