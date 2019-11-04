@@ -181,6 +181,6 @@ QuestNamesPopup.prototype.toggle = function(arg, offset) {
     }
 }
 
-QuestNamesPopup.prototype.isHide = function() {
-    return this._container.isHide();
+QuestNamesPopup.prototype.isHidden = function() {
+    return this._container.isHidden();
 }

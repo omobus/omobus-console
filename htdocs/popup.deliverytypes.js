@@ -181,6 +181,6 @@ DeliveryTypesPopup.prototype.toggle = function(arg, offset) {
     }
 }
 
-DeliveryTypesPopup.prototype.isHide = function() {
-    return this._container.isHide();
+DeliveryTypesPopup.prototype.isHidden = function() {
+    return this._container.isHidden();
 }

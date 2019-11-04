@@ -188,6 +188,6 @@ QuestRowsPopup.prototype.toggle = function(arg, offset) {
     }
 }
 
-QuestRowsPopup.prototype.isHide = function() {
-    return this._container.isHide();
+QuestRowsPopup.prototype.isHidden = function() {
+    return this._container.isHidden();
 }

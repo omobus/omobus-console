@@ -181,6 +181,6 @@ CommentTypesPopup.prototype.toggle = function(arg, offset) {
     }
 }
 
-CommentTypesPopup.prototype.isHide = function() {
-    return this._container.isHide();
+CommentTypesPopup.prototype.isHidden = function() {
+    return this._container.isHidden();
 }

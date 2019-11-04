@@ -181,6 +181,6 @@ CategoriesPopup.prototype.toggle = function(arg, offset) {
     }
 }
 
-CategoriesPopup.prototype.isHide = function() {
-    return this._container.isHide();
+CategoriesPopup.prototype.isHidden = function() {
+    return this._container.isHidden();
 }

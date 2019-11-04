@@ -181,6 +181,6 @@ PlacementsPopup.prototype.toggle = function(arg, offset) {
     }
 }
 
-PlacementsPopup.prototype.isHide = function() {
-    return this._container.isHide();
+PlacementsPopup.prototype.isHidden = function() {
+    return this._container.isHidden();
 }

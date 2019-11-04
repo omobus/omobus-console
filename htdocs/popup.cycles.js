@@ -6,10 +6,10 @@ function CyclesPopup(selection, params /* params = { container = "DOM container"
 	return new CyclesPopup(selection, params);
     }
     if( params == null || typeof params == 'undefined' ) {
-	params = { container: _("cyclesPopup") };
+	params = { container: _("cyclespopupContainer") };
     }
     if( params.container == null || typeof params.container == 'undefined' ) {
-	params.container = _("cyclesPopup");
+	params.container = _("cyclespopupContainer");
     }
     if( !(params.container instanceof HTMLElement) ) {
 	params.container = _(params.container);
@@ -19,6 +19,7 @@ function CyclesPopup(selection, params /* params = { container = "DOM container"
     var onselect = function(ev) { own._onselect(this.getAttribute("X-rowno")); };
     this._container = params.container;
     this._body = params.container.getElementsByClassName('body')[0];
+    this._spinner = params.container.getElementsByClassName('spinner')[0];
     this._selection = selection;
     this._uri = params.uri;
     this._cycle_id = params.cycle_id;
@@ -29,8 +30,14 @@ function CyclesPopup(selection, params /* params = { container = "DOM container"
 
 (function (CyclesPopup, undefined) {
     CyclesPopup.container = function(id) {
-	return "<div id='" + (id == null || typeof id == 'undefined' ? "cyclesPopup" : id) +
-	    "' class='ballon'><div class='arrow'></div><div class='body' style='min-height: 30px;'></div></div>";
+	var ar = [];
+	ar.push("<div id='", id == null || typeof id == 'undefined' ? "cyclespopupContainer" : id, "' class='ballon'>");
+	ar.push("<div class='arrow'></div>");
+	//ar.push("<span class='close'>&times;</span>");
+	ar.push("<div class='spinner'></div>");
+	ar.push("<div class='body' style='min-height: 30px;'></div>");
+	ar.push("</div>");
+	return ar.join('');
     };
 }(CyclesPopup));
 
@@ -63,11 +70,11 @@ CyclesPopup.prototype._tbl = function(rows, cycle_id) {
 }
 
 CyclesPopup.prototype._L = function() {
-    var sp, own, onselect;
+    var own, onselect;
     if( !(this._loaded == true) ) {
 	own = this;
 	onselect = function(ev) { own._onselect(this.getAttribute("X-rowno")); };
-	sp = spinnerLarge(this._body, "60%", "50%");
+	this._spinner.show();
 	this._loaded == false;
 	G.xhr("GET", this._uri, "json", function(xhr, data) {
 	    if( xhr.status == 200 && data != null && typeof data == 'object' ) {
@@ -83,7 +90,7 @@ CyclesPopup.prototype._L = function() {
 	    } else {
 		own._body.html(["<br /><center>", lang.failure, "</center><br />"].join(""));
 	    }
-	    sp.stop();
+	    own._spinner.hide();
         }).send();
     }
 }
@@ -131,6 +138,6 @@ CyclesPopup.prototype.toggle = function(arg) {
     }
 }
 
-CyclesPopup.prototype.isHide = function() {
-    return this._container.isHide();
+CyclesPopup.prototype.isHidden = function() {
+    return this._container.isHidden();
 }

@@ -181,6 +181,6 @@ PaymentMethodsPopup.prototype.toggle = function(arg, offset) {
     }
 }
 
-PaymentMethodsPopup.prototype.isHide = function() {
-    return this._container.isHide();
+PaymentMethodsPopup.prototype.isHidden = function() {
+    return this._container.isHidden();
 }

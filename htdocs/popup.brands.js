@@ -185,6 +185,6 @@ BrandsPopup.prototype.toggle = function(arg, offset) {
     }
 }
 
-BrandsPopup.prototype.isHide = function() {
-    return this._container.isHide();
+BrandsPopup.prototype.isHidden = function() {
+    return this._container.isHidden();
 }

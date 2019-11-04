@@ -181,6 +181,6 @@ DistributorsPopup.prototype.toggle = function(arg, offset) {
     }
 }
 
-DistributorsPopup.prototype.isHide = function() {
-    return this._container.isHide();
+DistributorsPopup.prototype.isHidden = function() {
+    return this._container.isHidden();
 }

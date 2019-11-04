@@ -181,6 +181,6 @@ TrainingTypesPopup.prototype.toggle = function(arg, offset) {
     }
 }
 
-TrainingTypesPopup.prototype.isHide = function() {
-    return this._container.isHide();
+TrainingTypesPopup.prototype.isHidden = function() {
+    return this._container.isHidden();
 }

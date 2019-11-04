@@ -181,6 +181,6 @@ ChannelsPopup.prototype.toggle = function(arg, offset) {
     }
 }
 
-ChannelsPopup.prototype.isHide = function() {
-    return this._container.isHide();
+ChannelsPopup.prototype.isHidden = function() {
+    return this._container.isHidden();
 }

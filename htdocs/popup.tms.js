@@ -181,6 +181,6 @@ TrainingMaterialsPopup.prototype.toggle = function(arg, offset) {
     }
 }
 
-TrainingMaterialsPopup.prototype.isHide = function() {
-    return this._container.isHide();
+TrainingMaterialsPopup.prototype.isHidden = function() {
+    return this._container.isHidden();
 }

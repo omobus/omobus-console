@@ -183,6 +183,6 @@ UsersPopup.prototype.toggle = function(arg, offset) {
     }
 }
 
-UsersPopup.prototype.isHide = function() {
-    return this._container.isHide();
+UsersPopup.prototype.isHidden = function() {
+    return this._container.isHidden();
 }

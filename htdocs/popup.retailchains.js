@@ -182,6 +182,6 @@ RetailChainsPopup.prototype.toggle = function(arg, offset) {
 }
 
 RetailChainsPopup
-.prototype.isHide = function() {
-    return this._container.isHide();
+.prototype.isHidden = function() {
+    return this._container.isHidden();
 }

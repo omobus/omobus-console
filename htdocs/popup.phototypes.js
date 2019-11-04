@@ -181,6 +181,6 @@ PhotoTypesPopup.prototype.toggle = function(arg, offset) {
     }
 }
 
-PhotoTypesPopup.prototype.isHide = function() {
-    return this._container.isHide();
+PhotoTypesPopup.prototype.isHidden = function() {
+    return this._container.isHidden();
 }

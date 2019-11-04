@@ -182,6 +182,6 @@ ContactsPopup.prototype.toggle = function(arg, offset) {
     }
 }
 
-ContactsPopup.prototype.isHide = function() {
-    return this._container.isHide();
+ContactsPopup.prototype.isHidden = function() {
+    return this._container.isHidden();
 }

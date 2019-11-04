@@ -181,6 +181,6 @@ JobTitlesPopup.prototype.toggle = function(arg, offset) {
     }
 }
 
-JobTitlesPopup.prototype.isHide = function() {
-    return this._container.isHide();
+JobTitlesPopup.prototype.isHidden = function() {
+    return this._container.isHidden();
 }

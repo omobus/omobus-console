@@ -181,6 +181,6 @@ PotentialsPopup.prototype.toggle = function(arg, offset) {
     }
 }
 
-PotentialsPopup.prototype.isHide = function() {
-    return this._container.isHide();
+PotentialsPopup.prototype.isHidden = function() {
+    return this._container.isHidden();
 }

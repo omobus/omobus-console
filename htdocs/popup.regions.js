@@ -181,6 +181,6 @@ RegionsPopup.prototype.toggle = function(arg, offset) {
     }
 }
 
-RegionsPopup.prototype.isHide = function() {
-    return this._container.isHide();
+RegionsPopup.prototype.isHidden = function() {
+    return this._container.isHidden();
 }

@@ -181,6 +181,6 @@ POSMaterialsPopup.prototype.toggle = function(arg, offset) {
     }
 }
 
-POSMaterialsPopup.prototype.isHide = function() {
-    return this._container.isHide();
+POSMaterialsPopup.prototype.isHidden = function() {
+    return this._container.isHidden();
 }
