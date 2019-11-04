@@ -461,7 +461,7 @@ hr {
 }
 
 .ballon .body {
-    padding: 16px 14px 14px 14px;
+    padding: 22px 8px 18px 8px;
     min-width: 300px;
     text-align: left;
     white-space: normal;
@@ -589,7 +589,7 @@ hr {
 .ballon h1 {
     font-size: 11pt;
     font-weight: normal;
-    /*margin-top: 3px;*/
+    margin-top: 2px;
     /*margin-bottom: 12px;*/
 }
 
