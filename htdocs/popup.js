@@ -13,6 +13,7 @@ function Popup(container) {
     }
     this._container = container;
     this._body = container.getElementsByClassName('body')[0];
+    this._spinner = container.getElementsByClassName('spinner')[0];
 }
 
 
@@ -20,8 +21,14 @@ function Popup(container) {
 
 (function (Popup, undefined) {
     Popup.container = function(id) {
-	return "<div id='" + (id == null || typeof id == 'undefined' ? "popupContainer" : id) + 
-	    "' class='ballon'><div class='arrow'></div><div class='body' style='min-height: 30px;'></div></div>";
+	var ar = [];
+	ar.push("<div id='", id == null || typeof id == 'undefined' ? "popupContainer" : id, "' class='ballon'>");
+	ar.push("<div class='arrow'></div>");
+	ar.push("<span class='close'>&times;</span>");
+	ar.push("<div class='spinner'></div>");
+	ar.push("<div class='body' style='min-height: 30px;'></div>");
+	ar.push("</div>");
+	return ar.join('');
     };
 }(Popup));
 
@@ -50,19 +57,32 @@ Popup.prototype.show = function(arg, msg, offset) {
 }
 
 Popup.prototype.hide = function() {
+    this._spinner.hide();
     this._container.hide();
 }
 
 Popup.prototype.toggle = function(arg, offset) {
     if( this._container.toggle() ) {
 	this._show(arg, offset);
+    } else {
+	this._spinner.hide();
     }
 }
 
-Popup.prototype.isHide = function() {
-    return this._container.isHide();
+Popup.prototype.isHidden = function() {
+    return this._container.isHidden();
 }
 
 Popup.prototype.position = function() {
     return this._container.position();
+}
+
+Popup.prototype.startSpinner = function() {
+    if( this._spinner.isHidden() ) {
+	this._spinner.show();
+    }
+}
+
+Popup.prototype.stopSpinner = function() {
+    this._spinner.hide();
 }

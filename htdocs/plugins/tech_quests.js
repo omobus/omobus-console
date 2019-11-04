@@ -64,15 +64,14 @@ PLUG.registerRef("quest", (function() {
 	getbody: function() { return _gettable().join(''); },
 
 	setdata: function(body, user_id, date, cb) {
-	    var sp, tbody = _("xztb");
+	    var tbody = _("xztb");
 	    if( typeof _cache.data == 'undefined' ) {
 		_cache.data = {};
 	    }
 	    if( _cache.data[user_id] != null ) { // sets data from the internal cache
 		tbody.html(_datatbl(_cache.data[user_id], user_id, date, _cache.checked).join(""));
 	    } else {
-		tbody.hide();
-		sp = spinnerLarge(body, "50%", "50%");
+		ProgressDialog.show();
 		_cache.data[user_id] = null; // drops the internal cache
 		G.xhr("GET", G.getajax({plug: "tech", code: "tech_quests", user_id: user_id, date: G.getdate(date)}), "json", function(xhr, data) {
 		    if( xhr.status == 200 &&  data != null && typeof data == 'object' ) {
@@ -81,8 +80,7 @@ PLUG.registerRef("quest", (function() {
 		    } else {
 			tbody.html(["<tr class='def'><td colspan='", _columns, "' class='message'>", lang.failure, "</td></tr>"].join(""));
 		    }
-		    tbody.show();
-		    sp.stop();
+		    ProgressDialog.hide();
 		    cb();
 		}).send();
 	    }

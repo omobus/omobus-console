@@ -106,6 +106,7 @@ PLUG.registerRef("photo", (function() {
         ar.push("<div class='row'>", lang.fix_dt, ":&nbsp;", G.getdatetime_l(Date.parseISO8601(r.fix_dt)), "</div>");
 	if( typeof __allowTargetCreation != 'undefined' && __allowTargetCreation && (typeof r.revoked == 'undefined' || !r.revoked) ) {
 	    ar.push("<br/><br/>");
+	    ar.push("<div id='spin:", r.blob_id, "' class='spinner'></div>");
 	    ar.push("<h2>", lang.targets.title2, "</h2>");
 	    ar.push("<div class='row'>", lang.notices.target, "</div>");
 	    ar.push("<div class='row attention gone' id='alert:", r.blob_id, "'></div>");
@@ -146,7 +147,6 @@ PLUG.registerRef("photo", (function() {
 	    tags.alarm.html(lang.errors.target.body);
 	    tags.alarm.show();
 	} else {
-	    var sp = spinnerSmall(tags.commit, tags.commit.position().top + tags.commit.height()/2, "auto");
 	    var xhr = G.xhr("POST", G.getajax({plug: "tech", doc_id: doc_id}), "", function(xhr) {
 		if( xhr.status == 200 ) {
 		    params.sub = null;
@@ -161,8 +161,9 @@ PLUG.registerRef("photo", (function() {
 		    tags.alarm.html(xhr.status == 409 ? lang.errors.target.exist : lang.errors.runtime);
 		    tags.alarm.show();
 		}
-		sp.stop();
+		tags.spin.hide();
 	    });
+	    tags.spin.show();
 	    params.doc_id = doc_id;
 	    tags.commit.disabled = true;
 	    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
@@ -177,7 +178,7 @@ PLUG.registerRef("photo", (function() {
 	getbody: function() { return _gettable().join(""); },
 
 	setdata: function(body, user_id, date, cb) {
-	    var sp, tbody = _("xztb");
+	    var tbody = _("xztb");
 	    if( typeof _cache.data == 'undefined' ) {
 		_cache.data = {};
 	    }
@@ -185,8 +186,7 @@ PLUG.registerRef("photo", (function() {
 		tbody.html(_datatbl(_cache.data[user_id], user_id, date, _cache.checked).join(""));
 		_cache.ptr = _cache.data[user_id].rows;
 	    } else {
-		tbody.hide();
-		sp = spinnerLarge(body, "50%", "50%");
+		ProgressDialog.show();
 		_cache.data[user_id] = _cache.ptr = null; // drops the internal cache
 		G.xhr("GET", G.getajax({plug: "tech", code: "tech_photos", user_id: user_id, date: G.getdate(date)}), "json", function(xhr, data) {
 		    if( xhr.status == 200 &&  data != null && typeof data == 'object' ) {
@@ -196,8 +196,7 @@ PLUG.registerRef("photo", (function() {
 		    } else {
 			tbody.html(["<tr class='def'><td colspan='", _columns, "' class='message'>", lang.failure, "</td></tr>"].join(""));
 		    }
-		    tbody.show();
-		    sp.stop();
+		    ProgressDialog.hide();
 		    cb();
 		}).send();
 	    }
@@ -244,7 +243,8 @@ PLUG.registerRef("photo", (function() {
 		    alarm: _("alert:{0}".format_a(blob_id)),
 		    sub: _("sub:{0}".format_a(blob_id)),
 		    msg: _("msg:{0}".format_a(blob_id)),
-		    strict: _("strict:{0}".format_a(blob_id))
+		    strict: _("strict:{0}".format_a(blob_id)),
+		    spin: _("spin:{0}".format_a(blob_id))
 		}, doc_id, _cache.targets[blob_id]);
 	    }
 	}

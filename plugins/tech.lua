@@ -470,13 +470,15 @@ function M.startup(lang, permtb, sestb, params, stor)
     end
     if params.user_id ~= nil and params.date ~= nil then
 	local u_name = uname(stor, params.user_id, params.date)
-	assert(u_name ~= nil)
-	table.insert(ar, string.format("startup(_('pluginCore'),'%s','%s','%s');", params.user_id, u_name:gsub("'",""), params.date))
+	assert(validate.isuid(params.user_id), "invalid [user_id] parameter.")
+	assert(validate.isdate(params.date), "invalid [date] parameter.")
+	assert(u_name ~= nil, 'incorrect [u_name] parameter.')
+	table.insert(ar, string.format("startup(_('pluginContainer'),'%s','%s','%s');", params.user_id, u_name:gsub("'",""), params.date))
     elseif params.date ~= nil then
-	table.insert(ar, string.format("startup(_('pluginCore'),null,null,'%s');", params.date))
+	table.insert(ar, string.format("startup(_('pluginContainer'),null,null,'%s');", params.date))
     else
 	assert(params.user_id == nil and params.date == nil)
-	table.insert(ar, "startup(_('pluginCore'),null,null,new Date());")
+	table.insert(ar, "startup(_('pluginContainer'),null,null,new Date());")
     end
 
     return table.concat(ar,"\n")

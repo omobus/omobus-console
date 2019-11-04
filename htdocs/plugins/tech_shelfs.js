@@ -112,7 +112,7 @@ PLUG.registerRef("shelf", (function() {
 	getbody: function() { return _gettable().join(""); },
 
 	setdata: function(body, user_id, date, cb) {
-	    var sp, tbody = _("xztb");
+	    var tbody = _("xztb");
 	    if( typeof _cache.data == 'undefined' ) {
 		_cache.data = {};
 	    }
@@ -120,8 +120,7 @@ PLUG.registerRef("shelf", (function() {
 		tbody.html(_datatbl(_cache.data[user_id], user_id, date, _cache.checked).join(""));
 		_cache.ptr = _cache.data[user_id].rows;
 	    } else {
-		tbody.hide();
-		sp = spinnerLarge(body, "50%", "50%");
+		ProgressDialog.show();
 		_cache.data[user_id] = _cache.ptr = null; // drops the internal cache
 		G.xhr("GET", G.getajax({plug: "tech", code: "tech_shelfs", user_id: user_id, date: G.getdate(date)}), "json", function(xhr, data) {
 		    if( xhr.status == 200 &&  data != null && typeof data == 'object' ) {
@@ -131,8 +130,7 @@ PLUG.registerRef("shelf", (function() {
 		    } else {
 			tbody.html(["<tr class='def'><td colspan='", _columns, "' class='message'>", lang.failure, "</td></tr>"].join(""));
 		    }
-		    tbody.show();
-		    sp.stop();
+		    ProgressDialog.hide();
 		    cb();
 		}).send();
 	    }

@@ -268,7 +268,7 @@ var __ymap = (function() {
 	getbody: function() { return "<div class='warning' id='{0}-warning'> </div><div class='ymap-canvas' id='{0}-canvas'> </div>".format_a(_code); },
 
 	setdata: function(body, user_id, date) {
-	    var sp, warn = _("{0}-warning".format_a(_code)), canvas = _("{0}-canvas".format_a(_code));
+	    var warn = _("{0}-warning".format_a(_code)), canvas = _("{0}-canvas".format_a(_code));
 	    warn.hide(); canvas.hide();
 	    if( _cache[user_id] != null ) { // set data from the internal cache
 		if( _mapInstance != null ) {
@@ -278,7 +278,7 @@ var __ymap = (function() {
 		canvas.show();
 		canvas.style.height = "{0}px".format_a(window.innerHeight - canvas.position().top - 5);
 	    } else {
-		sp = spinnerLarge(body, "50%", "50%");
+		ProgressDialog.show();
 		_cache[user_id] = null; // drop the internal cache
 		G.xhr("GET", G.getajax({plug: "tech", code: "tech_route", user_id: user_id, date: G.getdate(date)}), "json", function(xhr, data) {
 		    if( _mapInstance != null ) {
@@ -299,7 +299,7 @@ var __ymap = (function() {
 			warn.html(lang.failure);
 			warn.show();
 		    }
-		    sp.stop();
+		    ProgressDialog.hide();
 		}).send();
 	    }
 	},

@@ -174,13 +174,10 @@ var PLUG = (function() {
     }
 
     function _setdata() {
-	var sp;
 	if( _cache.data != null ) { // sets data from the internal cache
 	    _tags.tbody.html(_datatbl(_cache.data, _tags.total, _cache.date, _getfilter(), _cache.checked).join(""));
 	} else {
-	    _tags.tbody.hide();
-	    _tags.total.html("");
-	    sp = spinnerLarge(_tags.body, "50%", "50%");
+	    ProgressDialog.show();
 	    _cache.data = null; // drops the internal cache
 	    G.xhr("GET", G.getajax({plug: _code, code: "tech", date: G.getdate(_cache.date)}), "json", function(xhr, data) {
 		if( xhr.status == 200 && data != null && typeof data == 'object' ) {
@@ -188,24 +185,20 @@ var PLUG = (function() {
 		    _tags.tbody.html(_datatbl(data, _tags.total, _cache.date, _getfilter(), _cache.checked).join(""));
 		} else {
 		    _tags.tbody.html(_datamsg(lang.failure).join(""));
+		    _tags.total.html("");
 		}
-		_tags.tbody.show();
-		sp.stop();
+		ProgressDialog.hide();
 		_setts();
 	    }).send();
 	}
     }
 
     function _filterdata() {
-	var sp;
 	if( _cache.data != null ) {
-	    _tags.tbody.hide();
-	    _tags.total.html("");
-	    sp = spinnerLarge(_tags.body, "50%", "50%");
+	    ProgressDialog.show();
 	    setTimeout(function() {
 		_tags.tbody.html(_datatbl(_cache.data, _tags.total, _cache.date, _getfilter(), _cache.checked).join(""));
-		_tags.tbody.show();
-		sp.stop();
+		ProgressDialog.hide();
 	    }, 0);
 	}
     }

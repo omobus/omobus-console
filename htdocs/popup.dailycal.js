@@ -6,10 +6,10 @@ function DaysPopup(selection, params /* = { container = "DOM container", date, u
 	return new DaysPopup(selection, params);
     }
     if( params == null || typeof params == 'undefined' ) {
-	params = { container: _("daysPopup") };
+	params = { container: _("dayspopupContainer") };
     }
     if( params.container == null || typeof params.container == 'undefined' ) {
-	params.container = _("daysPopup");
+	params.container = _("dayspopupContainer");
     }
     if( !(params.container instanceof HTMLElement) ) {
 	params.container = _(params.container);
@@ -17,6 +17,7 @@ function DaysPopup(selection, params /* = { container = "DOM container", date, u
 
     this._container = params.container;
     this._body = params.container.getElementsByClassName('body')[0];
+    this._spinner = params.container.getElementsByClassName('spinner')[0];
     this._selection = selection;
     this._uri = params.uri;
     this._date = params.date instanceof Date ? params.date : Date.parseISO8601(params.date);
@@ -29,8 +30,14 @@ function DaysPopup(selection, params /* = { container = "DOM container", date, u
 
 (function (DaysPopup, undefined) {
     DaysPopup.container = function(id) {
-	return "<div id='" + (id == null || typeof id == 'undefined' ? "daysPopup" : id) +
-	    "' class='ballon'><div class='arrow'></div><div class='body' style='min-height: 30px; width: 480px;'></div></div>";
+	var ar = [];
+	ar.push("<div id='", id == null || typeof id == 'undefined' ? "dayspopupContainer" : id, "' class='ballon'>");
+	ar.push("<div class='arrow'></div>");
+	ar.push("<span class='close'>&times;</span>");
+	ar.push("<div class='spinner'></div>");
+	ar.push("<div class='body' style='min-height: 30px; width: 480px;'></div>");
+	ar.push("</div>");
+	return ar.join('');
     };
 }(DaysPopup));
 
@@ -128,12 +135,12 @@ DaysPopup.prototype._tbl = function() {
 }
 
 DaysPopup.prototype._L = function() {
-    var sp, own;
+    var own;
     if( !(this._loaded == true) ) {
 	own = this;
 	this._body.html("");
 	this._loaded == false;
-	sp = spinnerLarge(this._body, "60%", "50%");
+	this._spinner.show();
 	G.xhr("GET", this._uri, "json", function(xhr, data) {
 	    if( xhr.status == 200 && data != null && Array.isArray(data) ) {
 		if( data.isEmpty() ) {
@@ -148,7 +155,7 @@ DaysPopup.prototype._L = function() {
 	    } else {
 		own._body.html(["<br /><center>", lang.failure, "</center><br />"].join(""));
 	    }
-	    sp.stop();
+	    own._spinner.hide();
         }).send();
     }
 }
@@ -223,8 +230,8 @@ DaysPopup.prototype.toggle = function(arg) {
     }
 }
 
-DaysPopup.prototype.isHide = function() {
-    return this._container.isHide();
+DaysPopup.prototype.isHidden = function() {
+    return this._container.isHidden();
 }
 
 DaysPopup.prototype.dropCache = function() {

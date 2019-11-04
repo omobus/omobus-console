@@ -1241,7 +1241,7 @@ var __route = (function() {
 	getbody: function() { return _gettable().join(""); },
 
 	setdata: function(body, user_id, date, cb) {
-	    var sp, tbody = _("xztb"), stats = _("routeStats");
+	    var tbody = _("xztb"), stats = _("routeStats");
 	    if( typeof _cache.data == 'undefined' ) {
 		_cache.data = {};
 	    }
@@ -1250,8 +1250,7 @@ var __route = (function() {
 		tbody.html(_datatbl(ptr, user_id, date, _cache.checked).join(""));
 		stats.html(_statstbl(ptr).join(""));
 	    } else {
-		tbody.hide(); stats.hide();
-		sp = spinnerLarge(body, "50%", "50%");
+		ProgressDialog.show();
 		_cache.data[user_id] = null; // drops the internal cache
 		G.xhr("GET", G.getajax({plug: "tech", code: "tech_route", user_id: user_id, date: G.getdate(date)}), "json", function(xhr, data) {
 		    if( xhr.status == 200 &&  data != null && typeof data == 'object' ) {
@@ -1263,10 +1262,9 @@ var __route = (function() {
 			stats.html(_statstbl(data).join(""));
 		    } else {
 			tbody.html(["<tr class='def'><td colspan='", _columns, "' class='message'>", lang.failure, "</td></tr>"].join(""));
+			stats.html("");
 		    }
-		    tbody.show();
-		    stats.show();
-		    sp.stop();
+		    ProgressDialog.hide();
 		    cb();
 		}).send();
 	    }
@@ -1293,7 +1291,6 @@ var __route = (function() {
 	    var x = new Popup(), zaccept, zreject, znote, zalert;
 	    var ptr = _cache.data[user_id]._c[row_no].ptr;
 	    var commit = function(self, method) {
-		var sp = spinnerSmall(self, self.position().top + self.height()/2 - x.position().top, self.position().left + 16 - x.position().left);
 		var xhr = G.xhr(method, G.getajax({plug: 'tech'}), "", function(xhr) {
 		    if( xhr.status == 200 ) {
 			ptr.zstatus = method == 'PUT' ? 'accepted' : /*method == 'DELETE'*/'rejected';
@@ -1311,8 +1308,9 @@ var __route = (function() {
 			enable();
 			alarm(xhr.status == 409 ? lang.errors.zstatus.exist : lang.errors.runtime);
 		    }
-		    sp.stop();
+		    x.stopSpinner();
 		});
+		x.startSpinner();
 		disable();
 		xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 		xhr.send(G.formParamsURI({guid: guid, note: ptr._znote}));
