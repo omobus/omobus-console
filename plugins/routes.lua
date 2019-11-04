@@ -303,7 +303,7 @@ end
 function M.startup(lang, permtb, sestb, params, stor)
     assert(params.cycle_id == nil or validate.isuid(params.cycle_id), 
 	string.format("function %s() [cycle_id] is invalid.", debug.getinfo(1,"n").name))
-    return "startup(_('pluginCore')," .. (params.cycle_id == nil and "null" or ("'" .. params.cycle_id .. "'")) 
+    return "startup(_('pluginContainer')," .. (params.cycle_id == nil and "null" or ("'" .. params.cycle_id .. "'")) 
 	.. "," .. json.encode(permtb) .. ");"
 end
 

@@ -287,7 +287,7 @@ function M.scripts(lang, permtb, sestb, params)
 end
 
 function M.startup(lang, permtb, sestb, params, stor)
-    return "startup($('#pluginCore')," .. json.encode(permtb) .. ");"
+    return "startup($('#pluginContainer')," .. json.encode(permtb) .. ");"
 end
 
 function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor, res)

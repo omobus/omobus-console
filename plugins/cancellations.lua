@@ -249,7 +249,7 @@ end
 function M.startup(lang, permtb, sestb, params, stor)
     return 
 	((params.y~=nil and params.m~=nil) and "" or "var d = new Date();") ..
-	"startup($('#pluginCore')," ..
+	"startup($('#pluginContainer')," ..
 	((params.y~=nil and params.m~=nil) and (params.y..","..params.m..",") or "d.getYear()+1900,d.getMonth()+1,") ..
 	json.encode(permtb) .. ");"
 end
