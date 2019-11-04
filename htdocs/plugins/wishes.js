@@ -137,6 +137,8 @@ var PLUG = (function() {
 	}
 	if( x > 0 ) {
 	    total.html((x != size ? "&nbsp;&nbsp;({0}/{1})" : "&nbsp;&nbsp;({1})").format_a(x, size));
+	} else {
+	    total.html("");
 	}
 	if( ar.length == 0 ) {
 	    ar = _datamsg(lang.empty, perm);
@@ -180,10 +182,7 @@ var PLUG = (function() {
     }
 
     function _datareq() {
-	var sp;
-	_tags.tbody.hide();
-	_tags.total.html("");
-	sp = spinnerLarge(_tags.body, "50%", "50%");
+	ProgressDialog.show();
 	_cache.data = null; // drop the internal cache
 	G.xhr("GET", G.getajax({plug: _code}), "json", function(xhr, data) {
 	    if( xhr.status == 200 && data != null && typeof data == 'object' ) {
@@ -191,23 +190,19 @@ var PLUG = (function() {
 		_tags.tbody.html(_datatbl(data, 1, _tags.total, _getfilter(), _cache.checked, _perm).join(""));
 	    } else {
 		_tags.tbody.html(_datamsg(lang.failure, _perm).join(""));
+		_tags.total.html("");
 	    }
 	    _tags.ts.html(G.getdatetime_l(new Date()));
-	    _tags.tbody.show();
-	    sp.stop();
+	    ProgressDialog.hide();
 	}).send();
     }
 
     function _page(page) {
-	var sp;
 	if( _cache.data != null ) {
-	    _tags.tbody.hide();
-	    _tags.total.html("");
-	    sp = spinnerLarge(_tags.body, "50%", "50%");
+	    ProgressDialog.show();
 	    setTimeout(function() {
 		_tags.tbody.html(_datatbl(_cache.data, page, _tags.total, _getfilter(), _cache.checked, _perm).join(""));
-		_tags.tbody.show();
-		sp.stop();
+		ProgressDialog.hide();
 	    }, 0);
 	}
     }
@@ -247,7 +242,7 @@ var PLUG = (function() {
     }
 
     function _changeStatus(self, method, row_no, user_id, account_id) {
-	var sp = spinnerSmall(self.parentNode, self.position().top + self.height()/2, self.position().left + self.width()/2);
+	ProgressDialog.show();
 	self.style.visibility = 'hidden';
 	G.xhr(method, G.getajax({plug: _code, account_id: account_id, user_id: user_id}), "", function(xhr) {
 	    if( xhr.status == 200 ) {
@@ -271,7 +266,7 @@ var PLUG = (function() {
 		self.style.visibility = 'visible';
 		Toast.show(lang.errors.runtime);
 	    }
-	    sp.stop();
+	    ProgressDialog.hide();
 	}).send();
     }
 
@@ -343,6 +338,6 @@ var PLUG = (function() {
 })();
 
 
-function startup(tag, perm) {
-    PLUG.startup({body: tag}, perm);
+function startup(perm) {
+    PLUG.startup({body: _('pluginContainer')}, perm);
 }
