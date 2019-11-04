@@ -163,6 +163,8 @@ var PLUG = (function() {
 	}
 	if( x > 0 ) {
 	    total.html((x != size ? "&nbsp;&nbsp;({0}/{1})" : "&nbsp;&nbsp;({1})").format_a(x, size));
+	} else {
+	    total.html("");
 	}
 	if( ar.length == 0 ) {
 	    ar = _datamsg(lang.empty);
@@ -448,8 +450,8 @@ var PLUG = (function() {
 })();
 
 
-function startup(tag, u_id, u_name, date) {
-    PLUG.startup(tag, u_id, u_name, date);
+function startup(u_id, u_name, date) {
+    PLUG.startup(_('pluginContainer'), u_id, u_name, date);
 }
 
 function register(t, istab) {
