@@ -130,6 +130,7 @@ var PLUG = (function() {
 	ar.push("<div class='row'>", lang.fix_dt, ":&nbsp;", G.getdatetime_l(Date.parseISO8601(r.fix_dt)), "</div>");
 	if( perm.target == true && (typeof r.revoked == 'undefined' || !r.revoked) ) {
 	    ar.push("<br/><br/>");
+	    ar.push("<div id='spin:", r.blob_id, "' class='spinner'></div>");
 	    ar.push("<h2>", lang.targets.title2, "</h2>");
 	    ar.push("<div class='row'>", lang.notices.target, "</div>");
 	    ar.push("<div class='row attention gone' id='alert:", r.blob_id, "'></div>");
@@ -226,6 +227,8 @@ var PLUG = (function() {
 	}
 	if( x > 0 ) {
 	    total.html((x != size ? "&nbsp;&nbsp;({0}/{1})" : "&nbsp;&nbsp;({1})").format_a(x, size));
+	} else {
+	    total.html("");
 	}
 	if( ar.length == 0 ) {
 	    ar = _datamsg(lang.empty, perm);
@@ -269,10 +272,7 @@ var PLUG = (function() {
     }
 
     function _datareq(y, m) {
-	var sp;
-	_tags.tbody.hide();
-	_tags.total.html("");
-	sp = spinnerLarge(_tags.body, "50%", "50%");
+	ProgressDialog.show();
 	_cache.data = null; // drop the internal cache
 	G.xhr("GET", G.getajax({plug: _code, year: y, month: m}), "json-js", function(xhr, data) {
 	    if( xhr.status == 200 && data != null && typeof data == 'object' ) {
@@ -281,26 +281,22 @@ var PLUG = (function() {
 		new LazyLoad();
 	    } else {
 		_tags.tbody.html(_datamsg(lang.failure, _perm).join(""));
+		_tags.total.html("");
 	    }
 	    _tags.ts.html(G.getdatetime_l(new Date()));
-	    _tags.tbody.show();
-	    sp.stop();
+	    ProgressDialog.hide();
 	}).send();
 	_cache.y = y; _cache.m = m;
 	_tags.cal.html(G.getlongmonth_l(new Date(y, m - 1, 1)).toLowerCase());
     }
 
     function _page(page) {
-	var sp;
 	if( _cache.data != null ) {
-	    _tags.tbody.hide();
-	    _tags.total.html("");
-	    sp = spinnerLarge(_tags.body, "50%", "50%");
+	    ProgressDialog.show();
 	    setTimeout(function() {
 		_tags.tbody.html(_datatbl(_cache.data, page, _tags.total, _getfilter(), _cache.checked, _perm).join(""));
 		new LazyLoad();
-		_tags.tbody.show();
-		sp.stop();
+		ProgressDialog.hide();
 	    }, 0);
 	}
     }
@@ -363,7 +359,6 @@ var PLUG = (function() {
 	    tags.alarm.html(lang.errors.target.body);
 	    tags.alarm.show();
 	} else {
-	    var sp = spinnerSmall(tags.commit, tags.commit.position().top + tags.commit.height()/2, "auto");
 	    var xhr = G.xhr("POST", G.getajax({plug: _code, doc_id: doc_id}), "", function(xhr) {
 		if( xhr.status == 200 ) {
 		    params.sub = null;
@@ -378,8 +373,9 @@ var PLUG = (function() {
 		    tags.alarm.html(xhr.status == 409 ? lang.errors.target.exist : lang.errors.runtime);
 		    tags.alarm.show();
 		}
-		sp.stop();
+		tags.spin.hide();
 	    });
+	    tags.spin.show();
 	    params.doc_id = doc_id;
 	    tags.commit.disabled = true;
 	    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
@@ -529,7 +525,8 @@ var PLUG = (function() {
 		    alarm: _("alert:{0}".format_a(blob_id)), 
 		    sub: _("sub:{0}".format_a(blob_id)), 
 		    msg: _("msg:{0}".format_a(blob_id)), 
-		    strict: _("strict:{0}".format_a(blob_id))
+		    strict: _("strict:{0}".format_a(blob_id)),
+		    spin: _("spin:{0}".format_a(blob_id))
 		    }, doc_id, _cache.targets[blob_id]);
 	    }
 	}
@@ -537,8 +534,13 @@ var PLUG = (function() {
 })();
 
 
-function startup(tag, y, m, perm) {
-    PLUG.startup({body: tag}, y, m, perm);
+function startup(params, perm) {
+    if( params == null || typeof params != 'object' || typeof params.y == 'undefined' || typeof params.m == 'undefined' ) {
+	var d = new Date();
+	PLUG.startup({body: _('pluginContainer')}, d.getFullYear(), d.getMonth() + 1, perm);
+    } else {
+	PLUG.startup({body: _('pluginContainer')}, params.y, params.m, perm);
+    }
 }
 
 window.onpopstate = function(event) {
