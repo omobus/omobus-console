@@ -21,6 +21,8 @@ function Dialog(params /* params = { container = "DOM container", width, title, 
     var onclose = function() { own.hide(); };
     this._container = params.container;
     params.container.html(this._get(params.title, params.body, params.buttons).join(""));
+    /* spinner element: */
+    this._spinnerElement = params.container.getElementsByClassName("spinner")[0];
     /* initialize onclick: */
     this._foreach(params.container.getElementsByClassName("close"), function(arg) { arg.onclick = onclose; });
     /* extra styles: */
@@ -47,7 +49,8 @@ Dialog.prototype._get = function(title, body, buttons) {
     var ar = [];
     ar.push("<div>");
     ar.push("<span class='close'>&times;</span>");
-    ar.push("<h1><span>", title, "</span><span id='spin'></span></h1>");
+    ar.push("<div class='spinner'></div>");
+    ar.push("<h1>", title, "</h1>");
     if( body != null ) {
 	ar.push("<div class='scrollable'>");
 	ar.push(Array.isArray(body) ? body.join("") : body);
@@ -80,7 +83,7 @@ Dialog.prototype._onkeyup = function(ev) {
 
 /* public functions: */
 
-Dialog.prototype.show = function() {
+Dialog.prototype.show = function(onShowListener) {
     var own = this, x, z;
     this._displayed = true;
     this._def_onkeyup = window.onkeyup;
@@ -91,12 +94,31 @@ Dialog.prototype.show = function() {
     if( z > 100 ) z = 100;
     else if( z < 30 ) z = 30;
     x.style.marginTop = "{0}px".format_a(z);
+    if( typeof onShowListener == 'function' ) {
+	onShowListener(this);
+    }
+    return this;
 }
 
 Dialog.prototype.hide = function() {
+    this._spinnerElement.hide();
     this._container.hide();
     if( this._displayed == true ) {
 	window.onkeyup = this._def_onkeyup;
     }
     this._displayed = false;
+}
+
+Dialog.prototype.getElementsByClassName = function(names) {
+    this._container.getElementsByClassName(names);
+}
+
+Dialog.prototype.startSpinner = function() {
+    if( this._displayed ) {
+	this._spinnerElement.show();
+    }
+}
+
+Dialog.prototype.stopSpinner = function() {
+    this._spinnerElement.hide();
 }
