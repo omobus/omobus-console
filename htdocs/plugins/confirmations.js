@@ -110,7 +110,7 @@ var PLUG = (function() {
 	return ar;
     }
 
-    function _remarktbl(r, remark_types) {
+    function _remarktbl(remark_types) {
 	var ar = [];
 	ar.push("<h1>", lang.remark.caption, "</h1>");
 	ar.push("<div onclick='event.stopPropagation();'>");
@@ -249,6 +249,8 @@ var PLUG = (function() {
 	}
 	if( x > 0 ) {
 	    total.html((x != size ? "&nbsp;&nbsp;({0}/{1})" : "&nbsp;&nbsp;({1})").format_a(x, size));
+	} else {
+	    total.html("");
 	}
 	if( ar.length == 0 ) {
 	    ar = _datamsg(lang.empty, perm);
@@ -292,10 +294,7 @@ var PLUG = (function() {
     }
 
     function _datareq(y, m) {
-	var sp;
-	_tags.tbody.hide();
-	_tags.total.html("");
-	sp = spinnerLarge(_tags.body, "50%", "50%");
+	ProgressDialog.show();
 	_cache.data = null; // drop the internal cache
 	G.xhr("GET", G.getajax({plug: _code, year: y, month: m}), "json-js", function(xhr, data) {
 	    if( xhr.status == 200 && data != null && typeof data == 'object' ) {
@@ -304,27 +303,23 @@ var PLUG = (function() {
 		new LazyLoad();
 	    } else {
 		_tags.tbody.html(_datamsg(lang.failure, _perm).join(""));
+		_tags.total.html("");
 	    }
 	    _tags.ts.html(G.getdatetime_l(new Date()));
-	    _tags.tbody.show();
-	    sp.stop();
+	    ProgressDialog.hide();
 	}).send();
 	_cache.y = y; _cache.m = m;
 	_tags.cal.html(G.getlongmonth_l(new Date(y, m - 1, 1)).toLowerCase());
     }
 
     function _page(page) {
-	var sp;
 	if( _cache.data != null ) {
 	    _tags.more.hide();
-	    _tags.tbody.hide();
-	    _tags.total.html("");
-	    sp = spinnerLarge(_tags.body, "50%", "50%");
+	    ProgressDialog.show();
 	    setTimeout(function() {
 		_tags.tbody.html(_datatbl(_cache.data, page, _tags.total, _getfilter(), _cache.checked, _perm).join(""));
 		new LazyLoad();
-		_tags.tbody.show();
-		sp.stop();
+		ProgressDialog.hide();
 	    }, 0);
 	}
     }
@@ -412,6 +407,7 @@ var PLUG = (function() {
 		    _datareq(y, m);
 		    history.replaceState({y:y, m:m}, "", G.getref({plug: _code, year: y, month: m}));
 		    _tags.popups = {}; _tags.popups[obj] = tmp;
+		    _tags.more.hide();
 		}, {year: _cache.y, month: _cache.m, uri: G.getajax({plug: _code, calendar: true})})
 	    });
 	},
@@ -468,7 +464,7 @@ var PLUG = (function() {
 	    var r = _cache.data.rows[row_no-1];
 	    var ptr = _cache.remarks[r.doc_id] || {status:(r.remark||{}).status,remark_type_id:null,type:null,note:null};
 	    var commit = function(self, method) {
-		var sp = spinnerSmall(self, self.position().top + self.height()/2 - _tags.more.position().top, self.position().left + 16 - _tags.more.position().left);
+		var params = {doc_id: r.doc_id};
 		var xhr = G.xhr(method, G.getajax({plug: _code}), "", function(xhr) {
 		    if( xhr.status == 200 ) {
 			ptr.status = method == 'PUT' ? 'accepted' : /*method == 'DELETE'*/'rejected';
@@ -491,11 +487,11 @@ var PLUG = (function() {
 			enable();
 			alarm(xhr.status == 409 ? lang.errors.remark.exist : lang.errors.runtime);
 		    }
-		    sp.stop();
+		    _tags.more.stopSpinner();
 		});
+		_tags.more.startSpinner();
 		disable();
 		xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-		var params = {doc_id: r.doc_id};
 		if( typeof ptr.remark_type_id != 'undefined' && !String.isEmpty(ptr.remark_type_id) ) {
 		    params.remark_type_id = ptr.remark_type_id;
 		}
@@ -521,7 +517,7 @@ var PLUG = (function() {
 	    if( _cache._more_row_no != null && _cache._more_row_no != u ) {
 		_tags.more.hide();
 	    }
-	    _tags.more.set(_remarktbl(r, _cache.data.remark_types).join(''));
+	    _tags.more.set(_remarktbl(_cache.data.remark_types).join(''));
 	    realert = _("re:alert");
 	    renote = _("re:note");
 	    reaccept = _("re:accept");
@@ -613,9 +609,13 @@ var PLUG = (function() {
     }
 })();
 
-
-function startup(tag, y, m, perm) {
-    PLUG.startup({body: tag}, y, m, perm);
+function startup(params, perm) {
+    if( params == null || typeof params != 'object' || typeof params.y == 'undefined' || typeof params.m == 'undefined' ) {
+	var d = new Date();
+	PLUG.startup({body: _('pluginContainer')}, d.getFullYear(), d.getMonth() + 1, perm);
+    } else {
+	PLUG.startup({body: _('pluginContainer')}, params.y, params.m, perm);
+    }
 }
 
 window.onpopstate = function(event) {
