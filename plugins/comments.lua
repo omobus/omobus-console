@@ -185,11 +185,11 @@ local function personalize(sestb, data)
 	end
 	for i, v in ipairs(p.rows) do
 	    if idx0[v.user_id] ~= nil or idx1[v.account_id] ~= nil then
-idx_users[v.user_id] = 1
-if v.chan_id ~= nil then idx_channels[v.chan_id] = 1; end
-if v.rc_id ~= nil then idx_rcs[v.rc_id] = 1; end
-if v.comment_type_id ~= nil then idx_types[v.comment_type_id] = 1; end
-if v.head_id ~= nil then idx_heads[v.head_id] = 1; end
+		idx_users[v.user_id] = 1
+		if v.chan_id ~= nil then idx_channels[v.chan_id] = 1; end
+		if v.rc_id ~= nil then idx_rcs[v.rc_id] = 1; end
+		if v.comment_type_id ~= nil then idx_types[v.comment_type_id] = 1; end
+		if v.head_id ~= nil then idx_heads[v.head_id] = 1; end
 		table.insert(tb, v); 
 		v.row_no = #tb
 	    end
@@ -232,10 +232,16 @@ function M.scripts(lang, permtb, sestb, params)
 end
 
 function M.startup(lang, permtb, sestb, params, stor)
-    if params.year ~= nil and params.month ~=nil then
-	return string.format("startup(_('pluginCore'),%s,%s,%s);", params.year, params.month, json.encode(permtb))
+    if params.year ~= nil and type(params.year) ~= 'number' then
+	params.year = tonumber(params.year)
+    end
+    if params.month ~= nil and type(params.month) ~= 'number' then
+	params.month = tonumber(params.month)
+    end
+    if params.year ~= nil and params.month ~= nil then
+	return string.format("startup({y:%s,m:%s},%s);", params.year, params.month, json.encode(permtb))
     else
-	return string.format("var d = new Date();startup(_('pluginCore'),d.getFullYear(),d.getMonth()+1,%s);", json.encode(permtb))
+	return string.format("startup(null,%s);", json.encode(permtb))
     end
 end
 
