@@ -8,4 +8,6 @@ mkdir -m 755 -p $HTDOCS
 #chown omobus:omobus $HTDOCS
 cp -auvrp $PREFIX/htdocs/* $HTDOCS
 cp -auvp $PREFIX/*.png $WWW || :
+cp -auvp $PREFIX/*.ico $WWW || :
+cp -auvp $PREFIX/*.webmanifest $WWW || :
 cp -auvp $PREFIX/*.htm $WWW || :

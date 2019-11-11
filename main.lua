@@ -250,6 +250,10 @@ function login_page(lang, params, ip, agent, res)
     table.insert(ar, '<meta name="author" content="' .. V.package_name .. '/' .. V.package_version .. '">')
     table.insert(ar, '<meta http-equiv="Pragma" content="no-cache"/>')
     table.insert(ar, '<title>' .. config.title .. '</title>')
+    table.insert(ar, '<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">');
+    table.insert(ar, '<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">');
+    table.insert(ar, '<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">');
+    table.insert(ar, '<link rel="manifest" href="/site.webmanifest">');
     table.insert(ar, '<link rel="stylesheet" href="' .. V.static_prefix .. '/auth.css" />')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/lang/' .. lang .. '.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/element.js"> </script>')
