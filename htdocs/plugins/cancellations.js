@@ -138,7 +138,8 @@ var PLUG = (function() {
 
     function _success_calendar(rows, year, month) {
 	var ar = [], i, size, r, flag = false;
-	ar.push("<table class='monthlycalendar'>");
+	ar.push("<div class='simplelist'><table>");
+	ar.push("<table>");
 	for( i = 0, size = rows.length; i < size; i++ ) {
 	    if( (r = rows[i]) != null ) {
 		ar.push("<tr " + (year == r.y && month == r.m ? "class='selected'" : ("onclick='PLUG.calendar.onselect("+r.y+","+r.m+")'")) +
@@ -146,7 +147,7 @@ var PLUG = (function() {
 		flag = true;
 	    }
 	}
-	ar.push("</table>");
+	ar.push("</table></div>");
 
 	return !flag ? _failed_calendar(lang.empty) : ar;
     }

@@ -294,7 +294,7 @@ end
 function M.scripts(lang, permtb, sestb, params)
     return [[
     <script src="https://api-maps.yandex.ru/2.1/?lang=ru-RU" type="text/javascript"> </script>
-    <script src="]] .. V.static_prefix .. [[/popup.cycles.js"> </script>
+    <script src="]] .. V.static_prefix .. [[/popup_L.cycles.js"> </script>
     <script src="]] .. V.static_prefix .. [[/popup.users.js"> </script>
     <script src="]] .. V.static_prefix .. [[/plugins/routes.js"> </script>
 ]]

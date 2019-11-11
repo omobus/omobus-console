@@ -137,7 +137,7 @@ end
 function M.scripts(lang, permtb, sestb, params)
     local ar = {}
     table.insert(ar, '<script src="' .. V.static_prefix .. '/libs/filesaver-0.1.0.js"> </script>')
-    table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.monthcal.js"> </script>')
+    table.insert(ar, '<script src="' .. V.static_prefix .. '/popup_L.monthcal.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.users.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/plugins/joint_routes.js"> </script>')
     return table.concat(ar,"\n")

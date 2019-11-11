@@ -50,7 +50,7 @@ CyclesPopup.prototype._msg = function(msg) {
 
 CyclesPopup.prototype._tbl = function(rows, cycle_id) {
     var ar = [], r, flag = false;
-    ar.push("<table class='monthlycalendar'>");
+    ar.push("<div class='simplelist'><table>");
     for( var i = 0, size = rows.length; i < size; i++ ) {
 	if( (r = rows[i]) != null ) {
 	    ar.push("<tr X-cid='{5}' {0}><td>{1}</td><td><img width='15px' src='{4}'/></td><td class='r'>{2} - {3}</td></tr>".format_a(
@@ -64,7 +64,7 @@ CyclesPopup.prototype._tbl = function(rows, cycle_id) {
 	    flag = true;
 	}
     }
-    ar.push("</table>");
+    ar.push("</table></div>");
 
     return !flag ? ["<br /><center>", lang.empty, "</center><br />"] : ar;
 }

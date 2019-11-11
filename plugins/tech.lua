@@ -406,7 +406,7 @@ end
 function M.scripts(lang, permtb, sestb, params)
     local ar = {}
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.js"> </script>')
-    table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.dailycal.js"> </script>')
+    table.insert(ar, '<script src="' .. V.static_prefix .. '/popup_L.dailycal.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/slideshow.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/slideshow.simple.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/plugins/tech.js"> </script>')
