@@ -45,10 +45,10 @@ a {
 }
 
 hr {
-    border: 0;
-    height: 0;
-    border-top: 1px solid #9a9a9a;
-    border-bottom: 1px solid #eeeeee;
+    border: none;
+    height: 1px;
+    background-image: -webkit-linear-gradient(left, rgba(154,154,154,0.3), rgba(154,154,154,0.5), rgba(154,154,154,0.3));
+    background-image:    -moz-linear-gradient(left, rgba(154,154,154,0.3), rgba(154,154,154,0.5), rgba(154,154,154,0.3));
 }
 
 .a_critical {
@@ -410,30 +410,49 @@ hr {
 
 .dialog input[type="text"] {
     width: 100%;
-    height: 22px;
-    background: transparent;
-    border: none;
-    border-bottom: solid 1px #c9c9c9;
-    transition: border 0.3s;
+    box-sizing: border-box;
+    border: 1px solid #d3d3d3;
+    border-radius: 3px;
+    padding-left: 8px;
+    padding-right: 8px;
+    height: 24px;
+    font-size: 9pt;
+    background: linear-gradient(to bottom, #f6f6f6 0%, #efefef 47%, #f4f4f4 100%);
 }
 
-.dialog input[type="text"]:focus {
-    outline: none;
+.dialog input[type="text"]:hover {
+    border: 1px solid #8a8a8a;
+    background: linear-gradient(to bottom, #f6f6f6 0%, #efefef 47%, #f4f4f4 100%);
+}
+
+.dialog input[type="text"]:disabled {
+    border: 1px solid #ededed;
+    cursor: default;
+    background: linear-gradient(to bottom, #f6f6f6 0%, #f1f1f1 47%, #f4f4f4 100%);
 }
 
 .dialog textarea {
     width: 100%;
-    margin-top: 2px;
-    margin-bottom: 2px;
-    background: transparent;
-    border: none;
-    border-bottom: solid 1px #c9c9c9;
-    transition: border 0.3s;
+    box-sizing: border-box;
+    border: 1px solid #d3d3d3;
+    border-radius: 3px;
+    padding-left: 8px;
+    padding-right: 8px;
+    height: 24px;
+    font-size: 9pt;
+    background: linear-gradient(to bottom, #f6f6f6 0%, #efefef 47%, #f4f4f4 100%);
     resize: vertical;
 }
 
-.dialog textarea:focus {
-    outline: none;
+.dialog textarea:hover {
+    border: 1px solid #8a8a8a;
+    background: linear-gradient(to bottom, #f6f6f6 0%, #efefef 47%, #f4f4f4 100%);
+}
+
+.dialog textarea:disabled {
+    border: 1px solid #ededed;
+    cursor: default;
+    background: linear-gradient(to bottom, #f6f6f6 0%, #f1f1f1 47%, #f4f4f4 100%);
 }
 
 .dialog a:link,
@@ -813,38 +832,6 @@ hr {
     font-weight: bold;
 }
 
-/* *** Monthly calendar *** */
-
-.monthlycalendar {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.monthlycalendar tr {
-    font-size: 9pt;
-}
-
-.monthlycalendar td {
-    padding: 6px 10px 6px 10px;
-    border: 1px solid #efefef;
-}
-
-.monthlycalendar tr:hover {
-    background-color: #006699;
-    color: #ffffff;
-    cursor: pointer;
-}
-
-.monthlycalendar .r {
-    text-align: right;
-}
-
-.monthlycalendar .selected, .monthlycalendar .selected:hover {
-    background-color: #0085d6; 
-    color: #ffffff;
-    cursor: default;
-}
-
 /* *** Simple list *** */
 
 .simplelist {
@@ -879,6 +866,10 @@ hr {
 
 .simplelist .r {
     text-align: right;
+}
+
+.simplelist .center {
+    text-align: center;
 }
 
 .simplelist .selected, .simplelist .selected:hover {
@@ -1460,9 +1451,9 @@ hr {
 
 .schedule th,
 .schedule td {
-    padding-left: 4px;
+    padding-left: 8px;
     padding-top: 2px;
-    padding-right: 4px;
+    padding-right: 8px;
     padding-bottom: 2px;
     border: 0.8px solid #bdbdbd;
 }
@@ -1477,7 +1468,14 @@ hr {
 .schedule th.title {
     padding-top: 4px;
     padding-bottom: 4px;
-    /*background-color: #f6f6f6;*/
+}
+
+.schedule th.stats {
+    font-size: 11pt;
+}
+
+.schedule th.attention {
+    color: red;
 }
 
 .schedule th a:link, 
@@ -1498,9 +1496,15 @@ hr {
     font-weight: normal;
 }
 
-.schedule td.job, .schedule td.job_disabled {
-    padding-top: 4px;
-    padding-bottom: 4px;
+.schedule th span.clickable {
+    cursor: pointer;
+}
+
+.schedule td.job, 
+.schedule td.job_disabled,
+.schedule td.job_clickable {
+    padding-top: 3px;
+    padding-bottom: 3px;
     /* singleLine: */
     white-space: nowrap;
     overflow: hidden;
@@ -1508,11 +1512,11 @@ hr {
     max-width: 0;
 }
 
-.schedule td.job {
+.schedule td.job_clickable {
     cursor: pointer;
 }
 
-.schedule td.job:hover {
+.schedule td.job_clickable:hover {
     background-color: #e7e7e7;
 }
 
@@ -1521,8 +1525,8 @@ hr {
 }
 
 .schedule td.note {
-    text-align: center;
     color: #7d7d7d;
+    text-align: center;
 }
 
 /* *** Modal progress *** */

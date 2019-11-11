@@ -1,7 +1,7 @@
 /* -*- JavaScript -*- */
 /* Copyright (c) 2006 - 2019 omobus-console authors, see the included COPYRIGHT file. */
 
-function UsersPopup(users, selection, params /* params = { everyone: true|false, container = "DOM container"} */) {
+function UsersPopup(users, selection, params /* params = { everyone: true|false, container: "DOM container", defaults: "user_id"} */) {
     if( !(this instanceof UsersPopup) ) {
 	return new UsersPopup(users, selection, params);
     }
@@ -23,6 +23,12 @@ function UsersPopup(users, selection, params /* params = { everyone: true|false,
 		arg._selected = true;
 	    }
 	}, params.container.getAttribute("X-uid"));
+    } else if( typeof params.defaults == 'string' ) {
+	users.forEach(function(arg) { 
+	    if( arg.user_id == this ) {
+		arg._selected = true;
+	    }
+	}, params.defaults);
     }
 
     var xtag, own = this;
