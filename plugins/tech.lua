@@ -103,6 +103,15 @@ select distinct user_id from (
 		    , "//tech/F.indirect_staff"
 		    , {user_id = sestb.erpid, fix_date = date}
 		)
+	    elseif sestb.department ~= nil then
+		tb.my_staff, err = func_execute(tran,
+[[
+select user_id from users
+    where dep_ids && string_to_array(%dep_id%,',')::uids_t
+]]
+		    , "//tech/F.my_staff"
+		    , {dep_id = sestb.department}
+		)
 	    elseif sestb.distributor ~= nil then
 		tb.my_staff, err = func_execute(tran,
 [[
@@ -189,6 +198,18 @@ select account_id from (select expand_cities(city_id) city_id from my_cities whe
 			, "//tech/F.my_habitat"
 			, {user_id = sestb.erpid}
 		    )
+		end
+	    elseif sestb.department ~= nil then
+		xx, err = func_execute(tran,
+[[
+select count(*) exist from users
+    where dep_ids && string_to_array(%dep_id%,',')::uids_t and user_id = %code%
+]]
+		    , "//tech/exist.my_staff"
+		    , {dep_id = sestb.department, code = user_id}
+		)
+		if (err == nil or err == false) and xx ~= nil and #xx == 1 and xx[1].exist > 0 then
+		    tb._everything = true
 		end
 	    elseif sestb.distributor ~= nil then
 		xx, err = func_execute(tran,

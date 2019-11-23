@@ -28,6 +28,12 @@ select account_id from my_regions r, accounts a where r.user_id in (select my_st
 select account_id from (select expand_cities(city_id) city_id from my_cities where user_id in (select my_staff(%user_id%, 1::bool_t))) c, accounts a where c.city_id=a.city_id
 ]]
 		, "//photos_archive/F.accounts", {user_id = sestb.erpid})
+	elseif sestb.department ~= nil then
+	    tb, err = func_execute(tran,
+[[
+select account_id from my_accounts where user_id in (select user_id from users where dep_ids && string_to_array(%dep_id%,',')::uids_t)
+]]
+		, "//photos_archive/F.accounts", {dep_id = sestb.department})
 	elseif sestb.distributor ~= nil then
 	    tb, err = func_execute(tran,
 [[
@@ -146,7 +152,7 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
 	    assert(params.brand_id == nil or validate.isuid(params.brand_id), "function %s() invalid [brand_id] parameter.")
 	    assert(params.photo_type_id == nil or validate.isuid(params.photo_type_id), "invalid [photo_type_id] parameter.")
 
-	    if sestb.erpid ~= nil or sestb.distributor ~= nil or sestb.agency ~= nil then
+	    if sestb.erpid ~= nil or sestb.department ~= nil or sestb.distributor ~= nil or sestb.agency ~= nil then
 		tb, err = data(stor, sestb)
 		if err then
 		    scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
@@ -197,7 +203,7 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
 	    elseif tb0 == nil or tb0.rows == nil or #tb0.rows == 0 then
 		scgi.writeHeader(res, 200, {["Content-Type"] = mime.json .. "; charset=utf-8"})
 		scgi.writeBody(res, "{}")
-	    elseif sestb.erpid ~= nil or sestb.distributor ~= nil or sestb.agency ~= nil then
+	    elseif sestb.erpid ~= nil or sestb.department ~= nil or sestb.distributor ~= nil or sestb.agency ~= nil then
 		tb1, err = data(stor, sestb)
 		if err then
 		    scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})

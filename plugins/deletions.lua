@@ -30,6 +30,7 @@ where
 	or (a.hidden=1 and %closed%=1)
     )
     and (%user_id% is null or j.user_id in (select * from my_staff(%user_id%, 1::bool_t)))
+    and (%dep_id% is null or u.dep_ids && string_to_array(%dep_id%,',')::uids_t)
     and (%distr_id% is null or u.distr_ids && string_to_array(%distr_id%,',')::uids_t)
     and (%agency_id% is null or u.agency_id=any(string_to_array(%agency_id%,',')))
 order by j.fix_dt desc
@@ -37,7 +38,9 @@ order by j.fix_dt desc
 -- *** sql query: end
     , "//deletions/get/"
     , {user_id = sestb.erpid == nil and stor.NULL or sestb.erpid, 
-       distr_id = sestb.distributor == null and stor.NULL or sestb.distributor, agency_id = sestb.agency == null and stor.NULL or sestb.agency,
+       dep_id = sestb.department == null and stor.NULL or sestb.department, 
+       distr_id = sestb.distributor == null and stor.NULL or sestb.distributor, 
+       agency_id = sestb.agency == null and stor.NULL or sestb.agency,
        registered = permtb.registered == true and 1 or 0, validated = permtb.validated == true and 1 or 0, rejected = permtb.rejected == true and 1 or 0,
        closed = permtb.closed == true and 1 or 0})
     end

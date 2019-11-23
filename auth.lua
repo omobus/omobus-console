@@ -94,6 +94,7 @@ local function sescreate(stor, username, ip, attrs, lang)
     tb.cn = attrs.cn
     tb.erpid = attrs.ErpId
     tb.group = attrs.groupName
+    tb.department = attrs.department
     tb.distributor = attrs.distributor
     tb.agency = attrs.agency
 

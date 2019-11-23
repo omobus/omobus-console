@@ -25,7 +25,7 @@ M.ldap		= {
 	    base	= "ou=users,dc=omobus,dc=local",
 	    scope 	= "subtree",
 	    filter	= "(&(objectClass=omobusUser)(consoleStatus=enabled)(uid=%1))",
-	    attrs	= {"uid", "userPassword", "cn", "ErpId", "groupName", "dumpsStatus", "distributor", "agency"}
+	    attrs	= {"uid", "userPassword", "cn", "ErpId", "groupName", "dumpsStatus", "department", "distributor", "agency"}
 	}
     }
 }

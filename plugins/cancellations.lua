@@ -15,16 +15,18 @@ local function get_calendar(stor, sestb)
     local q = "select left(min(route_date), 4) y, substring(min(route_date), 6, 2) m, count(*) qty from j_cancellations"
     if sestb.erpid ~= nil then
 	q = q .. " where user_id in (select * from my_staff(%user_id%, 1::bool_t))"
+    elseif sestb.department ~= nil then
+	q = q .. " where user_id in (select user_id from users where hidden=0 and dep_ids && string_to_array(%dep_id%,',')::uids_t)"
     elseif sestb.distributor ~= nil then
 	q = q .. " where user_id in (select user_id from users where hidden=0 and distr_ids && string_to_array(%distr_id%,',')::uids_t)"
-    elseif sestb.distributor ~= nil then
+    elseif sestb.agency ~= nil then
 	q = q .. " where user_id in (select user_id from users where hidden=0 and agency_id=any(string_to_array(%agency_id%,',')))"
     end
     q = q .. " group by left(route_date, 7)"
     q = q .. " order by 1 desc, 2 desc"
 
     return stor.get(function(tran, func_execute) return func_execute(tran, q,
-        "//cancellations/calendar/", {user_id=sestb.erpid, distr_id=sestb.distributor, agency_id=sestb.agency})
+        "//cancellations/calendar/", {user_id=sestb.erpid, dep_id=sestb.department, distr_id=sestb.distributor, agency_id=sestb.agency})
     end
     )
 end
@@ -44,6 +46,8 @@ where j.route_date>="monthDate_First"('%y%-%m%-01')::date_t and j.route_date<="m
 ]]
 	if sestb.erpid ~= nil then
 	    q = q .. " and j.user_id in (select * from my_staff(%user_id%, 1::bool_t))"
+	elseif sestb.department ~= nil then
+	    q = q .. " and u.dep_ids && string_to_array(%dep_id%,',')::uids_t"
 	elseif sestb.distributor ~= nil then
 	    q = q .. " and u.distr_ids && string_to_array(%distr_id%,',')::uids_t"
 	elseif sestb.agency ~= nil then
@@ -52,13 +56,18 @@ where j.route_date>="monthDate_First"('%y%-%m%-01')::date_t and j.route_date<="m
 	q = q .. " order by j.route_date desc, u.descr"
 
 	tb.cancellations, err = func_execute(tran, q, "//cancellations/j/", 
-	    {user_id = sestb.erpid, distr_id = sestb.distributor, agency_id = sestb.agency, y = year, m = month});
+	    {user_id = sestb.erpid, dep_id = sestb.department, distr_id = sestb.distributor, agency_id = sestb.agency, y = year, m = month});
 	if err == nil or err == false then
 	    if sestb.erpid ~= nil then
 		tb.users, err = func_execute(tran,
 		    "select s.s user_id, u.descr, u.dev_login from my_staff(%user_id%, 1::bool_t) s "..
 			"left join users u on u.user_id=s.s where u.hidden=0",
 		    "//cancellations/users/", {user_id = sestb.erpid})
+	    elseif sestb.department ~= nil then
+		tb.users, err = func_execute(tran,
+		    "select user_id, descr, dev_login from users " ..
+			"where hidden=0 and dep_ids && string_to_array(%dep_id%,',')::uids_t order by descr",
+		    "//cancellations/users/", {dep_id = sestb.department})
 	    elseif sestb.distributor ~= nil then
 		tb.users, err = func_execute(tran,
 		    "select user_id, descr, dev_login from users " ..

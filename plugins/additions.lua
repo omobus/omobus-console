@@ -54,6 +54,13 @@ order by j.inserted_ts desc, j.fix_dt desc
 		    validated = (permtb.data ~= nil and permtb.data.validated == true) and 1 or 0,
 		    rejected = (permtb.data ~= nil and permtb.data.rejected == true) and 1 or 0
 		})
+	elseif sestb.department ~= nil then
+	    tb.rows, err = func_execute(tran, qs:replace("$(0)", "u.dep_ids && string_to_array(%dep_id%,',')::uids_t and "),
+		"//additions/get", { dep_id = sestb.department,
+		    registered = (permtb.data ~= nil and permtb.data.registered == true) and 1 or 0,
+		    validated = (permtb.data ~= nil and permtb.data.validated == true) and 1 or 0,
+		    rejected = (permtb.data ~= nil and permtb.data.rejected == true) and 1 or 0
+		})
 	elseif sestb.distributor ~= nil then
 	    tb.rows, err = func_execute(tran, qs:replace("$(0)", "u.distr_ids && string_to_array(%distr_id%,',')::uids_t and "),
 		"//additions/get", { distr_id = sestb.distributor,

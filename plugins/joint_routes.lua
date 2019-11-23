@@ -37,6 +37,15 @@ select my_staff user_id from my_staff(%user_id%, 1::bool_t)
 		, "//joint_routes/F.users"
 		, {user_id = sestb.erpid}
 	    )
+	elseif sestb.department ~= nil then
+	    tb._users, err = func_execute(tran,
+[[
+select user_id from users
+    where dep_ids && string_to_array(%dep_id%,',')::uids_t
+]]
+		, "//joint_routes/F.users"
+		, {dep_id = sestb.department}
+	    )
 	elseif sestb.distributor ~= nil then
 	    tb._users, err = func_execute(tran,
 [[
@@ -103,7 +112,7 @@ local function personalize(sestb, data)
     local idx_employees = {}
     local idx_authors = {}
 
-    if sestb.erpid ~= nil or sestb.distributor ~= nil or sestb.agency ~= nil then
+    if sestb.erpid ~= nil or sestb.department ~= nil or sestb.distributor ~= nil or sestb.agency ~= nil then
 	local idx, tb = {}, {}
 	if data._users ~= nil then
 	    for i, v in ipairs(data._users) do
@@ -169,7 +178,7 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
 		scgi.writeHeader(res, 200, {["Content-Type"] = mime.json .. "; charset=utf-8"})
 		scgi.writeBody(res, "{}")
 	    else
-		if sestb.erpid ~= nil or sestb.distributor ~= nil or sestb.agency ~= nil then
+		if sestb.erpid ~= nil or sestb.department ~= nil or sestb.distributor ~= nil or sestb.agency ~= nil then
 		    for _, v in ipairs(tb) do
 			v.rows = nil
 		    end

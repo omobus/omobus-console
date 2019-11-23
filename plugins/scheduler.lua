@@ -39,6 +39,16 @@ where u.hidden=0 and s in (select distinct user_id from schedules where hidden=0
 		, "//scheduler/users/"
 		, {user_id = sestb.erpid}
 	    )
+        elseif sestb.department ~= nil then
+	    tb.users, err = func_execute(tran,
+[[
+select user_id, descr, dev_login from users 
+    where hidden=0 and dep_ids && string_to_array(%dep_id%,',')::uids_t and user_id in (select distinct user_id from schedules where hidden=0)
+order by descr
+]]
+		, "//scheduler/users/"
+		, {dep_id = sestb.department}
+	    )
         elseif sestb.distributor ~= nil then
 	    tb.users, err = func_execute(tran,
 [[

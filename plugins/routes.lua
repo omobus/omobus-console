@@ -70,6 +70,16 @@ where u.hidden=0
 		, "//routes/users/"
 		, {user_id = sestb.erpid}
 	    )
+        elseif sestb.department ~= nil then
+	    tb.users, err = func_execute(tran,
+[[
+select user_id, descr, dev_login from users 
+    where hidden=0 and dep_ids && string_to_array(%dep_id%,',')::uids_t 
+order by descr
+]]
+		, "//routes/users/"
+		, {dep_id = sestb.department}
+	    )
         elseif sestb.distributor ~= nil then
 	    tb.users, err = func_execute(tran,
 [[
