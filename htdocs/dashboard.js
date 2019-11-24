@@ -121,8 +121,11 @@ var Dashboard = (function() {
 	    var sup = _('supportContainer');
 	    var mod = _('pluginsContainer');
 	    var dum = _('dumpsContainer');
-	    _('userRef').html(rules.cn);
-	    _('logout').html(lang.exit);
+	    _set(_('logoutRef'), lang.exit, function(ev) {
+		document.location = G.getlogoutref();
+	    });
+	    _set(_('userRef'), rules.cn/*, function(ev) {
+	    }*/);
 	    _set(_('pluginsRef'), lang.plugins, function(ev) {
 		sup.hide();
 		dum.hide();

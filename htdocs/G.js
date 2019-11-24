@@ -121,7 +121,8 @@ var G = (function() {
 	getauth: function(params) { return _fmturi("auth", params); },
 	getref: function(params) { return _fmturi("default", params, {sid:_sid,lang:lang.__code}); },
 	getajax: function(params) { return _fmturi("ajax", params, {sid:_sid}); },
-	getlogin: function(params) { return _fmturi("login", params, {lang:lang.__code}); },
+	getloginref: function(params) { return _fmturi("login", params, {lang:lang.__code}); },
+	getlogoutref: function() { return _fmturi("logout", null, {sid:_sid}); },
 	getdumpref: function(params) { return _fmturi("dump", params, {sid:_sid}); },
 	getstaticref: function(name) { return _sprefix + "/" + name; },
 	getphotoref: function(ref, absolute) { return _fmturi("photo", {ref: ref}, null, absolute); },
@@ -159,9 +160,9 @@ var G = (function() {
 	    xhr.onreadystatechange = function() {
 		if( this.readyState == 4 /* DONE */ ) {
 		    if( xhr.status == 401 ) {
-			document.location = G.getlogin({msgcode:"invalid"});
+			document.location = G.getloginref({msgcode:"invalid"});
 		    } else if( xhr.status == 440 ) {
-			document.location = G.getlogin({msgcode:"obsolete"});
+			document.location = G.getloginref({msgcode:"obsolete"});
 		    } else if( this.status == 200 && type == 'json-js' && typeof this.response == "string" ) {
 			done(this, json_parse(this.response));
 		    } else if( this.status == 200 && type == "json" && typeof this.response == "string" ) {
