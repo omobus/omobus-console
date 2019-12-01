@@ -85,7 +85,7 @@ function M.getJSON(name, params)
 			errormsg(string.format("%s:%d does not support HTTP format", config.ark.host, config.ark.port))
 			err = true
 		    elseif code ~= "200" then
-			errormsg(string.format("%s:%d returns %d responce.", config.ark.host, config.ark.port, code))
+			errormsg(string.format("%s:%d returns [%d] response.", config.ark.host, config.ark.port, code))
 			err = true
 		    end
 		elseif c:sub(1, 12) == "Content-Type" then
@@ -104,7 +104,7 @@ function M.getJSON(name, params)
 			err = true
 		    end
 		elseif c:sub(1, 17) == "Transfer-Encoding" and c:sub(19):ltrim(" ") == "chunked" then
-		    errormsg(string.format("%s:%d chunked responce does't supported", config.ark.host, config.ark.port))
+		    errormsg(string.format("%s:%d chunked response does't supported", config.ark.host, config.ark.port))
 		    err = true
 		elseif c:sub(1, 14) == "Content-Length" then
 		    c:gsub("([%w-%w]+):([ ]+)(%d+)", function(arg0,arg1,arg2)
@@ -203,7 +203,7 @@ function M.getJPEG(name, params)
 			errormsg(string.format("%s:%d does not support HTTP format", config.ark.host, config.ark.port))
 			err = true
 		    elseif code ~= "200" then
-			errormsg(string.format("%s:%d returns %d responce.", config.ark.host, config.ark.port, code))
+			errormsg(string.format("%s:%d returns [%d] response.", config.ark.host, config.ark.port, code))
 			err = true
 		    end
 		elseif c:sub(1, 12) == "Content-Type" then
@@ -218,7 +218,7 @@ function M.getJPEG(name, params)
 			err = true
 		    end
 		elseif c:sub(1, 17) == "Transfer-Encoding" and c:sub(19):ltrim(" ") == "chunked" then
-		    errormsg(string.format("%s:%d chunked responce does't supported", config.ark.host, config.ark.port))
+		    errormsg(string.format("%s:%d chunked response does't supported", config.ark.host, config.ark.port))
 		    err = true
 		elseif c:sub(1, 14) == "Content-Length" then
 		    c:gsub("([%w-%w]+):([ ]+)(%d+)", function(arg0,arg1,arg2)
