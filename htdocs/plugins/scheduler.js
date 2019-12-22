@@ -343,25 +343,48 @@ var PLUG = (function() {
 		var stat_R = _('sched:stat_R');
 		var jobs = _tags.sched.getElementsByClassName('job_clickable');
 		var stats = function(arg) {
-		    var a = [0,0,0,0], t;
+		    var a = [0,0,0,0], t, arL = [], arR = [];
 		    for( var prop in arg.days ) {
 			var p = arg.days[prop];
 			for( var i = 0, size = Array.isArray(p.jobs) ? p.jobs.length : 0; i < size; i++ ) {
-			    var t = p.jobs[i].type;
-			    if( t == 'office' ) {
-				a[0]++; a[2]++;
-			    } else if( ['account','audit','coaching'].includes(t) ) {
-				a[1]++; a[2]++;
-			    } else {
+			    if( String.isEmpty(p.canceling_note) ) {
+				var t = p.jobs[i].type;
+				if( t == 'office' ) {
+				    a[0]++; a[2]++;
+				} else if( ['account','audit','coaching'].includes(t) ) {
+				    a[1]++; a[2]++;
+				}
 				a[3]++;
 			    }
 			}
 		    }
+		    if( a[2] > 0 ) {
+			t = Math.round(100.0*a[0]/a[2]);
+			arL.push("<table width='100%'>");
+			arL.push("<tr>");
+			arL.push("<td class='noborder", t > 20 ? ' attention' : '', "'>", t, "%</td>");
+			arL.push("<td class='noborder'>", 100.0 - t, "%</td>");
+			arL.push("</tr>");
+			arL.push("<tr>");
+			arL.push("<td class='noborder watermark'>", lang.scheduler.office_work.toLowerCase(), "</td>");
+			arL.push("<td class='noborder watermark'>", lang.scheduler.field_work.toLowerCase(), "</td>");
+			arL.push("</tr>");
+			arL.push("</table>");
+		    }
+		    if( a[3] > 0 ) {
+			t = Math.round(100.0*a[2]/a[3]);
+			arR.push("<table width='100%'>");
+			arR.push("<tr>");
+			arR.push("<td class='noborder", t < 100 ? ' attention' : '', "'>", t, "%</td>");
+			arR.push("</tr>");
+			arR.push("<tr>");
+			arR.push("<td class='noborder watermark'>", lang.scheduler.total_work.toLowerCase(), "</td>");
+			arR.push("</tr>");
+			arR.push("</table>");
+		    }
 		    //console.log(a);
-		    t = a[2] == 0 ? 0 : Math.round(100.0*a[0]/a[2]);
-		    stat_L.html(a[2] == 0 ? "" : "{0}%&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;{1}%".format_a(t, 100.0 - t));
-		    stat_L[a[2] == 0 || t <= 20 ? "removeClass" : "addClass"]("attention");
-		    stat_R.html(a[3] == 0 ? "" : "{0}%".format_a(Math.round(100.0*a[2]/a[3])));
+		    stat_L.html(arL.join(''));
+		    stat_R.html(arR.join(''));
 		}
 
 		for( var i = 0; i < jobs.length; i++ ) {

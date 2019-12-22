@@ -51,6 +51,10 @@ hr {
     background-image:    -moz-linear-gradient(left, rgba(154,154,154,0.3), rgba(154,154,154,0.5), rgba(154,154,154,0.3));
 }
 
+.noborder {
+    border:none !important;
+}
+
 .a_critical {
     color: #bd1515;
 }
@@ -81,7 +85,10 @@ hr {
 .logosubtitle {
     color: #a3a3a3;
     font-size: 9pt;
-    /*font-weight: bold;*/
+}
+
+.attention {
+    color: red;
 }
 
 .watermark {
@@ -1192,7 +1199,6 @@ hr {
     position: absolute;
     top: 0;
 }
-
 
 /* *** Reports *** */
 
