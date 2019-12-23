@@ -126,6 +126,7 @@ var lang = {
 	order: "Заказ продукции",
 	pending: "Отложить посещение",
 	photo: "Фотография торгового места",
+	posm: "Мониторинг PoS/PoP материалов",
 	presence: "Представленность продукции на полке",
 	presentation: "Презентация продукции",
 	price: "Мониторинг цен",
@@ -279,6 +280,10 @@ var lang = {
     plus: "+",
     pos_material: "POS/POP материал",
     pos_material_everything: "Все POS/POP материалы",
+    posms: {
+	title: "Мониторинг PoS/PoP материалов",
+	title1: "Мониторинг PoS/PoP материалов за"
+    },
     poten: "Категория клиента",
     poten_everything: "Все категории клиентов",
     presentations: {

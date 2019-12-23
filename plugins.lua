@@ -23,6 +23,7 @@ local modules = {
 	photos_archive 		= require 'plugins.photos_archive',
 	planograms 		= require 'plugins.planograms',
 	pos_materials 		= require 'plugins.pos_materials',
+	posms 			= require 'plugins.posms',
 	presentations 		= require 'plugins.presentations',
 	prices 			= require 'plugins.prices',
 	promos 			= require 'plugins.promos',
