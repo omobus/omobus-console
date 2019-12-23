@@ -713,6 +713,34 @@ var __route = (function() {
 		ar.push("</td>");
 		ar.push("</tr>");
 		ar.push("</table>");
+	    } else if( r._t == "posm" ) {
+		xs = typeof r.revoked != 'undefined' && r.revoked ? ' strikethrough' : '';
+		ar.push("<div>");
+		ar.push("<h2>", "{0} {1} {2} / {3}".format_a(lang.doctypes[r._t], lang.num, r.doc_no, r.doc_id), "</h2>");
+		ar.push("<span class='watermark'>", "{0}: {1}".format_a(lang.fix_time, G.getlongtime_l(r.fix_dt)), 
+		    "&nbsp;&nbsp;&nbsp;(", lang.seconds.format_a(r.duration), ")", "</span>");
+		ar.push("</div>");
+		ar.push("<table width='100%' class='report'>");
+		ar.push("<tr class='def'>");
+		ar.push("<td class='divider'>", lang.placement, "</td>");
+		ar.push("<td class='divider'>", lang.pos_material, "</td>");
+		ar.push("<td class='divider'>", lang.photo, "</td>");
+		ar.push("<td class='divider'>", lang.note, "</td>");
+		ar.push("</tr>");
+		ar.push("<tr>");
+		ar.push("<td class='ref", xs, "' width='200px'>", G.shielding(r.placement), "</td>");
+		ar.push("<td class='ref", xs, "' width='300px'>", G.shielding(r.posm), "</td>");
+		ar.push("<td class='ref' width='130px'>");
+		if( String.isEmpty(r.blob_id) ) {
+		    ar.push("&nbsp;");
+		} else {
+		    ar.push("<img class='clickable' onclick='PLUG.slideshow([", r.blob_id, "],1)' height='90px' src='",
+			G.getajax({plug: "tech", blob: "yes", thumb: "yes", blob_id: r.blob_id}), "' />");
+		}
+		ar.push("</td>");
+		ar.push("<td class='string", xs, "'>", G.shielding(r.doc_note), "</td>");
+		ar.push("</tr>");
+		ar.push("</table>");
 	    } else if( r._t == "presence" ) {
 		ar.push("<div>");
 		ar.push("<h2>", "{0} {1} {2} / {3}".format_a(lang.doctypes[r._t], lang.num, r.doc_no, r.doc_id), "</h2>");
@@ -1213,6 +1241,7 @@ var __route = (function() {
 	fn("oos");
 	fn("order");
 	fn("photo");
+	fn("posm");
 	fn("presence");
 	fn("presentation");
 	fn("price");
