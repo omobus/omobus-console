@@ -85,7 +85,7 @@ order by j.inserted_ts desc, j.fix_dt desc
 		})
 	else
 	    tb.rows, err = func_execute(tran, qs:replace("$(0)", ""),
-		"//wishes/get", { agency_id = sestb.agency,
+		"//wishes/get", {
 		    registered = (permtb.data ~= nil and permtb.data.registered == true) and 1 or 0,
 		    validated = (permtb.data ~= nil and permtb.data.validated == true) and 1 or 0,
 		    rejected = (permtb.data ~= nil and permtb.data.rejected == true) and 1 or 0,
