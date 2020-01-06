@@ -111,7 +111,7 @@ var PLUG = (function() {
 	    ar.push("<p>");
 	    ar.push("<div class='row'>");
 	    ar.push("<select id='re:type'>");
-	    ar.push("<option value=''>", lang.remark.not_specified, "</option>");
+	    ar.push("<option value=''>", lang.not_specified, "</option>");
 		remark_types.forEach(function(r) {
 		ar.push("<option value='", G.shielding(r.remark_type_id), "'>", G.shielding(r.descr), "</option>");
 	    });
