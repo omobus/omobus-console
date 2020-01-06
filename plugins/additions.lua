@@ -77,7 +77,7 @@ order by j.inserted_ts desc, j.fix_dt desc
 		})
 	else
 	    tb.rows, err = func_execute(tran, qs:replace("$(0)", ""),
-		"//additions/get", { agency_id = sestb.agency,
+		"//additions/get", {
 		    registered = (permtb.data ~= nil and permtb.data.registered == true) and 1 or 0,
 		    validated = (permtb.data ~= nil and permtb.data.validated == true) and 1 or 0,
 		    rejected = (permtb.data ~= nil and permtb.data.rejected == true) and 1 or 0
@@ -127,11 +127,9 @@ end
 
 local function accept(stor, uid, doc_id)
     return stor.put(function(tran, func_execute) return func_execute(tran,
--- *** sql query: begin
 [[
 select console.req_addition(%req_uid%, 'validate', %doc_id%)
 ]]
--- *** sql query: end
 	, "//additions/validate", {req_uid = uid, doc_id = doc_id})
     end
     )
@@ -139,11 +137,9 @@ end
 
 local function reject(stor, uid, doc_id)
     return stor.put(function(tran, func_execute) return func_execute(tran,
--- *** sql query: begin
 [[
 select console.req_addition(%req_uid%, 'reject', %doc_id%)
 ]]
--- *** sql query: end
 	, "//additions/reject", {req_uid = uid, doc_id = doc_id})
     end
     )
