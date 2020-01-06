@@ -121,7 +121,7 @@ var PLUG = (function() {
 			    if( arg1 > 0 ) {
 				ar.push("<hr/>");
 			    }
-			    ar.push( G.shielding(arg0.descr));
+			    ar.push(G.shielding(arg0.descr));
 			});
 		    }
 		    ar.push("</td>");
