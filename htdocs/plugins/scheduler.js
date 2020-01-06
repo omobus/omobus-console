@@ -156,13 +156,13 @@ var PLUG = (function() {
 	return ar;
     }
 
-    function _jobtbl(timeline, employees) {
+    function _jobbodytbl(timeline, employees) {
 	var ar = [];
 	ar.push("<div class='row'>", lang.scheduler.notice.format_a(timeline[0],timeline[1]), "</div>");
 	ar.push("<div class='row attention gone' id='job:alert'></div>");
 	ar.push("<div class='row'>");
 	ar.push("<select id='job:type'>");
-	ar.push("<option value=''>", lang.scheduler.not_specified, "</option>");
+	ar.push("<option value=''>", lang.not_specified, "</option>");
 	for( const [key, value] of Object.entries(lang.scheduler.types) ) {
 	    ar.push("<option value='", key, "'>", value, "</option>");
 	}
@@ -170,7 +170,7 @@ var PLUG = (function() {
 	ar.push("</div>");
 	ar.push("<div class='row'>");
 	ar.push("<select id='job:emp'>");
-	ar.push("<option value=''>", lang.scheduler.not_specified, "</option>");
+	ar.push("<option value=''>", lang.not_specified, "</option>");
 	if( Array.isArray(employees) ) {
 	    employees.forEach(function(arg) {ar.push("<option value='", G.shielding(arg.user_id), "'>", G.shielding(arg.descr), "</option>"); });
 	}
@@ -179,16 +179,20 @@ var PLUG = (function() {
 	ar.push("<div class='row'>");
 	ar.push("<input id='job:account' type='text' placeholder='", lang.scheduler.placeholder, "' autocomplete='on'>", "</input>");
 	ar.push("</div>");
-	ar.push("<br/>");
+	return ar;
+    }
+
+    function _jobbtntbl() {
+	var ar = [];
 	ar.push("<div class='row' align='right'>");
 	ar.push("<button id='job:back'>", lang.back, "</button>");
 	ar.push("&nbsp;&nbsp;");
 	ar.push("<button id='job:commit' disabled='true'>", lang.scheduler.commit, "</button>");
 	ar.push("&nbsp;&nbsp;");
 	ar.push("</div>");
-	ar.push("</div>");
 	return ar;
     }
+
 
     function _checkJob(arg) {
 	if( arg.type == 'audit' || arg.type == 'coaching' ) {
@@ -210,7 +214,8 @@ var PLUG = (function() {
 	Dialog({
 	    width: 550, 
 	    title: lang.scheduler.caption.format_a(timeline[0], timeline[1], G.getlongday_l(ptr.p_date)),
-	    body: _jobtbl(timeline, data.employees)
+	    body: _jobbodytbl(timeline, data.employees),
+	    buttons: _jobbtntbl()
 	}).show(function(dialogObject) {
 	    const alertView = _('job:alert');
 	    const empView = _('job:emp');
