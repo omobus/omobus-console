@@ -121,7 +121,7 @@ where sup.hidden = 0 and (
 	sup.country_id is null or sup.country_id='' or 
 	    sup.country_id in (select country_id from users where user_id=%user_id%)
     )
-order by row_no limit 10
+order by sup.row_no limit 10
 ]]
 	    , "//main/support"
 	    , { user_id = user_id ~= nil and user_id or '' }
