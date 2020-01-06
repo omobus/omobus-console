@@ -66,9 +66,9 @@ var Dashboard = (function() {
 	}
 	ar.push("<hr />");
 	if( rules.dumps == null || !Array.isArray(rules.dumps.rows) ) {
-	    ar.push("<br/><center>", lang.dumps_denied, "</center><br/>");
+	    ar.push("<br/><center>", lang.dumps_denied, "</center>");
 	} else if( rules.dumps.rows.isEmpty() ) {
-	    ar.push("<br/><center>", lang.dumps_empty, "</center><br/>");
+	    ar.push("<br/><center>", lang.dumps_empty, "</center>");
 	} else {
 	    ar.push("<table class='dashboard'>");
 	    for( var i = 0, size = rules.dumps.rows.length; i < size; i++ ) {
