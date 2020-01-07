@@ -57,7 +57,7 @@ Dialog.prototype._get = function(title, body, buttons) {
 	ar.push("</div>");
     }
     if( buttons != null ) {
-	ar.push("<hr/>");
+	ar.push("<br/>");
 	ar.push(Array.isArray(buttons) ? buttons.join("") : buttons);
     }
     ar.push("</div>");
@@ -88,15 +88,15 @@ Dialog.prototype.show = function(onShowListener) {
     this._displayed = true;
     this._def_onkeyup = window.onkeyup;
     window.onkeyup = function(ev) { return own._onkeyup(ev); };
+    if( typeof onShowListener == 'function' ) {
+	onShowListener(this);
+    }
     this._container.show();
     x = this._container.firstChild;
     z = (window.innerHeight - x.offsetHeight)/2;
     if( z > 100 ) z = 100;
     else if( z < 30 ) z = 30;
     x.style.marginTop = "{0}px".format_a(z);
-    if( typeof onShowListener == 'function' ) {
-	onShowListener(this);
-    }
     return this;
 }
 
@@ -110,7 +110,11 @@ Dialog.prototype.hide = function() {
 }
 
 Dialog.prototype.getElementsByClassName = function(names) {
-    this._container.getElementsByClassName(names);
+    return this._container.getElementsByClassName(names);
+}
+
+Dialog.prototype.getElementsByTagName = function(name) {
+    return this._container.getElementsByTagName(name);
 }
 
 Dialog.prototype.startSpinner = function() {

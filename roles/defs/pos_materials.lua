@@ -4,6 +4,7 @@
 local M = {} -- public interface
 
 M.add = {max_file_size_mb=6}
+M.rows = 500
 -- not owner:
 M.remove = false
 M.edit = false

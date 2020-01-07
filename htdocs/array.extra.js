@@ -1,6 +1,16 @@
 /* -*- JavaScript -*- */
 /* Copyright (c) 2006 - 2019 omobus-console authors, see the included COPYRIGHT file. */
 
+/* static functions: */
+
+(function (Array, undefined) {
+    Array.clone = function(arg) {
+	return Array.isArray(arg) ? arg.clone() : arg;
+    };
+}(Array));
+
+/* public functions: */
+
 if( !Array.prototype.isEmpty ) {
     Array.prototype.isEmpty = function() {
 	return this.length == 0;
@@ -39,5 +49,11 @@ if( !Array.prototype.first ) {
 if( !Array.prototype.last ) {
     Array.prototype.last = function() {
 	return this.length >= 0 ? this[this.length - 1] : null;
+    }
+}
+
+if( !Array.prototype.clone ) {
+    Array.prototype.clone = function() {
+	return this.slice(0);
     }
 }

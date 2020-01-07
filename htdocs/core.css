@@ -475,6 +475,73 @@ hr {
     color: #bd1515;
 }
 
+.dialog input[type="checkbox"] {
+    position: absolute;
+    z-index: -1;
+    opacity: 0;
+}
+
+.dialog .checkbox__text {
+    position: relative;
+    padding: 0 0 0 50px;
+    cursor: pointer;
+}
+
+.dialog .checkbox__text:before {
+    content: '';
+    position: absolute;
+    left: 0;
+    width: 35px;
+    height: 16px;
+    border-radius: 13px;
+    background: #CDD1DA;
+    box-shadow: inset 0 2px 3px rgba(0,0,0,.2);
+    transition: .2s;
+}
+
+.dialog .checkbox__text:after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 12px;
+    height: 12px;
+    border-radius: 10px;
+    background: #FFF;
+    box-shadow: 0 2px 5px rgba(0,0,0,.3);
+    transition: .2s;
+}
+
+.dialog input[type="checkbox"]:checked + .checkbox__text:before {
+    background: /*#9FD468*/ #007dc1;
+}
+
+.dialog input[type="checkbox"]:checked + .checkbox__text:after {
+    left: 21px;
+}
+
+.dialog input[type="checkbox"]:focus + .checkbox__text:before {
+    box-shadow: inset 0 2px 3px rgba(0,0,0,.4);
+}
+
+.dialog div.tbl {
+    display: table;
+    width: 100%;
+}
+
+.dialog div.tblrow {
+    display: table-row;
+}
+
+.dialog div.tblcell {
+    display: table-cell;
+    width: 33%;
+}
+
+.dialog div.tblbody {
+    display: table-row-group;
+}
+
 /* **** Popup/ballon **** */
 
 .ballon {
@@ -1373,6 +1440,10 @@ hr {
 }
 
 .report td.rejected {
+    background-color: #fad4d4;
+}
+
+.report td.incomplete {
     background-color: #fad4d4;
 }
 

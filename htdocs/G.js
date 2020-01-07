@@ -89,7 +89,7 @@ var G = (function() {
 
     /* public properties & methods */
     return {
-	shielding: function(arg, def) { 
+	shielding: function(arg, def) {
 	    return arg == null || arg == "" ? (def == null || typeof def == 'undefined' ? "" : def) : _htmlentities(arg); 
 	},
 
@@ -266,6 +266,19 @@ var G = (function() {
 	    tag0.hide(); tag1.show();
 	    span.html(lang.export.progress.format_a(0, size));
 	    __save(rows.shift());
+	},
+
+	quarterDateRange: function(year, quarter) {
+	    if( quarter == 1 ) {
+		return [new Date(year,0,1), new Date(year,2,31)];
+	    } else if( quarter == 2 ) {
+		return [new Date(year,3,1), new Date(year,5,30)];
+	    } else if( quarter == 3 ) {
+		return [new Date(year,6,1), new Date(year,8,30)];
+	    } else if( quarter == 4 ) {
+		return [new Date(year,9,1), new Date(year,11,31)];
+	    }
+	    throw new Error("Invalid quarter number.");
 	}
     }
 })();
