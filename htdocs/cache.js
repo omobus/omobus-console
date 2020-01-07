@@ -1,5 +1,5 @@
 /* -*- JavaScript -*- */
-/* Copyright (c) 2006 - 2019 omobus-console authors, see the included COPYRIGHT file. */
+/* Copyright (c) 2006 - 2020 omobus-console authors, see the included COPYRIGHT file. */
 
 /* OBSOLETE: begin */
 

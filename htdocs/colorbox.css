@@ -1,5 +1,5 @@
 /* -*- CSS -*- */
-/* Copyright (c) 2006 - 2019 omobus-console authors, see the included COPYRIGHT file. */
+/* Copyright (c) 2006 - 2020 omobus-console authors, see the included COPYRIGHT file. */
 
 #colorbox, #cboxOverlay, #cboxWrapper{position:absolute; top:0; left:0; z-index:9999; overflow:hidden;}
 #cboxWrapper {max-width:none;}
