@@ -526,7 +526,7 @@ var PLUG = (function() {
 	    if( retype != null ) {
 		retype.onchange = function() {
 		    ptr.remark_type_id = (this.value || this.options[this.selectedIndex].value);
-		    ptr.type = (this.innerText || this.options[this.selectedIndex].innerText);
+		    ptr.type = this.options[this.selectedIndex].innerText;
 		    enable();
 		    realert.hide();
 		}
