@@ -145,15 +145,15 @@ var __route = (function() {
 		ar.push("<td class='ref", ptr == null ? "" : (" strikethrough footnote_L' data-title='" + lang.tech.route.discard.format_a(_discard(ptr).join('. '))),
 		    "'>", G.shielding(r.activity_type), "</td>");
 		if( typeof r.docs == 'undefined' && typeof r.extra_info == 'undefined' ) {
-		    ar.push("<td class='bool'>", "&nbsp;", "</td>");
+		    ar.push("<td class='int' width='30px'>", "&nbsp;", "</td>");
 		} else if( !String.isEmpty(r.extra_info) ) {
-		    ar.push("<td class='bool footnote_L' data-title='{0}.".format_a(r.extra_info), "'>", 
-			(typeof r.docs != 'undefined' && r.docs > 0) ? "&#x1F613;<sub>{0}</sub>".format_a(G.getint_l(r.docs)) : "&#x1F613;", 
+		    ar.push("<td class='int footnote_L' data-title='{0}.".format_a(r.extra_info), "' width='30px'>", 
+			(typeof r.docs != 'undefined' && r.docs > 0) ? "&#x1F613;<sup>{0}</sup>".format_a(G.getint_l(r.docs)) : "&#x1F613;", 
 			"</td>");
 		} else if( typeof r.docs != 'undefined' && r.docs > 0 ) {
-		    ar.push("<td class='bool'>", G.getint_l(r.docs), "</td>");
+		    ar.push("<td class='int' width='30px'>", G.getint_l(r.docs), "</td>");
 		} else {
-		    ar.push("<td class='bool'>", "&nbsp;", "</td>");
+		    ar.push("<td class='int' width='30px'>", "&nbsp;", "</td>");
 		}
 		ar.push("</tr>");
 	    } else if( z._t == "unsched" ) {
