@@ -97,10 +97,12 @@ Dialog.prototype.show = function(onShowListener) {
     if( z > 100 ) z = 100;
     else if( z < 30 ) z = 30;
     x.style.marginTop = "{0}px".format_a(z);
+    document.body.addClass('noscroll');
     return this;
 }
 
 Dialog.prototype.hide = function() {
+    document.body.removeClass('noscroll');
     this._spinnerElement.hide();
     this._container.hide();
     if( this._displayed == true ) {
