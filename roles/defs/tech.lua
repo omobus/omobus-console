@@ -9,6 +9,7 @@ M.mapEngine = 'Yandex.Maps'
 M.columns = {area=true, department=true, distributor=true}
 M.tabs = {a_list=true, route=true}
 M.target = false
+M.urgent = false
 M.zstatus = false
 
 return M

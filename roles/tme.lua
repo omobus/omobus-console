@@ -9,7 +9,7 @@ M.home = "confirmations"
 M.selectable = {
     reports = {
 	daily = {"tech", "route_compliance"},
-	monthly = {"confirmations", "comments", "photos", "audits", "shelfs", "quests", "stocks", "advt", "prices", "posms"}
+	monthly = {"confirmations", "comments", "photos", "audits", "shelfs", "quests", "presences", "stocks", "advt", "prices", "posms"}
     },
     analitics = {"targets_compliance"},
     managment = {"targets", "deletions", "info_materials", "pos_materials", "planograms"},
@@ -35,6 +35,7 @@ M.permissions = {
     planograms 		= require 'roles.defs.planograms',
     pos_materials 	= require 'roles.defs.pos_materials',
     posms 		= require 'roles.defs.posms',
+    presences 		= require 'roles.defs.presences',
     prices 		= require 'roles.defs.prices',
     quests 		= require 'roles.defs.quests',
     reclamations 	= require 'roles.defs.reclamations',
@@ -55,8 +56,11 @@ M.permissions = {
 M.permissions = require 'core'.deepcopy(M.permissions)
 M.permissions.confirmations.remark = true
 M.permissions.photos.target = true
+M.permissions.photos.urgent = true
 M.permissions.posms.target = true
+M.permissions.posms.urgent = true
 M.permissions.targets_compliance.remark = true
 M.permissions.tech.target = true
+M.permissions.tech.urgent = true
 
 return M
