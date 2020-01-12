@@ -24,6 +24,7 @@ local modules = {
 	planograms 		= require 'plugins.planograms',
 	pos_materials 		= require 'plugins.pos_materials',
 	posms 			= require 'plugins.posms',
+	presences 		= require 'plugins.presences',
 	presentations 		= require 'plugins.presentations',
 	prices 			= require 'plugins.prices',
 	promos 			= require 'plugins.promos',
