@@ -112,7 +112,7 @@ local function post(stor, uid, params)
     return stor.put(function(tran, func_execute) return func_execute(tran,
 -- *** sql query: begin
 [[
-select console.req_target(%req_uid%, (%type_id%, %subject%, %body%, %b_date%, %e_date%, %dep_id%, string_to_array(%account_ids%,','), 
+select console.req_target(%req_uid%, %_datetime%, (%type_id%, %subject%, %body%, %b_date%, %e_date%, %dep_id%, string_to_array(%account_ids%,','), 
     string_to_array(%region_ids%,','), string_to_array(%city_ids%,','), string_to_array(%rc_ids%,','), string_to_array(%chan_ids%,','), string_to_array(%poten_ids%,','))::console.target_t)
 ]]
 -- *** sql query: end
@@ -130,7 +130,7 @@ local function put(stor, uid, target_id, params)
     return stor.put(function(tran, func_execute) return func_execute(tran,
 -- *** sql query: begin
 [[
-select console.req_target(%req_uid%, %target_id%, (%type_id%, %subject%, %body%, %b_date%, %e_date%, %dep_id%, string_to_array(%account_ids%,','), 
+select console.req_target(%req_uid%, %_datetime%, %target_id%, (%type_id%, %subject%, %body%, %b_date%, %e_date%, %dep_id%, string_to_array(%account_ids%,','), 
     string_to_array(%region_ids%,','), string_to_array(%city_ids%,','), string_to_array(%rc_ids%,','), string_to_array(%chan_ids%,','), string_to_array(%poten_ids%,','))::console.target_t)
 ]]
 -- *** sql query: end
@@ -182,6 +182,7 @@ local function ajax_new(permtb, sestb, params, content, stor, res)
     -- validate input data
     assert(permtb.add ~= nil,
 	string.format("function %s() >>> PANIC <<< operation does not permitted.", debug.getinfo(1,"n").name))
+assert(validate.isdatetime(p._datetime), "invalid [_datetime] parameter.")
     assert(#p.subject, 
 	string.format("function %s() >>> PANIC <<< invalid subject.", debug.getinfo(1,"n").name))
     assert(#p.body, 
@@ -217,6 +218,7 @@ local function ajax_edit(permtb, sestb, params, content, stor, res)
     -- validate input data
     assert(validate.isuid(params.target_id),
 	string.format("function %s() >>> PANIC <<< invalid target_id.", debug.getinfo(1,"n").name))
+assert(validate.isdatetime(p._datetime), "invalid [_datetime] parameter.")
     assert(#p.subject, 
 	string.format("function %s() >>> PANIC <<< invalid subject.", debug.getinfo(1,"n").name))
     assert(#p.body, 

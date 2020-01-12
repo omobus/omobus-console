@@ -444,6 +444,8 @@ hr {
 
 .dialog textarea {
     width: 100%;
+    height: 100%;
+    min-height: 80px;
     box-sizing: border-box;
     border: 1px solid #d3d3d3;
     border-radius: 3px;
@@ -514,6 +516,11 @@ hr {
     background: #FFF;
     box-shadow: 0 2px 5px rgba(0,0,0,.3);
     transition: .2s;
+}
+
+.dialog input[type="checkbox"]:disabled + .checkbox__text {
+    color: #7d7d7d;
+    cursor: default;
 }
 
 .dialog input[type="checkbox"]:checked + .checkbox__text:before {
@@ -757,34 +764,51 @@ hr {
 
 .ballon input[type="text"] {
     width: 100%;
-    height: 22px;
-    margin-top: 2px;
-    margin-bottom: 2px;
-    background: transparent;
-    border: none;
-    border-bottom: solid 1px #c9c9c9;
-    transition: border 0.3s;
-    color: #7b0000;
+    box-sizing: border-box;
+    border: 1px solid #d3d3d3;
+    border-radius: 3px;
+    padding-left: 8px;
+    padding-right: 8px;
+    height: 24px;
+    font-size: 9pt;
+    background: linear-gradient(to bottom, #f6f6f6 0%, #efefef 47%, #f4f4f4 100%);
 }
 
-.ballon input[type="text"]:focus {
-    outline: none;
+.ballon input[type="text"]:hover {
+    border: 1px solid #8a8a8a;
+    background: linear-gradient(to bottom, #f6f6f6 0%, #efefef 47%, #f4f4f4 100%);
+}
+
+.ballon input[type="text"]:disabled {
+    border: 1px solid #ededed;
+    cursor: default;
+    background: linear-gradient(to bottom, #f6f6f6 0%, #f1f1f1 47%, #f4f4f4 100%);
 }
 
 .ballon textarea {
     width: 100%;
-    margin-top: 2px;
-    margin-bottom: 2px;
-    background: transparent;
-    border: none;
-    border-bottom: solid 1px #c9c9c9;
-    transition: border 0.3s;
+    height: 100%;
+    min-height: 80px;
+    box-sizing: border-box;
+    border: 1px solid #d3d3d3;
+    border-radius: 3px;
+    padding-left: 8px;
+    padding-right: 8px;
+    height: 24px;
+    font-size: 9pt;
+    background: linear-gradient(to bottom, #f6f6f6 0%, #efefef 47%, #f4f4f4 100%);
     resize: vertical;
-    color: #7b0000;
 }
 
-.ballon textarea:focus {
-    outline: none;
+.ballon textarea:hover {
+    border: 1px solid #8a8a8a;
+    background: linear-gradient(to bottom, #f6f6f6 0%, #efefef 47%, #f4f4f4 100%);
+}
+
+.ballon textarea:disabled {
+    border: 1px solid #ededed;
+    cursor: default;
+    background: linear-gradient(to bottom, #f6f6f6 0%, #f1f1f1 47%, #f4f4f4 100%);
 }
 
 .ballon .search {
@@ -841,7 +865,6 @@ hr {
     padding-right: 40px;
     z-index: 99998;
 }
-
 
 /* *** Daily calendar *** */
 
@@ -975,6 +998,7 @@ hr {
 }
 
 /* *** Multi-select list *** */
+/* OBSOLETE: */
 
 .multilist {
     max-height: 150px;
@@ -1035,6 +1059,7 @@ hr {
     border: 2px solid white; /* should match background, can't be transparent */
     background-color: rgba(0,0,0,0.5);
 }
+/* OBSOLETE */
 
 /* *** Slideshow *** */
 
@@ -1110,9 +1135,14 @@ hr {
     margin-bottom: 6px;
 }
 
-.slideshow .container .explain div.row {
+.slideshow .container .explain div {
     margin-top: 4px;
     margin-bottom: 4px;
+}
+
+.slideshow .container .explain div.row {
+    margin-top: 8px;
+    margin-bottom: 8px;
 }
 
 .slideshow .container .explain div.attention {
@@ -1145,32 +1175,105 @@ hr {
 
 .slideshow .container .explain input[type="text"] {
     width: 100%;
-    height: 22px;
-    margin-top: 2px;
-    margin-bottom: 2px;
-    background: transparent;
-    border: none;
-    border-bottom: solid 1px #c9c9c9;
-    transition: border 0.3s;
+    box-sizing: border-box;
+    border: 1px solid #d3d3d3;
+    border-radius: 3px;
+    padding-left: 8px;
+    padding-right: 8px;
+    height: 24px;
+    font-size: 9pt;
+    background: linear-gradient(to bottom, #f6f6f6 0%, #efefef 47%, #f4f4f4 100%);
 }
 
-.slideshow .container .explain input[type="text"]:focus {
-    outline: none;
+.slideshow .container .explain input[type="text"]:hover {
+    border: 1px solid #8a8a8a;
+    background: linear-gradient(to bottom, #f6f6f6 0%, #efefef 47%, #f4f4f4 100%);
+}
+
+.slideshow .container .explain input[type="text"]:disabled {
+    border: 1px solid #ededed;
+    cursor: default;
+    background: linear-gradient(to bottom, #f6f6f6 0%, #f1f1f1 47%, #f4f4f4 100%);
 }
 
 .slideshow .container .explain textarea {
     width: 100%;
-    margin-top: 2px;
-    margin-bottom: 2px;
-    background: transparent;
-    border: none;
-    border-bottom: solid 1px #c9c9c9;
-    transition: border 0.3s;
+    height: 100%;
+    min-height: 80px;
+    box-sizing: border-box;
+    border: 1px solid #d3d3d3;
+    border-radius: 3px;
+    padding-left: 8px;
+    padding-right: 8px;
+    height: 24px;
+    font-size: 9pt;
+    background: linear-gradient(to bottom, #f6f6f6 0%, #efefef 47%, #f4f4f4 100%);
     resize: vertical;
 }
 
-.slideshow .container .explain textarea:focus {
-    outline: none;
+.slideshow .container .explain textarea:hover {
+    border: 1px solid #8a8a8a;
+    background: linear-gradient(to bottom, #f6f6f6 0%, #efefef 47%, #f4f4f4 100%);
+}
+
+.slideshow .container .explain textarea:disabled {
+    border: 1px solid #ededed;
+    cursor: default;
+    background: linear-gradient(to bottom, #f6f6f6 0%, #f1f1f1 47%, #f4f4f4 100%);
+}
+
+.slideshow .container .explain input[type="checkbox"] {
+    position: absolute;
+    z-index: -1;
+    opacity: 0;
+}
+
+.slideshow .container .explain .checkbox__text {
+    position: relative;
+    padding: 0 0 0 50px;
+    cursor: pointer;
+}
+
+.slideshow .container .explain .checkbox__text:before {
+    content: '';
+    position: absolute;
+    left: 0;
+    width: 35px;
+    height: 16px;
+    border-radius: 13px;
+    background: #CDD1DA;
+    box-shadow: inset 0 2px 3px rgba(0,0,0,.2);
+    transition: .2s;
+}
+
+.slideshow .container .explain .checkbox__text:after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 12px;
+    height: 12px;
+    border-radius: 10px;
+    background: #FFF;
+    box-shadow: 0 2px 5px rgba(0,0,0,.3);
+    transition: .2s;
+}
+
+.slideshow .container .explain input[type="checkbox"]:disabled + .checkbox__text {
+    color: #7d7d7d;
+    cursor: default;
+}
+
+.slideshow .container .explain input[type="checkbox"]:checked + .checkbox__text:before {
+    background: /*#9FD468*/ #007dc1;
+}
+
+.slideshow .container .explain input[type="checkbox"]:checked + .checkbox__text:after {
+    left: 21px;
+}
+
+.slideshow .container .explain input[type="checkbox"]:focus + .checkbox__text:before {
+    box-shadow: inset 0 2px 3px rgba(0,0,0,.4);
 }
 
 .slideshow .container .explain .spinner, 

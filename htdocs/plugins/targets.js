@@ -451,6 +451,7 @@ var PLUG = (function() {
 		sp.stop();
 	    });
 	    _disable(context._commit, true);
+params._datetime = G.getdatetime(new Date());
 	    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	    xhr.send(G.formParamsURI(params));
 	}

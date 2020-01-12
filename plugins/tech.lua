@@ -283,7 +283,7 @@ local function target(stor, uid, params)
     params.req_uid = uid
     return stor.get(function(tran, func_execute) return func_execute(tran,
 [[
-select console.req_target(%req_uid%, (%doc_id%, %sub%, %msg%, %strict%::bool_t)::console.target_at_t) target_id
+select console.req_target(%req_uid%, %_datetime%, (%doc_id%, %sub%, %msg%, %strict%::bool_t, %urgent%::bool_t)::console.target_at_t) target_id
 ]]
 	, "//tech/new_target"
 	, params)
@@ -291,13 +291,13 @@ select console.req_target(%req_uid%, (%doc_id%, %sub%, %msg%, %strict%::bool_t):
     )
 end
 
-local function zstatus(stor, uid, cmd, guid, note)
+local function zstatus(stor, uid, reqdt, cmd, guid, note)
     return stor.get(function(tran, func_execute) return func_execute(tran,
 [[
-select console.req_zstatus(%req_uid%, %cmd%, %guid%, %msg%) zrows
+select console.req_zstatus(%req_uid%, %req_dt%, %cmd%, %guid%, %msg%) zrows
 ]]
 	, "//tech/zstatus"
-	, {req_uid = uid, cmd = cmd, guid = guid, msg = note or stor.NULL})
+	, {req_uid = uid, req_dt = reqdt, cmd = cmd, guid = guid, msg = note or stor.NULL})
     end, false
     )
 end
@@ -484,6 +484,9 @@ function M.startup(lang, permtb, sestb, params, stor)
     if permtb.target == true then
 	table.insert(ar, "__allowTargetCreation = true;")
     end
+    if permtb.urgent == true then
+	table.insert(ar, "__allowUrgentActivities = true;")
+    end
     if permtb.zstatus == true then
 	table.insert(ar, "__allowZstatusChanging = true;")
     end
@@ -580,10 +583,12 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
 	if permtb.target == true then
 	    local p, tb, err
 	    if type(content) == "string" then p = uri.parseQuery(content) end
+	    assert(validate.isdatetime(p._datetime), "invalid [_datetime] parameter.")
 	    assert(p.sub ~= nil and #p.sub, "invalid [subject] parameter.")
 	    assert(p.msg ~= nil and #p.msg, "invalid [body] parameter.")
 	    assert(validate.isuid(p.doc_id), "invalid [doc_id] parameter.")
 	    p.strict = p.strict == 'true' and 1 or 0
+	    p.urgent = (p.urgent == 'true' and permtb.urgent == true) and 1 or 0
 	    tb, err = target(stor, sestb.erpid or sestb.username, p)
 	    if err then
 		scgi.writeHeader(res, 500, {["Content-Type"] = mime.json .. "; charset=utf-8"})
@@ -603,8 +608,9 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
 	if permtb.zstatus == true then
 	    local p, tb, err
 	    if type(content) == "string" then p = uri.parseQuery(content) end
+	    assert(validate.isdatetime(p._datetime), "invalid [_datetime] parameter.")
 	    assert(validate.isuid(p.guid), "invalid [guid] parameter.")
-	    tb, err = zstatus(stor, sestb.erpid or sestb.username, 'accept', p.guid, p.note)
+	    tb, err = zstatus(stor, sestb.erpid or sestb.username, p._datetime, 'accept', p.guid, p.note)
 	    if err then
 		scgi.writeHeader(res, 500, {["Content-Type"] = mime.json .. "; charset=utf-8"})
 		scgi.writeBody(res, "{\"status\":\"failed\",\"msg\":\"Internal server error\"}")
@@ -623,9 +629,10 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
 	if permtb.zstatus == true then
 	    local p, tb, err
 	    if type(content) == "string" then p = uri.parseQuery(content) end
+	    assert(validate.isdatetime(p._datetime), "invalid [_datetime] parameter.")
 	    assert(validate.isuid(p.guid), "invalid [guid] parameter.")
 	    assert(p.note ~= nil and #p.note, "invalid [note] parameter.")
-	    tb, err = zstatus(stor, sestb.erpid or sestb.username, 'reject', p.guid, p.note)
+	    tb, err = zstatus(stor, sestb.erpid or sestb.username, p._datetime, 'reject', p.guid, p.note)
 	    if err then
 		scgi.writeHeader(res, 500, {["Content-Type"] = mime.json .. "; charset=utf-8"})
 		scgi.writeBody(res, "{\"status\":\"failed\",\"msg\":\"Internal server error\"}")

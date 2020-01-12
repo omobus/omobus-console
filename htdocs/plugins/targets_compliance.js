@@ -535,7 +535,7 @@ var PLUG = (function() {
 		_tags.more.startSpinner();
 		disable();
 		xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-		var params = {doc_id: r.doc_id};
+		var params = {doc_id: r.doc_id, _datetime: G.getdatetime(new Date())};
 		if( typeof ptr.remark_type_id != 'undefined' && !String.isEmpty(ptr.remark_type_id) ) {
 		    params.remark_type_id = ptr.remark_type_id;
 		}

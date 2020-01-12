@@ -1342,7 +1342,7 @@ var __route = (function() {
 		x.startSpinner();
 		disable();
 		xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-		xhr.send(G.formParamsURI({guid: guid, note: ptr._znote}));
+		xhr.send(G.formParamsURI({guid: guid, note: ptr._znote, _datetime: G.getdatetime(new Date())}));
 	    }
 	    var alarm = function(arg) {
 		zalert.html(arg);

@@ -94,6 +94,7 @@ var G = (function() {
 	},
 
 	getdate: function(d) { return _fmtdate(d, "yyyy-mm-dd"); },
+	getdatetime: function(d) { return _fmtdate(d, "yyyy-mm-dd HH:MM:ss"); },
 	getdatetime_l: function(d) { return _fmtdate(d, lang.dateFormat.datetime); },
 	getdate_l: function(d) { return _fmtdate(d, lang.dateFormat.date); },
 	getlongdatetime_l: function(d) { return _fmtdate(d, lang.dateFormat.longdatetime); },

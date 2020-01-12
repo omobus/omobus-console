@@ -267,7 +267,7 @@ var PLUG = (function() {
 		dialogObject.hide();
 	    }
 	    commitView.onclick = function() {
-		var par = {plug: _code, user_id: data.user_id, date: ptr.p_date, num: num};
+		var par = {plug: _code, _datetime: G.getdatetime(new Date()), user_id: data.user_id, date: ptr.p_date, num: num};
 		dialogObject.startSpinner();
 		alertView.hide();
 		if( typeof newJob.type == 'undefined' || newJob.type == '' ) {

@@ -183,13 +183,13 @@ select thumb_get(%blob_id%::blob_t) photo
     )
 end
 
-local function remark(stor, uid, cmd, doc_id, remark_type_id, note)
+local function remark(stor, uid, reqdt, cmd, doc_id, remark_type_id, note)
     return stor.get(function(tran, func_execute) return func_execute(tran,
 [[
-select console.req_remark(%req_uid%, %cmd%, %doc_id%, %remark_type_id%, %msg%) "rows"
+select console.req_remark(%req_uid%, %req_dt%, %cmd%, %doc_id%, %remark_type_id%, %msg%) "rows"
 ]]
 	, "//confirmations/remark"
-	, {req_uid = uid, cmd = cmd, doc_id = doc_id, remark_type_id = remark_type_id or stor.NULL, msg = note or stor.NULL})
+	, {req_uid = uid, req_dt = reqdt, cmd = cmd, doc_id = doc_id, remark_type_id = remark_type_id or stor.NULL, msg = note or stor.NULL})
     end, false
     )
 end
@@ -371,9 +371,10 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
 	if permtb.remark == true then
 	    local p, tb, err
 	    if type(content) == "string" then p = uri.parseQuery(content) end
+	    assert(validate.isdatetime(p._datetime), "invalid [_datetime] parameter.")
 	    assert(validate.isuid(p.doc_id), "invalid [doc_id] parameter.")
 	    assert(p.remark_type_id == nil or validate.isuid(p.remark_type_id), "invalid [remark_type_id] parameter.")
-	    tb, err = remark(stor, sestb.erpid or sestb.username, 'accept', p.doc_id, p.remark_type_id, p.note)
+	    tb, err = remark(stor, sestb.erpid or sestb.username, p._datetime, 'accept', p.doc_id, p.remark_type_id, p.note)
 	    if err then
 		scgi.writeHeader(res, 500, {["Content-Type"] = mime.json .. "; charset=utf-8"})
 		scgi.writeBody(res, "{\"status\":\"failed\",\"msg\":\"Internal server error\"}")
@@ -392,10 +393,11 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
 	if permtb.remark == true then
 	    local p, tb, err
 	    if type(content) == "string" then p = uri.parseQuery(content) end
+	    assert(validate.isdatetime(p._datetime), "invalid [_datetime] parameter.")
 	    assert(validate.isuid(p.doc_id), "invalid [doc_id] parameter.")
 	    assert(p.remark_type_id == nil or validate.isuid(p.remark_type_id), "invalid [remark_type_id] parameter.")
 	    assert(p.note ~= nil and #p.note, "invalid [note] parameter.")
-	    tb, err = remark(stor, sestb.erpid or sestb.username, 'reject', p.doc_id, p.remark_type_id, p.note)
+	    tb, err = remark(stor, sestb.erpid or sestb.username, p._datetime, 'reject', p.doc_id, p.remark_type_id, p.note)
 	    if err then
 		scgi.writeHeader(res, 500, {["Content-Type"] = mime.json .. "; charset=utf-8"})
 		scgi.writeBody(res, "{\"status\":\"failed\",\"msg\":\"Internal server error\"}")

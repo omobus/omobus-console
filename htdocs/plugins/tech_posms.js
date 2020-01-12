@@ -59,9 +59,9 @@ PLUG.registerRef("posm", (function() {
 
     function _getexplain(r) {
 	var ar = [];
-	ar.push("<div class='row'>", lang.a_code, ":&nbsp;", G.shielding(r.a_code), "</div>");
+	ar.push("<div>", lang.a_code, ":&nbsp;", G.shielding(r.a_code), "</div>");
 	ar.push("<h1>", G.shielding(r.a_name), "</h1>");
-	ar.push("<div class='row'>", G.shielding(r.address), "</div>");
+	ar.push("<div>", G.shielding(r.address), "</div>");
 	if( !String.isEmpty(r.rc) ) {
 	    ar.push("<div>", lang.rc_name, ":&nbsp;", G.shielding(r.rc), "</div>");
 	}
@@ -72,25 +72,40 @@ PLUG.registerRef("posm", (function() {
 	    ar.push("<div>", lang.poten, ":&nbsp;", G.shielding(r.poten), "</div>");
 	}
 	ar.push("<hr/>");
-	ar.push("<div class='row'>", lang.placement, ":&nbsp;", G.shielding(r.placement, lang.dash), "</div>");
-	ar.push("<div class='row'>", lang.pos_material, ":&nbsp;", G.shielding(r.posm, lang.dash), "</div>");
+	ar.push("<div>", lang.placement, ":&nbsp;", G.shielding(r.placement, lang.dash), "</div>");
+	ar.push("<div>", lang.pos_material, ":&nbsp;", G.shielding(r.posm, lang.dash), "</div>");
 	if( !String.isEmpty(r.doc_note) ) {
-	    ar.push("<div class='row'>", G.shielding(r.doc_note), "</div>");
+	    ar.push("<div>", G.shielding(r.doc_note), "</div>");
 	}
 	ar.push("<hr/>");
-        ar.push("<div class='row'>", lang.fix_dt, ":&nbsp;", G.getdatetime_l(Date.parseISO8601(r.fix_dt)), "</div>");
+        ar.push("<div>", lang.fix_dt, ":&nbsp;", G.getdatetime_l(Date.parseISO8601(r.fix_dt)), "</div>");
 	if( typeof __allowTargetCreation != 'undefined' && __allowTargetCreation && (typeof r.revoked == 'undefined' || !r.revoked) ) {
 	    ar.push("<br/><br/>");
 	    ar.push("<div id='spin:", r.blob_id, "' class='spinner'></div>");
 	    ar.push("<h2>", lang.targets.title2, "</h2>");
-	    ar.push("<div class='row'>", lang.notices.target, "</div>");
+	    ar.push("<div>", lang.notices.target, "</div>");
 	    ar.push("<div class='row attention gone' id='alert:", r.blob_id, "'></div>");
-	    ar.push("<div class='row'><input id='sub:", r.blob_id, "' type='text' maxlength='128' autocomplete='off' oninput='",
-		"PLUG.getRef(\"posm\").target.set(", r.blob_id, ",\"sub\",this.value)' placeholder='", lang.targets.subject.placeholder, "'/></div>");
-	    ar.push("<div class='row'><textarea id='msg:", r.blob_id, "' rows='6' maxlength='2048' autocomplete='off' oninput='",
-		"PLUG.getRef(\"posm\").target.set(", r.blob_id, ",\"msg\",this.value)' placeholder='", lang.targets.body.placeholder, "'></textarea></div>");
-	    ar.push("<div class='row'><input id='strict:", r.blob_id, "' type='checkbox' onchange='PLUG.getRef(\"posm\").target.set(", r.blob_id,
-		",\"strict\",this.checked)'/><label for='strict:", r.blob_id, "'>", lang.targets.strict, "</label></div>");
+	    ar.push("<div class='row'>");
+	    ar.push("<input id='sub:", r.blob_id, "' type='text' maxlength='128' autocomplete='off' oninput='PLUG.getRef(\"posm\").target.set(",
+		r.blob_id, ",\"sub\",this.value)' placeholder='", lang.targets.subject.placeholder, "'/>");
+	    ar.push("</div>");
+	    ar.push("<div class='row'>");
+	    ar.push("<textarea id='msg:", r.blob_id, "' rows='5' maxlength='2048' autocomplete='off' oninput='PLUG.getRef(\"posm\").target.set(", r.blob_id,
+		",\"msg\",this.value)' placeholder='", lang.targets.body.placeholder, "'></textarea>");
+	    ar.push("</div>");
+	    ar.push("<div class='row'>");
+	    ar.push("<label class='checkbox'>");
+	    ar.push("<input type='checkbox' id='strict:", r.blob_id, "' onchange='PLUG.getRef(\"posm\").target.set(", r.blob_id, ",\"strict\",this.checked)' />");
+	    ar.push("<div class='checkbox__text'>", lang.targets.strict, "</div>");
+	    ar.push("</label>");
+	    ar.push("</div>");
+	    ar.push("<div class='row'>");
+	    ar.push("<label class='checkbox'>");
+	    ar.push("<input type='checkbox' id='urgent:", r.blob_id, "' onchange='PLUG.getRef(\"posm\").target.set(", r.blob_id, ",\"urgent\",this.checked)'",
+		(typeof __allowUrgentActivities != 'undefined' && __allowUrgentActivities) ? "" : " disabled='disabled'", " />");
+	    ar.push("<div class='checkbox__text'>", lang.targets.urgent, "</div>");
+	    ar.push("</label>");
+	    ar.push("</div>");
 	    ar.push("<br/>");
 	    ar.push("<div align='center'><button id='commit:", r.blob_id, "' onclick='PLUG.getRef(\"posm\").target.create(\"", r.doc_id, "\",", r.blob_id,
 		");' disabled='true'>", lang.save, "</button></div>");
@@ -127,9 +142,11 @@ PLUG.registerRef("posm", (function() {
 		    params.sub = null;
 		    params.msg = null;
 		    params.strict = null;
+		    params.urgent = null;
 		    tags.sub.value = "";
 		    tags.msg.value = "";
 		    tags.strict.checked = false;
+		    tags.urgent.checked = false;
 		    Toast.show(lang.success.target);
 		} else {
 		    tags.commit.disabled = false;
@@ -140,6 +157,7 @@ PLUG.registerRef("posm", (function() {
 	    });
 	    tags.spin.show();
 	    params.doc_id = doc_id;
+	    params._datetime = G.getdatetime(new Date());
 	    tags.commit.disabled = true;
 	    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	    xhr.send(G.formParamsURI(params));
@@ -219,6 +237,7 @@ PLUG.registerRef("posm", (function() {
 		    sub: _("sub:{0}".format_a(blob_id)),
 		    msg: _("msg:{0}".format_a(blob_id)),
 		    strict: _("strict:{0}".format_a(blob_id)),
+		    urgent: _("urgent:{0}".format_a(blob_id)),
 		    spin: _("spin:{0}".format_a(blob_id))
 		}, doc_id, _cache.targets[blob_id]);
 	    }

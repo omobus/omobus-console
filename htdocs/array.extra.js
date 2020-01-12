@@ -9,6 +9,12 @@
     };
 }(Array));
 
+(function (Array, undefined) {
+    Array.isEmpty = function(arg) {
+	return !Array.isArray(arg) || arg.isEmpty();
+    };
+}(Array));
+
 /* public functions: */
 
 if( !Array.prototype.isEmpty ) {

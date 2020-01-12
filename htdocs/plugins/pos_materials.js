@@ -316,6 +316,7 @@ var PLUG = (function() {
 	    } else {
 		var fd, xhr;
 		fd = new FormData();
+		fd.append("_datetime", G.getdatetime(new Date()));
 		fd.append("blob", f, f.name.replace(/\.[^/.]+$/, ""));
 		xhr = G.xhr("POST", G.getajax({plug: _code}), "json", function(xhr, resp) {
 		    if( xhr.status == 200 ) {
@@ -450,15 +451,19 @@ var PLUG = (function() {
 		    return true;
 		}
 		const func = function() {
-		    commitView.disabled = !(
-			(data.descr||'') != (newData.descr||'') ||
-			(data.country_id||'') != (newData.country_id||'') ||
-			!equals(data.brand_ids||[], newData.brand_ids||[]) ||
-			!equals(data.placement_ids||[], newData.placement_ids||[]) ||
-			!equals(data.chan_ids||[], newData.chan_ids||[]) ||
-			(data.b_date||'') != (newData.b_date||'') ||
-			(data.e_date||'') != (newData.e_date||'')
-		    );
+		    commitView.disabled = 
+			String.isEmpty(newData.descr) || 
+			String.isEmpty(newData.country_id) || 
+			Array.isEmpty(newData.brand_ids) || 
+			(
+			    (data.descr||'') == (newData.descr||'') &&
+			    (data.country_id||'') == (newData.country_id||'') &&
+			    equals(data.brand_ids||[], newData.brand_ids||[]) &&
+			    equals(data.placement_ids||[], newData.placement_ids||[]) &&
+			    equals(data.chan_ids||[], newData.chan_ids||[]) &&
+			    (data.b_date||'') == (newData.b_date||'') &&
+			    (data.e_date||'') == (newData.e_date||'')
+			);
 		    //console.log(newData);
 		}
 
@@ -514,16 +519,16 @@ var PLUG = (function() {
 			newData.b_date = null;
 			newData.e_date = null;
 		    } else if( x == 'end_of_week' ) {
-			newData.b_date = String.isEmpty(data.b_date) ? G.getdate(d) : data.b_date;
+			newData.b_date = String.isEmpty(data.b_date) ? G.getdate(today) : data.b_date;
 			newData.e_date = G.getdate(end_of_week);
 		    } else if( x == 'end_of_month' ) {
-			newData.b_date = String.isEmpty(data.b_date) ? G.getdate(d) : data.b_date;
+			newData.b_date = String.isEmpty(data.b_date) ? G.getdate(today) : data.b_date;
 			newData.e_date = G.getdate(end_of_month);
 		    } else if( x == 'end_of_quarter' ) {
-			newData.b_date = String.isEmpty(data.b_date) ? G.getdate(d) : data.b_date;
+			newData.b_date = String.isEmpty(data.b_date) ? G.getdate(today) : data.b_date;
 			newData.e_date = G.getdate(end_of_quarter);
 		    } else if( x == 'end_of_year' ) {
-			newData.b_date = String.isEmpty(data.b_date) ? G.getdate(d) : data.b_date;
+			newData.b_date = String.isEmpty(data.b_date) ? G.getdate(today) : data.b_date;
 			newData.e_date = G.getdate(end_of_year);
 		    } else if( x == 'next_month' ) {
 			newData.b_date = G.getdate(next_month[0]);
@@ -552,11 +557,11 @@ var PLUG = (function() {
 			alertView.html(lang.pos_materials.msg3);
 			alertView.show();
 		    } else if( !Array.isArray(newData.brand_ids) || newData.brand_ids.isEmpty() ) {
-			alertView.html(lang.pos_materials.msg3);
+			alertView.html(lang.pos_materials.msg4);
 			alertView.show();
 		    } else {
-			let fd, xhr;
-			fd = new FormData();
+			let fd = new FormData();
+			fd.append("_datetime", G.getdatetime(new Date()));
 			fd.append("name", newData.descr);
 			fd.append("country_id", newData.country_id);
 			fd.append("brand_ids", newData.brand_ids);
@@ -577,7 +582,7 @@ var PLUG = (function() {
 			dialogObject.startSpinner();
 			alertView.hide();
 
-			xhr = G.xhr("PUT", G.getajax({plug: _code, posm_id: data.posm_id}), "json", function(xhr, resp) {
+			G.xhr("PUT", G.getajax({plug: _code, posm_id: data.posm_id}), "json", function(xhr, resp) {
 			    if( xhr.status == 200 ) {
 				PLUG.refresh();
 				dialogObject.hide();
@@ -586,8 +591,7 @@ var PLUG = (function() {
 				alertView.show();
 			    }
 			    dialogObject.stopSpinner();
-			});
-			xhr.send(fd);
+			}).send(fd);
 		    }
 		}
 
@@ -595,6 +599,8 @@ var PLUG = (function() {
 	    });
 	},
 	unlink: function(tag, posm_id) {
+	    let fd = new FormData();
+	    fd.append("_datetime", G.getdatetime(new Date()));
 	    ProgressDialog.show();
 	    tag.style.visibility = 'hidden';
 	    G.xhr("DELETE", G.getajax({plug: _code, posm_id: posm_id}), "", function(xhr) {
@@ -617,7 +623,7 @@ var PLUG = (function() {
 		    Toast.show(lang.errors.runtime);
 		    ProgressDialog.hide();
 		}
-	    }).send();
+	    }).send(fd);
 	}
     }
 })();

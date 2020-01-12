@@ -152,13 +152,13 @@ select author_id from pos_materials where posm_id=%posm_id%
     )
 end
 
-local function unlink(stor, uid, posm_id)
+local function unlink(stor, uid, reqdt, posm_id)
     return stor.put(function(tran, func_execute) return func_execute(tran,
 [[
-select console.req_pos_material(%req_uid%, 'unlink', %posm_id%, null) rv
+select console.req_pos_material(%req_uid%, %req_dt%, 'unlink', %posm_id%, null) rv
 ]]
         , "//pos_materials/unlink/"
-        , {req_uid = uid, posm_id = posm_id})
+        , {req_uid = uid, req_dt = reqdt, posm_id = posm_id})
     end
     )
 end
@@ -167,7 +167,7 @@ local function put(stor, uid, params)
     params.req_uid = uid
     return stor.put(function(tran, func_execute) return func_execute(tran,
 [[
-select console.req_pos_material(%req_uid%, 'edit', %posm_id%, (
+select console.req_pos_material(%req_uid%, %_datetime%, 'edit', %posm_id%, (
 	%name%, 
 	%country_id%, 
 	string_to_array(%brand_ids%,','), 
@@ -184,13 +184,13 @@ select console.req_pos_material(%req_uid%, 'edit', %posm_id%, (
     )
 end
 
-local function post(stor, uid, blob)
+local function post(stor, uid, reqdt, blob)
     return stor.put(function(tran, func_execute) return func_execute(tran,
 [[
-select console.req_pos_material(%req_uid%/*, 'add'*/, %name%, %1:blob%) rv
+select console.req_pos_material(%req_uid%, %req_dt%/*, 'add'*/, %name%, %1:blob%) rv
 ]]
 	, "//pos_materials/add/"
-	, {req_uid = uid, name = blob.name}
+	, {req_uid = uid, req_dt = reqdt, name = blob.name}
 	, blob.contents)
     end
     )
@@ -276,11 +276,12 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
 	assert(permtb.add, "adding new PoS/PoP material is not permitted.")
 	mp = multipart.parse(content, content_type)
 	assert(mp, "unable to parse multipart data.")
+	assert(validate.isdatetime(mp._datetime), "invalid [_datetime] parameter.")
 	assert(mp.blob and mp.blob.size > 0, "invalid [blob] parameter.")
 	assert(mp.blob.size <= permtb.add.max_file_size_mb*1024*1024, string.format("[blob] size should be less then %d MB.", 
 	    permtb.add.max_file_size_mb))
 	-- execute query
-	if post(stor, sestb.erpid or sestb.username, mp.blob) then
+	if post(stor, sestb.erpid or sestb.username, mp._datetime, mp.blob) then
 	    scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
 	    scgi.writeBody(res, "Internal server error")
 	else
@@ -295,6 +296,7 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
 	assert(validate.isuid(params.posm_id), "invalid [posm_id] parameter.")
 	mp = multipart.parse(content, content_type)
 	assert(mp, "unable to parse multipart data.")
+	assert(validate.isdatetime(mp._datetime), "invalid [_datetime] parameter.")
 	assert(#mp.name, "invalid [name] parameter.")
 	assert(validate.isuid(mp.country_id), "invalid [country_id] parameter.")
 	assert(validate.isuids(mp.brand_ids), "invalid [brand_ids] parameter.")
@@ -326,7 +328,12 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
 	end
     elseif method == "DELETE" then
 	-- validate input data
+	assert(string.find(content_type, "multipart/form-data", 1, true),
+	    string.format("unsupported content type (expected: %s, received: %s).", "multipart/form-data", content_type))
 	assert(validate.isuid(params.posm_id), "invalid [posm_id] parameter.")
+	mp = multipart.parse(content, content_type)
+	assert(mp, "unable to parse multipart data.")
+	assert(validate.isdatetime(mp._datetime), "invalid [_datetime] parameter.")
 	-- check owner
 	if permtb.remove == nil or permtb.remove ~= true then
 	    local tb, err = author(stor, params.posm_id)
@@ -335,7 +342,7 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
 		    sestb.erpid or sestb.username, params.posm_id))
 	end
 	-- execute query
-	if unlink(stor, sestb.erpid or sestb.username, params.posm_id) then
+	if unlink(stor, sestb.erpid or sestb.username, mp._datetime, params.posm_id) then
 	    scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
 	    scgi.writeBody(res, "Internal server error")
 	else

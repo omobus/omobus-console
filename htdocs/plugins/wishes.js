@@ -244,7 +244,7 @@ var PLUG = (function() {
     function _changeStatus(self, method, row_no, user_id, account_id) {
 	ProgressDialog.show();
 	self.style.visibility = 'hidden';
-	G.xhr(method, G.getajax({plug: _code, account_id: account_id, user_id: user_id}), "", function(xhr) {
+	G.xhr(method, G.getajax({plug: _code, account_id: account_id, user_id: user_id, _datetime: G.getdatetime(new Date())}), "", function(xhr) {
 	    if( xhr.status == 200 ) {
 		_cache.data.rows[row_no-1][method == 'PUT' ? 'validated' : 'rejected'] = true;
 		for(var i = 0, cells = self.parentNode.parentNode.parentNode.parentNode.cells, size = cells.length; i < size; i++ ) {

@@ -181,15 +181,16 @@ order by p_date, key
     )
 end
 
-local function set(stor, uid, user_id, p_date, num, type, employee_id, a_name)
+local function set(stor, uid, reqdt, user_id, p_date, num, type, employee_id, a_name)
     return stor.get(function(tran, func_execute)
 	return func_execute(tran,
 [[
-select * from console.req_schedule(%req_uid%, %user_id%, %p_date%, %num%, array['type',%type%::text,'employee_id',%employee_id%::text,'a_name',%a_name%::text]) rows
+select * from console.req_schedule(%req_uid%, %req_dt%, %user_id%, %p_date%, %num%, array['type',%type%::text,'employee_id',%employee_id%::text,'a_name',%a_name%::text]) rows
 ]]
 	    , "//scheduler/set/"
 	    , {
 		req_uid = uid, 
+		req_dt = reqdt,
 		user_id = user_id, 
 		p_date = p_date, 
 		num = num,
@@ -201,15 +202,16 @@ select * from console.req_schedule(%req_uid%, %user_id%, %p_date%, %num%, array[
     end, false)
 end
 
-local function drop(stor, uid, user_id, p_date, num)
+local function drop(stor, uid, reqdt, user_id, p_date, num)
     return stor.get(function(tran, func_execute)
 	return func_execute(tran,
 [[
-select * from console.req_schedule(%req_uid%, %user_id%, %p_date%, %num%) rows
+select * from console.req_schedule(%req_uid%, %req_dt%, %user_id%, %p_date%, %num%) rows
 ]]
 	    , "//scheduler/drop/"
 	    , {
 		req_uid = uid, 
+		req_dt = reqdt,
 		user_id = user_id, 
 		p_date = p_date, 
 		num = num
@@ -283,6 +285,7 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
 	local p = type(content) == "string" and uri.parseQuery(content) or {}
 	params.num = tonumber(params.num)
 	-- validate input data
+	assert(validate.isdatetime(params._datetime), "invalid [_datetime] parameter.")
 	assert(validate.isuid(params.user_id), "invalid [user_id] parameter.")
 	assert(validate.isdate(params.date), "invalid [date] parameter.")
 	assert(1 <= params.num and params.num <= 4, "[num] parameter should be between 1 and 4.")
@@ -290,7 +293,7 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
 	assert(p.employee_id == nil or validate.isuid(p.employee_id), "invalid [employee_id] parameter.")
 	-- execute query
 	if sestb.erpid ~= nil and sestb.erpid == params.user_id then
-	    local tb, err = set(stor, sestb.erpid or sestb.username, params.user_id, params.date, params.num, 
+	    local tb, err = set(stor, sestb.erpid or sestb.username, params._datetime, params.user_id, params.date, params.num, 
 		p.type, p.employee_id, p.a_name)
 	    if err then
 		scgi.writeHeader(res, 500, {["Content-Type"] = mime.json})
@@ -308,12 +311,13 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
     elseif method == "DELETE" then
 	params.num = tonumber(params.num)
 	-- validate input data
+	assert(validate.isdatetime(params._datetime), "invalid [_datetime] parameter.")
 	assert(validate.isuid(params.user_id), "invalid [user_id] parameter.")
 	assert(validate.isdate(params.date), "invalid [date] parameter.")
 	assert(1 <= params.num and params.num <= 4, "[num] parameter should be between 1 and 4.")
 	-- execute query
 	if sestb.erpid ~= nil and sestb.erpid == params.user_id then
-	    local tb, err = drop(stor, sestb.erpid or sestb.username, params.user_id, params.date, params.num)
+	    local tb, err = drop(stor, sestb.erpid or sestb.username, params._datetime, params.user_id, params.date, params.num)
 	    if err then
 		scgi.writeHeader(res, 500, {["Content-Type"] = mime.json})
 		scgi.writeBody(res, "{\"status\":\"Internal server error\"}")

@@ -31,4 +31,8 @@ function M.isdate(str)
     return str ~= nil and #str == 10 and str:match('((%d%d%d%d)-(%d%d)-(%d%d))') ~= nil
 end
 
+function M.isdatetime(str)
+    return str ~= nil and #str == 19 and str:match('((%d%d%d%d)-(%d%d)-(%d%d) (%d%d):(%d%d):(%d%d))') ~= nil
+end
+
 return M

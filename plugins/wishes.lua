@@ -124,24 +124,24 @@ select rc_id, descr, ka_code, hidden from retail_chains
     )
 end
 
-local function accept(stor, uid, account_id, user_id)
+local function accept(stor, uid, reqdt, account_id, user_id)
     return stor.put(function(tran, func_execute) return func_execute(tran,
 [[
-select console.req_wish(%req_uid%, 'validate', %account_id%, %user_id%)
+select console.req_wish(%req_uid%, %req_dt%, 'validate', %account_id%, %user_id%)
 ]]
         , "//wishes/validate/"
-        , {req_uid = uid, account_id = account_id, user_id = user_id})
+        , {req_uid = uid, req_dt = reqdt, account_id = account_id, user_id = user_id})
     end
     )
 end
 
-local function reject(stor, uid, account_id, user_id)
+local function reject(stor, uid, reqdt, account_id, user_id)
     return stor.put(function(tran, func_execute) return func_execute(tran,
 [[
-select console.req_wish(%req_uid%, 'reject', %account_id%, %user_id%)
+select console.req_wish(%req_uid%, %req_dt%, 'reject', %account_id%, %user_id%)
 ]]
         , "//wishes/reject/"
-        , {req_uid = uid, account_id = account_id, user_id = user_id})
+        , {req_uid = uid, req_dt = reqdt, account_id = account_id, user_id = user_id})
     end
     )
 end
@@ -204,10 +204,11 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
     elseif method == "PUT" then
 	-- validate input data
 	assert(permtb.validate ~= nil and permtb.validate == true, "operation does not permitted.")
+	assert(validate.isdatetime(params._datetime), "invalid [_datetime] parameter.")
 	assert(validate.isuid(params.account_id), "invalid [account_id] parameter.")
 	assert(validate.isuid(params.user_id), "invalid [user_id] parameter.")
 	-- execute query
-	accept(stor, sestb.erpid or sestb.username, params.account_id, params.user_id)
+	err = accept(stor, sestb.erpid or sestb.username, params._datetime, params.account_id, params.user_id)
 	if err then
 	    scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
 	    scgi.writeBody(res, "Internal server error")
@@ -218,10 +219,11 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
     elseif method == "DELETE" then
 	-- validate input data
 	assert(permtb.reject ~= nil and permtb.reject == true, "operation does not permitted.")
+	assert(validate.isdatetime(params._datetime), "invalid [_datetime] parameter.")
 	assert(validate.isuid(params.account_id), "invalid [account_id] parameter.")
 	assert(validate.isuid(params.user_id), "invalid [user_id] parameter.")
 	-- execute query
-	reject(stor, sestb.erpid or sestb.username, params.account_id, params.user_id)
+	err = reject(stor, sestb.erpid or sestb.username, params._datetime, params.account_id, params.user_id)
 	if err then
 	    scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
 	    scgi.writeBody(res, "Internal server error")

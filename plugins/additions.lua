@@ -125,22 +125,24 @@ select photo_get(%blob_id%::blob_t) photo
     )
 end
 
-local function accept(stor, uid, doc_id)
+local function accept(stor, uid, reqdt, doc_id)
     return stor.put(function(tran, func_execute) return func_execute(tran,
 [[
-select console.req_addition(%req_uid%, 'validate', %doc_id%)
+select console.req_addition(%req_uid%, %req_dt%, 'validate', %doc_id%)
 ]]
-	, "//additions/validate", {req_uid = uid, doc_id = doc_id})
+	, "//additions/validate"
+	, {req_uid = uid, req_dt = reqdt, doc_id = doc_id})
     end
     )
 end
 
-local function reject(stor, uid, doc_id)
+local function reject(stor, uid, reqdt, doc_id)
     return stor.put(function(tran, func_execute) return func_execute(tran,
 [[
-select console.req_addition(%req_uid%, 'reject', %doc_id%)
+select console.req_addition(%req_uid%, %req_dt%, 'reject', %doc_id%)
 ]]
-	, "//additions/reject", {req_uid = uid, doc_id = doc_id})
+	, "//additions/reject"
+	, {req_uid = uid, req_dt = reqdt, doc_id = doc_id})
     end
     )
 end
@@ -226,9 +228,10 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
     elseif method == "PUT" then
 	-- validate input data
 	assert(permtb.validate ~= nil and permtb.validate == true, "operation does not permitted.")
+	assert(validate.isdatetime(params._datetime), "invalid [_datetime] parameter.")
 	assert(validate.isuid(params.doc_id), "invalid [doc_id] parameter.")
 	-- execute query
-	accept(stor, sestb.erpid or sestb.username, params.doc_id)
+	err = accept(stor, sestb.erpid or sestb.username, params._datetime, params.doc_id)
 	if err then
 	    scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
 	    scgi.writeBody(res, "Internal server error")
@@ -239,9 +242,10 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
     elseif method == "DELETE" then
 	-- validate input data
 	assert(permtb.reject ~= nil and permtb.reject == true, "operation does not permitted.")
+	assert(validate.isdatetime(params._datetime), "invalid [_datetime] parameter.")
 	assert(validate.isuid(params.doc_id), "invalid [doc_id] parameter.")
 	-- execute query
-	reject(stor, sestb.erpid or sestb.username, params.doc_id)
+	err = reject(stor, sestb.erpid or sestb.username, params._datetime, params.doc_id)
 	if err then
 	    scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
 	    scgi.writeBody(res, "Internal server error")

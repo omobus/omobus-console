@@ -464,7 +464,7 @@ var PLUG = (function() {
 	    var r = _cache.data.rows[row_no-1];
 	    var ptr = _cache.remarks[r.doc_id] || {status:(r.remark||{}).status,remark_type_id:null,type:null,note:null};
 	    var commit = function(self, method) {
-		var params = {doc_id: r.doc_id};
+		var params = {doc_id: r.doc_id, _datetime: G.getdatetime(new Date())};
 		var xhr = G.xhr(method, G.getajax({plug: _code}), "", function(xhr) {
 		    if( xhr.status == 200 ) {
 			ptr.status = method == 'PUT' ? 'accepted' : /*method == 'DELETE'*/'rejected';
