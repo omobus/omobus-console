@@ -155,8 +155,16 @@ var PLUG = (function() {
 	a.push("<div class='row'><span style='display:inline-block;width:100px;'>" + lang.tickets.issue + ":&nbsp;</span><a id='issue' href='javascript:PLUG.N.issue();'>" +
 	    lang.tickets.issue_placeholder + "</a></div>");
 	a.push("<div id='hint' class='row' style='display:none;padding-left:30px;'></div>");
-	a.push("<div class='row'><span style='display:inline-block;width:100px;'>" + lang.tickets.closed + ":&nbsp;</span><input type='checkbox' " +
-	    "onchange='PLUG.N.closed(this.checked)'/></div>");
+
+a.push("<div class='row'>");
+a.push("<label class='checkbox'>");
+a.push("<input type='checkbox' onchange='PLUG.N.closed(this.checked)' />");
+a.push("<div class='checkbox__text'>", lang.tickets.closed, "</div>");
+a.push("</label>");
+a.push("</div>");
+
+//	a.push("<div class='row'><span style='display:inline-block;width:100px;'>" + lang.tickets.closed + ":&nbsp;</span><input type='checkbox' " +
+//	    "onchange='PLUG.N.closed(this.checked)'/></div>");
 	a.push("<div class='row'><textarea rows='3' maxlength='254' autocomplete='off' oninput='PLUG.N.note(this.value)' placeholder='" +
 	    lang.tickets.note_placeholder + "'></textarea></div>");
 	a.push("<hr />");
