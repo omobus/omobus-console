@@ -108,6 +108,7 @@ select distinct user_id from (
 [[
 select user_id from users
     where dep_ids && string_to_array(%dep_id%,',')::uids_t
+order by descr, user_id
 ]]
 		    , "//tech/F.my_staff"
 		    , {dep_id = sestb.department}
@@ -117,6 +118,7 @@ select user_id from users
 [[
 select user_id from users
     where distr_ids && string_to_array(%distr_id%,',')::uids_t
+order by descr, user_id
 ]]
 		    , "//tech/F.my_staff"
 		    , {distr_id = sestb.distributor}
@@ -126,6 +128,7 @@ select user_id from users
 [[
 select user_id from users
     where agency_id=any(string_to_array(%agency_id%,','))
+order by descr, user_id
 ]]
 		    , "//tech/F.my_staff"
 		    , {agency_id = sestb.agency}
