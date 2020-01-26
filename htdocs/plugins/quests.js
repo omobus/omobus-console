@@ -28,20 +28,20 @@ var PLUG = (function() {
 	    lang.search, "' id='plugFilter' onkeyup='return PLUG.filter(this, event);' onpaste='PLUG.filter(this, event); return true;' />");
 	ar.push("</td></tr></table>");
 	ar.push("<table width='100%' class='report'><thead><tr>");
-	ar.push("<th class='autoincrement'>", lang.num, "</th>");
-	ar.push("<th class='date'>", lang.created_date, "</th>");
-	ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"user\",0.2)'>", lang.u_name, "</a></th>");
+	ar.push("<th>", lang.num, "</th>");
+	ar.push("<th>", lang.created_date, "</th>");
+	ar.push("<th><a href='javascript:void(0)' onclick='PLUG.users(this,\"user\",0.2)'>", lang.u_name, "</a></th>");
 	ar.push("<th>", lang.a_code, "</th>");
 	ar.push("<th><a href='javascript:void(0)' onclick='PLUG.retail_chains(this)'>", lang.a_name, "</a></th>");
 	ar.push("<th>", lang.address, "</th>");
 	if( perm.columns != null && perm.columns.channel == true ) {
-	    ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.channels(this)'>", lang.chan_name, "</a></th>");
+	    ar.push("<th><a href='javascript:void(0)' onclick='PLUG.channels(this)'>", lang.chan_name, "</a></th>");
 	}
-	ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.qnames(this, 0.6)'>", lang.qname, "</a></th>");
+	ar.push("<th><a href='javascript:void(0)' onclick='PLUG.qnames(this, 0.6)'>", lang.qname, "</a></th>");
 	ar.push("<th><a href='javascript:void(0)' onclick='PLUG.qrows(this, 0.65)'>", lang.qrow, "</a></th>");
 	ar.push("<th>", lang.qvalue, "</th>");
 	if( perm.columns != null && perm.columns.head == true ) {
-	    ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"head\",0.90)'>", lang.head_name, "</a></th>");
+	    ar.push("<th><a href='javascript:void(0)' onclick='PLUG.users(this,\"head\",0.90)'>", lang.head_name, "</a></th>");
 	}
 	ar.push("</tr>", G.thnums(_getcolumns(perm)), "</thead>");
 	ar.push("<tbody id='maintb'></tbody></table>");
@@ -94,13 +94,13 @@ var PLUG = (function() {
 		    ar.push("<td class='date delim'>", G.getdatetime_l(Date.parseISO8601(r.fix_dt)), "</td>");
 		    ar.push("<td class='string sw95px delim'>", G.shielding(r.u_name), "</td>");
 		    ar.push("<td class='int'>", G.shielding(r.a_code), "</td>");
-		    ar.push("<td class='string'>", G.shielding(r.a_name), "</td>");
+		    ar.push("<td class='string a_name'>", G.shielding(r.a_name), "</td>");
 		    ar.push("<td class='string note" + (perm.columns != null && perm.columns.channel == true ? "" : " delim") + 
 			"'>", G.shielding(r.address), "</td>");
 		    if( perm.columns != null && perm.columns.channel == true ) {
 			ar.push("<td class='ref sw95px delim'>", G.shielding(r.chan), "</td>");
 		    }
-		    ar.push("<td class='ref sw95px'>")
+		    ar.push("<td class='ref Xsw95px'>")
 		    if( !String.isEmpty(r.qname) ) {
 			ar.push("<div class='row'>", G.shielding(r.qname), "</div>");
 		    }
