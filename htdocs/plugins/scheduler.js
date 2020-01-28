@@ -75,7 +75,7 @@ var PLUG = (function() {
 	    G.getlongmonth_l(new Date(year, month)), "</a>", "</th>");
 	ar.push("</tr>");
 
-	for( var a = 0, z = lang.calendar.firstDay, p = 0; a < 5 /*weeks*/; a++ ) {
+	for( var a = 0, z = lang.calendar.firstDay, p = 0; a < 6 /*weeks*/; a++ ) {
 	    var wdaysParams = [], param, workingDays = 0;
 
 	    for( var b = lang.calendar.firstDay; b <= lang.calendar.lastDay /*wdays*/; b++ ) {
@@ -98,7 +98,6 @@ var PLUG = (function() {
 	    }
 
 	    if( workingDays == 0 ) {
-		a--;
 		continue;
 	    }
 
@@ -338,7 +337,7 @@ var PLUG = (function() {
 	ProgressDialog.show();
 	G.xhr("GET", G.getajax(Object.assign({plug:_code}, params)), "json", function(xhr, data) {
 	    if( xhr.status == 200 && data != null && typeof data == 'object' ) {
-		console.log(data);
+		//console.log(data);
 		_tags.sched.html(_schedtbl(data, perm).join(""));
 		/* initialize scheduler: */
 		var refresh = _('sched:refresh');
