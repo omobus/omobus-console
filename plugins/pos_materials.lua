@@ -42,7 +42,7 @@ order by case when current_timestamp - m.updated_ts < '1 day' then current_times
 and (
     (select dep_ids from users where user_id=%user_id%) is null
 	or
-    (select count(brand_id) from brands where dep_id in (select unnest(dep_ids) from users where user_id=%user_id% and dep_ids is not null) and brand_id=any(m.brand_ids)) > 0
+    (select count(brand_id) from brands where (dep_id in (select unnest(dep_ids) from users where user_id=%user_id% and dep_ids is not null) or dep_id is null) and brand_id=any(m.brand_ids)) > 0
 )
 ]]
 		) , "//pos_materials/get", { user_id = sestb.erpid}
@@ -60,13 +60,13 @@ select brand_id, descr from brands
     )
 order by row_no, descr
 ]]
-		    , "//pos_materials/brands"
+		    , "//pos_materials/brands", { user_id = sestb.erpid}
 		)
 	    end
 	elseif sestb.department ~= nil then
 	    tb.rows, err = func_execute(tran, qs:replace("$(0)", 
 [[
-and (select count(brand_id) from brands where dep_id=any(string_to_array(%dep_id%,',')::uids_t) and brand_id=any(m.brand_ids)) > 0
+and (select count(brand_id) from brands where (dep_id=any(string_to_array(%dep_id%,',')::uids_t) or dep_id is null) and brand_id=any(m.brand_ids)) > 0
 ]]
 		) ,"//pos_materials/get", { dep_id = sestb.department}
 	    )
@@ -77,7 +77,7 @@ select brand_id, descr from brands
     where hidden = 0 and manuf_id in (select manuf_id from manufacturers where competitor is null or competitor = 0) and (dep_id is null or dep_id=any(string_to_array(%dep_id%,',')::uids_t))
 order by row_no, descr
 ]]
-		    , "//pos_materials/brands"
+		    , "//pos_materials/brands", { dep_id = sestb.department}
 		)
 	    end
 	else
