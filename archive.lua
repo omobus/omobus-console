@@ -156,6 +156,10 @@ end
 function M.getJPEG(name, params)
     local tb, err, sockfd, msg, x, req, more, resp
 
+    if config.ark == nil then
+	return nil, false
+    end
+
     assert(config.ark.host, "uninitialized [ark.host] config variable!")
     assert(config.ark.port, "uninitialized [ark.port] config variable!")
 
