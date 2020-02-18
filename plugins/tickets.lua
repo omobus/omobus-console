@@ -38,7 +38,7 @@ order by j.closed, j.ticket_id::int desc
 	    if sestb.erpid ~= nil then
 		tb.users, err = func_execute(tran,
 		    "select s.s user_id, u.descr, u.dev_login, u.hidden from my_staff(%user_id%, 1::bool_t) s "..
-			"left join users u on u.user_id=s.s order by u.hidden, u.descr",
+			"left join users u on u.user_id=s.s",
 		    "//tickets/users/", {user_id = sestb.erpid})
 	    elseif sestb.department ~= nil then
 		tb.users, err = func_execute(tran,
