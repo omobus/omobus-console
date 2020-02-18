@@ -7,7 +7,7 @@ var PLUG = (function() {
     var _cache = {}, _perm = {}, _tags = {};
 
     function _getcolumns(perm) {
-	return 8 + (perm.columns == null ? 0 : (
+	return 9 + (perm.columns == null ? 0 : (
 	    (perm.columns.channel == true ? 1 : 0) + 
 	    (perm.columns.brand == true ? 1 : 0) + 
 	    (perm.columns.category == true ? 1 : 0) + 
@@ -46,6 +46,7 @@ var PLUG = (function() {
 	    ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.categories(this)'>", lang.categ_name, "</a></th>");
 	}
 	ar.push("<th>", lang.product, "</th>");
+	ar.push("<th class='date'>", lang.manuf_date, "</th>");
 	ar.push("<th class='numeric' width='55px'>", lang.stock, "</th>");
 	if( perm.columns != null && perm.columns.head == true ) {
 	    ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"head\",0.90)'>", lang.head_name, "</a></th>");
@@ -115,6 +116,7 @@ var PLUG = (function() {
 			ar.push("<td class='ref sw95px'>", G.shielding(r.categ), "</td>");
 		    }
 		    ar.push("<td class='string note'>", G.shielding(r.prod), "</td>");
+		    ar.push("<td class='date'>", G.getdate_l(Date.parseISO8601(r.manuf_date)), "</td>");
 		    ar.push("<td class='int" + (perm.columns != null && perm.columns.head == true ? " delim" : "") + 
 			"'>", G.getcurrency_l(r.stock), "</td>");
 		    if( perm.columns != null && perm.columns.head == true ) {

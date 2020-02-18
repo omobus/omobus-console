@@ -988,6 +988,7 @@ var __route = (function() {
 		ar.push("<tr class='def'>");
 		ar.push("<td class='divider'>", lang.num, "</td>");
 		ar.push("<td class='divider'>", lang.product, "</td>");
+		ar.push("<td class='divider' width='105px'>", lang.manuf_date, "</td>");
 		ar.push("<td class='divider' width='75px'>", lang.stock, "</td>");
 		ar.push("<td class='divider' width='35px'>", "&nbsp;", "</td>");
 		ar.push("</tr>");
@@ -995,6 +996,7 @@ var __route = (function() {
 		    ar.push("<tr>");
 		    ar.push("<td class='autoincrement'>", arg0.row_no + 1, "</td>");
 		    ar.push("<td class='string'>", G.shielding(arg0.prod), "</td>");
+		    ar.push("<td class='date'>", G.getdate_l(Date.parseISO8601(arg0.manuf_date)), "</td>");
 		    ar.push("<td class='int'>", G.getint_l(arg0.stock), "</td>");
 		    ar.push("<td class='bool'>", String.isEmpty(arg0.scratch) ? "" : "&#x267A;", "</td>");
 		    ar.push("</tr>");
