@@ -237,11 +237,11 @@ var G = (function() {
 	    var __save = function(r) {
 		if( (r == null && rows.isEmpty()) || abort() ) {
 		    tag0.show(); tag1.hide(); span.html("");
-		    saveAs(zip.generate({type:"blob"}), __getzipfname());
+		    zip.generateAsync({type:"blob"}).then(function(data) { saveAs(data, __getzipfname()); });
 		    zip = null;
 		} else {
 		    if( x >= max ) {
-			saveAs(zip.generate({type:"blob"}), __getzipfname());
+			zip.generateAsync({type:"blob"}).then(function(data) { saveAs(data, __getzipfname()); });
 			zip = new JSZip();
 			x = 0; z++;
 		    }
