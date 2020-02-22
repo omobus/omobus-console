@@ -145,10 +145,11 @@ local function remove(stor, uid, target_id)
     return stor.put(function(tran, func_execute) return func_execute(tran,
 -- *** sql query: begin
 [[
-select console.req_target(%req_uid%, %target_id%)
+select console.req_target(%req_uid%, null, %target_id%)
 ]]
 -- *** sql query: end
 	, "//targets/remove/"
+--TODO: datetime 
 	, {req_uid = uid, target_id = target_id})
     end
     )
@@ -259,6 +260,7 @@ local function ajax_remove(permtb, sestb, params, stor, res)
     -- validate input data
     assert(validate.isuid(params.target_id),
 	string.format("function %s() >>> PANIC <<< invalid target_id.", debug.getinfo(1,"n").name))
+--TODO: assert(validate.isdatetime(p._datetime), "invalid [_datetime] parameter.")
     -- check target owner
     if permtb.remove == nil or permtb.remove ~= true then
 	tb, err = get_author(stor, params.target_id)

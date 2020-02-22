@@ -301,9 +301,8 @@ end
 -- *** plugin interface: begin
 function M.scripts(lang, permtb, sestb, params)
     local ar = {}
-    table.insert(ar, '<script src="' .. V.static_prefix .. '/libs/lazyload-4.0.4.js"> </script>')
-    table.insert(ar, '<script src="' .. V.static_prefix .. '/libs/jszip-2.5.0.js"> </script>')
-    table.insert(ar, '<script src="' .. V.static_prefix .. '/libs/filesaver-0.1.0.js"> </script>')
+    table.insert(ar, '<script src="' .. V.static_prefix .. '/libs/jszip-3.2.2.js"> </script>')
+    table.insert(ar, '<script src="' .. V.static_prefix .. '/libs/lazyload-12.4.0.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.channels.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.confirmationtypes.js"> </script>')

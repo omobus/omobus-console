@@ -3,7 +3,7 @@
 
 var G = (function() {
     /* private properties & methods */
-    var _sid = "", _sprefix = "", _cache = [];
+    var _cache = [];
 
     function _fmtdate(d, fmt) { 
 	return d == null ? "" : (d instanceof Date ? d : Date.parseISO8601(d)).format(fmt, 0, lang);
@@ -113,19 +113,13 @@ var G = (function() {
 
 	fileSize: function(arg) { return arg == null ? null : _fileSizeIEC(arg); },
 
-	getsid: function() { return _sid; },
-	setsid: function(sid) { _sid = sid; },
-
-	getsprefix: function() { return _sprefix; },
-	setsprefix: function(sprefix) { _sprefix = sprefix; },
-
 	getauth: function(params) { return _fmturi("auth", params); },
-	getref: function(params) { return _fmturi("default", params, {sid:_sid,lang:lang.__code}); },
-	getajax: function(params) { return _fmturi("ajax", params, {sid:_sid}); },
+	getref: function(params) { return _fmturi("default", params, {sid:__SID__,lang:lang.__code}); },
+	getajax: function(params) { return _fmturi("ajax", params, {sid:__SID__}); },
 	getloginref: function(params) { return _fmturi("login", params, {lang:lang.__code}); },
-	getlogoutref: function() { return _fmturi("logout", null, {sid:_sid}); },
-	getdumpref: function(params) { return _fmturi("dump", params, {sid:_sid}); },
-	getstaticref: function(name) { return _sprefix + "/" + name; },
+	getlogoutref: function() { return _fmturi("logout", null, {sid:__SID__}); },
+	getdumpref: function(params) { return _fmturi("dump", params, {sid:__SID__}); },
+	getstaticref: function(name) { return __STATIC_REF_PREFIX__ + "/" + name; },
 	getphotoref: function(ref, absolute) { return _fmturi("photo", {ref: ref}, null, absolute); },
 
 /* OBSOLETE: begin */

@@ -1,7 +1,5 @@
 /* -*- JavaScript -*- */
-/* This file is a part of the omobus-console project.
- * Copyright (c) 2006 - 2016 ak-obs, Ltd. <info@omobus.net>.
- * Author: Igor Artemov <i_artemov@omobus.net>.
+/* Copyright (c) 2006 - 2020 omobus-console authors, see the included COPYRIGHT file.
  *
  ** Major portions taken verbatim or adapted from the JSON-js.
  ** See https://github.com/douglascrockford/JSON-js for more information.

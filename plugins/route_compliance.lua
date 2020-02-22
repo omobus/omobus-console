@@ -129,7 +129,6 @@ end
 -- *** plugin interface: begin
 function M.scripts(lang, permtb, sestb, params)
     local ar = {}
-    table.insert(ar, '<script src="' .. V.static_prefix .. '/libs/filesaver-0.1.0.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup_L.dailycal.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/plugins/route_compliance.js"> </script>')
     return table.concat(ar,"\n")
