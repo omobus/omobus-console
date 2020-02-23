@@ -48,7 +48,7 @@ where $(0)
 order by j.inserted_ts desc, j.fix_dt desc
 ]]
 	if sestb.erpid ~= nil then
-	    tb.rows, err = func_execute(tran, qs:replace("$(0)", "j.user_id in (select * from my_staff(%user_id%, 1::bool_t)) and "), 
+	    tb.rows, err = func_execute(tran, qs:replace("$(0)", "j.user_id in (select * from my_staff(%user_id%, 0::bool_t)) and "), 
 		"//additions/get", { user_id = sestb.erpid,
 		    registered = (permtb.data ~= nil and permtb.data.registered == true) and 1 or 0,
 		    validated = (permtb.data ~= nil and permtb.data.validated == true) and 1 or 0,
