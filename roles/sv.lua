@@ -6,34 +6,29 @@ local M = {} -- public interface
 -- *** Supervisor
 
 M.home = "tech"
-M.selectable = {
-    reports = {
-	daily = {"tech", "route_compliance"},
-	monthly = {"joint_routes", "confirmations", "orders", "reclamations", "comments", "photos", "testings", "audits", "shelfs", "quests", "presences", "stocks", "prices", "posms"}
-    },
-    analitics = {"targets_compliance"},
-    managment = {"routes", "scheduler", "targets", "additions", "deletions", "wishes", "discards", "cancellations", "info_materials", "training_materials", "pos_materials", "planograms"}
-}
-
 M.permissions = {
-    null 	= { },
+    null 		= { },
 
     additions 		= require 'roles.defs.additions',
+    advt 		= require 'roles.defs.advt',
     audits 		= require 'roles.defs.audits',
     cancellations 	= require 'roles.defs.cancellations',
     comments 		= require 'roles.defs.comments',
     confirmations 	= require 'roles.defs.confirmations',
     deletions 		= require 'roles.defs.deletions',
     discards 		= require 'roles.defs.discards',
-    info_materials 	= require 'roles.defs.info_materials',
+    info_materials 	= require 'roles.defs._ro',
     joint_routes 	= require 'roles.defs.joint_routes',
     orders 		= require 'roles.defs.orders',
     photos 		= require 'roles.defs.photos',
+    photos_archive 	= require 'roles.defs.photos_archive',
     planograms 		= require 'roles.defs._ro',
     pos_materials 	= require 'roles.defs._ro',
     posms 		= require 'roles.defs.posms',
     presences 		= require 'roles.defs.presences',
+    presentations 	= require 'roles.defs.presentations',
     prices 		= require 'roles.defs.prices',
+    promos 		= require 'roles.defs.promos',
     quests 		= require 'roles.defs.quests',
     reclamations 	= require 'roles.defs.reclamations',
     route_compliance 	= require 'roles.defs.route_compliance',
@@ -47,6 +42,7 @@ M.permissions = {
     testings 		= require 'roles.defs.testings',
     tickets 		= require 'roles.defs._ro',
     training_materials 	= require 'roles.defs._ro',
+    trainings 		= require 'roles.defs.trainings',
     wishes 		= require 'roles.defs.wishes'
 }
 

@@ -4,18 +4,8 @@
 local M = {} -- public interface
 
 M.home = "tech"
-M.selectable = { 
-    reports = {
-	daily = {"tech", "route_compliance"},
-	monthly = {"joint_routes", "confirmations", "orders", "reclamations", "comments", "photos", "testings", "trainings", "presentations", "audits", "shelfs", "quests", "presences", "stocks", "advt", "prices", "posms", "promos"}
-    },
-    analitics = {"targets_compliance"},
-    managment = {"routes", "scheduler", "targets", "additions", "deletions", "wishes", "discards", "cancellations", "info_materials", "training_materials", "pos_materials", "planograms"},
-    archives = {"photos_archive"}
-}
-
 M.permissions = {
-    null 		= require 'roles.defs._ro',
+    null 		= {},
 
     additions 		= require 'roles.defs.additions',
     advt 		= require 'roles.defs.advt',

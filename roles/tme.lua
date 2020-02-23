@@ -5,19 +5,9 @@ local M = {} -- public interface
 
 -- *** Trade marketing executive
 
-M.home = "confirmations"
-M.selectable = {
-    reports = {
-	daily = {"tech", "route_compliance"},
-	monthly = {"confirmations", "comments", "photos", "audits", "shelfs", "quests", "presences", "stocks", "advt", "prices", "posms"}
-    },
-    analitics = {"targets_compliance"},
-    managment = {"targets", "deletions", "info_materials", "pos_materials", "planograms"},
-    archives = {"photos_archive"}
-}
-
+M.home = "tech"
 M.permissions = {
-    null 	= { },
+    null 		= { },
 
     additions 		= require 'roles.defs.additions',
     advt 		= require 'roles.defs.advt',
@@ -36,11 +26,13 @@ M.permissions = {
     pos_materials 	= require 'roles.defs.pos_materials',
     posms 		= require 'roles.defs.posms',
     presences 		= require 'roles.defs.presences',
+    presentations 	= require 'roles.defs.presentations',
     prices 		= require 'roles.defs.prices',
+    promos 		= require 'roles.defs.promos',
     quests 		= require 'roles.defs.quests',
     reclamations 	= require 'roles.defs.reclamations',
     route_compliance 	= require 'roles.defs.route_compliance',
-    routes 		= require 'roles.defs.routes',
+    scheduler 		= require 'roles.defs.scheduler',
     shelfs 		= require 'roles.defs.shelfs',
     stocks 		= require 'roles.defs.stocks',
     targets 		= require 'roles.defs.targets',
@@ -48,7 +40,8 @@ M.permissions = {
     tech 		= require 'roles.defs.tech',
     testings 		= require 'roles.defs.testings',
     tickets 		= require 'roles.defs._ro',
-    training_materials 	= require 'roles.defs._ro',
+    training_materials 	= require 'roles.defs.training_materials',
+    trainings 		= require 'roles.defs.trainings',
     wishes 		= require 'roles.defs.wishes'
 }
 

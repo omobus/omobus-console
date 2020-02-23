@@ -24,17 +24,15 @@ var Dashboard = (function() {
     function _plugins(rules) {
 	var ar = [], d, p, r;
 	ar.push("<div class='role'>", lang.role.format_a(G.shielding(rules.cn, lang.dash), rules.ip, rules.username, rules.group), "</div>");
-	if( rules.permissions.reports != null ) {
-	    if( (d = rules.permissions.reports.daily) != null && Array.isArray(d) && d.length > 0 ) {
-		ar.push("<hr />", lang.reports.daily, "<table class='dashboard'>");
-		_dashboard(ar, d);
-		ar.push("</table>");
-	    }
-	    if( (d = rules.permissions.reports.monthly) != null && Array.isArray(d) && d.length > 0 ) {
-		ar.push("<hr />", lang.reports.monthly, "<table class='dashboard'>");
-		_dashboard(ar, d);
-		ar.push("</table>");
-	    }
+	if( (d = rules.permissions.daily_reports) != null && Array.isArray(d) && d.length > 0 ) {
+	    ar.push("<hr />", lang.reports.daily, "<table class='dashboard'>");
+	    _dashboard(ar, d);
+	    ar.push("</table>");
+	}
+	if( (d = rules.permissions.monthly_reports) != null && Array.isArray(d) && d.length > 0 ) {
+	    ar.push("<hr />", lang.reports.monthly, "<table class='dashboard'>");
+	    _dashboard(ar, d);
+	    ar.push("</table>");
 	}
 	if( (d = rules.permissions.analitics) != null && Array.isArray(d) && d.length > 0 ) {
 	    ar.push("<hr />", lang.analitics, "<table class='dashboard'>");

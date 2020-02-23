@@ -6,18 +6,8 @@ local M = {} -- public interface
 -- *** Area Sales (or InStore) managers
 
 M.home = "tech"
-M.selectable = {
-    reports = {
-	daily = {"tech", "route_compliance"},
-	monthly = {"joint_routes", "confirmations", "orders", "reclamations", "comments", "photos", "testings", "trainings", "presentations", "audits", "shelfs", "quests", "presences", "stocks", "advt", "prices", "posms", "promos"}
-    },
-    analitics = {"targets_compliance"},
-    managment = {"routes", "scheduler", "targets", "additions", "deletions", "wishes", "discards", "cancellations", "info_materials", "training_materials", "pos_materials", "planograms"},
-    archives = {"photos_archive"}
-}
-
 M.permissions = {
-    null 	= { },
+    null 		= { },
 
     additions 		= require 'roles.defs.additions',
     advt 		= require 'roles.defs.advt',
@@ -60,7 +50,7 @@ M.permissions = {
 M.permissions = require 'core'.deepcopy(M.permissions)
 M.permissions.additions.reject = true
 M.permissions.additions.validate = true
-M.permissions.cancellations.add.offset = -5
+M.permissions.cancellations.add.offset = -15
 M.permissions.cancellations.restore = true
 M.permissions.deletions.validate = true
 M.permissions.deletions.reject = true
