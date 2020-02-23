@@ -31,7 +31,6 @@ M.permissions = {
     promos 		= require 'roles.defs.promos',
     quests 		= require 'roles.defs.quests',
     reclamations 	= require 'roles.defs.reclamations',
-    route_compliance 	= require 'roles.defs.route_compliance',
     scheduler 		= require 'roles.defs.scheduler',
     shelfs 		= require 'roles.defs.shelfs',
     stocks 		= require 'roles.defs.stocks',

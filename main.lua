@@ -8,12 +8,14 @@ local mime = require 'mime'
 local uri = require 'url'
 local log = require 'log'
 local json = require 'json'
+local core = require 'core'
 
 local auth = require 'auth'
 local stor = require 'stor'
 local plugins = require 'plugins'
 local roles = require 'roles'
 local dumps = require 'dumps'
+local objects = require 'objects'
 local ark = require 'archive'
 
 local function REF(arg)
@@ -161,6 +163,44 @@ local function get_userdata(sestb, usertb, modstb, dumpstb)
     tb.supports = (usertb ~= nil and usertb.support ~= nil) and usertb.support or {}
     tb.dumps = { rows = dumpstb, depth = usertb ~= nil and usertb.dumps_depth or nil }
     return json.encode(tb)
+end
+
+local function selectableobjects(stor, perm)
+    return stor.get(function(tran, func_execute) 
+	local rv, idx1, idx2, tb = {}, {}, {}, func_execute(tran,
+[[
+select distinct right(content_code,length(content_code)-5) content_code from content_stream 
+    where content_code like 'stat_%'
+    union
+select distinct content_code from content_stream 
+    where content_code not like 'stat_%' and content_code not like 'tech_%' and content_code <> 'a_list'
+]]
+	    , "//main/objects"
+	)
+	for k in pairs(perm) do
+	    idx1[k] = true
+	end
+	if tb ~= nil then
+	    for i, v in ipairs(tb) do
+		idx2[v.content_code] = true
+	    end
+	end
+	for k in pairs(objects) do
+	    local f = core.contains({'monthly_reports','analitics'}, k)
+	    local ref = {}
+	    for i2, v2 in ipairs(objects[k]) do
+		if idx1[v2] == true and (f == false or idx2[v2] == true) then
+		    table.insert(ref, v2)
+		--else
+		--    log.i(string.format("- %s: %d ==> %s ",k, i2, v2))
+		end
+	    end
+	    if #ref > 0 then
+		rv[k] = ref
+	    end
+	end
+	return rv;
+    end)
 end
 
 local function startup_script(lang, sestb, usertb, modstb, dumpstb, res, plug_data)
@@ -404,7 +444,7 @@ function websvc_main()
 				startup_script(lang, 
 				    sestb,
 				    userparams(stor, sestb.erpid), 
-				    roletb.selectable,
+				    selectableobjects(stor,roletb.permissions),
 				    dumps.list(config, sestb.username),
 				    res, 
 				    plugins.get(q).startup(lang, permtb, sestb, params, stor)
