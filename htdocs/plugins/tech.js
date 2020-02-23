@@ -112,7 +112,7 @@ var PLUG = (function() {
 		xs = r.indirect ? ' disabled' : '';
 		k = "{0}${1}".format_a(G.getdate(_cache.date), r.row_id);
 		ar.push("<tr class='clickable", (typeof checked != 'undefined' && checked[k]) ? " selected" : "", 
-		    "' onclick='PLUG.more(\"", r.user_id, "\",\"", r.u_name, "\",\"", G.getdate(date), "\")'>");
+		    "' onclick='PLUG.more(\"", r.user_id, "\",\"", G.shielding(r.u_name), "\",\"", G.getdate(date), "\")'>");
 		ar.push("<td class='autoincrement", xs,"' onclick='PLUG.checkrow(this.parentNode,\"", k, "\");event.stopPropagation();'>", 
 		    r.row_no, "</td>");
 		ar.push("<td class='string", xs,"'>", G.shielding(r.u_name), "</td>");

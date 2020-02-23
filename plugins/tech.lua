@@ -505,7 +505,7 @@ function M.startup(lang, permtb, sestb, params, stor)
 	assert(validate.isuid(params.user_id), "invalid [user_id] parameter.")
 	assert(validate.isdate(params.date), "invalid [date] parameter.")
 	assert(u_name ~= nil, 'incorrect [u_name] parameter.')
-	table.insert(ar, string.format("startup('%s','%s','%s');", params.user_id, u_name:gsub("'",""), params.date))
+	table.insert(ar, string.format("startup(\"%s\",\"%s\",\"%s\");", params.user_id, u_name:gsub('"',"'"), params.date))
     elseif params.date ~= nil then
 	table.insert(ar, string.format("startup(null,null,'%s');", params.date))
     else
