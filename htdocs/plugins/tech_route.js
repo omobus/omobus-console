@@ -506,6 +506,7 @@ var __route = (function() {
 		ar.push("<table width='100%' class='report'>");
 		ar.push("<tr class='def'>");
 		ar.push("<td class='divider'>", lang.num, "</td>");
+		ar.push("<td class='divider'>", lang.code, "</td>");
 		ar.push("<td class='divider'>", lang.product, "</td>");
 		ar.push("<td class='divider'>", lang.placement, "</td>");
 		ar.push("<td class='divider'>", lang.exist, "</td>");
@@ -513,6 +514,7 @@ var __route = (function() {
 		r.rows.forEach(function(arg0) {
 		    ar.push("<tr>");
 		    ar.push("<td class='autoincrement'>", arg0.row_no + 1, "</td>");
+		    ar.push("<td class='int'>", G.shielding(arg0.p_code), "</td>");
 		    ar.push("<td class='string'>", G.shielding(arg0.prod), "</td>");
 		    ar.push("<td class='ref'>", G.shielding(arg0.placement), "</td>");
 		    ar.push("<td class='bool'>", arg0.exist == 1 ? lang.plus : (arg0.exist == 2 ? lang.shortage : lang.dash), "</td>");
@@ -627,6 +629,7 @@ var __route = (function() {
 		ar.push("<table width='100%' class='report'>");
 		ar.push("<tr class='def'>");
 		ar.push("<td class='divider'>", lang.num, "</td>");
+		ar.push("<td class='divider'>", lang.code, "</td>");
 		ar.push("<td class='divider'>", lang.product, "</td>");
 		ar.push("<td class='divider'>", lang.oos_type, "</td>");
 		ar.push("<td class='divider'>", lang.note, "</td>");
@@ -634,6 +637,7 @@ var __route = (function() {
 		r.rows.forEach(function(arg0) {
 		    ar.push("<tr>");
 		    ar.push("<td class='autoincrement'>", arg0.row_no + 1, "</td>");
+		    ar.push("<td class='int'>", G.shielding(arg0.p_code), "</td>");
 		    ar.push("<td class='string'>", G.shielding(arg0.prod), "</td>");
 		    ar.push("<td class='ref'>", G.shielding(arg0.oos_type), "</td>");
 		    ar.push("<td class='string'>", G.shielding(arg0.note), "</td>");
@@ -651,6 +655,7 @@ var __route = (function() {
 		ar.push("<table width='100%' class='report'>");
 		ar.push("<tr class='def'>");
 		ar.push("<td class='divider'>", lang.num, "</td>");
+		ar.push("<td class='divider'>", lang.code, "</td>");
 		ar.push("<td class='divider'>", lang.product, "</td>");
 		ar.push("<td class='divider' width='95px'>", lang.price, "</td>");
 		ar.push("<td class='divider' width='55px'>", lang.qty, "</td>");
@@ -661,6 +666,7 @@ var __route = (function() {
 		r.rows.forEach(function(arg0) {
 		    ar.push("<tr>");
 		    ar.push("<td class='autoincrement'>", arg0.row_no + 1, "</td>");
+		    ar.push("<td class='int'>", G.shielding(arg0.p_code), "</td>");
 		    ar.push("<td class='string'>", G.shielding(arg0.prod), "</td>");
 		    ar.push("<td class='numeric'>", G.getcurrency_l(arg0.unit_price), "</td>");
 		    ar.push("<td class='int'>", G.getint_l(arg0.qty), "</td>");
@@ -750,6 +756,7 @@ var __route = (function() {
 		ar.push("<table width='100%' class='report'>");
 		ar.push("<tr class='def'>");
 		ar.push("<td class='divider'>", lang.num, "</td>");
+		ar.push("<td class='divider'>", lang.code, "</td>");
 		ar.push("<td class='divider'>", lang.product, "</td>");
 		ar.push("<td class='divider' width='75px'>", lang.facing, "</td>");
 		ar.push("<td class='divider' width='75px'>", lang.shelf_stock, "</td>");
@@ -758,6 +765,7 @@ var __route = (function() {
 		r.rows.forEach(function(arg0) {
 		    ar.push("<tr>");
 		    ar.push("<td class='autoincrement'>", arg0.row_no + 1, "</td>");
+		    ar.push("<td class='int'>", G.shielding(arg0.p_code), "</td>");
 		    ar.push("<td class='string'>", G.shielding(arg0.prod), "</td>");
 		    ar.push("<td class='int'>", G.getint_l(arg0.facing), "</td>");
 		    ar.push("<td class='int'>", G.getint_l(arg0.stock), "</td>");
@@ -810,6 +818,7 @@ var __route = (function() {
 		ar.push("<table width='100%' class='report'>");
 		ar.push("<tr class='def'>");
 		ar.push("<td class='divider'>", lang.num, "</td>");
+		ar.push("<td class='divider'>", lang.code, "</td>");
 		ar.push("<td class='divider'>", lang.product, "</td>");
 		ar.push("<td class='divider' width='95px'>", lang.price, "</td>");
 		ar.push("<td class='divider' width='35px'>", lang.promo, "</td>");
@@ -819,6 +828,7 @@ var __route = (function() {
 		r.rows.forEach(function(arg0) {
 		    ar.push("<tr>");
 		    ar.push("<td class='autoincrement'>", arg0.row_no + 1, "</td>");
+		    ar.push("<td class='int'>", G.shielding(arg0.p_code), "</td>");
 		    ar.push("<td class='string'>", G.shielding(arg0.prod), "</td>");
 		    ar.push("<td class='int'>", G.getcurrency_l(arg0.price), "</td>");
 		    ar.push("<td class='bool'>", (arg0.promo ? lang.plus : "&nbsp;"), "</td>");
@@ -924,6 +934,7 @@ var __route = (function() {
 		ar.push("<table width='100%' class='report'>");
 		ar.push("<tr class='def'>");
 		ar.push("<td class='divider'>", lang.num, "</td>");
+		ar.push("<td class='divider'>", lang.code, "</td>");
 		ar.push("<td class='divider'>", lang.product, "</td>");
 		ar.push("<td class='divider' width='95px'>", lang.price, "</td>");
 		ar.push("<td class='divider' width='55px'>", lang.qty, "</td>");
@@ -934,6 +945,7 @@ var __route = (function() {
 		r.rows.forEach(function(arg0) {
 		    ar.push("<tr>");
 		    ar.push("<td class='autoincrement'>", arg0.row_no + 1, "</td>");
+		    ar.push("<td class='int'>", G.shielding(arg0.p_code), "</td>");
 		    ar.push("<td class='string'>", G.shielding(arg0.prod), "</td>");
 		    ar.push("<td class='numeric'>", G.getcurrency_l(arg0.unit_price), "</td>");
 		    ar.push("<td class='int'>", G.getint_l(arg0.qty), "</td>");
@@ -987,6 +999,7 @@ var __route = (function() {
 		ar.push("<table width='100%' class='report'>");
 		ar.push("<tr class='def'>");
 		ar.push("<td class='divider'>", lang.num, "</td>");
+		ar.push("<td class='divider'>", lang.code, "</td>");
 		ar.push("<td class='divider'>", lang.product, "</td>");
 		ar.push("<td class='divider' width='105px'>", lang.manuf_date, "</td>");
 		ar.push("<td class='divider' width='75px'>", lang.stock, "</td>");
@@ -995,6 +1008,7 @@ var __route = (function() {
 		r.rows.forEach(function(arg0) {
 		    ar.push("<tr>");
 		    ar.push("<td class='autoincrement'>", arg0.row_no + 1, "</td>");
+		    ar.push("<td class='int'>", G.shielding(arg0.p_code), "</td>");
 		    ar.push("<td class='string'>", G.shielding(arg0.prod), "</td>");
 		    ar.push("<td class='date'>", G.getdate_l(Date.parseISO8601(arg0.manuf_date)), "</td>");
 		    ar.push("<td class='int'>", G.getint_l(arg0.stock), "</td>");
