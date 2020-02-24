@@ -112,7 +112,7 @@ var PLUG = (function() {
 		    if( r.blob_id == null || r.blob_id == "" ) {
 			ar.push("&nbsp;");
 		    } else {
-			ar.push("<img class='clickable' onclick='PLUG.slideshow(" + r.blob_id + ")' height='90px' " + (k>=20?"data-original='":"src='") + 
+			ar.push("<img class='clickable' onclick='PLUG.slideshow(" + r.blob_id + ")' height='90px' " + (k>=20?"data-src='":"src='") + 
 			    G.getajax({plug: _code, blob: "yes", thumb: "yes", blob_id: r.blob_id}) + "' />");
 		    }
 		    ar.push("</td>");
