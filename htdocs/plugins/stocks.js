@@ -118,7 +118,7 @@ var PLUG = (function() {
 		    ar.push("<td class='string note'>", G.shielding(r.prod), "</td>");
 		    ar.push("<td class='date'>", G.getdate_l(Date.parseISO8601(r.manuf_date)), "</td>");
 		    ar.push("<td class='int" + (perm.columns != null && perm.columns.head == true ? " delim" : "") + 
-			"'>", G.getcurrency_l(r.stock), "</td>");
+			"'>", r.stock, "</td>");
 		    if( perm.columns != null && perm.columns.head == true ) {
 			ar.push("<td class='string sw95px'>", G.shielding(r.head_name), "</td>");
 		    }
