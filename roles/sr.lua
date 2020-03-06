@@ -10,10 +10,11 @@ M.permissions = {
     null 		= { },
 
     advt 		= require 'roles.defs.advt',
-    audits 		= require 'roles.defs.audits',
+    checkups 		= require 'roles.defs.checkups',
     comments 		= require 'roles.defs.comments',
     confirmations 	= require 'roles.defs.confirmations',
     joint_routes 	= require 'roles.defs.joint_routes',
+    oos 		= require 'roles.defs.oos',
     orders 		= require 'roles.defs.orders',
     photos 		= require 'roles.defs.photos',
     posms 		= require 'roles.defs.posms',
