@@ -326,7 +326,7 @@ var PLUG = (function() {
 				}
 			    });
 			    cell.value(rt);
-			    ws.row(i + offset).height(counter*15);
+			    ws.row(i + offset).height(counter*12 + 3);
 			}
 			ws.cell("U{0}".format_a(i + offset)).value(r.head_name);
 		    }

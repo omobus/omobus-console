@@ -196,30 +196,6 @@ var G = (function() {
 	    return fd;
 	},
 
-	tocsv: function(code, rows, templ) {
-	    var csv = [];
-	    if( templ != null && typeof rows == 'object' ) {
-		csv.push(templ.replace(/{|}/g,''), '\n');
-		rows.forEach(function(r, i, ar) {
-		    var z = {};
-		    _enumerateKeys(r, function(key, val) {
-			if( val == null ) {
-			    val = "";
-			} else if( typeof val === 'string' ) {
-			    val = val.replace(/"/g, '""');
-			    if( val.search(/("|,|\n)/g) >= 0 ) {
-				val = '"' + val + '"';
-			    }
-			    val = val.replace(/\r|\n/g, ' ');
-			}
-			z[key] = val;
-		    });
-		    csv.push(templ.format(z), '\n');
-		});
-	    }
-	    saveAs(new Blob(csv, {type: "text/plain;charset=utf-8"}), code+".omobus.csv");
-	},
-
 	tozip: function(code, rows, templ, max, abort, tag0, tag1, span) {
 	    if( String.isEmpty(code) || !Array.isArray(rows) || String.isEmpty(templ) ) {
 		throw SyntaxError("invalid input parameters!");

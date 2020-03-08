@@ -452,7 +452,7 @@ var PLUG = (function() {
 				rt.add(val, {fontFamily: ff, fontSize: fs});
 			    });
 			    cell.value(rt);
-			    ws.row(i + offset).height(r.photo_params.length*15);
+			    ws.row(i + offset).height(r.photo_params.length*12 + 3);
 			}
 			ws.cell("T{0}".format_a(i + offset)).value(r.head_name);
 			ws.cell("U{0}".format_a(i + offset)).value(r.revoked ? 1 : 0);

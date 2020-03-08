@@ -21,9 +21,7 @@ var PLUG = (function() {
 	ar.push("</h1></td><td class='r'>");
 	ar.push("<span>", lang.received_ts, "</span>&nbsp;<span id='timestamp'>&nbsp;-&nbsp;</span>");
 	ar.push("&nbsp;(<a href='javascript:void(0);' onclick='PLUG.refresh();'>", lang.refresh, "</a>)<span id='plugTotal'></span>");
-	if( perm.csv ) {
-	    ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.csv(this)'>", lang.export.csv, "</a>");
-	}
+	ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.xlsx(this)'>", lang.export.xlsx, "</a>");
 	if( perm.zip ) {
 	    ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.zip(this,_(\"L\"),_(\"progress\"))'>", 
 		lang.export.photo, "</a><span id='L' style='display: none;'><span id='progress'></span>&nbsp;(<a href='javascript:void(0)' " + 
@@ -107,8 +105,8 @@ var PLUG = (function() {
 		    ar.push("<td class='date delim'>", G.getdatetime_l(Date.parseISO8601(r.fix_dt)), "</td>");
 		    ar.push("<td class='string sw95px delim'>", G.shielding(r.u_name), "</td>");
 		    ar.push("<td class='int'>", G.shielding(r.a_code), "</td>");
-		    ar.push("<td class='string'>", G.shielding(r.a_name), "</td>");
-		    ar.push("<td class='string note" + (perm.columns != null && perm.columns.channel == true ? "" : " delim") + 
+		    ar.push("<td class='string a_name'>", G.shielding(r.a_name), "</td>");
+		    ar.push("<td class='string a_address" + (perm.columns != null && perm.columns.channel == true ? "" : " delim") + 
 			"'>", G.shielding(r.address), "</td>");
 		    if( perm.columns != null && perm.columns.channel == true ) {
 			ar.push("<td class='ref sw95px delim'>", G.shielding(r.chan), "</td>");
@@ -253,6 +251,95 @@ var PLUG = (function() {
 	_page(1);
     }
 
+    function _toxlsx() {
+	var ar = [], data_ts;
+	var func = function(data_ts, ar, templ) {
+	    XlsxPopulate.fromDataAsync(templ)
+		.then(wb => {
+		    var offset = 4;
+		    var ws = wb.sheet(0);
+		    wb.properties()._node.children = [];
+		    wb.property('Title', lang.photos.title);
+		    wb.property('Author', __AUTHOR__);
+		    ws.name(_code);
+		    ws.cell("A1").value("{0} {1}".format_a(lang.data_ts, data_ts));
+		    for( var i = 0, size = Math.min(ar.length,1048576 - offset), x; i < size; i++ ) {
+			r = ar[i];
+			ws.cell("A{0}".format_a(i + offset)).value(r.row_no);
+			ws.cell("B{0}".format_a(i + offset)).value(Date.parseISO8601(r.fix_dt));
+			ws.cell("C{0}".format_a(i + offset)).value(r.dev_login);
+			ws.cell("D{0}".format_a(i + offset)).value(r.u_name);
+			ws.cell("E{0}".format_a(i + offset)).value(r.a_code);
+			ws.cell("F{0}".format_a(i + offset)).value(r.a_name);
+			ws.cell("G{0}".format_a(i + offset)).value(r.address);
+			ws.cell("H{0}".format_a(i + offset)).value(r.chan);
+			ws.cell("I{0}".format_a(i + offset)).value(r.poten);
+			ws.cell("J{0}".format_a(i + offset)).value(r.region);
+			ws.cell("K{0}".format_a(i + offset)).value(r.city);
+			ws.cell("L{0}".format_a(i + offset)).value(r.rc);
+			ws.cell("M{0}".format_a(i + offset)).value(r.ka_code);
+			ws.cell("N{0}".format_a(i + offset)).value(r.categ);
+			ws.cell("O{0}".format_a(i + offset)).value(r.manuf);
+			ws.cell("P{0}".format_a(i + offset)).value(r.brand);
+			if( Array.isArray(r.promo_types) && r.promo_types.length > 0 ) {
+			    const cell = ws.cell("Q{0}".format_a(i + offset));
+			    const ff = cell.style('fontFamily');
+			    const fs = cell.style('fontSize');
+			    const rt = new XlsxPopulate.RichText();
+			    r.promo_types.forEach(function(val, index) {
+				if( index > 0 ) {
+				    rt.add("\n")
+				}
+				rt.add(val.descr, {fontFamily: ff, fontSize: fs});
+			    });
+			    cell.value(rt);
+			    ws.row(i + offset).height(r.promo_types.length*12 + 3);
+			}
+			if( Array.isArray(r.refs) && r.refs.length > 0 ) {
+			    const n = ["R","S","T","U"];
+			    r.refs.forEach(function(val, index) {
+				ws.cell("{1}{0}".format_a(i + offset,n[index])).value("[ {0} ]".format_a(index + 1))
+				    .style({ fontColor: "0563c1", underline: true })
+				    .hyperlink({ hyperlink: G.getphotoref(r.refs[index],true) });
+			    });
+			}
+			ws.cell("V{0}".format_a(i + offset)).value(r.doc_note);
+			ws.cell("W{0}".format_a(i + offset)).value(r.head_name);
+		    }
+		    wb.outputAsync()
+			.then(function(blob) {
+			    saveAs(blob, "{0}.xlsx".format_a(_code));
+			    ProgressDialog.hide();
+			})
+		})
+		.catch(function(err) {
+		    ProgressDialog.hide();
+		    Toast.show(lang.errors.xlsx);
+		    console.log(err);
+		});
+	}
+	if( _cache.data != null && Array.isArray(_cache.data._rows) ) {
+	    _cache.data._rows.forEach(function(r, i) {
+		ar.push(r);
+	    });
+	    data_ts = _cache.data.data_ts;
+	}
+	ProgressDialog.show();
+	if( _cache.xlsx == null ) {
+	    G.xhr("GET", G.getstaticref("assets/{0}.xlsx".format_a(_code)), "arraybuffer", function(xhr, data) {
+		if( xhr.status == 200 && data != null ) {
+		    func(data_ts, ar, data);
+		    _cache.xlsx = data;
+		} else {
+		    ProgressDialog.hide();
+		    Toast.show(lang.errors.not_found);
+		}
+	    }).send();
+	} else {
+	    func(data_ts, ar, _cache.xlsx);
+	}
+    }
+
 
 /* public properties & methods */
     return {
@@ -349,29 +436,8 @@ var PLUG = (function() {
 	    blobs.forEach(function(arg) { ar.push(G.getajax({plug: _code, blob: "yes", blob_id: arg})); });
 	    SlideshowSimple(ar, {idx: position}).show();
 	},
-	csv: function() {
-	    var ar = [], t, key, val, buf;
-	    if( _cache.data != null && Array.isArray(_cache.data._rows) ) {
-		_cache.data._rows.forEach(function(r, i) {
-		    t = {}
-		    for( key in r ) {
-			if( (val = r[key]) != null ) {
-			    if( key == 'refs' && Array.isArray(val) ) {
-				buf = [];
-				val.forEach(function(n) { buf.push(G.getphotoref(n, true)); });
-				val = buf.join("    ");
-			    } else if( key == 'promo_types' ) {
-				buf = [];
-				val.forEach(function(n) { buf.push(n.descr); });
-				val = buf.join(". ");
-			    }
-			    t[key] = val;
-			}
-		    }
-		    ar.push(t);
-		});
-	    }
-	    G.tocsv(_code, ar, _perm.csv);
+	xlsx: function() {
+	    _toxlsx();
 	},
 	zip: function(tag0, tag1, span) {
 	    var ar = [], exist = {};

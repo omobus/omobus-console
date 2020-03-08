@@ -405,7 +405,7 @@ var PLUG = (function() {
 			}
 			ws.cell("AB{0}".format_a(i + offset)).value(r.doc_note);
 			ws.cell("AC{0}".format_a(i + offset)).value(r.head_name);
-			ws.cell("AD{0}".format_a(i + offset)).value(r.author);
+			ws.cell("AD{0}".format_a(i + offset)).value(r.author_name);
 			if( typeof r.remark != 'undefined' ) {
 			    ws.cell("AE{0}".format_a(i + offset)).value(r.remark.status);
 			    ws.cell("AF{0}".format_a(i + offset)).value(r.remark.type);

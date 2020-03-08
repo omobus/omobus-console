@@ -22,9 +22,7 @@ var PLUG = (function() {
 	ar.push("</h1></td><td class='r'>");
 	ar.push("<span>", lang.received_ts, "</span>&nbsp;<span id='timestamp'>&nbsp;-&nbsp;</span>");
 	ar.push("&nbsp;(<a href='javascript:void(0);' onclick='PLUG.refresh();'>", lang.refresh, "</a>)<span id='plugTotal'></span>");
-	if( perm.csv ) {
-	    ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.csv(this)'>", lang.export.csv, "</a>");
-	}
+	ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.xlsx(this)'>", lang.export.xlsx, "</a>");
 	ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<input class='search' type='text' maxlength='96' autocomplete='off' placeholder='",
 	    lang.search, "' id='plugFilter' onkeyup='return PLUG.filter(this, event);' onpaste='PLUG.filter(this, event); return true;' />");
 	ar.push("</td></tr></table>");
@@ -276,6 +274,70 @@ var PLUG = (function() {
 	_page(1);
     }
 
+    function _toxlsx() {
+	var ar = [], data_ts;
+	var func = function(data_ts, ar, templ) {
+	    XlsxPopulate.fromDataAsync(templ)
+		.then(wb => {
+		    var offset = 4;
+		    var ws = wb.sheet(0);
+		    wb.properties()._node.children = [];
+		    wb.property('Title', lang.photos.title);
+		    wb.property('Author', __AUTHOR__);
+		    ws.name(_code);
+		    ws.cell("A1").value("{0} {1}".format_a(lang.data_ts, data_ts));
+		    for( var i = 0, size = Math.min(ar.length,1048576 - offset), x; i < size; i++ ) {
+			r = ar[i];
+			ws.cell("A{0}".format_a(i + offset)).value(r.row_no);
+			ws.cell("B{0}".format_a(i + offset)).value(Date.parseISO8601(r.fix_dt));
+			ws.cell("C{0}".format_a(i + offset)).value(r.employee_id);
+			ws.cell("D{0}".format_a(i + offset)).value(r.employee);
+			ws.cell("E{0}".format_a(i + offset)).value(G.gettime_l(Date.parseISO8601(r.jr_begin)));
+			ws.cell("F{0}".format_a(i + offset)).value(G.gettime_l(Date.parseISO8601(r.jr_end)));
+			ws.cell("G{0}".format_a(i + offset)).value(r.jr_duration);
+			ws.cell("H{0}".format_a(i + offset)).value(r.closed);
+			ws.cell("I{0}".format_a(i + offset)).value(r.duration);
+			ws.cell("J{0}".format_a(i + offset)).value(r.assessment);
+			ws.cell("K{0}".format_a(i + offset)).value(G.getpercent_l(r.sla));
+			ws.cell("L{0}".format_a(i + offset)).value(r.note0);
+			ws.cell("M{0}".format_a(i + offset)).value(r.note1);
+			ws.cell("N{0}".format_a(i + offset)).value(r.note2);
+			ws.cell("O{0}".format_a(i + offset)).value(r.author);
+		    }
+		    wb.outputAsync()
+			.then(function(blob) {
+			    saveAs(blob, "{0}.xlsx".format_a(_code));
+			    ProgressDialog.hide();
+		    })
+		})
+		.catch(function(err) {
+		    ProgressDialog.hide();
+		    Toast.show(lang.errors.xlsx);
+		    console.log(err);
+		});
+	}
+	if( _cache.data != null && Array.isArray(_cache.data._rows) ) {
+	    _cache.data._rows.forEach(function(r, i) {
+		ar.push(r);
+	    });
+	    data_ts = _cache.data.data_ts;
+	}
+	ProgressDialog.show();
+	if( _cache.xlsx == null ) {
+	    G.xhr("GET", G.getstaticref("assets/{0}.xlsx".format_a(_code)), "arraybuffer", function(xhr, data) {
+		if( xhr.status == 200 && data != null ) {
+		    func(data_ts, ar, data);
+		    _cache.xlsx = data;
+		} else {
+		    ProgressDialog.hide();
+		    Toast.show(lang.errors.not_found);
+		}
+	    }).send();
+	} else {
+	    func(data_ts, ar, _cache.xlsx);
+	}
+    }
+
 
 /* public properties & methods */
     return {
@@ -336,14 +398,8 @@ var PLUG = (function() {
 	    var r = _cache.data.rows[row_no-1];
 	    Dialog({width: 800, title: "{0}, {1}: {2}".format_a(G.shielding(r.employee),lang.sla.result, G.getsla_l(r.assessment, r.sla)), body: _detailsbody(r)}).show();
 	},
-	csv: function() {
-	    var ar = [];
-	    if( _cache.data != null && Array.isArray(_cache.data._rows) ) {
-		_cache.data._rows.forEach(function(r, i) {
-		    ar.push(r);
-		});
-	    }
-	    G.tocsv(_code, ar, _perm.csv);
+	xlsx: function() {
+	    _toxlsx();
 	}
     }
 })();
