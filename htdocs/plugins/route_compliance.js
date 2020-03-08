@@ -24,9 +24,6 @@ var PLUG = (function() {
 	ar.push("<span>", lang.received_ts, "</span>&nbsp;<span id='timestamp'>&nbsp;-&nbsp;</span>");
 	ar.push("&nbsp;(<a href='javascript:void(0);' onclick='PLUG.refresh();'>", lang.refresh, "</a>)");
 	ar.push("<span id='plugTotal'></span>");
-	if( perm.csv ) {
-	    ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.csv(this)'>", lang.export.csv, "</a>");
-	}
 	ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<input class='search' type='text' maxlength='96' autocomplete='off' placeholder='",
 	    lang.search, "' id='plugFilter' onkeyup='return PLUG.filter(this, event);' onpaste='PLUG.filter(this, event); return true;' />");
 	ar.push("</td></tr></table>");
@@ -256,15 +253,6 @@ var PLUG = (function() {
 	},
 	calendar: function(tag) {
 	    _tags.popup.toggle(tag);
-	},
-	csv: function() {
-	    var ar = [], f = Filter(_tags.f.val());
-	    if( _cache.data != null ) {
-		_cache.data.rows.forEach(function(r, i) {
-		    if( f.is(r) ) ar.push(r);
-		});
-	    }
-	    G.tocsv(_code, ar, _perm.csv);
 	}
     }
 })();
