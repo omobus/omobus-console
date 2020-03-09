@@ -126,12 +126,13 @@ from accounts a
     left join cities i on a.city_id = i.city_id
     left join retail_chains z on a.rc_id = z.rc_id
 where 
-    (
+    (%req_uid% is null or (
 	a.account_id in (select distinct account_id from routes where cycle_id = %cycle_id% and (%req_uid% is null or user_id in (select my_staff(%req_uid%, 1::bool_t)))) or
 	a.region_id in (select region_id from my_regions where user_id=%req_uid%) or 
 	a.city_id in (select expand_cities(city_id) from my_cities where user_id=%req_uid%) or 
 	a.account_id in (select account_id from my_retail_chains r, accounts a where r.user_id=%req_uid% and r.rc_id=a.rc_id and (r.region_id='' or r.region_id=a.region_id) and a.hidden=0)
-    ) and a.hidden = 0
+    ))
+    and a.hidden = 0
 order by a.descr, a.address, a.account_id
 ]]
 		, "//routes/habitat/"
