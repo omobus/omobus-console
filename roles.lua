@@ -11,6 +11,7 @@ local modules = {
 	admins 		= require 'roles.admins',
 	analitics 	= require 'roles.analitics',
 	asm 		= require 'roles.asm',
+	cdm 		= require 'roles.cdm',
 	guests 		= require 'roles.guests',
 	ise 		= require 'roles.ise',
 	kam 		= require 'roles.kam',
