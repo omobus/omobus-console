@@ -3,4 +3,6 @@
 
 local M = {} -- public interface
 
+M.rows = 500
+
 return M

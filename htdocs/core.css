@@ -1696,9 +1696,9 @@ hr {
     padding-top: 3px;
     padding-bottom: 3px;
     /* singleLine: */
-    white-space: nowrap;
+    /*white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis;
+    text-overflow: ellipsis;*/
     max-width: 0;
 }
 

@@ -170,10 +170,10 @@ local function selectableobjects(stor, perm)
 	local rv, idx1, idx2, tb = {}, {}, {}, func_execute(tran,
 [[
 select distinct right(content_code,length(content_code)-5) content_code from content_stream 
-    where content_code like 'stat_%'
-    union
+    where content_code like 'stat_%' and content_blob is not null
+	union
 select distinct content_code from content_stream 
-    where content_code not like 'stat_%' and content_code not like 'tech_%' and content_code <> 'a_list'
+    where content_code not like 'stat_%' and content_code not like 'tech_%' and content_code <> 'a_list' and content_blob is not null
 ]]
 	    , "//main/objects"
 	)
