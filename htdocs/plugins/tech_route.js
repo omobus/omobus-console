@@ -598,28 +598,6 @@ var __route = (function() {
 		ar.push("</td>");
 		ar.push("</tr>");
 		ar.push("</table>");
-	    } else if( r._t == "extra" ) {
-		ar.push("<div>");
-		ar.push("<h2>", "{0} {1} {2} / {3}".format_a(lang.doctypes[r._t], lang.num, r.doc_no, r.doc_id), 
-		    "<span class='r'>", "{0}. <i>{1}</i>: {2}".format_a(G.shielding(r.placement), lang.soe, G.getpercent_l(r.soe)),
-		    "</span>", "</h2>");
-		ar.push("<span class='watermark'>", "{0}: {1}".format_a(lang.fix_time, G.getlongtime_l(r.fix_dt)), 
-		    "&nbsp;&nbsp;&nbsp;(", lang.seconds.format_a(r.duration), ")", "</span>");
-		ar.push("</div>");
-		ar.push("<table width='100%' class='report'>");
-		ar.push("<tr class='def'>");
-		ar.push("<td class='divider'>", lang.num, "</td>");
-		ar.push("<td class='divider'>", lang.manuf, "</td>");
-		ar.push("<td class='divider' width='60px'>", lang.qty, "</td>");
-		ar.push("</tr>");
-		r.manufs.forEach(function(arg0, arg1) {
-		    ar.push("<tr>");
-		    ar.push("<td class='autoincrement'>", arg0.row_no + 1, "</td>");
-		    ar.push("<td class='string'>", G.shielding(arg0.descr, lang.other), "</td>");
-		    ar.push("<td class='int'>", G.getint_l(arg0.qty), "</td>");
-		    ar.push("</tr>");
-		});
-		ar.push("</table>");
 	    } else if( r._t == "oos" ) {
 		ar.push("<div>");
 		ar.push("<h2>", "{0} {1} {2} / {3}".format_a(lang.doctypes[r._t], lang.num, r.doc_no, r.doc_id), "</h2>");
