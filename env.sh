@@ -11,3 +11,4 @@ cp -auvp $PREFIX/*.png $WWW || :
 cp -auvp $PREFIX/*.ico $WWW || :
 cp -auvp $PREFIX/*.webmanifest $WWW || :
 cp -auvp $PREFIX/*.htm $WWW || :
+cp -auvp $PREFIX/robots.txt $WWW || :
