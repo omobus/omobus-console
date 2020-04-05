@@ -301,13 +301,6 @@ var __route = (function() {
 		"<td class='int' colspan='2'>", data.exchanges.docs.packets ? data.exchanges.docs.packets : lang.dash, "</td>",
 		"</tr>");
 	}
-	if( data.positions != null ) {
-	    ar.push("<tr>",
-		"<td>", lang.tech.route.positions, ":</td>",
-		"<td class='int'>", data.positions.exist ? data.positions.exist : lang.dash, "</td>", 
-		"<td class='int'>", data.positions.empty ? data.positions.empty : lang.dash, "</td>",
-		"</tr>");
-	}
 	ar.push("</table>");
 	ar.push("</td>");
 	/* delimeter: */
