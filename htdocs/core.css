@@ -827,6 +827,7 @@ hr {
     line-height: normal;
     color: #6e6e6e;
     font-size: 9pt;
+    box-sizing: content-box;
 }
 
 .ballon .placeholder {
