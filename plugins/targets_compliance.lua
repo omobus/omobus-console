@@ -52,15 +52,22 @@ select account_id from (select expand_cities(city_id) city_id from my_cities whe
 		    , {user_id = sestb.erpid}
 		)
 	    end
-	elseif sestb.department ~= nil then
+	elseif sestb.department ~= nil or sestb.country ~= nil then
 	    tb._users, err = func_execute(tran,
 [[
 select user_id from users
-    where dep_ids && string_to_array(%dep_id%,',')::uids_t
+    where (%dep_id% is null or (dep_ids is not null and cardinality(dep_ids) > 0 and dep_ids[1]=any(string_to_array(%dep_id%,',')::uids_t)))
+	and (%country_id% is null or (country_id=any(string_to_array(%country_id%,',')::uids_t)))
 ]]
 		, "//targets_compliance/F.users"
-		, {dep_id = sestb.department}
+		, {
+		    dep_id = sestb.department == nil and stor.NULL or sestb.department,
+		    country_id = sestb.country == nil and stor.NULL or sestb.country
+		}
 	    )
+	    --[[if sestb.department ~= nil then
+		tb.dep_ids = core.split(sestb.department,',')
+	    end]]
 	elseif sestb.distributor ~= nil then
 	    tb._users, err = func_execute(tran,
 [[
@@ -228,7 +235,7 @@ local function personalize(sestb, data)
 	end
     end
 
-    if sestb.erpid ~= nil or sestb.department ~= nil or sestb.distributor ~= nil or sestb.agency ~= nil then
+    if sestb.erpid ~= nil or sestb.department ~= nil or sestb.country ~= nil or sestb.distributor ~= nil or sestb.agency ~= nil then
 	local idx0, idx1, tb = {}, {}, {}
 	if data._users ~= nil then
 	    for i, v in ipairs(data._users) do
@@ -241,7 +248,20 @@ local function personalize(sestb, data)
 	    end
 	end
 	for i, v in ipairs(p.rows) do
-	    if idx0[v.author_id] ~= nil or (idx1[v.account_id] ~= nil and (data.dep_ids == nil or v.dep_id == nil or core.contains(data.dep_ids,v.dep_id))) then
+	    local f = (v.author_id ~= nil and idx0[v.author_id] ~= nil)
+		or (sestb.erpid == nil and v.author_id ~= nil and string.lower(v.author_id) == string.lower(sestb.username))
+		or (idx1[v.account_id] ~= nil and (data.dep_ids == nil or v.dep_id == nil or core.contains(data.dep_ids,v.dep_id)))
+
+	    if f == false and v.confirmations ~= nil then
+		for j, w in ipairs(v.confirmations) do
+		    if w.performer_id ~= nil and idx0[w.performer_id] ~= nil then 
+			f = true
+			break
+		    end
+		end
+	    end
+
+	    if f then
 		if v.author_id ~= nil then idx_users[v.author_id] = 1; end
 		if v.chan_id ~= nil then idx_channels[v.chan_id] = 1; end
 		if v.rc_id ~= nil then idx_rcs[v.rc_id] = 1; end

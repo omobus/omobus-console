@@ -53,14 +53,18 @@ select account_id from (select expand_cities(city_id) city_id from my_cities whe
 		    , {user_id = sestb.erpid}
 		)
 	    end
-	elseif sestb.department ~= nil then
+	elseif sestb.department ~= nil or sestb.country ~= nil then
 	    tb._users, err = func_execute(tran,
 [[
 select user_id from users
-    where dep_ids && string_to_array(%dep_id%,',')::uids_t
+    where (%dep_id% is null or (dep_ids is not null and cardinality(dep_ids) > 0 and dep_ids[1]=any(string_to_array(%dep_id%,',')::uids_t)))
+	and (%country_id% is null or (country_id=any(string_to_array(%country_id%,',')::uids_t)))
 ]]
 		, "//confirmations/F.users"
-		, {dep_id = sestb.department}
+		, {
+		    dep_id = sestb.department == nil and stor.NULL or sestb.department,
+		    country_id = sestb.country == nil and stor.NULL or sestb.country
+		}
 	    )
 	elseif sestb.distributor ~= nil then
 	    tb._users, err = func_execute(tran,
@@ -229,7 +233,7 @@ local function personalize(sestb, data)
 	end
     end
 
-    if sestb.erpid ~= nil or sestb.department ~= nil or sestb.distributor ~= nil or sestb.agency ~= nil then
+    if sestb.erpid ~= nil or sestb.department ~= nil or sestb.country ~= nil or sestb.distributor ~= nil or sestb.agency ~= nil then
 	local idx0, idx1, tb = {}, {}, {}
 	if data._users ~= nil then
 	    for i, v in ipairs(data._users) do
@@ -242,7 +246,8 @@ local function personalize(sestb, data)
 	    end
 	end
 	for i, v in ipairs(p.rows) do
-	    if idx0[v.user_id] ~= nil or idx1[v.account_id] ~= nil then
+	    if idx0[v.user_id] ~= nil or idx1[v.account_id] ~= nil 
+		    or (sestb.erpid == nil and v.author_id ~= nil and string.lower(v.author_id) == string.lower(sestb.username)) then
 		local u = idx_remark[v.doc_id]
 		idx_users[v.user_id] = 1
 		if v.chan_id ~= nil then idx_channels[v.chan_id] = 1; end
@@ -339,7 +344,7 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
 		scgi.writeHeader(res, 200, {["Content-Type"] = mime.json .. "; charset=utf-8"})
 		scgi.writeBody(res, "{}")
 	    else
-		if sestb.erpid ~= nil or sestb.department ~= nil or sestb.distributor ~= nil or sestb.agency ~= nil then
+		if sestb.erpid ~= nil or sestb.department ~= nil or sestb.country ~= nil or sestb.distributor ~= nil or sestb.agency ~= nil then
 		    for _, v in ipairs(tb) do
 			v.rows = nil
 		    end

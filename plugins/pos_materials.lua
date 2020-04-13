@@ -63,21 +63,36 @@ order by row_no, descr
 		    , "//pos_materials/brands", { user_id = sestb.erpid}
 		)
 	    end
-	elseif sestb.department ~= nil then
+	elseif sestb.department ~= nil or sestb.country ~= nil then
 	    tb.rows, err = func_execute(tran, qs:replace("$(0)", 
 [[
-and (select count(brand_id) from brands where (dep_id=any(string_to_array(%dep_id%,',')::uids_t) or dep_id is null) and brand_id=any(m.brand_ids)) > 0
+and (
+    lower(m.author_id)=lower(%my%)
+	or
+    (
+	(select count(brand_id) from brands where (%dep_id% is null or dep_id is null or dep_id=any(string_to_array(%dep_id%,',')::uids_t)) and brand_id=any(m.brand_ids)) > 0
+	    and
+	(%country_id% is null or (m.country_id=any(string_to_array(%country_id%,',')::uids_t)))
+    )
+)
 ]]
-		) ,"//pos_materials/get", { dep_id = sestb.department}
+		) ,"//pos_materials/get", { 
+		    dep_id = sestb.department == nil and stor.NULL or sestb.department,
+		    country_id = sestb.country == nil and stor.NULL or sestb.country,
+		    my = sestb.username
+		}
 	    )
 	    if err == nil or err == false then
 		tb.brands, err = func_execute(tran,
 [[
 select brand_id, descr from brands
-    where hidden = 0 and manuf_id in (select manuf_id from manufacturers where competitor is null or competitor = 0) and (dep_id is null or dep_id=any(string_to_array(%dep_id%,',')::uids_t))
+    where hidden = 0 and manuf_id in (select manuf_id from manufacturers where competitor is null or competitor = 0) 
+	and (%dep_id% is null or dep_id is null or dep_id=any(string_to_array(%dep_id%,',')::uids_t))
 order by row_no, descr
 ]]
-		    , "//pos_materials/brands", { dep_id = sestb.department}
+		    , "//pos_materials/brands", { 
+			dep_id = sestb.department == nil and stor.NULL or sestb.department
+		    }
 		)
 	    end
 	else
@@ -119,10 +134,11 @@ order by descr
 	    tb.countries, err = func_execute(tran,
 [[
 select country_id, descr from countries
-    where hidden = 0
+    where hidden = 0 and (%country_id% is null or (country_id=any(string_to_array(%country_id%,',')::uids_t)))
 order by row_no, descr
 ]]
 		, "//pos_materials/countries"
+		, { country_id = sestb.country == nil and stor.NULL or sestb.country }
 	    )
 	end
 

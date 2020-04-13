@@ -105,15 +105,19 @@ select distinct user_id from (
 		    , "//tech/F.indirect_staff"
 		    , {user_id = sestb.erpid, fix_date = date}
 		)
-	    elseif sestb.department ~= nil then
+	    elseif sestb.department ~= nil or sestb.country ~= nil then
 		tb.my_staff, err = func_execute(tran,
 [[
 select user_id from users
-    where dep_ids && string_to_array(%dep_id%,',')::uids_t
+    where (%dep_id% is null or (dep_ids is not null and cardinality(dep_ids) > 0 and dep_ids[1]=any(string_to_array(%dep_id%,',')::uids_t)))
+	and (%country_id% is null or (country_id=any(string_to_array(%country_id%,',')::uids_t)))
 order by descr, user_id
 ]]
 		    , "//tech/F.my_staff"
-		    , {dep_id = sestb.department}
+		    , {
+			dep_id = sestb.department == nil and stor.NULL or sestb.department,
+			country_id = sestb.country == nil and stor.NULL or sestb.country
+		    }
 		)
 	    elseif sestb.distributor ~= nil then
 		tb.my_staff, err = func_execute(tran,
@@ -206,14 +210,19 @@ select account_id from (select expand_cities(city_id) city_id from my_cities whe
 			, {user_id = sestb.erpid}
 		    )
 		end
-	    elseif sestb.department ~= nil then
+	    elseif sestb.department ~= nil or sestb.country ~= nil then
 		xx, err = func_execute(tran,
 [[
 select count(*) exist from users
-    where dep_ids && string_to_array(%dep_id%,',')::uids_t and user_id = %code%
+    where (%dep_id% is null or (dep_ids is not null and cardinality(dep_ids) > 0 and dep_ids[1]=any(string_to_array(%dep_id%,',')::uids_t)))
+	and (%country_id% is null or (country_id=any(string_to_array(%country_id%,',')::uids_t)))
 ]]
 		    , "//tech/exist.my_staff"
-		    , {dep_id = sestb.department, code = user_id}
+		    , {
+			dep_id = sestb.department == nil and stor.NULL or sestb.department,
+			country_id = sestb.country == nil and stor.NULL or sestb.country, 
+			code = user_id
+		    }
 		)
 		if (err == nil or err == false) and xx ~= nil and #xx == 1 and xx[1].exist > 0 then
 		    tb._everything = true

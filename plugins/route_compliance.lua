@@ -36,14 +36,18 @@ select my_staff user_id from my_staff(%user_id%, 1::bool_t)
 		, "//route_compliance/F.users"
 		, {user_id = sestb.erpid}
 	    )
-	elseif sestb.department ~= nil then
+	elseif sestb.department ~= nil or sestb.country ~= nil then
 	    tb._users, err = func_execute(tran,
 [[
 select user_id from users
-    where dep_ids && string_to_array(%dep_id%,',')::uids_t
+    where (%dep_id% is null or (dep_ids is not null and cardinality(dep_ids) > 0 and dep_ids[1]=any(string_to_array(%dep_id%,',')::uids_t)))
+	and (%country_id% is null or (country_id=any(string_to_array(%country_id%,',')::uids_t)))
 ]]
 		, "//route_compliance/F.users"
-		, {dep_id = sestb.department}
+		, {
+		    dep_id = sestb.department == nil and stor.NULL or sestb.department,
+		    country_id = sestb.country == nil and stor.NULL or sestb.country
+		}
 	    )
 	elseif sestb.distributor ~= nil then
 	    tb._users, err = func_execute(tran,
@@ -98,7 +102,7 @@ end
 
 local function personalize(sestb, data)
     local p = json.decode(decompress(data.content[1].content_blob, data.content[1].content_compress))
-    if sestb.erpid ~= nil or sestb.department ~= nil or sestb.distributor ~= nil or sestb.agency ~= nil then
+    if sestb.erpid ~= nil or sestb.department ~= nil or sestb.country ~= nil or sestb.distributor ~= nil or sestb.agency ~= nil then
 	local idx, tb = {}, {}
 	if data._users ~= nil then
 	    for i, v in ipairs(data._users) do
