@@ -243,7 +243,7 @@ end
 function M.scripts(lang, permtb, sestb, params)
     local ar = {}
     table.insert(ar, '<script src="' .. V.static_prefix .. '/libs/jszip-3.2.2.js"> </script>')
-    table.insert(ar, '<script src="' .. V.static_prefix .. '/libs/xlsx-1.20.1.js"> </script>')
+    table.insert(ar, '<script src="' .. V.static_prefix .. '/libs/xlsx-1.21.0.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup_L.monthcal.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.brands.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.channels.js"> </script>')
