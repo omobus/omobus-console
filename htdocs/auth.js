@@ -11,6 +11,7 @@ window.onload = function() {
 	msg.html(lang.errors.auth.msg4);
     }
     auth.value = lang.login;
+    _('apks').html(lang.apks);
     _('hint0').html(lang.username);
     _('hint1').html(lang.password);
     _('authForm').onsubmit = function() { 

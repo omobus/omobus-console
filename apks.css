@@ -1,0 +1,16 @@
+body {
+    margin: 4px 20px 4px 20px;
+    background-color: #f6f6f6;
+    font-family: verdana, arial, sans-serif;
+    font-weight: normal;
+    font-size: 10pt;
+}
+
+li {
+    padding-bottom: 5px;
+    padding-top: 5px;
+}
+
+.warn {
+    color: red;
+}

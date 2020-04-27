@@ -30,6 +30,7 @@ body {
     border-radius: 4px;
     color: #080c57;
     min-width: 450px;
+    max-width: 510px;
 }
 
 .auth .alert {
