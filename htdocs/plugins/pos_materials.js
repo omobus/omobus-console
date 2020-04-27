@@ -92,7 +92,7 @@ var PLUG = (function() {
 		    }
 		    ar.push("</td>");
 		    ar.push("<td class='ref sw95px", String.isEmpty(r.country_id) ? " incomplete" : "", "'>", G.shielding(r.country), "</td>");
-		    ar.push("<td class='ref sw95px", (!Array.isArray(r.brand_ids) || r.brand_ids.isEmpty()) ? " incomplete" : "", "'>");
+		    ar.push("<td class='ref sw95px", Array.isEmpty(r.brand_ids) ? " incomplete" : "", "'>");
 		    if( Array.isArray(r.brands) ) {
 			r.brands.forEach(function(arg0, arg1) {
 			    if( arg1 > 0 ) {
@@ -233,17 +233,17 @@ var PLUG = (function() {
 	ar.push("</div>");
 	ar.push("<div class='row'>");
 	ar.push("<select id='posm:country'>");
-	ar.push("<option value=''>", lang.not_specified, "</option>");
+	ar.push("<option value=''>", "{0}: {1}".format_a(lang.country, lang.without_restrictions), "</option>");
 	if( Array.isArray(mans.countries) ) {
 	    mans.countries.forEach(function(arg) {
-		ar.push("<option value='", G.shielding(arg.country_id), "'>", G.shielding(arg.descr), "</option>");
+		ar.push("<option value='", G.shielding(arg.country_id), "'>", "{0}: {1}".format_a(lang.country, G.shielding(arg.descr)), "</option>");
 	    });
 	}
 	ar.push("</select>");
 	ar.push("</div>");
 	ar.push("<div class='row'>");
 	ar.push("<select id='posm:daterange'>");
-	ar.push("<option value=''>", lang.not_specified, "</option>");
+	ar.push("<option value=''>", "{0}: {1}".format_a(lang.validity, lang.without_restrictions), "</option>");
 	ar.push("<option value='end_of_week'>", "{0}: {1}".format_a(lang.validity, lang.daterange.end_of_week), "</option>");
 	ar.push("<option value='end_of_month'>", "{0}: {1}".format_a(lang.validity, lang.daterange.end_of_month), "</option>");
 	ar.push("<option value='end_of_quarter'>", "{0}: {1}".format_a(lang.validity, lang.daterange.end_of_quarter), "</option>");
@@ -252,13 +252,13 @@ var PLUG = (function() {
 	ar.push("<option value='next_quarter'>", "{0}: {1}".format_a(lang.validity, lang.daterange.next_quarter), "</option>");
 	ar.push("</select>");
 	ar.push("</div>");
-	if( Array.isArray(mans.brands) && mans.brands.length > 0 ) {
+	if( !Array.isEmpty(mans.brands) ) {
 	    _checkboxContainer(ar, mans.brands, "brand");
 	}
-	if( Array.isArray(mans.placements) && mans.placements.length > 0 ) {
+	if( !Array.isEmpty(mans.placements) ) {
 	    _checkboxContainer(ar, mans.placements, "placement");
 	}
-	if( Array.isArray(mans.channels) && mans.channels.length > 0 ) {
+	if( !Array.isEmpty(mans.channels) ) {
 	    _checkboxContainer(ar, mans.channels, "chan");
 	}
 
@@ -477,7 +477,7 @@ var PLUG = (function() {
 		    daterangeView.add(_createSelectOption("next_year", "{0}: {1}".format_a(lang.validity, lang.daterange.next_quarter)));
 		}
 		if( !String.isEmpty(data.b_date) && !String.isEmpty(data.e_date) ) {
-		    daterangeView.add(_createSelectOption("0", "{0} - {1}".format_a(G.getlongdate_l(data.b_date), G.getlongdate_l(data.e_date)), true));
+		    daterangeView.add(_createSelectOption("0", "{0}: {1} - {2}".format_a(lang.validity, G.getlongdate_l(data.b_date), G.getlongdate_l(data.e_date)), true));
 		}
 		for( let i = 0, size = cbar.length; i < size; i++ ) {
 		    if( cbar[i].type != 'checkbox' ) {
@@ -556,7 +556,7 @@ var PLUG = (function() {
 		    } else if( String.isEmpty(newData.country_id) ) {
 			alertView.html(lang.pos_materials.msg3);
 			alertView.show();
-		    } else if( !Array.isArray(newData.brand_ids) || newData.brand_ids.isEmpty() ) {
+		    } else if( Array.isEmpty(newData.brand_ids) ) {
 			alertView.html(lang.pos_materials.msg4);
 			alertView.show();
 		    } else {
@@ -566,10 +566,10 @@ var PLUG = (function() {
 			fd.append("country_id", newData.country_id);
 			fd.append("brand_ids", newData.brand_ids);
 
-			if( Array.isArray(newData.placement_ids) && !newData.placement_ids.isEmpty() ) {
+			if( !Array.isEmpty(newData.placement_ids) ) {
 			    fd.append("placement_ids", newData.placement_ids);
 			}
-			if( Array.isArray(newData.chan_ids) && !newData.chan_ids.isEmpty() ) {
+			if( !Array.isEmpty(newData.chan_ids) ) {
 			    fd.append("chan_ids", newData.chan_ids);
 			}
 			if( !String.isEmpty(newData.b_date) ) {

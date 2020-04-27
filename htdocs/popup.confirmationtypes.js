@@ -60,6 +60,7 @@ function ConfirmationTypesPopup(rows, selection, params /* params = { everything
 			this.blur();
 		    }
 		}
+		ev.stopPropagation();
 	    };
 	});
     }

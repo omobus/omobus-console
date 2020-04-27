@@ -40,12 +40,26 @@ order by case when current_timestamp - m.updated_ts < '1 day' then current_times
 	    tb.rows, err = func_execute(tran, qs:replace("$(0)", 
 [[
 and (
-    (select dep_ids from users where user_id=%user_id%) is null
-	or
-    (select count(brand_id) from brands where (dep_id in (select unnest(dep_ids) from users where user_id=%user_id% and dep_ids is not null) or dep_id is null) and brand_id=any(m.brand_ids)) > 0
+    lower(m.author_id) = lower(%user_id%)
+    or
+    (
+	(
+	    m.country_id = any(string_to_array(%country_id%,',')::uids_t)
+		or
+	    m.country_id in (select country_id from users where user_id=%user_id%)
+	) and (
+	    (select dep_ids from users where user_id=%user_id%) is null
+		or
+	    (select count(brand_id) from brands where (dep_id in (select unnest(dep_ids) from users where 
+		user_id=%user_id% and dep_ids is not null) or dep_id is null) and brand_id=any(m.brand_ids)) > 0
+	)
+    )
 )
 ]]
-		) , "//pos_materials/get", { user_id = sestb.erpid}
+		) , "//pos_materials/get", {
+		    user_id = sestb.erpid,
+		    country_id = sestb.country == nil and stor.NULL or sestb.country
+		}
 	    )
 	    if err == nil or err == false then
 		tb.brands, err = func_execute(tran,
@@ -63,6 +77,23 @@ order by row_no, descr
 		    , "//pos_materials/brands", { user_id = sestb.erpid}
 		)
 	    end
+	    if err == nil or err == false then
+		tb.countries, err = func_execute(tran,
+[[
+select country_id, descr from countries
+    where hidden = 0 and (
+	country_id = any(string_to_array(%country_id%,',')::uids_t)
+	    or
+	country_id in (select country_id from users where user_id=%user_id%)
+    )
+order by row_no, descr
+]]
+		    , "//pos_materials/countries", {
+			user_id = sestb.erpid,
+			country_id = sestb.country == nil and stor.NULL or sestb.country
+		    }
+		)
+	    end
 	elseif sestb.department ~= nil or sestb.country ~= nil then
 	    tb.rows, err = func_execute(tran, qs:replace("$(0)", 
 [[
@@ -70,9 +101,10 @@ and (
     lower(m.author_id)=lower(%my%)
 	or
     (
-	(select count(brand_id) from brands where (%dep_id% is null or dep_id is null or dep_id=any(string_to_array(%dep_id%,',')::uids_t)) and brand_id=any(m.brand_ids)) > 0
+	(%country_id% is null or m.country_id = any(string_to_array(%country_id%,',')::uids_t))
 	    and
-	(%country_id% is null or (m.country_id=any(string_to_array(%country_id%,',')::uids_t)))
+	(select count(brand_id) from brands where (%dep_id% is null or dep_id is null or 
+	    dep_id=any(string_to_array(%dep_id%,',')::uids_t)) and brand_id=any(m.brand_ids)) > 0
     )
 )
 ]]
@@ -95,6 +127,18 @@ order by row_no, descr
 		    }
 		)
 	    end
+	    if err == nil or err == false then
+		tb.countries, err = func_execute(tran,
+[[
+select country_id, descr from countries
+    where hidden = 0 and (%country_id% is null or country_id = any(string_to_array(%country_id%,',')::uids_t))
+order by row_no, descr
+]]
+		    , "//pos_materials/countries", {
+			country_id = sestb.country == nil and stor.NULL or sestb.country
+		    }
+		)
+	    end
 	else
 	    tb.rows, err = func_execute(tran, qs:replace("$(0)", ""),
 		"//pos_materials/get"
@@ -107,6 +151,16 @@ select brand_id, descr from brands
 order by row_no, descr
 ]]
 		    , "//pos_materials/brands"
+		)
+	    end
+	    if err == nil or err == false then
+		tb.countries, err = func_execute(tran,
+[[
+select country_id, descr from countries
+    where hidden = 0
+order by row_no, descr
+]]
+		    , "//pos_materials/countries"
 		)
 	    end
 	end
@@ -128,17 +182,6 @@ select chan_id, descr from channels
 order by descr
 ]]
 		, "//pos_materials/channels"
-	    )
-	end
-	if err == nil or err == false then
-	    tb.countries, err = func_execute(tran,
-[[
-select country_id, descr from countries
-    where hidden = 0 and (%country_id% is null or (country_id=any(string_to_array(%country_id%,',')::uids_t)))
-order by row_no, descr
-]]
-		, "//pos_materials/countries"
-		, { country_id = sestb.country == nil and stor.NULL or sestb.country }
 	    )
 	end
 
@@ -330,7 +373,7 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
 	-- check owner
 	if permtb.edit == nil or permtb.edit ~= true then
 	    local tb, err = author(stor, params.posm_id)
-	    assert(tb ~= nil and #tb == 1 and tb[1].author_id == (sestb.erpid or sestb.username), 
+	    assert(tb ~= nil and #tb == 1 and tb[1].author_id:lower() == (sestb.erpid or sestb.username):lower(), 
 		string.format("PoS/PoP material is not owned by [%s], unable to edit it [posm_id=%s].", 
 		    sestb.erpid or sestb.username, params.posm_id))
 	end
@@ -353,7 +396,7 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
 	-- check owner
 	if permtb.remove == nil or permtb.remove ~= true then
 	    local tb, err = author(stor, params.posm_id)
-	    assert(tb ~= nil and #tb == 1 and tb[1].author_id == (sestb.erpid or sestb.username), 
+	    assert(tb ~= nil and #tb == 1 and tb[1].author_id:lower() == (sestb.erpid or sestb.username):lower(), 
 		string.format("PoS/PoP material is not owned by [%s], unable to unlink it [posm_id=%s].", 
 		    sestb.erpid or sestb.username, params.posm_id))
 	end

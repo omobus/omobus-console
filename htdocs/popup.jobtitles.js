@@ -60,6 +60,7 @@ function JobTitlesPopup(rows, selection, params /* params = { everything: true|f
 			this.blur();
 		    }
 		}
+		ev.stopPropagation();
 	    };
 	});
     }

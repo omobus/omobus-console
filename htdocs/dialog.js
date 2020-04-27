@@ -1,7 +1,7 @@
 /* -*- JavaScript -*- */
 /* Copyright (c) 2006 - 2020 omobus-console authors, see the included COPYRIGHT file. */
 
-function Dialog(params /* params = { container = "DOM container", width, title, body, buttons}: */) {
+function Dialog(params /* params = { container = "DOM container", width, title, body, buttons, onHideListener, onScrollListener}: */) {
     if( !(this instanceof Dialog) ) {
 	return new Dialog(params);
     }
@@ -19,6 +19,7 @@ function Dialog(params /* params = { container = "DOM container", width, title, 
     }
     var own = this, w = window.innerWidth, h = window.innerHeight, offset = 30, x;
     var onclose = function() { own.hide(); };
+    this._onHideListener = params.onHideListener;
     this._container = params.container;
     params.container.html(this._get(params.title, params.body, params.buttons).join(""));
     /* spinner element: */
@@ -31,6 +32,10 @@ function Dialog(params /* params = { container = "DOM container", width, title, 
     x.style.maxHeight = "{0}px".format_a(h - 2*offset);
     x = params.container.getElementsByClassName("scrollable")[0];
     x.style.maxHeight = "{0}px".format_a(h - 2*offset - /*title:*/70 - /*buttons:*/(params.buttons == null ? 0 : 40));
+
+    if( typeof params.onScrollListener == 'function' ) {
+	x.onscroll = function() { params.onScrollListener(this); }
+    }
 }
 
 
@@ -77,6 +82,7 @@ Dialog.prototype._onkeyup = function(ev) {
     } else if( ev.keyCode == 27 ) {
 	this.hide(); a = false;
     }
+    //ev.stopPropagation();
     return a;
 }
 
@@ -102,6 +108,9 @@ Dialog.prototype.show = function(onShowListener) {
 }
 
 Dialog.prototype.hide = function() {
+    if( typeof this._onHideListener == 'function' ) {
+	this._onHideListener(this);
+    }
     document.body.removeClass('noscroll');
     this._spinnerElement.hide();
     this._container.hide();

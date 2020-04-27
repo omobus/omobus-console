@@ -60,6 +60,7 @@ function BrandsPopup(rows, selection, params /* params = { everything: true|fals
 			this.blur(); 
 		    }
 		}
+		ev.stopPropagation();
 	    };
 	});
     }

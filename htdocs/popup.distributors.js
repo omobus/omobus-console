@@ -60,6 +60,7 @@ function DistributorsPopup(rows, selection, params /* params = { everything: tru
 			this.blur();
 		    }
 		}
+		ev.stopPropagation();
 	    };
 	});
     }

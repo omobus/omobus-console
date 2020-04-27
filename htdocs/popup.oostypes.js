@@ -60,6 +60,7 @@ function OOSTypesPopup(rows, selection, params /* params = { everything: true|fa
 			this.blur();
 		    }
 		}
+		ev.stopPropagation();
 	    };
 	});
     }

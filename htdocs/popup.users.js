@@ -66,6 +66,7 @@ function UsersPopup(users, selection, params /* params = { everyone: true|false,
 			this.blur();
 		    }
 		}
+		ev.stopPropagation();
 	    };
 	});
     }

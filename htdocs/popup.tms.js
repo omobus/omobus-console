@@ -60,6 +60,7 @@ function TrainingMaterialsPopup(rows, selection, params /* params = { everything
 			this.blur(); 
 		    }
 		}
+		ev.stopPropagation();
 	    };
 	});
     }

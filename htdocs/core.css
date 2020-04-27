@@ -267,7 +267,7 @@ hr {
     left: 0;
     background: rgba(0,0,0,0.3);
     display: none;
-    z-index: 99990;
+    z-index: 1000;
 }
 
 .dialog > div {
@@ -399,8 +399,8 @@ hr {
     border: 1px solid #d3d3d3;
     border-radius: 3px;
     min-width: 140px;
-    padding-left: 4px;
-    padding-right: 4px;
+    padding-left: 8px;
+    padding-right: 8px;
     height: 24px;
     font-size: 9pt;
     white-space: nowrap;
@@ -533,6 +533,32 @@ hr {
 
 .dialog input[type="checkbox"]:focus + .checkbox__text:before {
     box-shadow: inset 0 2px 3px rgba(0,0,0,.4);
+}
+
+.dialog button.dropdown {
+    width: 100%;
+    border: 1px solid #d3d3d3;
+    border-radius: 3px;
+    min-width: 140px;
+    padding-left: 8px;
+    padding-right: 8px;
+    height: 24px;
+    font-size: 9pt;
+    text-align: left;
+    white-space: nowrap;
+    cursor: pointer;
+    background: linear-gradient(to bottom, #f6f6f6 0%, #efefef 47%, #f4f4f4 100%);
+}
+
+.dialog button.dropdown:hover {
+    border: 1px solid #8a8a8a;
+    background: linear-gradient(to bottom, #f6f6f6 0%, #efefef 47%, #f4f4f4 100%);
+}
+
+.dialog button.dropdown:disabled {
+    border: 1px solid #ededed;
+    cursor: default;
+    background: linear-gradient(to bottom, #f6f6f6 0%, #f1f1f1 47%, #f4f4f4 100%);
 }
 
 .dialog div.tbl {
@@ -1067,7 +1093,7 @@ hr {
 .slideshow {
     display: none;
     position: fixed;
-    z-index: 99990;
+    z-index: 1000;
     left: 0;
     top: 0;
     width: 100%;

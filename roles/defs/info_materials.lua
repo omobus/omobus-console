@@ -3,7 +3,8 @@
 
 local M = {} -- public interface
 
-M.add = {max_file_size_mb=25, offset=1, depth=12}
+M.add = {max_file_size_mb=45}
+M.rows = 500
 -- not owner:
 M.remove = false
 M.edit = false

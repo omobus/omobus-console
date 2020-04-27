@@ -60,6 +60,7 @@ function AdditionTypesPopup(rows, selection, params /* params = { everything: tr
 			this.blur();
 		    }
 		}
+		ev.stopPropagation();
 	    };
 	});
     }

@@ -60,6 +60,7 @@ function PhotoTypesPopup(rows, selection, params /* params = { everything: true|
 			this.blur();
 		    }
 		}
+		ev.stopPropagation();
 	    };
 	});
     }

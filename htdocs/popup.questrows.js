@@ -60,6 +60,7 @@ function QuestRowsPopup(rows, selection, params /* params = { everything: true|f
 			this.blur(); 
 		    }
 		}
+		ev.stopPropagation();
 	    };
 	});
     }

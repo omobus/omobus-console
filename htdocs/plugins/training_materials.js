@@ -4,455 +4,588 @@
 var PLUG = (function() {
 /* private properties & methods */
     var _code = "training_materials";
-    var _opt = {
-	L: {lines: 8, length: 2, width: 4, radius: 6, corners: 1, rotate: 0, direction: 1, speed: 1, trail: 60, shadow: false, hwaccel: false, top: "auto"},
-	S: {lines: 6, length: 1, width: 2, radius: 3, corners: 1, rotate: 0, direction: 1, speed: 1, trail: 60, shadow: false, hwaccel: false, top: "auto", left: "auto"},
-	D: {lines: 8, length: 2, width: 2, radius: 5, corners: 1, rotate: 0, direction: 1, speed: 1, trail: 60, shadow: false, hwaccel: false, top: "32px", left: "550px"}
-    };
-    var _cache = null, _perm = null, _elem = null, _context = null;
-
-
-    function _showmsg(tag, msg) {
-	tag.show(); tag.html(msg);
-    }
-
-    function _hidemsg(tag) {
-	tag.hide(); tag.html("");
-    }
-
-    function _disable(tag, arg) {
-	if( arg ) {
-	    tag.attr("disabled", true);
-	} else {
-	    tag.removeAttr("disabled");
-	}
-    }
+    var _cache = {}, _perm = {}, _tags = {};
 
     function _getcolumns(perm) {
-	return 10;
+	return 9;
     }
 
     function _getbody(perm) {
-	return "<table class='headerbar' width='100%'><tr><td><h1>" + lang.training_materials.title + ":&nbsp;&nbsp;" +
-	    "<input id='plugfilter' type='text' placeholder='" + lang.everything + "' onkeyup='return PLUG.onfilter(this, event);' />" +
-	    "</h1></td><td style='text-align: right;'>" + lang.received_ts + "&nbsp;<span id='timestamp'>&nbsp;-&nbsp;</span>&nbsp;" +
-	    "(<a href='javascript:PLUG.onrefresh();'>" + lang.refresh  + "</a>)" +
-	    (perm.add != null?("&nbsp&nbsp;|&nbsp;&nbsp;<a href='javascript:PLUG.add();'>" + lang.training_materials.add + "</a>"):"") +
-	    "</td></tr></table>" +
-	    "<table width='100%' class='report'><thead><tr>" + 
-	    "<th class='autoincrement'>" + lang.num + "</th>" + 
-	    "<th>" + lang.training_material + "</th>" + 
-	    "<th>" + lang.code + "</th>" + 
-	    "<th>" + lang.training_materials.blob + "</th>" + 
-	    "<th>" + lang.country + "</th>" + 
-	    "<th>" + lang.brand + "</th>" + 
-	    "<th>" + lang.department + "</th>" + 
-	    "<th>" + lang.remove.cap + "</th>" + 
-	    "<th>" + lang.author + "</th>" + 
-	    "<th>" + lang.modified + "</th>" + 
-	    "</tr>" + G.thnums(_getcolumns(perm)) + "</thead><tbody id=\"maintb\"></tbody></table>" +
-	    "<div id='plugspin' style='display: none; padding-top: 30px;'></div>" +
-	    "<div id='plugbox' class='dialog' style='display: none;'></div>";
-    }
-
-    function _getobjcache() {
-	return G.getobjcache(_code, null);
-    }
-
-    function _checkrow(tr, objcache, row_id) {
-	if( tr.className == 'selected' ) {
-	    tr.className = null;
-	    objcache.setchecked(row_id);
-	} else {
-	    tr.className = 'selected';
-	    objcache.setchecked(row_id, true);
+	var ar = [];
+	ar.push("<table class='headerbar' width='100%'><tr><td><h1>");
+	ar.push("<span>", lang.training_materials.title, "</span>");
+	ar.push("</h1></td><td class='r'>");
+	ar.push("<span>", lang.received_ts, "</span>&nbsp;<span id='timestamp'>&nbsp;-&nbsp;</span>");
+	ar.push("&nbsp;(<a href='javascript:void(0);' onclick='PLUG.refresh();'>", lang.refresh, "</a>)<span id='plugTotal'></span>");
+	if( typeof perm.add != 'undefined' ) {
+	    ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<a href='javascript:void(0);' onclick='PLUG.add();'>", lang.training_materials.add, "</a>");
 	}
+	ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<input class='search' type='text' maxlength='96' autocomplete='off' placeholder='",
+	    lang.search, "' id='plugFilter' onkeyup='return PLUG.filter(this, event);' onpaste='PLUG.filter(this, event); return true;' />");
+	ar.push("</td></tr></table>");
+	ar.push("<table width='100%' class='report'><thead><tr>");
+	ar.push("<th class='autoincrement'>", lang.num, "</th>");
+	ar.push("<th>", lang.code, "</th>");
+	ar.push("<th>", lang.training_material, "</th>");
+	ar.push("<th>", lang.blob_size, "</th>");
+	ar.push("<th>", lang.country, "</th>");
+	ar.push("<th>", lang.brand, "</th>");
+	ar.push("<th>", lang.validity, "</th>");
+	ar.push("<th>", "&#9881;", "</th>");
+	ar.push("<th>", lang.author, "</th>");
+	ar.push("</tr>", G.thnums(_getcolumns(perm)), "</thead>");
+	ar.push("<tbody id='maintb'></tbody></table>");
+	ar.push(Dialog.container());
+	ar.push(SlideshowSimple.container());
+	return ar;
     }
 
-    function _failed(perm, msg) {
-	return ["<tr><td colspan='" + _getcolumns(perm) + "' class='message'>" + msg + "</td></tr>"];
+    function _getfilter() {
+	var a = [];
+	if( _cache.xfilters != null ) {
+	    for( var name in _cache.xfilters ) {
+		a.push(_cache.xfilters[name]);
+	    }
+	}
+	a.push(_tags.f.val());
+	return Filter(a.join(' '), false);
     }
 
-    function _success(rows, f, objcache, perm) {
-	var ar = [], r, cn, basecn;
-	for( var i = 0, x = 1, size = rows ? rows.length : 0; i < size; i++ ) {
-	    if( (r = rows[i]) != null && f.is(r) ) {
-		ar.push("<tr" + (objcache.getchecked(r.tm_id) ? " class='selected'" : "") + ">");
-		ar.push("<td style='cursor:pointer' class='autoincrement' onclick=\"PLUG.oncheckrow(this.parentNode,'" + r.tm_id +
-		    "');event.stopPropagation();\">" + r.row_no + "</td>");
-		ar.push("<td class='string'>" +
-		    (r.owner||perm&&perm.edit ? "<a href='javascript:PLUG.edit(" + r.row_no + ",\"" + r.tm_id + "\");'>" : "") +
-		    r.descr +
-		    (r.owner||perm&&perm.edit ? "</a>" : "") + "</td>");
-		ar.push("<td class='int'>" + r.tm_id + "</td>");
-		ar.push("<td class='int' width='60px;'><a href='" + G.getajax({plug: _code, tm_id: r.tm_id, blob: true}) + "' target='_blank'>" + 
-		    G.getnumeric_l(r.size/1024, 1) + "</a></td>");
-		ar.push("<td class='ref' width='100px;'>" + G.shielding(r.country) + "</td>");
-		ar.push("<td class='ref' width='100px;'>" + G.shielding(r.brand) + "</td>");
-		ar.push("<td class='ref' width='100px;'>" + G.shielding(r.department) + "</td>");
-		if( r.hidden ) {
-		    ar.push("<td class='bool'>" + lang.plus + "</td>");
-		} else if( !(r.owner || (perm && perm.remove)) ) {
-		    ar.push("<td class='bool'>&nbsp;</td>");
-		} else {
-		    ar.push("<td id='aR" + r.row_no + "' class='ref' style='width: 60px; white-space: nowrap;'>");
-		    ar.push("<a href='javascript:PLUG.remove(" + r.row_no + ",\"" + r.tm_id + "\");'>" + lang.remove.ref + "</a>");
+    function _datamsg(msg, perm) {
+	return ["<tr class='def'><td colspan='", _getcolumns(perm), "' class='message'>", msg, "</td></tr>"];
+    }
+
+    function _shieldingStringArray(ar) {
+	let x = [];
+	for( let i = 0, size = ar == null ? 0 : ar.length; i < size; i++ ) {
+	    x.push(G.shielding(ar[i]));
+	}
+	return x;
+    }
+
+    function _datatbl(data, page, total, f, checked, perm) {
+	var ar = [], size = Array.isArray(data.rows) ? data.rows.length : 0, today = G.getdate(new Date()), x = 0, r, z;
+	for( var i = 0; i < size; i++ ) {
+	    if( (r = data.rows[i]) != null && f.is(r) ) {
+		if( (page-1)*perm.rows <= x && x < page*perm.rows ) {
+		    ar.push("<tr" + (typeof checked != 'undefined' && checked[r.tm_id] ? " class='selected'" : "") + ">");
+		    ar.push("<td class='autoincrement clickable' onclick=\"PLUG.checkrow(this.parentNode,'" +
+			r.tm_id + "');event.stopPropagation();\">", r.row_no, "</td>");
+		    if( (perm.edit || r._isowner) && (typeof r._isaliendata == 'undefined' || r._isaliendata == 0) ) {
+			ar.push("<td class='int'>", "<a href='javascript:void(0);' onclick='PLUG.edit(\"", r.tm_id, "\")'>", 
+			    G.shielding(r.tm_id), "</a>", "</td>");
+		    } else {
+			ar.push("<td class='int'>", G.shielding(r.tm_id), "</td>");
+		    }
+		    ar.push("<td class='string", String.isEmpty(r.descr) ? " incomplete" : "", 
+			(typeof r.e_date == 'undefined' || r.e_date >= today) ? "" : " disabled", 
+			"'>", G.shielding(r.descr), "</td>");
+		    ar.push("<td width='65px' class='ref", typeof r.blob_size == 'undefined' ? " incomplete" : "", "'>");
+		    if( typeof r.blob_size == 'undefined' ) {
+			ar.push("&nbsp;");
+		    } else if( r.content_type == 'image/jpeg' ) {
+			ar.push("<a href='javascript:void(0);' onclick='PLUG.slideshow(\"", r.tm_id, "\")'>", 
+			    r.blob_size ? G.getnumeric_l(r.blob_size/1024, 1) : lang.dash, "</a>");
+		    } else {
+			ar.push("<a href='", G.getajax({plug: _code, tm_id: r.tm_id, blob: true}), "' target='_blank'>",
+			    r.blob_size ? G.getnumeric_l(r.blob_size/1024, 1) : lang.dash, "</a>");
+		    }
 		    ar.push("</td>");
+		    ar.push("<td class='ref Xsw95px", String.isEmpty(r.country_id) ? " incomplete" : "", "'>", G.shielding(r.country), "</td>");
+		    ar.push("<td class='ref Xsw95px'>");
+		    if( Array.isArray(r.brands) ) {
+			r.brands.forEach(function(arg0, arg1) {
+			    if( arg1 > 0 ) {
+				ar.push("<hr/><div class='row remark'>", G.shielding(arg0), "</div>");
+			    } else {
+				ar.push(G.shielding(arg0));
+			    }
+			});
+		    }
+		    ar.push("</td>");
+		    ar.push("<td class='int' Xclass='date'>");
+		    if( !String.isEmpty(r.b_date) || !String.isEmpty(r.e_date) ) {
+			ar.push(G.getdate_l(r.b_date), "<hr/><div class='row remark'>", 
+			    G.getdate_l(r.e_date), "</div>");
+		    } else {
+			ar.push("<div class='row watermark'><i>", lang.without_restrictions, "</i></div>");
+		    }
+		    ar.push("</td>");
+		    if( (perm.remove || r._isowner) && (typeof r._isaliendata == 'undefined' || r._isaliendata == 0) ) {
+			ar.push("<td class='int'>", "<a href='javascript:void(0);' onclick='PLUG.unlink(this,\"", r.tm_id, "\")'>", 
+			    lang.unlink, "</a>", "</td>");
+		    } else {
+			ar.push("<td class='ref sw95px'>", "&nbsp;", "</td>");
+		    }
+		    ar.push("<td class='string sw95px'>", G.shielding(r.author), "</td>");
+		    ar.push("</tr>");
 		}
-		ar.push("<td class='string'>" + G.shielding(r.author) + "</td>");
-		ar.push("<td class='datetime'>" + G.getdatetime_l(Date.parseISO8601(r.updated_dt)) + "</td>");
-		ar.push("</tr>");
 		x++;
 	    }
 	}
+	if( x > 0 ) {
+	    total.html((x != size ? "&nbsp;&nbsp;({0}/{1})" : "&nbsp;&nbsp;({1})").format_a(x, size));
+	} else {
+	    total.html("");
+	}
 	if( ar.length == 0 ) {
-	    ar = _failed(perm, lang.empty);
+		ar = _datamsg(lang.empty, perm);
+	}
+	if( typeof data.data_ts == 'string' ) {
+	    ar.push("<tr class='def'><td colspan='" + _getcolumns(perm) + "' class='watermark'>" + lang.data_ts +
+		"&nbsp;" + data.data_ts + "</td></tr>");
+	}
+	if( (z = Math.floor(x/perm.rows) + ((x%perm.rows)?1:0)) > 1 /*pages: */ ) {
+	    ar.push("<tr class='def'><td colspan='" + _getcolumns(perm) + "' class='navbar'>");
+	    if( page > 1 ) {
+		ar.push("&nbsp;<a href='javascript:void(0)' onclick='PLUG.page(1)'>|&lt;</a>&nbsp;");
+		ar.push("&nbsp;<a href='javascript:void(0)' onclick='PLUG.page(",page-1,")'>&lt;</a>&nbsp;");
+	    }
+	    if( page == 1 ) {
+		ar.push("&nbsp;",page,"&nbsp;");
+		ar.push("&nbsp;<a href='javascript:void(0)' onclick='PLUG.page(",page+1,")'>",page+1,"</a>");
+		if( (page+2) <= z ) {
+		    ar.push("&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.page(",page+2,")'>",page+2,"</a>");
+		}
+	    } else if( page == z ) {
+		if( (page-2) >= 1 ) {
+		    ar.push("&nbsp;<a href='javascript:void(0)' onclick='PLUG.page(",page-2,")'>",page-2,"</a>&nbsp;");
+		}
+		ar.push("&nbsp;<a href='javascript:void(0)' onclick='PLUG.page(",page-1,")'>",page-1,"</a>&nbsp;");
+		ar.push("&nbsp;",page);
+	    } else {
+		ar.push("&nbsp;<a href='javascript:void(0)' onclick='PLUG.page(",page-1,")'>",page-1,"</a>&nbsp;");
+		ar.push("&nbsp;",page);
+		if( (page+1) <= z ) {
+		    ar.push("&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.page(",page+1,")'>",page+1,"</a>");
+		}
+	    }
+	    if( page < z ) {
+		ar.push("&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.page(",page+1,")'>&gt;</a>&nbsp;");
+		ar.push("&nbsp;<a href='javascript:void(0)' onclick='PLUG.page(",z,")'>&gt;|</a>");
+	    }
+	    ar.push("</td></tr>");
 	}
 	return ar;
     }
 
-    function _setdata(tbody, f) {
-	var sp = new Spinner(_opt.L).spin(_elem.spin.get(0));
-	_elem.spin.show(); tbody.hide();
-	_cache = null; // drop the internal cache
+    function _checkboxContainer(ar, rows, name) {
+	var x = 0;
+	ar.push("<hr/>");
+	ar.push("<div class='tbl'>");
+	ar.push("<div class='tblbody'>");
+	ar.push("<div class='tblrow'>");
+	for( let i = 0, size = rows.length; i < size; i++ ) {
+	    let v = rows[i];
+	    if( x == 3 ) {
+		ar.push("</div>");
+		ar.push("<div class='tblrow'>");
+		x = 0;
+	    }
+	    ar.push("<div class='row tblcell'>");
+	    ar.push("<label class='checkbox'>");
+	    ar.push("<input type='checkbox' data-type='", name, "' data-ref='", i, "' />");
+	    ar.push("<div class='checkbox__text'>", v.descr, "</div>");
+	    ar.push("</label>");
+	    ar.push("</div>");
+	    x++;
+	}
+	ar.push("</div>");
+	ar.push("</div>");
+	ar.push("</div>");
+
+	return ar;
+    }
+
+    function _parambodytbl(mans) {
+	var ar = [];
+	ar.push("<div class='row'>", lang.training_materials.notice, "</div>");
+	ar.push("<div id='infom:alert' class='row attention gone'>", "</div>");
+	ar.push("<div class='row'>");
+	ar.push("<input id='infom:name' type='text' placeholder='", lang.training_materials.placeholder, "' autocomplete='on'>", "</input>");
+	ar.push("</div>");
+	ar.push("<div class='row'>");
+	ar.push("<select id='infom:country'>");
+	ar.push("<option value=''>", "{0}: {1}".format_a(lang.country, lang.without_restrictions), "</option>");
+	if( Array.isArray(mans.countries) ) {
+	    mans.countries.forEach(function(arg) {
+		ar.push("<option value='", G.shielding(arg.country_id), "'>", "{0}: {1}".format_a(lang.country, G.shielding(arg.descr)), "</option>");
+	    });
+	}
+	ar.push("</select>");
+	ar.push("</div>");
+	ar.push("<div class='row'>");
+	ar.push("<select id='infom:daterange'>");
+	ar.push("<option value=''>", "{0}: {1}".format_a(lang.validity, lang.without_restrictions), "</option>");
+	ar.push("<option value='end_of_week'>", "{0}: {1}".format_a(lang.validity, lang.daterange.end_of_week), "</option>");
+	ar.push("<option value='end_of_month'>", "{0}: {1}".format_a(lang.validity, lang.daterange.end_of_month), "</option>");
+	ar.push("<option value='end_of_quarter'>", "{0}: {1}".format_a(lang.validity, lang.daterange.end_of_quarter), "</option>");
+	ar.push("<option value='end_of_year'>", "{0}: {1}".format_a(lang.validity, lang.daterange.end_of_year), "</option>");
+	ar.push("<option value='next_month'>", "{0}: {1}".format_a(lang.validity, lang.daterange.next_month), "</option>");
+	ar.push("<option value='next_quarter'>", "{0}: {1}".format_a(lang.validity, lang.daterange.next_quarter), "</option>");
+	ar.push("</select>");
+	ar.push("</div>");
+	if( !Array.isEmpty(mans.brands) ) {
+	    _checkboxContainer(ar, mans.brands, "brand");
+	}
+
+	return ar;
+    }
+
+    function _parambtntbl() {
+	var ar = [];
+	ar.push("<div class='row' align='right'>");
+	ar.push("<button id='infom:back'>", lang.back, "</button>");
+	ar.push("&nbsp;&nbsp;");
+	ar.push("<button id='infom:commit' disabled='true' class='xx'>", lang.save, "</button>");
+	ar.push("&nbsp;&nbsp;");
+	ar.push("</div>");
+	return ar;
+    }
+
+    function _datareq() {
+	ProgressDialog.show();
+	_cache.data = null; // drop the internal cache
+	_cache.page = null;
 	G.xhr("GET", G.getajax({plug: _code}), "json", function(xhr, data) {
 	    if( xhr.status == 200 && data != null && typeof data == 'object' ) {
-		tbody.html(_success(data.rows, f, _getobjcache(), _perm).join(""));
-		data.countries_i = data.countries ? data.countries.createIndexBy('country_id') : null;
-		data.brands_i = data.brands ? data.brands.createIndexBy('brand_id') : null;
-		_cache = data;
+		//console.log(data);
+		_tags.tbody.html(_datatbl(data, 1, _tags.total, _getfilter(), _cache.checked, _perm).join(""));
+		_cache.data = data;
+		_cache.page = 1;
 	    } else {
-		tbody.html(_failed(_perm, lang.failure).join(""));
+		_tags.tbody.html(_datamsg(lang.failure, _perm).join(""));
+		_tags.total.html("");
 	    }
-	    _elem.ts.text(G.getdatetime_l(new Date()));
-	    tbody.show(); sp.stop(); _elem.spin.hide();
+	    _tags.ts.html(G.getdatetime_l(new Date()));
+	    ProgressDialog.hide();
 	}).send();
     }
 
-    function _filterdata(tbody, f) {
-	if( _cache != null ) {
-	    var sp = new Spinner(_opt.L).spin(_elem.spin.get(0));
-	    _elem.spin.show(); tbody.hide();
+    function _page(page) {
+	if( _cache.data != null ) {
+	    ProgressDialog.show();
 	    setTimeout(function() {
-		tbody.html(_success(_cache.rows, f, _getobjcache(), _perm).join(""));
-		sp.stop(); _elem.spin.hide(); tbody.show();
+		_tags.tbody.html(_datatbl(_cache.data, page, _tags.total, _getfilter(), _cache.checked, _perm).join(""));
+		_cache.page = page;
+		ProgressDialog.hide();
 	    }, 0);
 	}
     }
 
-    function _remove(tbody, row_no, tm_id) {
-	var tag = tbody.find("#aR"+row_no), sp = new Spinner(_opt.S);
-	tag.html("");
-	tag.get(0).appendChild(sp.spin().el);
-	G.xhr("DELETE", G.getajax({plug: _code, tm_id: tm_id}), "", function(xhr) {
-	    if( xhr.status == 200 ) {
-		tag.text(lang.plus);
-		_cache.rows[row_no-1].hidden = 1;
-	    } else {
-		//tag.text("");
-	    }
-	    sp.stop();
-	}).send();
-    }
-
-    function _add(perm, files) {
-	$.each(files, function(i, f) {
-	    if( f.type !== 'application/pdf' ) {
+    function _add(files, max_file_size_mb) {
+	for( var i = 0, size = files.length, counter = 0; i < size; i++ ) {
+	    var f = files[i];
+	    if( !(f.type == 'application/pdf' || f.type == 'video/mp4' || f.type == 'image/jpeg') ) {
 		Toast.show(lang.training_materials.msg0.format_a(f.name));
-	    } else if( perm.add.max_file_size_mb*1024*1024 < f.size ) {
-		Toast.show(lang.training_materials.msg1.format_a(f.name, perm.add.max_file_size_mb));
+	    } else if( max_file_size_mb*1024*1024 < f.size ) {
+		Toast.show(lang.training_materials.msg1.format_a(f.name, max_file_size_mb));
 	    } else {
-		_storeBlob({
-		    _file: f,
-		    _data: _cache,
-		    name: f.name.replace(/\.[^/.]+$/, "")
+		var fd, xhr;
+		fd = new FormData();
+		fd.append("_datetime", G.getdatetime(new Date()));
+		fd.append("blob", f, f.name.replace(/\.[^/.]+$/, ""));
+		fd.append("content_type", f.type);
+		xhr = G.xhr("POST", G.getajax({plug: _code}), "json", function(xhr, resp) {
+		    if( xhr.status == 200 ) {
+			PLUG.refresh();
+		    } else {
+			Toast.show(xhr.status == 403 ? lang.errors.not_permitted : lang.errors.runtime);
+		    }
+		    counter--;
+		    if( counter == 0 ) {
+			ProgressDialog.hide();
+		    }
 		});
-	    }
-	});
-    }
-
-    function _edit(perm, row) {
-	_context = {
-	    _data: _cache,
-	    _row: row,
-	    tm_id: row.tm_id,
-	    name: row.descr,
-	    country: (row.country_id ? _cache.countries_i[row.country_id] : null),
-	    brand: (row.brand_id ? _cache.brands_i[row.brand_id] : null)
-	};
-	_showbox(_context, _elem.box, _getbox(lang.training_materials.caption1.format_a(_context.tm_id), _context));
-    }
-
-    function _getbox(title, context) {
-	var a = [], t;
-	a.push("<div style='width: 550px; margin-top: 30px;' onclick='PLUG.hidepopup();event.stopPropagation();'>");
-	a.push("<h1><span>" + title + "</span><span id='spin'></span></h1>");
-	a.push("<div class='row'>" + lang.training_materials.notice + "</div>");
-	a.push("<div id='msg' class='row attention gone'></div>");
-	a.push("<div class='row'><input type='text' maxlength='192' autocomplete='off' oninput='PLUG.e.caption(this.value)' placeholder='" +
-	    lang.training_materials.placeholder + "' value='" + context.name + "'/></div>");
-	if( context._data.countries ) {
-	    a.push("<div class='row'>" + lang.country + ":&nbsp;<a id='country' href='javascript:PLUG.e.country();'>" +
-		(context.country ? context.country.descr : lang.country_everyone.toLowerCase()) + "</a>");
-	    a.push("<div style='float: right'><a id='countrycleanup' class='cleanup' " + (context.country?"":"style='display: none;'") + " href='javascript:PLUG.e._setcountry()'>" +
-		lang.remove.ref + "</a></div>");
-	    a.push("</div>");
-	}
-	if( context._data.brands ) {
-	    a.push("<div class='row'>" + lang.brand + ":&nbsp;<a id='brand' href='javascript:PLUG.e.brand();'>" +
-		(context.brand ? context.brand.descr : lang.brand_everyone.toLowerCase()) + "</a>");
-	    a.push("<div style='float: right'><a id='brandcleanup' class='cleanup' " + (context.brand?"":"style='display: none;'") + " href='javascript:PLUG.e._setbrand()'>" +
-		lang.remove.ref + "</a></div>");
-	    a.push("</div>");
-	}
-	a.push("<hr />");
-	a.push("<div align='right'><button onclick='PLUG.hidebox();;event.stopPropagation();'>" + lang.back + "</button>&nbsp;&nbsp;<button id='commit' " +
-	    "onclick='PLUG.save();;event.stopPropagation();' " + (context.tm_id?"disabled='true'":"") + ">" + lang.save + "</button></div>");
-	a.push("<div id='popup' class='ballon' style='display: none; z-index: 99990;' onclick='PLUG.hidepopup();'>" +
-	    "<div class='arrow'></div><div class='body' style='min-height: 30px;'></div></div>");
-	a.push("</div>");
-	return a;
-    }
-
-    function _getsimplelist(rows, selected, code, f) {
-	var ar = [], i, size, r;
-	if( f ) {
-	    ar.push("<div class='search'><input type='text' onclick='event.stopPropagation();' maxlength='96' autocomplete='off' " +
-		"oninput='PLUG.e._f" + code + "(this.value)' placeholder='" + lang.search + "'></input></div>");
-	}
-	ar.push("<div class='simplelist'><table id='sl-data'>");
-	for( i = 0, size = rows.length; i < size; i++ ) {
-	    if( (r = rows[i]) != null ) {
-		ar.push("<tr " + (selected(r) ? "class='selected'" : ("onclick='PLUG.e._set" + code +"(" + i + ")'")) +
-		    "><td>" + r.descr + "</td></tr>");
-	    }
-	}
-	ar.push("</table></div>");
-	return ar;
-    }
-
-    function _showbox(context, box, ar) {
-	box.html(ar.join(''));
-	context._commit = box.find("#commit");
-	context._spin = box.find("#spin");
-	context._msg = box.find("#msg");
-	context._popup = box.find("#popup");
-	box.show();
-    }
-
-    function _hidebox(box) {
-	if( box != null && box.is(":visible") ) {
-	    box.hide();
-	}
-    }
-
-    function _redrawbox(context) {
-	_disable(context._commit, _checkContext(context));
-	_hidemsg(context._msg);
-    }
-
-    function _showpopup(popup, tag, ar) {
-	if( popup.is(":visible") ) {
-	    popup.hide();
-	} else {
-	    var pos = tag.position();
-	    popup.find(".body").html(ar.join(''));
-	    popup.css({top: pos.top + tag.height(), left: pos.left + (tag.width() - popup.width())/2});
-	    popup.show();
-	}
-    }
-
-    function _hidepopup(popup) {
-	if( popup != null && popup.is(":visible") ) {
-	    popup.hide();
-	}
-    }
-
-    function _storeBlob(context) {
-	_context = context;
-	_showbox(_context, _elem.box, _getbox(lang.training_materials.caption0, _context));
-    }
-
-    function _checkContext(context) {
-	return context.name.isEmpty() || G.getdate(context.b_date) > G.getdate(context.e_date);
-    }
-
-    function _save(context, onsuccess) {
-	if( context.name.isEmpty() ) {
-	    _showmsg(_context._msg, lang.training_materials.msg2);
-	} else if( context.b_date > context.e_date ) {
-	    _showmsg(_context._msg, lang.training_materials.msg3);
-	} else {
-	    var fd, sp, xhr;
-	    fd = new FormData();
-	    if( context.tm_id ) fd.append("tm_id", context.tm_id);
-	    fd.append("name", context.name);
-	    if( context._file ) fd.append("blob", context._file, context._file.name);
-	    if( context.country ) fd.append("country_id", context.country.country_id);
-	    if( context.brand ) fd.append("brand_id", context.brand.brand_id);
-	    _hidemsg(_context._msg);
-	    sp = new Spinner(_opt.D).spin(_context._spin.get(0));
-	    xhr = G.xhr(context.tm_id ? "PUT" : "POST", G.getajax({plug: _code, tm_id: context.tm_id}), "", function(xhr) {
-		_disable(context._commit, false);
-		if( xhr.status == 200 ) {
-		    onsuccess();
-		} else {
-		    _showmsg(_context._msg, lang.training_materials.msg3);
+		if( counter == 0 ) {
+		    ProgressDialog.show();
 		}
-		sp.stop();
-	    });
-	    _disable(context._commit, true);
-	    xhr.send(fd);
+		counter++;
+		xhr.send(fd);
+	    }
 	}
     }
 
-    function _filterSL(value, ar, popup) {
-	var tb = popup.find("#sl-data").get(0);
-	var ph = popup.find(".placeholder").get(0);
-	var f = new Filter(value, true);
-	var empty = true;
-	for( var i = 0; i < ar.length; i++ ) {
-	    if( f.is(ar[i]) ) {
-		tb.rows[i].style.display = null;
-		empty = false;
-	    } else {
-		tb.rows[i].style.display = "none";
-	    }
-	}
-	ph.style.display = empty ? null : "none";
-	ph.innerHTML = empty ? lang.no_results.format_a(value) : "";
+    function _createSelectOption(value, text, selected) {
+	const option = document.createElement("option");
+	option.value = value;
+	option.text = text;
+	option.selected = selected;
+	return option
     }
 
 
 /* public properties & methods */
     return {
-	get: function(perm) {
-	    return _getbody(perm);
-	},
-	set: function(elem, perm) {
-	    _elem = elem; _perm = perm;
+	startup: function(tags, perm) {
+	    _perm = perm;
+	    _perm.rows = perm.rows == null || perm.rows <= 0 ? 100 : perm.rows;
+	    _tags = tags;
+	    _tags.body.html(_getbody(perm).join(""));
+	    _tags.tbody = _("maintb");
+	    _tags.f = _("plugFilter");
+	    _tags.ts = _("timestamp");
+	    _tags.total = _("plugTotal");
+	    _tags.popups = {};
+	    _datareq();
 	},
 	refresh: function() {
-	    _setdata(_elem.tbody, new Filter(_elem.f.val()));
+	    _tags.popups = {};
+	    _datareq();
 	},
-	remove: function(row_no, tm_id) {
-	    if( _perm ) {
-		_remove(_elem.tbody, row_no, tm_id);
+	filter: function(tag, ev) {
+	    return Filter.onkeyup(tag, ev, function() {
+		_page(1);
+	    });
+	},
+	page: function(arg) {
+	    _page(arg);
+	    window.scrollTo(0, 0);
+	},
+	checkrow: function(tag, row_id) {
+	    G.checkrow(tag, function(arg) {
+		if( typeof _cache.checked == 'undefined' ) {
+		    _cache.checked = {};
+		}
+		_cache.checked[row_id] = arg;
+	    });
+	},
+	slideshow: function(arg) {
+	    SlideshowSimple([G.getajax({plug: _code, blob: "yes", tm_id: arg})]).show();
+	},
+	drop: function(files) {
+	    if( _perm.add ) {
+		_add(files, _perm.add.max_file_size_mb);
 	    }
 	},
 	add: function() {
-	    if( _cache && _perm && _perm.add ) {
-		var input = $(document.createElement('input'));
-		input.bind({
-		    change: function() {
-			_add(_perm, this.files);
+	    if( _perm.add ) {
+		var input = document.createElement('input');
+		input.type = 'file';
+		input.onchange = function() {
+		    _add(this.files, _perm.add.max_file_size_mb);
+		}
+		input.click();
+	    }
+	},
+	edit: function(arg) {
+	    Dialog({
+		width: 650, 
+		title: lang.training_materials.caption.format_a(arg), 
+		body: _parambodytbl(_cache.data.mans, _cache.data.rows.find(function(e) { return e.tm_id == arg; })),
+		buttons: _parambtntbl()
+	    }).show(function(dialogObject) {
+		const today = new Date();
+		const year = today.getFullYear();
+		const month = today.getMonth();
+		const end_of_week = new Date(year, month, today.getDate() - today.getDay() + lang.calendar.firstDay + 6);
+		const end_of_month = new Date(year, month == 11 ? 11 : (month + 1), month == 11 ? 31 : 0);
+		const quarter = Math.ceil((month+1)/3);
+		const end_of_quarter = G.quarterDateRange(year, quarter)[1];
+		const end_of_year = new Date(year, 11, 31);
+		const next_month = [
+		    month == 11 ? new Date(year+1, 0, 1) : new Date(year, month+1, 1),
+		    month == 11 ? new Date(year+1, 0, 31) : (month == 10 ? new Date(year, month+1, 31) : new Date(year, month+2, 0))
+		];
+		const next_quarter = G.quarterDateRange(quarter == 4 ? (year + 1) : year, quarter == 4 ? 1 : (quarter + 1));
+		const next_year = [new Date(year+1, 0, 1), new Date(year+1, 11, 31)];
+		const data = _cache.data.rows.find(function(e) { return e.tm_id == arg; });
+		const newData = {
+		    descr: data.descr, 
+		    country_id: data.country_id, 
+		    brand_ids: Array.clone(data.brand_ids),
+		    b_date: data.b_date,
+		    e_date: data.e_date
+		};
+		const mans = _cache.data.mans;
+		const alertView = _('infom:alert');
+		const nameView = _('infom:name');
+		const countryView = _('infom:country');
+		const daterangeView = _('infom:daterange');
+		const cbar = dialogObject.getElementsByTagName('input');
+		const backView = _('infom:back');
+		const commitView = _('infom:commit');
+		const equals = function(arg0, arg1) {
+		    if( arg0.length != arg1.length ) {
+			return false;
 		    }
-		});
-		input.attr("type", "file");
-		input.trigger('click'); // opening dialog
-	    }
-	},
-	drop: function(files) {
-	    if( _cache && _perm && _perm.add ) {
-		_add(_perm, files);
-	    }
-	},
-	edit: function(row_no, tm_id) {
-	    if( _cache && _perm ) {
-		_edit(_perm, _cache.rows[row_no-1]);
-	    }
-	},
-	hidebox: function() {
-	    _hidebox(_elem.box);
-	},
-	hidepopup: function() {
-	    _hidepopup(_context._popup);
-	},
-	save: function() {
-	    _save(_context, function() {
-		    _hidebox(_elem.box);
-		    _setdata(_elem.tbody, new Filter(_elem.f.val()));
+		    for( let i = 0, size = arg0.length; i < size; i++ ) {
+			if( arg1.findIndex(k => k == arg0[i]) < 0 ) {
+			    return false;
+			}
+		    }
+		    return true;
 		}
-	    );
-	},
+		const func = function() {
+		    commitView.disabled = 
+			String.isEmpty(newData.descr) || 
+			String.isEmpty(newData.country_id) || 
+			(
+			    (data.descr||'') == (newData.descr||'') &&
+			    (data.country_id||'') == (newData.country_id||'') &&
+			    equals(data.brand_ids||[], newData.brand_ids||[]) &&
+			    (data.b_date||'') == (newData.b_date||'') &&
+			    (data.e_date||'') == (newData.e_date||'')
+			);
+		    //console.log(newData);
+		}
 
-	onrefresh: function() {
-	    _setdata(_elem.tbody, new Filter(_elem.f.val()));
-	},
-	onfilter: function(tag, ev) {
-	    var a = true;
-	    if( ev.keyCode == 13 ) {
-		_filterdata(_elem.tbody, new Filter(_elem.f.val())); a = false;
-	    } else if( ev.keyCode == 27 ) {
-		_filterdata(_elem.tbody, new Filter(_elem.f.val())); tag.blur();
-	    }
-	    return a;
-	},
-	oncheckrow: function(tr, row_id) {
-	    _checkrow(tr, _getobjcache(), row_id);
-	},
+		if( !String.isEmpty(data.descr) ) {
+		    nameView.value = data.descr;
+		}
+		if( !String.isEmpty(data.country_id) ) {
+		    countryView.value = data.country_id;
+		}
+		if( month >= 9 ) {
+		    daterangeView.add(_createSelectOption("next_year", "{0}: {1}".format_a(lang.validity, lang.daterange.next_quarter)));
+		}
+		if( !String.isEmpty(data.b_date) && !String.isEmpty(data.e_date) ) {
+		    daterangeView.add(_createSelectOption("0", "{0}: {1} - {2}".format_a(lang.validity, G.getlongdate_l(data.b_date), G.getlongdate_l(data.e_date)), true));
+		}
+		for( let i = 0, size = cbar.length; i < size; i++ ) {
+		    if( cbar[i].type != 'checkbox' ) {
+			continue;
+		    }
+		    const val = cbar[i];
+		    const type = val.getAttribute('data-type');
+		    const ref = val.getAttribute('data-ref');
+		    const ptr = mans[type+'s'][ref];
+		    val.checked = Array.isArray(data[type+'_ids']) && data[type+'_ids'].findIndex(k => k == ptr[type+'_id']) >= 0;
+		    val.onchange = function() {
+			if( !Array.isArray(newData[type+'_ids']) ) {
+			    newData[type+'_ids'] = [];
+			}
+			const idx = newData[type+'_ids'].findIndex(k => k == ptr[type+'_id']);
+			if( this.checked ) {
+			    if( idx < 0 ) {
+				newData[type+'_ids'].push(ptr[type+'_id']);
+			    }
+			} else {
+			    if( idx >= 0 ) {
+				newData[type+'_ids'].splice(idx, 1);
+			    }
+			}
+			func();
+		    }
+		}
+		nameView.oninput = function() {
+		    newData.descr = this.value.trim();
+		    func();
+		}
+		countryView.onchange = function() {
+		    newData.country_id = (this.value || this.options[this.selectedIndex].value);
+		    func();
+		};
+		daterangeView.onchange = function() {
+		    let x = (this.value || this.options[this.selectedIndex].value), t;
+		    if( x == '' ) {
+			newData.b_date = null;
+			newData.e_date = null;
+		    } else if( x == 'end_of_week' ) {
+			newData.b_date = String.isEmpty(data.b_date) ? G.getdate(today) : data.b_date;
+			newData.e_date = G.getdate(end_of_week);
+		    } else if( x == 'end_of_month' ) {
+			newData.b_date = String.isEmpty(data.b_date) ? G.getdate(today) : data.b_date;
+			newData.e_date = G.getdate(end_of_month);
+		    } else if( x == 'end_of_quarter' ) {
+			newData.b_date = String.isEmpty(data.b_date) ? G.getdate(today) : data.b_date;
+			newData.e_date = G.getdate(end_of_quarter);
+		    } else if( x == 'end_of_year' ) {
+			newData.b_date = String.isEmpty(data.b_date) ? G.getdate(today) : data.b_date;
+			newData.e_date = G.getdate(end_of_year);
+		    } else if( x == 'next_month' ) {
+			newData.b_date = G.getdate(next_month[0]);
+			newData.e_date = G.getdate(next_month[1]);
+		    } else if( x == 'next_quarter' ) {
+			newData.b_date = G.getdate(next_quarter[0]);
+			newData.e_date = G.getdate(next_quarter[1]);
+		    } else if( x == 'next_year' ) {
+			newData.b_date = G.getdate(next_year[0]);
+			newData.e_date = G.getdate(next_year[1]);
+		    } else {
+			newData.b_date = data.b_date;
+			newData.e_date = data.e_date;
+		    }
+		    //console.log(x, "->", newData.b_date, " - ", newData.e_date);
+		    func();
+		};
+		backView.onclick = function() {
+		    dialogObject.hide();
+		}
+		commitView.onclick = function() {
+		    if( String.isEmpty(newData.descr) ) {
+			alertView.html(lang.training_materials.msg2);
+			alertView.show();
+		    } else if( String.isEmpty(newData.country_id) ) {
+			alertView.html(lang.training_materials.msg3);
+			alertView.show();
+		    } else {
+			let fd = new FormData();
+			fd.append("_datetime", G.getdatetime(new Date()));
+			fd.append("name", newData.descr);
+			fd.append("country_id", newData.country_id);
+			
+			if( !Array.isEmpty(newData.brand_ids) ) {
+			    fd.append("brand_ids", newData.brand_ids);
+			}
+			if( !String.isEmpty(newData.b_date) ) {
+			    fd.append("b_date", newData.b_date);
+			}
+			if( !String.isEmpty(newData.e_date) ) {
+			    fd.append("e_date", newData.e_date);
+			}
 
-	e: {
-	    caption: function(value) {
-		_context.name = value;
-		_redrawbox(_context);
-	    },
-	    brand: function() {
-		_showpopup(_context._popup, _elem.box.find("#brand"), _getsimplelist(_context._data.brands, function(r) {
-			return _context.brand && r.brand_id == _context.brand.brand_id;
-		    }, "brand", true)
-		);
-	    },
-	    country: function() {
-		_showpopup(_context._popup, _elem.box.find("#country"), _getsimplelist(_context._data.countries, function(r) {
-			return _context.country && r.country_id == _context.country.country_id;
-		    }, "country", false)
-		);
-	    },
+			dialogObject.startSpinner();
+			alertView.hide();
 
-	    _setcountry: function(i) {
-		if( i == null ) {
-		    _context.country = null;
-		    _elem.box.find("#country").text(lang.country_everyone.toLowerCase());
-		    _elem.box.find("#countrycleanup").hide();
+			G.xhr("PUT", G.getajax({plug: _code, tm_id: data.tm_id}), "json", function(xhr, resp) {
+			    if( xhr.status == 200 ) {
+				PLUG.refresh();
+				dialogObject.hide();
+			    } else {
+				alertView.html(xhr.status == 403 ? lang.errors.not_permitted : lang.errors.runtime);
+				alertView.show();
+			    }
+			    dialogObject.stopSpinner();
+			}).send(fd);
+		    }
+		}
+
+		func();
+	    });
+	},
+	unlink: function(tag, tm_id) {
+	    let fd = new FormData();
+	    fd.append("_datetime", G.getdatetime(new Date()));
+	    ProgressDialog.show();
+	    tag.style.visibility = 'hidden';
+	    G.xhr("DELETE", G.getajax({plug: _code, tm_id: tm_id}), "", function(xhr) {
+		if( xhr.status == 200 ) {
+		    var indexElement = _cache.data.rows.findIndex(function(v) {
+			return v.tm_id == tm_id;
+		    });
+		    if( indexElement != -1 ) {
+			_cache.data.rows.splice(indexElement, 1);
+			//console.log(_cache.data);
+			setTimeout(function() {
+			    _tags.tbody.html(_datatbl(_cache.data, _cache.page, _tags.total, _getfilter(), _cache.checked, _perm).join(""));
+			    ProgressDialog.hide();
+			}, 0);
+		    } else {
+			ProgressDialog.hide();
+		    }
 		} else {
-		    _context.country = _context._data.countries[i];
-		    _elem.box.find("#country").text(_context.country.descr);
-		    _elem.box.find("#countrycleanup").show();
+		    tag.style.visibility = 'visible';
+		    Toast.show(lang.errors.runtime);
+		    ProgressDialog.hide();
 		}
-		_redrawbox(_context);
-	    },
-	    _setbrand: function(i) {
-		if( i == null ) {
-		    _context.brand = null;
-		    _elem.box.find("#brand").text(lang.brand_everyone.toLowerCase());
-		    _elem.box.find("#brandcleanup").hide();
-		} else {
-		    _context.brand = _context._data.brands[i];
-		    _elem.box.find("#brand").text(_context.brand.descr);
-		    _elem.box.find("#brandcleanup").show();
-		}
-		_redrawbox(_context);
-	    },
-	    _fbrand: function(value) {
-		_filterSL(value, _context._data.brands, _context._popup);
-	    }
+	    }).send(fd);
 	}
     }
 })();
 
-
-function startup(tag, perm) {
-    tag.html(PLUG.get(perm));
-    PLUG.set({
-	body: tag,
-	tbody: tag.find("#maintb"),
-	spin: tag.find("#plugspin"),
-	f: tag.find("#plugfilter"),
-	ts: tag.find("#timestamp"),
-	box: tag.find("#plugbox")
-    }, perm);
-    PLUG.refresh();
+function startup(perm) {
+    PLUG.startup({body: _('pluginContainer')}, perm || {});
 }
 
 window.ondragover = function(ev) {

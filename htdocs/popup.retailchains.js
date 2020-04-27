@@ -60,6 +60,7 @@ function RetailChainsPopup(rows, selection, params /* params = { everything: tru
 			this.blur();
 		    }
 		}
+		ev.stopPropagation();
 	    };
 	});
     }
@@ -94,7 +95,9 @@ RetailChainsPopup.prototype._get = function(rows, everything) {
     for( var i = 0, size = rows.length; i < size; i++ ) {
         if( (r = rows[i]) != null ) {
 	    ar.push("<tr " + (r._selected ? "class='selected'" : "") + "><td " + (r.hidden ? "class='strikethrough'" : "") + ">",
-		G.shielding(r.descr, lang.dash), "</td><td>", G.shielding(r.ka_code, lang.dash), "</td></tr>");
+		G.shielding(r.descr, lang.dash), 
+		typeof r.ka_code == 'undefined' ? "" : "<br/><span class='watermark'>{0}:&nbsp;&nbsp;{1}</span>".format_a(lang.ka_code, r.ka_code),
+		"</td></tr>");
         }
     }
     ar.push("</table></div>");
@@ -145,10 +148,9 @@ RetailChainsPopup.prototype._onselect = function(index) {
 }
 
 RetailChainsPopup.prototype._oneverything = function() {
-    var x = this._container.hasAttribute('X-uid');
     this._foreach(this._tb.rows, function(arg) { arg.className = null; });
-    this._rows.forEach(function(arg) { if( arg._selected == true ) { arg._selected = null; x = true; } });
-    if( typeof this._selection == 'function' && x ) {
+    this._rows.forEach(function(arg) { if( arg._selected == true ) { arg._selected = null; } });
+    if( typeof this._selection == 'function' ) {
 	this._selection();
     }
     this._container.removeAttribute('X-uid');
@@ -181,7 +183,6 @@ RetailChainsPopup.prototype.toggle = function(arg, offset) {
     }
 }
 
-RetailChainsPopup
-.prototype.isHidden = function() {
+RetailChainsPopup.prototype.isHidden = function() {
     return this._container.isHidden();
 }

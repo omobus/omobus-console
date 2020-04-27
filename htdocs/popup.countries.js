@@ -1,15 +1,15 @@
 /* -*- JavaScript -*- */
 /* Copyright (c) 2006 - 2020 omobus-console authors, see the included COPYRIGHT file. */
 
-function RegionsPopup(rows, selection, params /* params = { everything: true|false, container = "DOM container"} */) {
-    if( !(this instanceof RegionsPopup) ) {
-	return new RegionsPopup(rows, selection, params);
+function CountriesPopup(rows, selection, params /* params = { everything: true|false, container = "DOM container"} */) {
+    if( !(this instanceof CountriesPopup) ) {
+	return new CountriesPopup(rows, selection, params);
     }
     if( params == null || typeof params == 'undefined' ) {
-	params = { everything: true, container: _("regionsPopup") };
+	params = { everything: true, container: _("countriesPopup") };
     }
     if( params.container == null || typeof params.container == 'undefined' ) {
-	params.container = _("regionsPopup");
+	params.container = _("countriesPopup");
     }
     if( !(params.container instanceof HTMLElement) ) {
 	params.container = _(params.container);
@@ -19,7 +19,7 @@ function RegionsPopup(rows, selection, params /* params = { everything: true|fal
     }
     if( params.container.hasAttribute("X-uid") ) {
 	rows.forEach(function(arg) { 
-	    if( arg.region_id == this ) {
+	    if( arg.country_id == this ) {
 		arg._selected = true;
 	    }
 	}, params.container.getAttribute("X-uid"));
@@ -65,7 +65,7 @@ function RegionsPopup(rows, selection, params /* params = { everything: true|fal
 	});
     }
     this._foreach(body.getElementsByTagName('a'), function(arg, i) {
-	if( arg.getAttribute('name') == 'regionsEverything' ) {
+	if( arg.getAttribute('name') == 'countriesEverything' ) {
 	    arg.onclick = oneverything;
 	}
     });
@@ -74,17 +74,17 @@ function RegionsPopup(rows, selection, params /* params = { everything: true|fal
 
 /* static functions: */
 
-(function (RegionsPopup, undefined) {
-    RegionsPopup.container = function(id) {
-	return "<div id='" + (id == null || typeof id == 'undefined' ? "regionsPopup" : id) + 
+(function (CountriesPopup, undefined) {
+    CountriesPopup.container = function(id) {
+	return "<div id='" + (id == null || typeof id == 'undefined' ? "countriesPopup" : id) + 
 	    "' class='ballon'><div class='arrow'></div><div class='body' style='min-height: 30px;'></div></div>";
     };
-}(RegionsPopup));
+}(CountriesPopup));
 
 
 /** private functions: **/
 
-RegionsPopup.prototype._get = function(rows, everything) {
+CountriesPopup.prototype._get = function(rows, everything) {
     var ar = [], r;
     //if( rows.length > 5 ) {
 	ar.push("<div class='search'><input type='text' maxlength='96' autocomplete='off' placeholder='",
@@ -101,18 +101,18 @@ RegionsPopup.prototype._get = function(rows, everything) {
     ar.push("</table></div>");
     if( everything ) {
 	ar.push("<br />");
-	ar.push("<div class='r'><a name='regionsEverything' href='javascript:void(0);'>", lang.region_everything, "</a></div>");
+	ar.push("<div class='r'><a name='countriesEverything' href='javascript:void(0);'>", lang.country_everything, "</a></div>");
     }
     return ar;
 }
 
-RegionsPopup.prototype._foreach = function(tags, cb) {
+CountriesPopup.prototype._foreach = function(tags, cb) {
     for( var i = 0, size = tags == null ? 0 : tags.length; i < size; i++ ) {
 	cb(tags[i], i);
     }
 }
 
-RegionsPopup.prototype._onsearch = function(value) {
+CountriesPopup.prototype._onsearch = function(value) {
     var f = Filter(value, true);
     var empty = true;
     for( var i = 0, size = this._rows.length; i < size; i++ ) {
@@ -132,7 +132,7 @@ RegionsPopup.prototype._onsearch = function(value) {
     this._container.setAttribute('X-search', value);
 }
 
-RegionsPopup.prototype._onselect = function(index) {
+CountriesPopup.prototype._onselect = function(index) {
     if( !this._rows[index]._selected ) {
 	this._foreach(this._tb.rows, function(arg) { arg.className = null; });
 	this._tb.rows[index].className = "selected";
@@ -141,11 +141,11 @@ RegionsPopup.prototype._onselect = function(index) {
 	if( typeof this._selection == 'function' ) {
 	    this._selection(this._rows[index], index, this._rows);
 	}
-	this._container.setAttribute('X-uid', this._rows[index].region_id);
+	this._container.setAttribute('X-uid', this._rows[index].country_id);
     }
 }
 
-RegionsPopup.prototype._oneverything = function() {
+CountriesPopup.prototype._oneverything = function() {
     var x = this._container.hasAttribute('X-uid');
     this._foreach(this._tb.rows, function(arg) { arg.className = null; });
     this._rows.forEach(function(arg) { if( arg._selected == true ) { arg._selected = null; x = true; } });
@@ -155,7 +155,7 @@ RegionsPopup.prototype._oneverything = function() {
     this._container.removeAttribute('X-uid');
 }
 
-RegionsPopup.prototype._show = function(arg, offset) {
+CountriesPopup.prototype._show = function(arg, offset) {
     this._container.onclick = this._container.hide;
     this._container.show();
     this._container.popupDown(arg, typeof offset == 'undefined' ? offset : offset*2);
@@ -166,22 +166,22 @@ RegionsPopup.prototype._show = function(arg, offset) {
 
 /* public functions: */
 
-RegionsPopup.prototype.show = function(arg, offset) {
+CountriesPopup.prototype.show = function(arg, offset) {
     if( this._container.isHidden() ) {
 	this._show(arg, offset);
     }
 }
 
-RegionsPopup.prototype.hide = function() {
+CountriesPopup.prototype.hide = function() {
     this._container.hide();
 }
 
-RegionsPopup.prototype.toggle = function(arg, offset) {
+CountriesPopup.prototype.toggle = function(arg, offset) {
     if( this._container.toggle() ) {
 	this._show(arg, offset);
     }
 }
 
-RegionsPopup.prototype.isHidden = function() {
+CountriesPopup.prototype.isHidden = function() {
     return this._container.isHidden();
 }

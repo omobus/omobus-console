@@ -63,6 +63,7 @@ M.permissions.discards.reject = true
 M.permissions.discards.v.rejected = true
 M.permissions.discards.v.closed = true
 M.permissions.info_materials.remove = true
+M.permissions.info_materials.edit = true
 M.permissions.photos.target = true
 M.permissions.photos.urgent = true
 M.permissions.planograms.remove = true

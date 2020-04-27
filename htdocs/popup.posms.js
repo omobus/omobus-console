@@ -60,6 +60,7 @@ function POSMaterialsPopup(rows, selection, params /* params = { everything: tru
 			this.blur(); 
 		    }
 		}
+		ev.stopPropagation();
 	    };
 	});
     }

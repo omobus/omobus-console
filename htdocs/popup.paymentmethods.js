@@ -60,6 +60,7 @@ function PaymentMethodsPopup(rows, selection, params /* params = { everything: t
 			this.blur();
 		    }
 		}
+		ev.stopPropagation();
 	    };
 	});
     }
