@@ -3,8 +3,10 @@
 
 local M = {} -- public interface
 
-M.validate = false
+M.columns = {channel=true, potential=true, head=true}
+M.rows = 500
+M.data = {registered=true, validated=true, rejected=false, closed=false}
 M.reject = false
-M.v = {registered=true, validated=true, rejected=false, closed=true}
+M.validate = false
 
 return M
