@@ -122,7 +122,7 @@ local function photo(stor, blob_id)
 [[
 select photo_get(%blob_id%::blob_t) photo
 ]]
-	, "//photos/photo", {blob_id = blob_id})
+	, "//additions/photo", {blob_id = blob_id})
     end
     )
 end
