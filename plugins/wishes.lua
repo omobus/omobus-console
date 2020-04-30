@@ -21,8 +21,8 @@ select
     md5(format('%s:%s', j.user_id, j.account_id)) row_id,
     j.validated, j.hidden rejected, a.hidden closed, 
     j.account_id, a.code a_code, a.descr a_name, a.address,
-    reg.descr region,
-    c.descr city,
+    /*reg.descr region,*/
+    /*c.descr city,*/
     a.rc_id, r.descr rc, r.ka_code,
     p.descr poten,
     a.chan_id, ch.descr chan,
@@ -154,7 +154,6 @@ local function personalize(data)
     local idx_channels = {}
     local idx_rcs = {}
     local idx_heads = {}
-    local x = {u = {}, chan = {}, rc = {}, e = {}}
 
     for i, v in ipairs(data.rows) do
 	v.row_no = i
