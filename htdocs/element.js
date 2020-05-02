@@ -1,11 +1,9 @@
 /* -*- JavaScript -*- */
 /* Copyright (c) 2006 - 2020 omobus-console authors, see the included COPYRIGHT file. */
 
-
 function _(arg) {
     return document.getElementById(arg);
 }
-
 
 /* internal functions & parameters: */
 
@@ -41,8 +39,6 @@ HTMLElement.prototype._getOffsetRect = function() {
     var left = box.left + scrollLeft - clientLeft;
     return { top: Math.round(top), left: Math.round(left), height: this.offsetHeight, width: this.offsetWidth };
 }
-
-
 
 /* extra element functionality: */
 
