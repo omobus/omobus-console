@@ -8,11 +8,13 @@ var PLUG = (function() {
     var R = lang[_code];
 
     function _getcolumns(perm) {
-	return 17 + (perm.columns == null ? 0 : (
-	    (perm.columns.workday == true ? 3 : 0) +
-	    (perm.columns.head == true ? 1 : 0) +
-	    (perm.columns.mileage == true ? 1 : 0)
-	));
+	let x = 17, c = perm.columns || {};
+	if( c.area == true ) x++;
+	if( c.department == true ) x++;
+	if( c.distributor == true ) x++;
+	if( c.head == true ) x++;
+	if( c.mileage == true ) x++;
+	return x;
     }
 
     function _getbody(perm) {
@@ -31,12 +33,17 @@ var PLUG = (function() {
 	ar.push("<th rowspan='2' class='autoincrement'>", lang.num, "</th>");
 	ar.push("<th rowspan='2'>", lang.u_name, "</th>");
 	ar.push("<th rowspan='2' width='80px'>", lang.dev_login, "</th>");
-	if( perm.columns != null && perm.columns.workday == true ) {
-	    ar.push("<th colspan='3'>", lang.workday, "</th>");
-	}
 	ar.push("<th colspan='4'>", R.wd, "</th>");
 	ar.push("<th colspan='7'>", lang.route, "</th>");
-	//ar.push("<th rowspan='2'>", lang.area, "</th>");
+	if( perm.columns != null && perm.columns.area == true ) {
+	    ar.push("<th rowspan='2'>", lang.area, "</th>");
+	}
+	if( perm.columns != null && perm.columns.department == true ) {
+	    ar.push("<th rowspan='2'>", lang.departmentAbbr, "</th>");
+	}
+	if( perm.columns != null && perm.columns.distributor == true ) {
+	    ar.push("<th rowspan='2'>", lang.distributor, "</th>");
+	}
 	if( perm.columns != null && perm.columns.head == true ) {
 	    ar.push("<th rowspan='2' width='160px'>", lang.head_name, "</th>");
 	}
@@ -45,15 +52,6 @@ var PLUG = (function() {
 	}
 	ar.push("<th colspan='3'>", R.power, "</th>");
 	ar.push("</tr><tr>");
-	if( perm.columns != null && perm.columns.workday == true ) {
-	    ar.push("<th>", lang.b_date, "</th>");
-	}
-	if( perm.columns != null && perm.columns.workday == true ) {
-	    ar.push("<th>", lang.e_date, "</th>");
-	}
-	if( perm.columns != null && perm.columns.workday == true ) {
-	    ar.push("<th>", lang.duration, "</th>");
-	}
 	ar.push("<th>", lang.b_date, "</th>");
 	ar.push("<th>", lang.e_date, "</th>");
 	ar.push("<th>", lang.duration, "</th>");
@@ -108,19 +106,10 @@ var PLUG = (function() {
 		    ar.push("<td class='delim int", disabled, "'>", G.shielding(r.user_id).mtrunc(12), "</td>");
 		}
 		if( !(r.scheduled > 0 || r.other > 0) ) {
-		    ar.push("<td class='delim ref disabled' colspan='", (perm.columns != null && perm.columns.workday == true)?14:11, "'>", 
-			R.none, "</td>");
+		    ar.push("<td class='delim ref disabled' colspan='11'>", R.none, "</td>");
 		} else if( r.canceled > 0 ) {
-		    ar.push("<td class='delim ref disabled' colspan='", (perm.columns != null && perm.columns.workday == true)?14:11, "'>", 
-			G.shielding(r.canceling_note), "</td>");
+		    ar.push("<td class='delim ref disabled' colspan='11'>", G.shielding(r.canceling_note), "</td>");
 		} else {
-		    if( perm.columns != null && perm.columns.workday == true ) {
-			r._wd_begin = G.gettime_l(Date.parseISO8601(r.wd_begin));
-			ar.push("<td class='time", rule_b != null && r._wd_begin>rule_b ? " attention" : "", "'>", r._wd_begin, "</td>");
-			r._wd_end = G.gettime_l(Date.parseISO8601(r.wd_end));
-			ar.push("<td class='time", rule_e != null && rule_e>r._wd_end ? " attention" : "", "'>", r._wd_end, "</td>");
-			ar.push("<td class='delim time'>", G.shielding(r.wd_duration), "</td>");
-		    }
 		    r._rd_begin = G.gettime_l(Date.parseISO8601(r.rd_begin));
 		    ar.push("<td class='time", rule_b != null && r._rd_begin>rule_b ? " attention" : "", "'>", r._rd_begin, "</td>");
 		    r._rd_end = G.gettime_l(Date.parseISO8601(r.rd_end));
@@ -138,9 +127,39 @@ var PLUG = (function() {
 		    ar.push("<td class='delim int", r.warn_max_distance == 0 ? "" : " attention", "' style='width: 40px;'>", 
 			r.warn_max_distance > 0 ? G.getint_l(r.warn_max_distance) : lang.dash, "</td>");
 		}
-		//ar.push("<td class='ref'>", G.shielding(r.area), "</td>");
+		if( perm.columns != null && perm.columns.area == true ) {
+		    ar.push("<td class='ref sw95px", disabled, "'>", G.shielding(r.area), "</td>");
+		}
+		if( perm.columns != null && perm.columns.department == true ) {
+		    var t = []
+		    for( let i = 0, size = Array.isEmpty(r.departments) ? 0 : r.departments.length; i < size; i++ ) {
+			if( i == 2 ) {
+			    t.push("&mldr;");
+			    break;
+			} else if( i == 0 ) {
+			    t.push("<div class='row'>", G.shielding(r.departments[i]), "</div>");
+			} else {
+			    t.push("<div class='row remark'>", G.shielding(r.departments[i]), "</div>");
+			}
+		    }
+		    ar.push("<td class='ref Xsw95px", disabled, "'>", t.join(''), "</td>");
+		}
+		if( perm.columns != null && perm.columns.distributor == true ) {
+		    var t = []
+		    for( let i = 0, size = Array.isEmpty(r.distributors) ? 0 : r.distributors.length; i < size; i++ ) {
+			if( i == 2 ) {
+			    t.push("&mldr;");
+			    break;
+			} else if( i == 0 ) {
+			    t.push("<div class='row'>", G.shielding(r.distributors[i]), "</div>");
+			} else {
+			    t.push("<div class='row remark'>", G.shielding(r.distributors[i]), "</div>");
+			}
+		    }
+		    ar.push("<td class='ref sw95px", disabled, "'>", t.join(''), "</td>");
+		}
 		if( perm.columns != null && perm.columns.head == true ) {
-		    ar.push("<td class='string", disabled, "'>", G.shielding(r.head_name), "</td>");
+		    ar.push("<td class='string Xsw95px", disabled, "'>", G.shielding(r.head_name), "</td>");
 		}
 		if( perm.columns != null && perm.columns.mileage == true ) {
 		    ar.push("<td class='int'>", r.mileage/1000 > 0 ? parseFloat(r.mileage/1000.0).toFixed(1) : lang.dash, "</td>");

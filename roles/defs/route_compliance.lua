@@ -3,6 +3,6 @@
 
 local M = {} -- public interface
 
-M.columns = {workday=true, mileage=true, head=true}
+M.columns = {area=true, department=true, distributor=true, mileage=true, head=true}
 
 return M
