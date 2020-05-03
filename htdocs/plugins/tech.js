@@ -97,7 +97,15 @@ var PLUG = (function() {
 	    }
 	}
 	a.push(_tags.f.val());
-	return Filter(a.join(' '), false, {user_id:true, dev_login:true, u_name:true, pid:true, area:true, deps:true, distrs:true, pause:true});
+	return Filter(a.join(' '), false, {
+	    user_id:true, 
+	    dev_login:true, 
+	    u_name:true, 
+	    pid:true, 
+	    area:true, 
+	    departments:true, 
+	    distributors:true, 
+	    pause:true});
     }
 
     function _datamsg(msg) {
@@ -139,20 +147,34 @@ var PLUG = (function() {
 		    ar.push("<td class='ref", xs,"'>", G.shielding(r.area), "</td>");
 		}
 		if( typeof __allowedColumns == 'object' && __allowedColumns.department ) {
-		    t = G.shielding(r.deps).replace(rx,' ');
-		    if( !String.isEmpty(r.deps) && r.deps.length > 5 ) {
-			ar.push("<td class='ref footnote{1}' data-title='{0}'>".format_a(t, xs), G.shielding(r.deps).trunc(5), "</td>");
-		    } else {
-			ar.push("<td class='ref", xs,"'>", G.shielding(r.deps), "</td>");
+		    var t = []
+/*obsolete:*/ if( typeof r.deps != 'undefined' ) { t.push(G.shielding(r.deps).trunc(15)); }
+		    for( let i = 0, size = Array.isEmpty(r.departments) ? 0 : r.departments.length; i < size; i++ ) {
+			if( i == 2 ) {
+			    t.push("&mldr;");
+			    break;
+			} else if( i == 0 ) {
+			    t.push("<div class='row'>", G.shielding(r.departments[i]), "</div>");
+			} else {
+			    t.push("<div class='row remark'>", G.shielding(r.departments[i]), "</div>");
+			}
 		    }
+		    ar.push("<td class='ref Xsw95px'>", t.join(''), "</td>");
 		}
 		if( typeof __allowedColumns == 'object' && __allowedColumns.distributor ) {
-		    t = G.shielding(r.distrs).replace(rx,' ');
-		    if( !String.isEmpty(r.distrs) && r.distrs.length > 14 ) {
-			ar.push("<td class='ref footnote{1}' data-title='{0}'>".format_a(t, xs), G.shielding(r.distrs).trunc(14), "</td>");
-		    } else {
-			ar.push("<td class='ref", xs,"'>", G.shielding(r.distrs), "</td>");
+		    var t = []
+/*obsolete:*/ if( typeof r.distrs != 'undefined' ) { t.push(G.shielding(r.distrs).trunc(15)); }
+		    for( let i = 0, size = Array.isEmpty(r.distributors) ? 0 : r.distributors.length; i < size; i++ ) {
+			if( i == 2 ) {
+			    t.push("&mldr;");
+			    break;
+			} else if( i == 0 ) {
+			    t.push("<div class='row'>", G.shielding(r.distributors[i]), "</div>");
+			} else {
+			    t.push("<div class='row remark'>", G.shielding(r.distributors[i]), "</div>");
+			}
 		    }
+		    ar.push("<td class='ref sw95px'>", t.join(''), "</td>");
 		}
 		ar.push("<td class='int", xs,"'>", (r.dist != null && r.dist/1000 > 0 ? parseFloat(r.dist/1000.0).toFixed(1) : lang.dash), "</td>");
 		ar.push("<td class='int", xs,"'>", (r.pause == null ? lang.dash : r.pause), "</td>");
