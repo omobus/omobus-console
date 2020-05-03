@@ -221,21 +221,21 @@ var PLUG = (function() {
     function _parambodytbl(mans) {
 	var ar = [];
 	ar.push("<div class='row'>", lang.info_materials.notice, "</div>");
-	ar.push("<div id='infom:alert' class='row attention gone'>", "</div>");
+	ar.push("<div id='param:alert' class='row attention gone'>", "</div>");
 	ar.push("<div class='row'>");
-	ar.push("<input id='infom:name' type='text' placeholder='", lang.info_materials.placeholder, "' autocomplete='on'>", "</input>");
+	ar.push("<input id='param:name' type='text' placeholder='", lang.info_materials.placeholder, "' autocomplete='on'>", "</input>");
 	ar.push("</div>");
 	ar.push("<div class='row'>");
-	ar.push("<button id='infom:country' class='dropdown'>", "</button>");
+	ar.push("<button id='param:country' class='dropdown'>", "</button>");
 	ar.push("</div>");
 	ar.push("<div class='row'>");
-	ar.push("<button id='infom:department' class='dropdown'>", "</button>");
+	ar.push("<button id='param:department' class='dropdown'>", "</button>");
 	ar.push("</div>");
 	ar.push("<div class='row'>");
-	ar.push("<button id='infom:rc' class='dropdown'>", "</button>");
+	ar.push("<button id='param:rc' class='dropdown'>", "</button>");
 	ar.push("</div>");
 	ar.push("<div class='row'>");
-	ar.push("<select id='infom:daterange'>");
+	ar.push("<select id='param:daterange'>");
 	ar.push("<option value=''>", "{0}: {1}".format_a(lang.validity, lang.without_restrictions), "</option>");
 	ar.push("<option value='end_of_week'>", "{0}: {1}".format_a(lang.validity, lang.daterange.end_of_week), "</option>");
 	ar.push("<option value='end_of_month'>", "{0}: {1}".format_a(lang.validity, lang.daterange.end_of_month), "</option>");
@@ -254,9 +254,9 @@ var PLUG = (function() {
     function _parambtntbl() {
 	var ar = [];
 	ar.push("<div class='row' align='right'>");
-	ar.push("<button id='infom:back'>", lang.back, "</button>");
+	ar.push("<button id='param:back'>", lang.back, "</button>");
 	ar.push("&nbsp;&nbsp;");
-	ar.push("<button id='infom:commit' disabled='true'>", lang.save, "</button>");
+	ar.push("<button id='param:commit' disabled='true'>", lang.save, "</button>");
 	ar.push("&nbsp;&nbsp;");
 	ar.push("</div>");
 	return ar;
@@ -408,7 +408,7 @@ var PLUG = (function() {
 	    Dialog({
 		width: 650, 
 		title: lang.info_materials.caption.format_a(arg), 
-		body: _parambodytbl(_cache.data.mans, _cache.data.rows.find(function(e) { return e.infom_id == arg; })),
+		body: _parambodytbl(_cache.data.mans),
 		buttons: _parambtntbl(),
 		onHideListener: function(dialogObject) { togglePopup(); },
 		onScrollListener: function(dialogObject) { togglePopup(); }
@@ -438,15 +438,15 @@ var PLUG = (function() {
 		    e_date: data.e_date
 		};
 		const mans = _cache.data.mans;
-		const alertView = _('infom:alert');
-		const nameView = _('infom:name');
-		const countryView = _('infom:country');
-		const depView = _('infom:department');
-		const rcView = _('infom:rc');
-		const daterangeView = _('infom:daterange');
+		const alertView = _('param:alert');
+		const nameView = _('param:name');
+		const countryView = _('param:country');
+		const depView = _('param:department');
+		const rcView = _('param:rc');
+		const daterangeView = _('param:daterange');
 		const cbar = dialogObject.getElementsByTagName('input');
-		const backView = _('infom:back');
-		const commitView = _('infom:commit');
+		const backView = _('param:back');
+		const commitView = _('param:commit');
 		const equals = function(arg0, arg1) {
 		    if( arg0.length != arg1.length ) {
 			return false;
@@ -481,6 +481,10 @@ var PLUG = (function() {
 		    }
 		    return "&#9776;&nbsp;&nbsp;{0}:&nbsp;&nbsp;<i>{1}</i>".format_a(arg0, lang.without_restrictions);
 		}
+
+		CountriesPopup.cleanup(mans.countries);
+		DepartmentsPopup.cleanup(mans.departments);
+		RetailChainsPopup.cleanup(mans.retail_chains);
 
 		countryView.html(dropDownLabel(lang.country, data.country));
 		depView.html(dropDownLabel(lang.department, data.department));

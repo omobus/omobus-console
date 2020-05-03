@@ -262,15 +262,17 @@ end
 local function personalize(data, u_id)
     local p = {}
 
-    for i, v in ipairs(data.rows) do
-	v.row_no = i
-	v._isowner = (v.author_id ~= nil and u_id:lower() == v.author_id:lower()) and true or false
-	v.brand_ids = split(v.brand_ids)
-	v.brands = split(v.brands)
-	v.placement_ids = split(v.placement_ids)
-	v.placements = split(v.placements)
-	v.chan_ids = split(v.chan_ids)
-	v.channels = split(v.channels)
+    if data.rows ~= nil then
+	for i, v in ipairs(data.rows) do
+	    v.row_no = i
+	    v._isowner = (v.author_id ~= nil and u_id:lower() == v.author_id:lower()) and true or false
+	    v.brand_ids = split(v.brand_ids)
+	    v.brands = split(v.brands)
+	    v.placement_ids = split(v.placement_ids)
+	    v.placements = split(v.placements)
+	    v.chan_ids = split(v.chan_ids)
+	    v.channels = split(v.channels)
+	end
     end
 
     p.rows = data.rows
@@ -319,7 +321,7 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
 	    if err then
 		scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
 		scgi.writeBody(res, "Internal server error")
-	    elseif tb == nil or tb.rows == nil or #tb.rows == 0 then
+	    elseif tb == nil then
 		scgi.writeHeader(res, 200, {["Content-Type"] = mime.json .. "; charset=utf-8"})
 		scgi.writeBody(res, "{}")
 	    else

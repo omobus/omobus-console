@@ -76,8 +76,18 @@ function RetailChainsPopup(rows, selection, params /* params = { everything: tru
 
 (function (RetailChainsPopup, undefined) {
     RetailChainsPopup.container = function(id) {
-	return "<div id='" + (id == null || typeof id == 'undefined' ? "retailchainsPopup" : id) + 
-	    "' class='ballon'><div class='arrow'></div><div class='body' style='min-height: 30px;'></div></div>";
+	var ar = [];
+	ar.push("<div id='", id == null || typeof id == 'undefined' ? "retailchainsPopup" : id, "' class='ballon'>");
+	ar.push("<div class='arrow'></div>");
+	ar.push("<div class='body' style='min-height: 30px;'></div>");
+	ar.push("</div>");
+	return ar.join('');
+    };
+
+    RetailChainsPopup.cleanup = function(rows, id) {
+	var container = _(id == null || typeof id == 'undefined' ? "retailchainsPopup" : id);
+	container.removeAttribute("X-uid");
+	rows.forEach(function(arg) { arg._selected = null; });
     };
 }(RetailChainsPopup));
 

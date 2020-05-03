@@ -221,18 +221,18 @@ var PLUG = (function() {
     function _parambodytbl(mans) {
 	var ar = [];
 	ar.push("<div class='row'>", lang.planograms.notice, "</div>");
-	ar.push("<div id='pl:alert' class='row attention gone'>", "</div>");
+	ar.push("<div id='param:alert' class='row attention gone'>", "</div>");
 	ar.push("<div class='row'>");
-	ar.push("<input id='pl:name' type='text' placeholder='", lang.planograms.placeholder, "' autocomplete='on'>", "</input>");
+	ar.push("<input id='param:name' type='text' placeholder='", lang.planograms.placeholder, "' autocomplete='on'>", "</input>");
 	ar.push("</div>");
 	ar.push("<div class='row'>");
-	ar.push("<button id='pl:country' class='dropdown'>", "</button>");
+	ar.push("<button id='param:country' class='dropdown'>", "</button>");
 	ar.push("</div>");
 	ar.push("<div class='row'>");
-	ar.push("<button id='pl:rc' class='dropdown'>", "</button>");
+	ar.push("<button id='param:rc' class='dropdown'>", "</button>");
 	ar.push("</div>");
 	ar.push("<div class='row'>");
-	ar.push("<select id='pl:daterange'>");
+	ar.push("<select id='param:daterange'>");
 	ar.push("<option value=''>", "{0}: {1}".format_a(lang.validity, lang.without_restrictions), "</option>");
 	ar.push("<option value='end_of_week'>", "{0}: {1}".format_a(lang.validity, lang.daterange.end_of_week), "</option>");
 	ar.push("<option value='end_of_month'>", "{0}: {1}".format_a(lang.validity, lang.daterange.end_of_month), "</option>");
@@ -254,9 +254,9 @@ var PLUG = (function() {
     function _parambtntbl() {
 	var ar = [];
 	ar.push("<div class='row' align='right'>");
-	ar.push("<button id='pl:back'>", lang.back, "</button>");
+	ar.push("<button id='param:back'>", lang.back, "</button>");
 	ar.push("&nbsp;&nbsp;");
-	ar.push("<button id='pl:commit' disabled='true'>", lang.save, "</button>");
+	ar.push("<button id='param:commit' disabled='true'>", lang.save, "</button>");
 	ar.push("&nbsp;&nbsp;");
 	ar.push("</div>");
 	return ar;
@@ -407,7 +407,7 @@ var PLUG = (function() {
 	    Dialog({
 		width: 650, 
 		title: lang.planograms.caption.format_a(arg), 
-		body: _parambodytbl(_cache.data.mans, _cache.data.rows.find(function(e) { return e.pl_id == arg; })),
+		body: _parambodytbl(_cache.data.mans),
 		buttons: _parambtntbl(),
 		onHideListener: function(dialogObject) { togglePopup(); },
 		onScrollListener: function(dialogObject) { togglePopup(); }
@@ -437,14 +437,14 @@ var PLUG = (function() {
 		    e_date: data.e_date
 		};
 		const mans = _cache.data.mans;
-		const alertView = _('pl:alert');
-		const nameView = _('pl:name');
-		const countryView = _('pl:country');
-		const rcView = _('pl:rc');
-		const daterangeView = _('pl:daterange');
+		const alertView = _('param:alert');
+		const nameView = _('param:name');
+		const countryView = _('param:country');
+		const rcView = _('param:rc');
+		const daterangeView = _('param:daterange');
 		const cbar = dialogObject.getElementsByTagName('input');
-		const backView = _('pl:back');
-		const commitView = _('pl:commit');
+		const backView = _('param:back');
+		const commitView = _('param:commit');
 		const equals = function(arg0, arg1) {
 		    if( arg0.length != arg1.length ) {
 			return false;
@@ -480,6 +480,9 @@ var PLUG = (function() {
 		    }
 		    return "&#9776;&nbsp;&nbsp;{0}:&nbsp;&nbsp;<i>{1}</i>".format_a(arg0, lang.without_restrictions);
 		}
+
+		CountriesPopup.cleanup(mans.countries);
+		RetailChainsPopup.cleanup(mans.retail_chains);
 
 		countryView.html(dropDownLabel(lang.country, data.country));
 		rcView.html(dropDownLabel(lang.rc_name, data.rc));

@@ -76,8 +76,18 @@ function DepartmentsPopup(rows, selection, params /* params = { everything: true
 
 (function (DepartmentsPopup, undefined) {
     DepartmentsPopup.container = function(id) {
-	return "<div id='" + (id == null || typeof id == 'undefined' ? "departmentsPopup" : id) + 
-	    "' class='ballon'><div class='arrow'></div><div class='body' style='min-height: 30px;'></div></div>";
+	var ar = [];
+	ar.push("<div id='", id == null || typeof id == 'undefined' ? "departmentsPopup" : id, "' class='ballon'>");
+	ar.push("<div class='arrow'></div>");
+	ar.push("<div class='body' style='min-height: 30px;'></div>");
+	ar.push("</div>");
+	return ar.join('');
+    };
+
+    DepartmentsPopup.cleanup = function(rows, id) {
+	var container = _(id == null || typeof id == 'undefined' ? "departmentsPopup" : id);
+	container.removeAttribute("X-uid");
+	rows.forEach(function(arg) { arg._selected = null; });
     };
 }(DepartmentsPopup));
 

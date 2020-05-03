@@ -45,10 +45,6 @@ function DaysPopup(selection, params /* = { container = "DOM container", date, u
 
 /* private functions: */
 
-DaysPopup.prototype._ts = function(d) {
-    return new Date(d.getYear()+1900, d.getMonth(), d.getDate()).getTime();
-}
-
 DaysPopup.prototype._getDaysInMonth = function(month, year) {
     var daysInMonth=[31,28,31,30,31,30,31,31,30,31,30,31];
     return (month==1)&&(year%4==0)&&((year%100!=0)||(year%400==0)) ? 29 : daysInMonth[month];
