@@ -283,7 +283,6 @@ end
 -- *** plugin interface: begin
 function M.scripts(lang, permtb, sestb, params)
     return [[
-    <link rel="stylesheet" href="]] .. V.static_prefix .. [[/colorbox.css" />
     <script src="]] .. V.static_prefix .. [[/libs/jquery-2.1.1.js"> </script>
     <script src="]] .. V.static_prefix .. [[/dailycalendar.js"> </script>
     <script src="]] .. V.static_prefix .. [[/plugins/targets.js"> </script>
