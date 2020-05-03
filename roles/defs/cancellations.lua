@@ -4,7 +4,9 @@
 local M = {} -- public interface
 
 M.add = {offset=0, depth=2}
+M.columns = {area=true, department=true, distributor=true, head=true}
 M.restore = false
-M.reject = true
+M.revoke = true
+M.rows = 500
 
 return M

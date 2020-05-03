@@ -1,46 +1,40 @@
 /* -*- JavaScript -*- */
 /* Copyright (c) 2006 - 2020 omobus-console authors, see the included COPYRIGHT file. */
 
-function UsersPopup(users, selection, params /* params = { everyone: true|false, container: "DOM container", defaults: "user_id"} */) {
-    if( !(this instanceof UsersPopup) ) {
-	return new UsersPopup(users, selection, params);
+function CancelingTypesPopup(rows, selection, params /* params = { everything: true|false, container = "DOM container"} */) {
+    if( !(this instanceof CancelingTypesPopup) ) {
+	return new CancelingTypesPopup(rows, selection, params);
     }
     if( params == null || typeof params == 'undefined' ) {
-	params = { everyone: true, container: _("usersPopup") };
+	params = { everything: true, container: _("cancelingtypesPopup") };
     }
     if( params.container == null || typeof params.container == 'undefined' ) {
-	params.container = _("usersPopup");
+	params.container = _("cancelingtypesPopup");
     }
     if( !(params.container instanceof HTMLElement) ) {
 	params.container = _(params.container);
     }
-    if( users == null || typeof users == 'undefined' || !Array.isArray(users) ) {
-	users = [];
+    if( rows == null || typeof rows == 'undefined' || !Array.isArray(rows) ) {
+	rows = [];
     }
     if( params.container.hasAttribute("X-uid") ) {
-	users.forEach(function(arg) { 
-	    if( arg.user_id == this ) {
+	rows.forEach(function(arg) { 
+	    if( arg.canceling_type_id == this ) {
 		arg._selected = true;
 	    }
 	}, params.container.getAttribute("X-uid"));
-    } else if( typeof params.defaults == 'string' ) {
-	users.forEach(function(arg) { 
-	    if( arg.user_id == this ) {
-		arg._selected = true;
-	    }
-	}, params.defaults);
     }
 
     var xtag, own = this;
     var onsearch = function(ev) { own._onsearch(this.value); };
     var onselect = function(ev) { own._onselect(this.getAttribute("X-rowno")); };
-    var oneveryone = function(ev) { own._oneveryone(); };
+    var oneverything = function(ev) { own._oneverything(); };
     var body = params.container.getElementsByClassName('body')[0];
-    body.html(this._get(users, params.everyone).join(""));
+    body.html(this._get(rows, params.everything).join(""));
     this._container = params.container;
     this._tb = body.getElementsByClassName('simplelist')[0].firstChild;
     this._ph = body.getElementsByClassName('placeholder')[0];
-    this._users = users;
+    this._rows = rows;
     this._selection = selection;
     this._ph.hide();
 
@@ -71,8 +65,8 @@ function UsersPopup(users, selection, params /* params = { everyone: true|false,
 	});
     }
     this._foreach(body.getElementsByTagName('a'), function(arg, i) {
-	if( arg.getAttribute('name') == 'everyone' ) {
-	    arg.onclick = oneveryone;
+	if( arg.getAttribute('name') == 'cancelingtypesEverything' ) {
+	    arg.onclick = oneverything;
 	}
     });
 }
@@ -80,27 +74,27 @@ function UsersPopup(users, selection, params /* params = { everyone: true|false,
 
 /* static functions: */
 
-(function (UsersPopup, undefined) {
-    UsersPopup.container = function(id) {
+(function (CancelingTypesPopup, undefined) {
+    CancelingTypesPopup.container = function(id) {
 	var ar = [];
-	ar.push("<div id='", id == null || typeof id == 'undefined' ? "usersPopup" : id, "' class='ballon'>");
+	ar.push("<div id='", id == null || typeof id == 'undefined' ? "cancelingtypesPopup" : id, "' class='ballon'>");
 	ar.push("<div class='arrow'></div>");
 	ar.push("<div class='body' style='min-height: 30px;'></div>");
 	ar.push("</div>");
 	return ar.join('');
     };
 
-    UsersPopup.cleanup = function(rows, id) {
-	var container = _(id == null || typeof id == 'undefined' ? "usersPopup" : id);
+    CancelingTypesPopup.cleanup = function(rows, id) {
+	var container = _(id == null || typeof id == 'undefined' ? "cancelingtypesPopup" : id);
 	container.removeAttribute("X-uid");
 	rows.forEach(function(arg) { arg._selected = null; });
     };
-}(UsersPopup));
+}(CancelingTypesPopup));
 
 
 /** private functions: **/
 
-UsersPopup.prototype._get = function(rows, everyone) {
+CancelingTypesPopup.prototype._get = function(rows, everything) {
     var ar = [], r;
     //if( rows.length > 5 ) {
 	ar.push("<div class='search'><input type='text' maxlength='96' autocomplete='off' placeholder='",
@@ -111,30 +105,28 @@ UsersPopup.prototype._get = function(rows, everyone) {
     for( var i = 0, size = rows.length; i < size; i++ ) {
         if( (r = rows[i]) != null ) {
 	    ar.push("<tr " + (r._selected ? "class='selected'" : "") + "><td " + (r.hidden ? "class='strikethrough'" : "") + ">",
-		G.shielding(r.dev_login, lang.dash) + ": " + G.shielding(r.descr, lang.dash) +
-		(r.dev_login == r.user_id ? "" : ("<br/><span class='watermark'>" + lang.u_code + ": " +
-		G.shielding(r.user_id, lang.dash) + "</span>")), "</td></tr>");
+		G.shielding(r.descr, lang.dash), "</td></tr>");
         }
     }
     ar.push("</table></div>");
-    if( everyone ) {
+    if( everything ) {
 	ar.push("<br />");
-	ar.push("<div class='r'><a name='everyone' href='javascript:void(0);'>", lang.u_everyone, "</a></div>");
+	ar.push("<div class='r'><a name='cancelingtypesEverything' href='javascript:void(0);'>", lang.canceling_types_everything, "</a></div>");
     }
     return ar;
 }
 
-UsersPopup.prototype._foreach = function(tags, cb) {
+CancelingTypesPopup.prototype._foreach = function(tags, cb) {
     for( var i = 0, size = tags == null ? 0 : tags.length; i < size; i++ ) {
 	cb(tags[i], i);
     }
 }
 
-UsersPopup.prototype._onsearch = function(value) {
-    var f = Filter(value, true/*, {user_id:true,dev_login:true,descr:true}*/);
+CancelingTypesPopup.prototype._onsearch = function(value) {
+    var f = Filter(value, true);
     var empty = true;
-    for( var i = 0, size = this._users.length; i < size; i++ ) {
-	if( f.is(this._users[i]) ) {
+    for( var i = 0, size = this._rows.length; i < size; i++ ) {
+	if( f.is(this._rows[i]) ) {
 	    this._tb.rows[i].show();
 	    empty = false;
 	} else {
@@ -150,30 +142,30 @@ UsersPopup.prototype._onsearch = function(value) {
     this._container.setAttribute('X-search', value);
 }
 
-UsersPopup.prototype._onselect = function(index) {
-    if( !this._users[index]._selected ) {
+CancelingTypesPopup.prototype._onselect = function(index) {
+    if( !this._rows[index]._selected ) {
 	this._foreach(this._tb.rows, function(arg) { arg.className = null; });
 	this._tb.rows[index].className = "selected";
-	this._users.forEach(function(arg) { arg._selected = null; });
-	this._users[index]._selected = true;
+	this._rows.forEach(function(arg) { arg._selected = null; });
+	this._rows[index]._selected = true;
 	if( typeof this._selection == 'function' ) {
-	    this._selection(this._users[index], index, this._users);
+	    this._selection(this._rows[index], index, this._rows);
 	}
-	this._container.setAttribute('X-uid', this._users[index].user_id);
+	this._container.setAttribute('X-uid', this._rows[index].canceling_type_id);
     }
 }
 
-UsersPopup.prototype._oneveryone = function() {
+CancelingTypesPopup.prototype._oneverything = function() {
     var x = this._container.hasAttribute('X-uid');
     this._foreach(this._tb.rows, function(arg) { arg.className = null; });
-    this._users.forEach(function(arg) { if( arg._selected == true ) { arg._selected = null; x = true; } });
+    this._rows.forEach(function(arg) { if( arg._selected == true ) { arg._selected = null; x = true; } });
     if( typeof this._selection == 'function' && x ) {
 	this._selection();
     }
     this._container.removeAttribute('X-uid');
 }
 
-UsersPopup.prototype._show = function(arg, offset) {
+CancelingTypesPopup.prototype._show = function(arg, offset) {
     this._container.onclick = this._container.hide;
     this._container.show();
     this._container.popupDown(arg, typeof offset == 'undefined' ? offset : offset*2);
@@ -184,22 +176,22 @@ UsersPopup.prototype._show = function(arg, offset) {
 
 /* public functions: */
 
-UsersPopup.prototype.show = function(arg, offset) {
+CancelingTypesPopup.prototype.show = function(arg, offset) {
     if( this._container.isHidden() ) {
 	this._show(arg, offset);
     }
 }
 
-UsersPopup.prototype.hide = function() {
+CancelingTypesPopup.prototype.hide = function() {
     this._container.hide();
 }
 
-UsersPopup.prototype.toggle = function(arg, offset) {
+CancelingTypesPopup.prototype.toggle = function(arg, offset) {
     if( this._container.toggle() ) {
 	this._show(arg, offset);
     }
 }
 
-UsersPopup.prototype.isHidden = function() {
+CancelingTypesPopup.prototype.isHidden = function() {
     return this._container.isHidden();
 }

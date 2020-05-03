@@ -2,534 +2,575 @@
 /* Copyright (c) 2006 - 2020 omobus-console authors, see the included COPYRIGHT file. */
 
 var PLUG = (function() {
-/* private properties & methods */
+    /* private properties & methods */
     var _code = "cancellations";
-    var _opt = {
-	L: {lines: 8, length: 2, width: 4, radius: 6, corners: 1, rotate: 0, direction: 1, speed: 1, trail: 60, shadow: false, hwaccel: false, top: "auto"},
-	S: {lines: 6, length: 1, width: 2, radius: 3, corners: 1, rotate: 0, direction: 1, speed: 1, trail: 60, shadow: false, hwaccel: false, top: "auto", left: "auto"},
-	D: {lines: 8, length: 2, width: 2, radius: 5, corners: 1, rotate: 0, direction: 1, speed: 1, trail: 60, shadow: false, hwaccel: false, top: "32px", left: "550px"}
-    };
-    var _cache = { /*data, cal, y, m*/ }, _perm = null, _elem = null, _context = null;
+    var _cache = {}, _perm = {}, _tags = {};
+    var _statusColumn = 2;
 
-
-    function _showmsg(tag, msg) {
-	tag.show(); tag.html(msg);
-    }
-
-    function _hidemsg(tag) {
-	tag.hide(); tag.html("");
-    }
-
-    function _disable(tag, arg) {
-	if( arg ) {
-	    tag.attr("disabled", true);
-	} else {
-	    tag.removeAttr("disabled");
-	}
-    }
-
-    function _getcolumns() {
-	return 7;
+    function _getcolumns(perm) {
+	let x = 6, c = perm.columns || {};
+	if( c.area == true ) x++;
+	if( c.department == true ) x++;
+	if( c.distributor == true ) x++;
+	if( c.head == true ) x++;
+	return x;
     }
 
     function _getbody(perm) {
-	return "<table class='headerbar' width='100%'><tr><td><h1>" + lang.cancellations.title + "&nbsp;<a id='plugmonth' "+
-	    "href='javascript:PLUG.calendar.onshow();'>[&nbsp;-&nbsp;]</a>:&nbsp;&nbsp;<input id='plugfilter' type='text' " +
-	    "placeholder='" + lang.everything + "' onkeyup='return PLUG.onfilter(this, event);' /></h1></td><td " +
-	    "style='text-align: right;'>" + lang.received_ts + "&nbsp;<span id='timestamp'>&nbsp;-&nbsp;</span>&nbsp;(" +
-	    "<a id='refresh' href='javascript:PLUG.onrefresh();'>" + lang.refresh + "</a>)" +
-	    (perm.add != null?("&nbsp&nbsp;|&nbsp;&nbsp;<a href='javascript:PLUG.add();'>" + lang.cancellations.title2 + "</a>"):"") +
-	    "</td></tr></table>" +
-	    "<table width='100%' class='report'><thead><tr>" + 
-	    "<th class='autoincrement'>" + lang.num + "</th>" + 
-	    "<th class='date'>" + lang.date + "</th>" + 
-	    "<th>" + lang.u_name + "</th>" + 
-	    "<th>" + lang.u_code + "</th>" + 
-	    "<th>" + lang.cancellations.type + "</th>" + 
-	    "<th>" + lang.note + "</th>" + 
-	    "<th>" + lang.reject.cap + "</th>" + 
-	    "</tr>" + G.thnums(_getcolumns()) + "</thead><tbody id=\"maintb\"></tbody></table>" +
-	    "<div id='plugspin' style='display: none; padding-top: 30px;'></div>" +
-	    "<div id='plugcal' class='ballon' onclick='javascript:PLUG.calendar.onhide();'>" +
-	    "<div class='arrow'></div><div class='body' style='min-height: 30px;'>" +
-	    "<div id='calspin' style='display:none; padding-top: 12px;'></div><div id='calbody'></div></div></div>" +
-	    "<div id='plugbox' class='dialog' style='display: none;'></div>";
-    }
-
-    function _getobjcache() {
-	return G.getobjcache(_code, null);
-    }
-
-    function _checkrow(tr, objcache, row_id) {
-	if( tr.className == 'selected' ) {
-	    tr.className = null;
-	    objcache.setchecked(row_id);
-	} else {
-	    tr.className = 'selected';
-	    objcache.setchecked(row_id, true);
+	var ar = [];
+	ar.push("<table class='headerbar' width='100%'><tr><td><h1>");
+	ar.push("<span>", lang.cancellations.title, "</span>");
+	ar.push("</h1></td><td class='r'>");
+	ar.push("<span>", lang.received_ts, "</span>&nbsp;<span id='timestamp'>&nbsp;-&nbsp;</span>");
+	ar.push("&nbsp;(<a href='javascript:void(0);' onclick='PLUG.refresh();'>", lang.refresh, "</a>)<span id='plugTotal'></span>");
+	if( typeof perm.add != 'undefined' ) {
+	    ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<a href='javascript:void(0);' onclick='PLUG.add();'>", lang.cancellations.add, "</a>");
 	}
+	ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<input class='search' type='text' maxlength='96' autocomplete='off' placeholder='",
+	    lang.search, "' id='plugFilter' onkeyup='return PLUG.filter(this, event);' onpaste='PLUG.filter(this, event); return true;' />");
+	ar.push("</td></tr></table>");
+	ar.push("<table width='100%' class='report'><thead><tr>");
+	ar.push("<th class='autoincrement'>", lang.num, "</th>");
+	ar.push("<th class='date'>", lang.date, "</th>");
+	ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"user\",0.2)'>", lang.u_name, "</a></th>");
+	ar.push("<th>", lang.u_code, "</th>");
+	ar.push("<th>", lang.cancellations.type, "</th>");
+	if( perm.columns != null && perm.columns.area == true ) {
+	    ar.push("<th>", lang.area, "</th>");
+	}
+	if( perm.columns != null && perm.columns.department == true ) {
+	    ar.push("<th>", lang.departmentAbbr, "</th>");
+	}
+	if( perm.columns != null && perm.columns.distributor == true ) {
+	    ar.push("<th>", lang.distributor, "</th>");
+	}
+	ar.push("<th width='85px'>", lang.dev_login, "</th>");
+	if( perm.columns != null && perm.columns.head == true ) {
+	    ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"head\",0.90)'>", lang.head_name, "</a></th>");
+	}
+	ar.push("</tr>", G.thnums(_getcolumns(perm)), "</thead>");
+	ar.push("<tbody id='maintb'></tbody></table>");
+	ar.push(Dialog.container());
+	ar.push(CancelingTypesPopup.container());
+	ar.push(DateRangePopup.container());
+	ar.push(UsersPopup.container());
+	ar.push(UsersPopup.container("headsPopup"));
+	ar.push(UsersPopup.container("dialog!usersPopup"));
+	return ar;
     }
 
-    function _failed_data(msg) {
-	return ["<tr class='def'><td colspan='"+_getcolumns()+"' class='message'>"+msg+"</td></tr>"];
+    function _getfilter() {
+	var a = [];
+	if( _cache.xfilters != null ) {
+	    for( var name in _cache.xfilters ) {
+		a.push(_cache.xfilters[name]);
+	    }
+	}
+	a.push(_tags.f.val());
+	return Filter(a.join(' '), false, {
+	    route_date:true, 
+	    user_id:true, dev_login:true, u_name:true,
+	    area:true,
+	    deps:true,
+	    distrs:true,
+	    head_id:true
+	});
     }
 
-    function _success_data(data, f, objcache, perm) {
-	var ar = [], r;
-	for( var i = 0, x = 1, size = data.cancellations ? data.cancellations.length : 0; i < size; i++ ) {
-	    if( (r = data.cancellations[i]) != null && f.is(r) ) {
-		ar.push("<tr" + (objcache.getchecked(r.doc_id) ? " class='selected'" : "") + ">");
-		ar.push("<td style='cursor:pointer' class='autoincrement' onclick=\"PLUG.oncheckrow(this.parentNode,'" + r.doc_id +
-		    "');event.stopPropagation();\">" + r.row_no + "</td>");
-		ar.push("<td id='sR" + r.row_no + "' class='date" + (!r.hidden ? "" : " strikethrough attention") + "'>" + 
-		    G.getdate_l(Date.parseISO8601(r.route_date)) + "</td>");
-		ar.push("<td class='string'>" + r.u_name + "</td>");
-		ar.push("<td class='string'>" + r.user_id + "</td>");
-		ar.push("<td class='string'>" + G.shielding(r.canceling_type) + "</td>");
-		ar.push("<td class='string'>" + G.shielding(r.note) + "</td>");
-		ar.push("<td id='aR" + r.row_no + "' class='ref' style='width: 60px; white-space: nowrap;'>");
-		if( r.hidden ) {
-		    ar.push(perm.restore ? ("<a href='javascript:PLUG.restore(" + r.row_no + ",\"" + r.route_date + "\",\"" +
-			r.user_id + "\");'>" + lang.restore.ref + "</a>") : lang.plus);
-		} else {
-		    ar.push(perm.reject ? ("<a href='javascript:PLUG.reject(" + r.row_no + ",\"" + r.route_date + "\",\"" +
-			r.user_id + "\");'>" + lang.reject.ref + "</a>") : "");
+    function _datamsg(msg, perm) {
+	return ["<tr class='def'><td colspan='", _getcolumns(perm), "' class='message'>", msg, "</td></tr>"];
+    }
+
+    function _datatbl(data, page, total, f, checked, perm) {
+	var ar = [], size = Array.isArray(data.rows) ? data.rows.length : 0, x = 0, r, z;
+	var rx = new RegExp("['\"]", "g");
+	for( var i = 0; i < size; i++ ) {
+	    if( (r = data.rows[i]) != null && f.is(r) ) {
+		if( (page-1)*perm.rows <= x && x < page*perm.rows ) {
+		    ar.push("<tr" + (typeof checked != 'undefined' && checked[r.row_id] ? " class='selected'" : "") + ">");
+		    ar.push("<td class='autoincrement clickable' onclick=\"PLUG.checkrow(this.parentNode,'" +
+			r.row_id + "');event.stopPropagation();\">", r.row_no, "</td>");
+		    ar.push("<td id='sR", r.row_no, "' class='date", r.hidden ? " strikethrough attention" : "", "'>", 
+			G.getdate_l(Date.parseISO8601(r.route_date)), "</td>");
+		    ar.push("<td class='string sw95px'>", G.shielding(r.u_name), "</td>");
+		    t = G.shielding(r.u_code).replace(rx,' ');
+		    if( r.u_code.length > 15 ) {
+			ar.push("<td class='copyable int footnote' data-title='{0}' onclick='PLUG.copy(\"{0}\");event.stopPropagation();'>".format_a(t),
+			    G.shielding(r.u_code).mtrunc(15), "</td>");
+		    } else {
+			ar.push("<td class='copyable int' onclick='PLUG.copy(\"{0}\");event.stopPropagation();'>".format_a(t),
+			    G.shielding(r.u_code), "</td>");
+		    }
+		    ar.push("<td class='ref'>");
+		    if( !String.isEmpty(r.canceling_type) ) {
+			ar.push("<div class='row'>", G.shielding(r.canceling_type), "</div>");
+		    }
+		    if( !String.isEmpty(r.note) ) {
+			ar.push("<div class='row'><i>", G.shielding(r.note), "</i></div>");
+		    }
+		    if( perm.restore == true || perm.revoke == true ) {
+			ar.push("<div>","<hr/>","<div class='row'>");
+			if( r.hidden ) {
+			    if( perm.restore == true ) {
+				ar.push("<a href='javascript:void(0)' onclick='PLUG.restore(this,", r.row_no, ");'>", 
+				    lang.restore.ref, "</a>");
+			    }
+			} else {
+			    if( perm.revoke == true ) {
+				ar.push("<a class='attention' href='javascript:void(0)' onclick='PLUG.revoke(this,", r.row_no, ");'>", 
+				    lang.revoke.ref, "</a>");
+			    }
+			}
+			ar.push("</div>","</div>");
+		    }
+		    ar.push("</td>");
+		    if( perm.columns != null && perm.columns.area == true ) {
+			ar.push("<td class='ref sw95px'>", G.shielding(r.area), "</td>");
+		    }
+		    if( perm.columns != null && perm.columns.department == true ) {
+			var t = []
+			for( let i = 0, size = Array.isEmpty(r.departments) ? 0 : r.departments.length; i < size; i++ ) {
+			    if( i == 2 ) {
+				t.push("&mldr;");
+				break;
+			    } else if( i == 0 ) {
+				t.push("<div class='row'>", G.shielding(r.departments[i]), "</div>");
+			    } else {
+				t.push("<div class='row remark'>", G.shielding(r.departments[i]), "</div>");
+			    }
+			}
+			ar.push("<td class='ref Xsw95px'>", t.join(''), "</td>");
+		    }
+		    if( perm.columns != null && perm.columns.distributor == true ) {
+			var t = []
+			for( let i = 0, size = Array.isEmpty(r.distributors) ? 0 : r.distributors.length; i < size; i++ ) {
+			    if( i == 2 ) {
+				t.push("&mldr;");
+				break;
+			    } else if( i == 0 ) {
+				t.push("<div class='row'>", G.shielding(r.distributors[i]), "</div>");
+			    } else {
+				t.push("<div class='row remark'>", G.shielding(r.distributors[i]), "</div>");
+			    }
+			}
+			ar.push("<td class='ref sw95px'>", t.join(''), "</td>");
+		    }
+		    ar.push("<td class='int'>", G.shielding(r.dev_login), "</td>");
+		    if( perm.columns != null && perm.columns.head == true ) {
+			ar.push("<td class='string sw95px'>", G.shielding(r.head_name), "</td>");
+		    }
+		    ar.push("</tr>");
 		}
-		ar.push("</td></tr>");
 		x++;
 	    }
 	}
+	if( x > 0 ) {
+	    total.html((x != size ? "&nbsp;&nbsp;({0}/{1})" : "&nbsp;&nbsp;({1})").format_a(x, size));
+	} else {
+	    total.html("");
+	}
 	if( ar.length == 0 ) {
-	    ar = _failed_data(lang.empty);
+	    ar = _datamsg(lang.empty, perm);
+	}
+	if( typeof data.data_ts == 'string' ) {
+	    ar.push("<tr class='def'><td colspan='" + _getcolumns(perm) + "' class='watermark'>" + lang.data_ts +
+		"&nbsp;" + data.data_ts + "</td></tr>");
+	}
+	if( (z = Math.floor(x/perm.rows) + ((x%perm.rows)?1:0)) > 1 /*pages: */ ) {
+	    ar.push("<tr class='def'><td colspan='" + _getcolumns(perm) + "' class='navbar'>");
+	    if( page > 1 ) {
+		ar.push("&nbsp;<a href='javascript:void(0)' onclick='PLUG.page(1)'>|&lt;</a>&nbsp;");
+		ar.push("&nbsp;<a href='javascript:void(0)' onclick='PLUG.page(",page-1,")'>&lt;</a>&nbsp;");
+	    }
+	    if( page == 1 ) {
+		ar.push("&nbsp;",page,"&nbsp;");
+		ar.push("&nbsp;<a href='javascript:void(0)' onclick='PLUG.page(",page+1,")'>",page+1,"</a>");
+		if( (page+2) <= z ) {
+		    ar.push("&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.page(",page+2,")'>",page+2,"</a>");
+		}
+	    } else if( page == z ) {
+		if( (page-2) >= 1 ) {
+		    ar.push("&nbsp;<a href='javascript:void(0)' onclick='PLUG.page(",page-2,")'>",page-2,"</a>&nbsp;");
+		}
+		ar.push("&nbsp;<a href='javascript:void(0)' onclick='PLUG.page(",page-1,")'>",page-1,"</a>&nbsp;");
+		ar.push("&nbsp;",page);
+	    } else {
+		ar.push("&nbsp;<a href='javascript:void(0)' onclick='PLUG.page(",page-1,")'>",page-1,"</a>&nbsp;");
+		ar.push("&nbsp;",page);
+		if( (page+1) <= z ) {
+		    ar.push("&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.page(",page+1,")'>",page+1,"</a>");
+		}
+	    }
+	    if( page < z ) {
+		ar.push("&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.page(",page+1,")'>&gt;</a>&nbsp;");
+		ar.push("&nbsp;<a href='javascript:void(0)' onclick='PLUG.page(",z,")'>&gt;|</a>");
+	    }
+	    ar.push("</td></tr>");
 	}
 	return ar;
     }
 
-    function _setdata(tbody, f) {
-	var sp = new Spinner(_opt.L).spin(_elem.spin.get(0));
-	_elem.spin.show(); tbody.hide();
+    function _parambodytbl() {
+	var ar = [];
+	ar.push("<div class='row'>", lang.cancellations.notice, "</div>");
+	ar.push("<div id='param:alert' class='row attention gone'>", "</div>");
+	ar.push("<div class='row'>");
+	ar.push("<button id='param:user' class='dropdown'>", "</button>");
+	ar.push("</div>");
+	ar.push("<div class='row'>");
+	ar.push("<button id='param:type' class='dropdown'>", "</button>");
+	ar.push("</div>");
+	ar.push("<div class='row'>");
+	ar.push("<button id='param:daterange' class='dropdown'>", "</button>");
+	ar.push("</div>");
+	ar.push("<div class='row'>");
+	ar.push("<textarea id='param:note' rows='3' maxlength='1024' autocomplete='off' placeholder='", 
+	    lang.note_placeholder, "'></textarea>");
+	ar.push("</div>");
+	return ar;
+    }
+
+    function _parambtntbl() {
+	var ar = [];
+	ar.push("<div class='row' align='right'>");
+	ar.push("<button id='param:back'>", lang.back, "</button>");
+	ar.push("&nbsp;&nbsp;");
+	ar.push("<button id='param:commit' disabled='true'>", lang.save, "</button>");
+	ar.push("&nbsp;&nbsp;");
+	ar.push("</div>");
+	return ar;
+    }
+
+    function _datareq() {
+	ProgressDialog.show();
 	_cache.data = null; // drop the internal cache
-	G.xhr("GET", G.getajax({plug: _code, year: _cache.y, month: _cache.m}), "json", function(xhr, data) {
+	G.xhr("GET", G.getajax({plug: _code}), "json", function(xhr, data) {
 	    if( xhr.status == 200 && data != null && typeof data == 'object' ) {
 		_cache.data = data;
-		tbody.html(_success_data(data, f, _getobjcache(), _perm).join(""));
+		//console.log(data);
+		_tags.tbody.html(_datatbl(data, 1, _tags.total, _getfilter(), _cache.checked, _perm).join(""));
 	    } else {
-		tbody.html(_failed_data(lang.failure).join(""));
+		_tags.tbody.html(_datamsg(lang.failure, _perm).join(""));
+		_tags.total.html("");
 	    }
-	    _elem.ts.text(G.getdatetime_l(new Date()));
-	    tbody.show(); sp.stop(); _elem.spin.hide();
+	    _tags.ts.html(G.getdatetime_l(new Date()));
+	    ProgressDialog.hide();
 	}).send();
     }
 
-    function _filterdata(tbody, f) {
+    function _page(page) {
 	if( _cache.data != null ) {
-	    var sp = new Spinner(_opt.L).spin(_elem.spin.get(0));
-	    _elem.spin.show(); tbody.hide();
+	    ProgressDialog.show();
 	    setTimeout(function() {
-		tbody.html(_success_data(_cache.data, f, _getobjcache(), _perm).join(""));
-		sp.stop(); _elem.spin.hide(); tbody.show();
+		_tags.tbody.html(_datatbl(_cache.data, page, _tags.total, _getfilter(), _cache.checked, _perm).join(""));
+		ProgressDialog.hide();
 	    }, 0);
 	}
     }
 
-    function _failed_calendar(msg) {
-	return ["<br /><center>",msg,"</center><br />"];
-    }
-
-    function _success_calendar(rows, year, month) {
-	var ar = [], i, size, r, flag = false;
-	ar.push("<div class='simplelist'><table>");
-	ar.push("<table>");
-	for( i = 0, size = rows.length; i < size; i++ ) {
-	    if( (r = rows[i]) != null ) {
-		ar.push("<tr " + (year == r.y && month == r.m ? "class='selected'" : ("onclick='PLUG.calendar.onselect("+r.y+","+r.m+")'")) +
-		    "><td>" + G.getlongmonth_l(new Date(r.y, r.m-1, 1)) + "</td><td class='r'>" + r.qty + "</td></tr>");
-		flag = true;
-	    }
-	}
-	ar.push("</table></div>");
-
-	return !flag ? _failed_calendar(lang.empty) : ar;
-    }
-
-    function _setcalendar(body, spin) {
-	if( _cache.cal != null ) {
-	    body.html(_success_calendar(_cache.cal, _cache.y, _cache.m).join(""));
-	} else {
-	    var sp = new Spinner(_opt).spin(spin.get(0));
-	    spin.show(); body.hide();
-	    _cache.cal = null; // drop the internal cache
-	    G.xhr("GET", G.getajax({plug: _code, calendar: true}), "json", function(xhr, data) {
-		if( xhr.status == 200 && data != null && typeof data == 'object' ) {
-		    _cache.cal = data;
-		    body.html(_success_calendar(data, _cache.y, _cache.m).join(""));
-		} else {
-		    body.html(_failed_calendar(lang.failure).join(""));
-		}
-		body.show();
-		sp.stop(); spin.hide();
-	    }).send();
-	}
-    }
-
-    function _restore(tbody, row_no, user_id, route_date) {
-	var tag = tbody.find("#aR"+row_no), tag2 = tbody.find("#sR"+row_no);
-	var sp = new Spinner(_opt.S);
-	tag.text(""); 
-	tag.get(0).appendChild(sp.spin().el);
-	G.xhr("PUT", G.getajax({plug: _code, user_id: user_id, route_date: route_date}), "", function(xhr) {
-	    if( xhr.status == 200 ) {
-		tag2.removeClass("date strikethrough attention"); tag2.addClass("date");
-		_cache.data.cancellations[row_no-1].hidden = 0;
+    function _togglePopup(popup, tag, offset, oncreate) {
+	var x;
+	for( var name in _tags.popups) {
+	    if( typeof popup != 'undefined' && name == popup ) {
+		x = _tags.popups[name];
 	    } else {
-		//tag.text(lang.error);
+		_tags.popups[name].hide();
 	    }
-	    sp.stop();
+	}
+	if( typeof popup != 'undefined' && x == null ) {
+	    x = _tags.popups[popup] = oncreate(popup);
+	}
+	if( x != null ) {
+	    x.toggle(tag, offset);
+	}
+    }
+
+    function _onpopup(tag, arg, keyname, filterkey) {
+	if( _cache.xfilters == null ) {
+	    _cache.xfilters = {};
+	}
+	if( filterkey == null || typeof filterkey == 'undefined' ) {
+	    filterkey = keyname;
+	}
+	if( typeof arg == 'object' ) {
+	    _cache.xfilters[filterkey] = Filter.escape(filterkey, arg[keyname]);
+	    tag.addClass('important');
+	} else {
+	    _cache.xfilters[filterkey] = null;
+	    tag.removeClass('important')
+	}
+	_page(1);
+    }
+
+    function _revoke(tags, data, perm) {
+	ProgressDialog.show();
+	G.xhr("DELETE", G.getajax({
+		    plug: _code, 
+		    route_date: data.route_date, 
+		    user_id: data.user_id, 
+		    _datetime: G.getdatetime(new Date())
+		}), "", function(xhr) {
+	    if( xhr.status == 200 ) {
+		data.hidden = 1;
+		tags.route_date.addClass("strikethrough attention");
+		if( perm.restore == true ) {
+		    tags.ref.html(lang.restore.ref);
+		    tags.ref.onclick = function() { PLUG.restore(tags.ref, data.row_no, perm); }
+		    tags.ref.removeClass("attention");
+		} else {
+		    var n = tags.ref.parentNode.parentNode;
+		    n.parentNode.removeChild(n);
+		}
+	    } else {
+		Toast.show(lang.errors.runtime);
+	    }
+	    ProgressDialog.hide();
 	}).send();
     }
 
-    function _reject(tbody, row_no, user_id, route_date) {
-	var tag = tbody.find("#aR"+row_no), tag2 = tbody.find("#sR"+row_no);
-	var sp = new Spinner(_opt.S);
-	tag.text("");
-	tag.get(0).appendChild(sp.spin().el);
-	G.xhr("DELETE", G.getajax({plug: _code, user_id: user_id, route_date: route_date}), "", function(xhr) {
+    function _restore(tags, data, perm) {
+	ProgressDialog.show();
+	G.xhr("PUT", G.getajax({
+		    plug: _code, 
+		    route_date: data.route_date, 
+		    user_id: data.user_id, 
+		    _datetime: G.getdatetime(new Date())
+		}), "", function(xhr) {
 	    if( xhr.status == 200 ) {
-		tag.text(lang.plus);
-		tag2.removeClass("date"); tag2.addClass("date strikethrough attention");
-		_cache.data.cancellations[row_no-1].hidden = 1;
-	    } else {
-		//tag.text(lang.error);
-	    }
-	    sp.stop();
-	}).send();
-    }
-
-    function _startdate(today, perm) {
-	return new Date(new Date(today.getYear()+1900, today.getMonth(), today.getDate()).getTime() +
-	    86400000*(perm&&perm.offset!=null?perm.offset:1));
-    }
-
-    function _stopdate(today, perm) {
-	return new Date(today.getFullYear(), today.getMonth() + (perm&&perm.depth!=null?perm.depth:1) + 1, 0);
-    }
-
-    function _createContext(data, perm) {
-	var today = new Date();
-	var a = {
-	    _b_date: _startdate(today, perm.add),
-	    _e_date: _stopdate(today, perm.add),
-	    _data: data,
-	};
-	a.u = null;
-	a.t = data.types && data.types.length ? data.types[0] : null;
-	a.b_date = a._b_date > today ? a._b_date : today;
-	a.e_date = a.b_date;
-	a.note = '';
-	return a;
-    }
-
-    function _checkContext(context) {
-	return context.u == null || context.t == null || G.getdate(context.b_date) > G.getdate(context.e_date);
-    }
-
-    function _getbox(context) {
-	var a = [];
-	a.push("<div style='width: 550px;' onclick='PLUG.hidepopup();event.stopPropagation();'>");
-	a.push("<h1><span>" + lang.cancellations.title2 + "</span><span id='spin'></span></h1>");
-	a.push("<div class='row'>" + lang.cancellations.notice + "</div>");
-	a.push("<div id='msg' class='row attention gone'></div>");
-	a.push("<div class='row'><span style='display:inline-block;width:135px;'>" + lang.u_name + ":&nbsp;</span><a id='user' href='javascript:PLUG.N.user();'>" +
-	    lang.u_placeholder.toLowerCase() + "</a></div>");
-	if( context.t != null ) {
-	    a.push("<div class='row'><span style='display:inline-block;width:135px;'>" + lang.cancellations.type + ":&nbsp;</span><a id='type' " + 
-		"href='javascript:PLUG.N.type();'>" + context.t.descr + "</a></div>");
-	}
-	a.push("<div class='row'><span style='display:inline-block;width:135px;'>" + lang.b_date + ":&nbsp;</span><a id='b_date' " + 
-	    "href='javascript:PLUG.N.b_date();'>" + G.getlongdate_l(context.b_date).toLowerCase() + "</a></div>");
-	a.push("<div class='row'><span style='display:inline-block;width:135px;'>" + lang.e_date + ":&nbsp;</span><a id='e_date' " + 
-	    "href='javascript:PLUG.N.e_date();'>" + G.getlongdate_l(context.e_date).toLowerCase() + "</a></div>");
-	a.push("<div class='row'><textarea rows='3' maxlength='254' autocomplete='off' oninput='PLUG.N.note(this.value)' placeholder='" +
-	    lang.note_placeholder + "'></textarea></div>");
-	a.push("<hr />");
-	a.push("<div align='right'><button onclick='PLUG.hidebox();'>" + lang.back + "</button>&nbsp;&nbsp;<button id='commit' " +
-	    "onclick='PLUG.save();' disabled='true'>" + lang.save + "</button></div>");
-	a.push("<div id='popup' class='ballon' style='display: none; z-index: 99990;' onclick='PLUG.hidepopup();'>" +
-	    "<div class='arrow'></div><div class='body' style='min-height: 30px;'></div></div>");
-	a.push("</div>");
-	return a;
-    }
-
-    function _getsimplelist(rows, selected, code, f, descr_cb, watermark_cb) {
-	var ar = [], i, size, r;
-	if( f ) {
-	    ar.push("<div class='search'><input type='text' onclick='event.stopPropagation();' maxlength='96' autocomplete='off' " +
-		"oninput='PLUG.N._f" + code + "(this.value)' placeholder='" + lang.search + "'></input></div>");
-	}
-	ar.push("<div class='simplelist'><table id='sl-data'>");
-	for( i = 0, size = rows.length; i < size; i++ ) {
-	    if( (r = rows[i]) != null ) {
-		ar.push("<tr " + (selected(r) ? "class='selected'" : ("onclick='PLUG.N._set" + code +"(" + i + ")'")) +
-		    "><td>" + (descr_cb != null ? descr_cb(r) : r.descr) + (watermark_cb != null ? watermark_cb(r) : "")
-		    + "</td></tr>");
-	    }
-	}
-	ar.push("</table></div>");
-	if( f ) {
-	    ar.push("<div class='placeholder' style='display:none'></div>");
-	}
-	return ar;
-    }
-
-    function _showbox(context, box, ar) {
-	box.html(ar.join(''));
-	context._commit = box.find("#commit");
-	context._spin = box.find("#spin");
-	context._msg = box.find("#msg");
-	context._popup = box.find("#popup");
-	box.show();
-    }
-
-    function _hidebox(box) {
-	if( box != null && box.is(":visible") ) {
-	    box.hide();
-	}
-	_context = null;
-    }
-
-    function _showpopup(popup, tag, ar) {
-	if( popup.is(":visible") ) {
-	    popup.hide();
-	} else {
-	    var pos = tag.position();
-	    popup.find(".body").html(ar.join(''));
-	    popup.css({top: pos.top + tag.height(), left: pos.left + (tag.width() - popup.width())/2});
-	    popup.show();
-	}
-    }
-
-    function _hidepopup(popup) {
-	if( popup != null && popup.is(":visible") ) {
-	    popup.hide();
-	}
-    }
-
-    function _save(context, onsuccess) {
-	_hidemsg(context._msg);
-	if( context.u == null ) {
-	    _showmsg(context._msg, lang.cancellations.msg0);
-	} else if( context.t == null /*&& context.note.length == 0*/ ) {
-	    _showmsg(context._msg, lang.cancellations.msg2);
-	} else if( context.b_date > context.e_date ) {
-	    _showmsg(context._msg, lang.cancellations.msg1);
-	} else {
-	    var sp = new Spinner(_opt.D).spin(context._spin.get(0));
-	    var xhr = G.xhr("POST", G.getajax({plug: _code, user_id: context.u.user_id}), "", function(xhr) {
-		_disable(context._commit, false);
-		if( xhr.status == 200 ) {
-		    onsuccess();
+		data.hidden = 0;
+		tags.route_date.removeClass("strikethrough");
+		tags.route_date.removeClass("attention");
+		if( perm.restore == true ) {
+		    tags.ref.html(lang.revoke.ref);
+		    tags.ref.onclick = function() { PLUG.revoke(tags.ref, data.row_no, perm); }
+		    tags.ref.addClass("attention");
 		} else {
-		    _showmsg(context._msg, lang.cancellations.msg3);
+		    var n = tags.ref.parentNode.parentNode;
+		    n.parentNode.removeChild(n);
 		}
-		sp.stop();
-	    });
-	    _disable(context._commit, true);
-	    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	    xhr.send(G.formParamsURI({user_id: context.u.user_id, b_date: G.getdate(context.b_date), e_date: G.getdate(context.e_date), 
-		canceling_type_id: context.t ? context.t.canceling_type_id : null, note: context.note}));
-	}
-    }
-
-    function _filterSL(value, ar, popup) {
-	var tb = popup.find("#sl-data").get(0);
-	var ph = popup.find(".placeholder").get(0);
-	var f = new Filter(value, true);
-	var empty = true;
-	for( var i = 0; i < ar.length; i++ ) {
-	    if( f.is(ar[i]) ) {
-		tb.rows[i].style.display = null;
-		empty = false;
 	    } else {
-		tb.rows[i].style.display = "none";
+		Toast.show(lang.errors.runtime);
 	    }
-	}
-	ph.style.display = empty ? null : "none";
-	ph.innerHTML = empty ? lang.no_results.format_a(value) : "";
+	    ProgressDialog.hide();
+	}).send();
     }
 
 
 /* public properties & methods */
     return {
-	get: function(perm) {
-	    return _getbody(perm);
+	startup: function(tags, perm) {
+	    _perm = perm;
+	    _perm.rows = perm.rows == null || perm.rows <= 0 ? 100 : perm.rows;
+	    _tags = tags;
+	    _tags.body.html(_getbody(perm).join(""));
+	    _tags.tbody = _("maintb");
+	    _tags.f = _("plugFilter");
+	    _tags.ts = _("timestamp");
+	    _tags.total = _("plugTotal");
+	    _tags.popups = {};
+	    _datareq();
 	},
-	set: function(elem, perm) {
-	    _elem = elem; _perm = perm;
+	refresh: function() {
+	    _togglePopup();
+	    _tags.popups = {};
+	    _datareq();
 	},
-	refresh: function(y, m) {
-	    _cache.y = y; _cache.m = m;
-	    _elem.month.text(G.getlongmonth_l(new Date(y, m - 1, 1)).toLowerCase());
-	    _setdata(_elem.tbody, new Filter(_elem.f.val()));
+	filter: function(tag, ev) {
+	    return Filter.onkeyup(tag, ev, function() {
+		_page(1);
+	    });
+	},
+	page: function(arg) {
+	    _page(arg);
+	    window.scrollTo(0, 0);
+	},
+	checkrow: function(tag, row_id) {
+	    G.checkrow(tag, function(arg) {
+		if( typeof _cache.checked == 'undefined' ) {
+		    _cache.checked = {};
+		}
+		_cache.checked[row_id] = arg;
+	    });
+	},
+	copy: function(text) {
+	    navigator.clipboard.writeText(text);
+	    Toast.show(lang.notices.clipboard);
+	    console.log(text);
+	},
+	users: function(tag, type, offset) {
+	    _togglePopup(type+"s", tag, offset, function(obj) {
+		return UsersPopup(_cache.data[obj], function(arg, i, ar) {
+		    _onpopup(tag, arg, "user_id", type+"_id");
+		}, {container:type+"sPopup", everyone:true})
+	    });
+	},
+	restore: function(tag, row_no) {
+	    _restore({ref: tag, route_date: _('sR{0}'.format_a(row_no))}, _cache.data.rows[row_no-1], _perm);
+	},
+	revoke: function(tag, row_no) {
+	    _revoke({ref: tag, route_date: _('sR{0}'.format_a(row_no))}, _cache.data.rows[row_no-1], _perm);
 	},
 	add: function() {
-	    if( _cache.data && _perm && _perm.add ) {
-		_context = _createContext(_cache.data, _perm);
-		_showbox(_context, _elem.box, _getbox(_context));
-	    }
-	},
-	restore: function(row_no, route_date, user_id) {
-	    _restore(_elem.tbody, row_no, user_id, route_date);
-	},
-	reject: function(row_no, route_date, user_id) {
-	    _reject(_elem.tbody, row_no, user_id, route_date);
-        },
-	hidebox: function() {
-	    _hidepopup(_context._popup);
-	    _hidebox(_elem.box);
-	},
-	hidepopup: function() {
-	    _hidepopup(_context != null ? _context._popup : null);
-	},
-	save: function() {
-	    _save(_context, function() {
-		    _hidepopup(_context._popup);
-		    _hidebox(_elem.box);
-		    _setdata(_elem.tbody, new Filter(_elem.f.val()));
+	    const popups = {};
+	    const togglePopup = function(popup, tag, oncreate) {
+		let x, name;
+		for( name in popups) {
+		    if( typeof popup != 'undefined' && name == popup ) {
+			x = popups[name];
+		    } else {
+			popups[name].hide();
+		    }
 		}
-	    );
-	},
-
-	onrefresh: function() {
-	    _setdata(_elem.tbody, new Filter(_elem.f.val()));
-	    _cache.cal = null;
-	},
-	onfilter: function(tag, ev) {
-	    var a = true;
-	    if( ev.keyCode == 13 ) {
-		_filterdata(_elem.tbody, new Filter(_elem.f.val())); a = false;
-	    } else if( ev.keyCode == 27 ) {
-		_filterdata(_elem.tbody, new Filter(_elem.f.val())); tag.blur();
+		if( typeof popup != 'undefined' && x == null ) {
+		    x = popups[popup] = oncreate(popup);
+		}
+		if( x != null ) {
+		    x.toggle(tag/*, 0.2*/);
+		}
 	    }
-	    return a;
-	},
-	oncheckrow: function(tr, row_id) {
-	    _checkrow(tr, _getobjcache(), row_id);
-	},
+	    Dialog({
+		width: 650,
+		title: lang.cancellations.add,
+		body: _parambodytbl(),
+		buttons: _parambtntbl(),
+		onHideListener: function(dialogObject) { togglePopup(); },
+		onScrollListener: function(dialogObject) { togglePopup(); }
+	    }).show(function(dialogObject) {
+		const newData = {};
+		const mans = _cache.data.mans;
+		const today = new Date();
+		const min = new Date(new Date(today.getYear()+1900, today.getMonth(), 
+		    today.getDate()).getTime() + 86400000*(_perm.add.offset||1));
+		const max = new Date(today.getFullYear(), today.getMonth() + (_perm.add.depth||1) + 1, 0);
+		const alertView = _('param:alert');
+		const noteView = _('param:note');
+		const userView = _('param:user');
+		const typeView = _('param:type');
+		const daterangeView = _('param:daterange');
+		const backView = _('param:back');
+		const commitView = _('param:commit');
+		const func = function() {
+		    commitView.disabled =
+			String.isEmpty(newData.user_id) || 
+			String.isEmpty(newData.type_id) || 
+			String.isEmpty(newData.b_date) ||
+			String.isEmpty(newData.e_date);
+		}
+		const dropDownLabel = function(arg0, arg1) {
+		    if( typeof arg1 == 'object' ) {
+			return "&#9776;&nbsp;&nbsp;{0}:&nbsp;&nbsp;<i>{1}</i>".format_a(arg0, arg1.descr);
+		    } else if( !String.isEmpty(arg1)  ) {
+			return "&#9776;&nbsp;&nbsp;{0}:&nbsp;&nbsp;<i>{1}</i>".format_a(arg0, arg1);
+		    }
+		    return "&#9776;&nbsp;&nbsp;{0}:&nbsp;&nbsp;<i>{1}</i>".format_a(arg0, lang.not_specified);
+		}
 
-	N: {
-	    user: function() {
-		_showpopup(_context._popup, _elem.box.find("#user"), _getsimplelist(_context._data.users, function(r) {
-			return _context.u && r.user_id == _context.u.user_id;
-		    }, "user", true, function(r) {
-			return G.shielding(r.dev_login, lang.dash) + ": " + G.shielding(r.descr, lang.dash);
-		    }, function(r) {
-			return r.dev_login == r.user_id ? "" : ("<br/><span class='watermark'>" + lang.u_code + ": " + 
-			    G.shielding(r.user_id, lang.dash) + "</span>");
-		    })
-		);
-	    },
-	    type: function() {
-		_showpopup(_context._popup, _elem.box.find("#type"), _getsimplelist(_context._data.types, function(r) {
-			return _context.t && r.canceling_type_id == _context.t.canceling_type_id;
-		    }, "type", false)
-		);
-	    },
-	    b_date: function() {
-		_context._cal = new DailyCalendar("PLUG.N._refb_date", "PLUG.N._setb_date").
-		    setperiod(_context._b_date, _context._e_date);
-		_showpopup(_context._popup, _elem.box.find("#b_date"), _context._cal.build(_context.b_date));
-	    },
-	    e_date: function() {
-		_context._cal = new DailyCalendar("PLUG.N._refe_date", "PLUG.N._sete_date").
-		    setperiod(_context.b_date, _context._e_date);
-		_showpopup(_context._popup, _elem.box.find("#e_date"), _context._cal.build(_context.e_date));
-	    },
-	    note: function(value) {
-		_context.note = value;
-		_disable(_context._commit, _checkContext(_context));
-		_hidemsg(_context._msg);
-	    },
-	    _setuser: function(i) {
-		_context.u = _context._data.users[i];
-		_elem.box.find("#user").text(G.shielding(_context.u.dev_login, lang.dash) + ": " +
-		    G.shielding(_context.u.descr, lang.dash));
-		_disable(_context._commit, _checkContext(_context));
-		_hidemsg(_context._msg);
-	    },
-	    _settype: function(i) {
-		_context.t = _context._data.types[i];
-		_elem.box.find("#type").text(_context.t.descr);
-		_disable(_context._commit, _checkContext(_context));
-		_hidemsg(_context._msg);
-	    },
-	    _refb_date: function(month, year) {
-		_context._popup.find(".body").html(_context._cal.refresh(month, year).join(''));
-	    },
-	    _setb_date: function(date) {
-		_context.b_date = date instanceof Date ? date : Date.parseISO8601(date);
-		_elem.box.find("#b_date").text(G.getlongdate_l(_context.b_date).toLowerCase());
-		_disable(_context._commit, _checkContext(_context));
-		_hidemsg(_context._msg);
-	    },
-	    _refe_date: function(month, year) {
-		_context._popup.find(".body").html(_context._cal.refresh(month, year).join(''));
-	    },
-	    _sete_date: function(date) {
-		_context.e_date = date instanceof Date ? date : Date.parseISO8601(date);
-		_elem.box.find("#e_date").text(G.getlongdate_l(_context.e_date).toLowerCase());
-		_disable(_context._commit, _checkContext(_context));
-		_hidemsg(_context._msg);
-	    },
-	    _fuser: function(value) {
-		_filterSL(value, _context._data.users, _context._popup);
-	    }
-	},
+		CancelingTypesPopup.cleanup(mans.users);
+		UsersPopup.cleanup(mans.canceling_types, "dialog!usersPopup");
 
-	calendar: {
-	    onshow: function() {
-		if( _elem.cal.is(":visible") ) {
-		    _elem.cal.hide();
+		userView.html(dropDownLabel(lang.u_name));
+		typeView.html(dropDownLabel(lang.cancellations.type));
+		daterangeView.html(dropDownLabel(lang.validity));
+
+		dialogObject._container.onclick = function() {
+		    togglePopup();
+		}
+		noteView.onfocus = function() {
+		    togglePopup();
+		}
+		noteView.oninput = function() {
+		    newData.note = this.value.trim();
+		    func();
+		}
+		if( !Array.isEmpty(mans.canceling_types) ) {
+		    typeView.onclick = function(ev) {
+			togglePopup("canceling_types", typeView, function(obj) {
+			    return CancelingTypesPopup(mans[obj], function(arg, i, ar) {
+				newData.type_id = typeof arg == 'object' ? arg.canceling_type_id : null;
+				typeView.html(dropDownLabel(lang.cancellations.type, arg));
+				func();
+			    }, {everything: false})
+			});
+			ev.stopPropagation();
+		    }
 		} else {
-		    var pos = _elem.month.position();
-		    _elem.cal.css({top: pos.top + _elem.month.height(), left: pos.left + (_elem.month.width()-_elem.cal.width())/2});
-		    _elem.cal.show();
-		    _setcalendar(_elem.cal.find("#calbody"), _elem.cal.find("#calspin"));
+		    typeView.disabled = true;
 		}
-	    },
-	    onhide: function() {
-		if( _elem.cal.is(":visible") ) {
-		    _elem.cal.hide();
+		if( !Array.isEmpty(mans.users) ) {
+		    userView.onclick = function(ev) {
+			togglePopup("users", userView, function(obj) {
+			    return UsersPopup(mans[obj], function(arg, i, ar) {
+				newData.user_id = typeof arg == 'object' ? arg.user_id : null;
+				userView.html(dropDownLabel(lang.u_name, arg));
+				func();
+			    }, {everything: false, container: "dialog!usersPopup"})
+			});
+			ev.stopPropagation();
+		    }
+		} else {
+		    userView.disabled = true;
 		}
-	    },
-	    onselect: function(y, m) {
-		PLUG.refresh(y, m);
-		history.pushState({y: y, m: m}, "", G.getref({plug: _code, y: y, m: m}));
-	    }
+		daterangeView.onclick = function(ev) {
+		    togglePopup("daterange", daterangeView, function(obj) {
+			return DateRangePopup(min, max, function(arg0, arg1) {
+			    newData.b_date = arg0 instanceof Date ? G.getdate(arg0) : arg0;
+			    newData.e_date = arg1 instanceof Date ? G.getdate(arg1) : arg1;
+			    daterangeView.html(dropDownLabel(lang.validity, 
+				"{0} - {1}".format_a(G.getlongdate_l(arg0), G.getlongdate_l(arg1))
+			    ));
+			    func();
+			});
+		    });
+		    ev.stopPropagation();
+		}
+		backView.onclick = function() {
+		    dialogObject.hide();
+		}
+		commitView.onclick = function() {
+		    if( String.isEmpty(newData.user_id) ) {
+			alertView.html(lang.cancellations.msg0);
+			alertView.show();
+		    } else if( newData.b_date == null || newData.e_date == null || newData.b_date > newData.e_date ) {
+			alertView.html(lang.cancellations.msg1);
+			alertView.show();
+		    } else if( String.isEmpty(newData.type_id) ) {
+			alertView.html(lang.cancellations.msg2);
+			alertView.show();
+		    } else {
+			let fd = new FormData();
+			fd.append("_datetime", G.getdatetime(new Date()));
+			fd.append("user_id", newData.user_id);
+			fd.append("canceling_type_id", newData.type_id);
+			fd.append("b_date", newData.b_date);
+			fd.append("e_date", newData.e_date);
+
+			if( !String.isEmpty(newData.note) ) {
+			    fd.append("note", newData.note);
+			}
+
+			dialogObject.startSpinner();
+			alertView.hide();
+
+			G.xhr("POST", G.getajax({plug: _code}), "json", function(xhr, resp) {
+			    if( xhr.status == 200 ) {
+				PLUG.refresh();
+				dialogObject.hide();
+			    } else {
+				alertView.html(xhr.status == 403 ? lang.errors.not_permitted : lang.errors.runtime);
+				alertView.show();
+			    }
+			    dialogObject.stopSpinner();
+			}).send(fd);
+		    }
+		}
+
+		func();
+	    });
 	}
     }
 })();
 
 
-function startup(tag, y, m, perm) {
-    tag.html(PLUG.get(perm));
-    PLUG.set({
-	body: tag,
-	tbody: tag.find("#maintb"),
-	spin: tag.find("#plugspin"),
-	cal: tag.find("#plugcal"),
-	month: tag.find("#plugmonth"),
-	f: tag.find("#plugfilter"),
-	ts: tag.find("#timestamp"),
-	box: tag.find("#plugbox")
-    }, perm);
-    PLUG.refresh(y, m);
-}
-
-window.onpopstate = function(event) {
-    if( event.state != null ) {
-	PLUG.refresh(event.state.y, event.state.m);
-    } else {
-	var d = new Date();
-	PLUG.refresh(d.getYear() + 1900,d.getMonth() + 1);
-    }
+function startup(perm) {
+    PLUG.startup({body: _('pluginContainer')}, perm);
 }
