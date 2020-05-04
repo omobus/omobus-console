@@ -48,7 +48,7 @@ var PLUG = (function() {
 	    ar.push("<th rowspan='2' width='160px'>", lang.head_name, "</th>");
 	}
 	if( perm.columns != null && perm.columns.mileage == true ) {
-	    ar.push("<th rowspan='2' width='55px'>", lang.mileage, "</th>");
+	    ar.push("<th rowspan='2' width='55px'>", lang.mileageAbbr, "</th>");
 	}
 	ar.push("<th colspan='3'>", R.power, "</th>");
 	ar.push("</tr><tr>");

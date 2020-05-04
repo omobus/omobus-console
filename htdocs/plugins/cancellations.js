@@ -566,6 +566,7 @@ var PLUG = (function() {
 
 		func();
 	    });
+	    _togglePopup();
 	}
     }
 })();

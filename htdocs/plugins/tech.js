@@ -70,7 +70,7 @@ var PLUG = (function() {
 	if( typeof __allowedColumns == 'object' && __allowedColumns.distributor ) {
 	    ar.push("<th rowspan='2'>", lang.distributor, "</th>");
 	}
-	ar.push("<th rowspan='2' width='60px'>", lang.mileage, "</th>");
+	ar.push("<th rowspan='2' width='60px'>", lang.mileageAbbr, "</th>");
 	ar.push("<th rowspan='2' width='50px'>", lang.tech.pause, "</th>");
 	ar.push("<th rowspan='2'>", lang.dev_login, "</th>");
 	ar.push("</tr><tr>");
