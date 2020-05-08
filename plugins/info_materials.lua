@@ -217,7 +217,7 @@ local function blob(stor, infom_id)
 [[
 select infom_id, blob, content_type from info_materials where infom_id = %infom_id%
 ]]
-	, "//info_materials/blob", {infom_id = infom_id})
+	, "//info_materials/blob/", {infom_id = infom_id})
     end
     )
 end

@@ -21,7 +21,8 @@ local function data(permtb, stor, sestb)
 select
     m.pl_id, 
     m.descr, 
-    blob_length(m.image) blob_size,
+    blob_length(m.blob) blob_size,
+    m.content_type,
     m.country_id, c.descr country, 
     array_to_string(m.brand_ids,'|') brand_ids, (select string_agg(descr, '|') from brands where brand_id=any(m.brand_ids)) brands,
     m.rc_id, r.descr rc,
@@ -219,12 +220,12 @@ order by descr
     )
 end
 
-local function image(stor, pl_id)
+local function blob(stor, pl_id)
     return stor.get(function(tran, func_execute) return func_execute(tran,
 [[
-select image from planograms where pl_id = %pl_id%
+select pl_id, blob, content_type from planograms where pl_id = %pl_id%
 ]]
-	, "//planograms/image", {pl_id = pl_id})
+	, "//planograms/blob/", {pl_id = pl_id})
     end
     )
 end
@@ -243,7 +244,7 @@ end
 local function unlink(stor, uid, reqdt, pl_id)
     return stor.put(function(tran, func_execute) return func_execute(tran,
 [[
-select console.req_planogram(%req_uid%, %req_dt%, 'unlink', %pl_id%, null) rv
+select console.req_planogram(%req_uid%, %req_dt%, 'unlink', %pl_id%, null::console.planogram_t) rv
 ]]
         , "//planograms/unlink/"
         , {req_uid = uid, req_dt = reqdt, pl_id = pl_id})
@@ -272,13 +273,13 @@ select console.req_planogram(%req_uid%, %_datetime%, 'edit', %pl_id%, (
     )
 end
 
-local function post(stor, uid, reqdt, blob)
+local function post(stor, uid, reqdt, blob, content_type)
     return stor.put(function(tran, func_execute) return func_execute(tran,
 [[
-select console.req_planogram(%req_uid%, %req_dt%/*, 'add'*/, %name%, %1:blob%) rv
+select console.req_planogram(%req_uid%, %req_dt%/*, 'add'*/, %name%, %1:blob%, %content_type%) rv
 ]]
 	, "//planograms/add/"
-	, {req_uid = uid, req_dt = reqdt, name = blob.name}
+	, {req_uid = uid, req_dt = reqdt, name = blob.name, content_type = content_type}
 	, blob.contents)
     end
     )
@@ -334,16 +335,25 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
 	    -- validate input data
 	    assert(validate.isuid(params.pl_id), "invalid [pl_id] parameter.")
 	    -- execute query
-	    tb, err = image(stor, params.pl_id)
+	    tb, err = blob(stor, params.pl_id)
 	    if err then
 		scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
 		scgi.writeBody(res, "Internal server error")
-	    elseif tb == nil or #tb ~= 1 or tb[1].image == nil then
+	    elseif tb == nil or #tb ~= 1 or tb[1].blob == nil then
 		scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
 		scgi.writeBody(res, "Invalid input parameters")
-	    else
+	    elseif tb[1].content_type == mime.pdf then
+		scgi.writeHeader(res, 200, {
+		    ["Content-Type"] = tb[1].content_type,
+		    ["Content-Disposition"] = "inline; filename=\"" .. params.pl_id .. ".pdf\""
+		})
+		scgi.writeBody(res, tb[1].blob)
+	    elseif tb[1].content_type == mime.jpeg then
 		scgi.writeHeader(res, 200, {["Content-Type"] = mime.jpeg})
-		scgi.writeBody(res, tb[1].image)
+		scgi.writeBody(res, tb[1].blob)
+	    else
+		scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
+		scgi.writeBody(res, "Invalid BLOB type")
 	    end
 	else
 	    tb, err = data(permtb, stor, sestb)
@@ -370,8 +380,9 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
 	assert(mp.blob and mp.blob.size > 0, "invalid [blob] parameter.")
 	assert(mp.blob.size <= permtb.add.max_file_size_mb*1024*1024, string.format("[blob] size should be less then %d MB.", 
 	    permtb.add.max_file_size_mb))
+	assert(core.contains({mime.pdf, mime.jpeg},mp.content_type), "blob [content_type] is not supported.")
 	-- execute query
-	if post(stor, sestb.erpid or sestb.username, mp._datetime, mp.blob) then
+	if post(stor, sestb.erpid or sestb.username, mp._datetime, mp.blob, mp.content_type) then
 	    scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
 	    scgi.writeBody(res, "Internal server error")
 	else

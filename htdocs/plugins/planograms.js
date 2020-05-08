@@ -87,9 +87,12 @@ var PLUG = (function() {
 		    ar.push("<td width='65px' class='ref", typeof r.blob_size == 'undefined' ? " incomplete" : "", "'>");
 		    if( typeof r.blob_size == 'undefined' ) {
 			ar.push("&nbsp;");
+		    } else if( r.content_type == 'image/jpeg' ) {
+			ar.push("<a href='javascript:void(0);' onclick='PLUG.slideshow(\"", r.pl_id, "\")'>",
+			    r.blob_size ? G.getnumeric_l(r.blob_size/1024, 1) : lang.dash, "</a>");
 		    } else {
-			ar.push("<a href='javascript:void(0);' onclick='PLUG.slideshow(\"", r.pl_id, "\")'>", 
-			    (r.blob_size ? G.getnumeric_l(r.blob_size/1024, 1) : lang.dash), "</a>");
+			ar.push("<a href='", G.getajax({plug: _code, pl_id: r.pl_id, blob: true}), "' target='_blank'>",
+			    r.blob_size ? G.getnumeric_l(r.blob_size/1024, 1) : lang.dash, "</a>");
 		    }
 		    ar.push("</td>");
 		    ar.push("<td class='ref sw95px", String.isEmpty(r.country_id) ? " incomplete" : "", "'>", G.shielding(r.country), "</td>");
@@ -295,7 +298,7 @@ var PLUG = (function() {
     function _add(files, max_file_size_mb) {
 	for( var i = 0, size = files.length, counter = 0; i < size; i++ ) {
 	    var f = files[i];
-	    if( f.type !== 'image/jpeg' ) {
+	    if( !(f.type == 'image/jpeg' || f.type == 'application/pdf') ) {
 		Toast.show(lang.planograms.msg0.format_a(f.name));
 	    } else if( max_file_size_mb*1024*1024 < f.size ) {
 		Toast.show(lang.planograms.msg1.format_a(f.name, max_file_size_mb));
@@ -304,6 +307,7 @@ var PLUG = (function() {
 		fd = new FormData();
 		fd.append("_datetime", G.getdatetime(new Date()));
 		fd.append("blob", f, f.name.replace(/\.[^/.]+$/, ""));
+		fd.append("content_type", f.type);
 		xhr = G.xhr("POST", G.getajax({plug: _code}), "json", function(xhr, resp) {
 		    if( xhr.status == 200 ) {
 			PLUG.refresh();
