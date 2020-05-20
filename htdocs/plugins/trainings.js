@@ -290,16 +290,17 @@ var PLUG = (function() {
 			ws.cell("P{0}".format_a(i + offset)).value(r.tm);
 			ws.cell("Q{0}".format_a(i + offset)).value(_fmtcontact(r));
 			ws.cell("R{0}".format_a(i + offset)).value(r.job_title);
+			ws.cell("S{0}".format_a(i + offset)).value(r.training_type);
 			if( Array.isArray(r.refs) && r.refs.length > 0 ) {
-			    const n = ["S","T"];
+			    const n = ["T","U"];
 			    r.refs.forEach(function(val, index) {
 				ws.cell("{1}{0}".format_a(i + offset,n[index])).value("[ {0} ]".format_a(index + 1))
 				.style({ fontColor: "0563c1", underline: true })
 				.hyperlink({ hyperlink: G.getphotoref(r.refs[index],true) });
 			    });
 			}
-			ws.cell("U{0}".format_a(i + offset)).value(r.doc_note);
-			ws.cell("V{0}".format_a(i + offset)).value(r.head_name);
+			ws.cell("V{0}".format_a(i + offset)).value(r.doc_note);
+			ws.cell("W{0}".format_a(i + offset)).value(r.head_name);
 		    }
 		    wb.outputAsync()
 			.then(function(blob) {
