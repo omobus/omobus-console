@@ -7,10 +7,9 @@ var PLUG = (function() {
     var _cache = {}, _perm = {}, _tags = {};
 
     function _getcolumns(perm) {
-	return 9 + (perm.columns == null ? 0 : (
-	    (perm.columns.channel == true ? 1 : 0) + 
-	    (perm.columns.head == true ? 1 : 0)
-	));
+	let x = 10, c = perm.columns || {};
+	if( c.channel == true ) x++;
+	return x;
     }
 
     function _getbody(perm) {
@@ -38,9 +37,7 @@ var PLUG = (function() {
 	ar.push("<th><a href='javascript:void(0)' onclick='PLUG.qnames(this, 0.6)'>", lang.qname, "</a></th>");
 	ar.push("<th><a href='javascript:void(0)' onclick='PLUG.qrows(this, 0.65)'>", lang.qrow, "</a></th>");
 	ar.push("<th>", lang.qvalue, "</th>");
-	if( perm.columns != null && perm.columns.head == true ) {
-	    ar.push("<th><a href='javascript:void(0)' onclick='PLUG.users(this,\"head\",0.90)'>", lang.head_name, "</a></th>");
-	}
+	ar.push("<th><a href='javascript:void(0)' onclick='PLUG.users(this,\"head\",0.90)'>", lang.head_name, "</a></th>");
 	ar.push("</tr>", G.thnums(_getcolumns(perm)), "</thead>");
 	ar.push("<tbody id='maintb'></tbody></table>");
 	ar.push(MonthsPopup.container());
@@ -110,11 +107,8 @@ var PLUG = (function() {
 		    }
 		    ar.push("</td>");
 		    ar.push("<td class='string note'>", G.shielding(r.qrow), "</td>");
-		    ar.push("<td class='int" + (perm.columns != null && perm.columns.head == true ? " delim" : "") + 
-			"'>", G.shielding(r.value), "</td>");
-		    if( perm.columns != null && perm.columns.head == true ) {
-			ar.push("<td class='string sw95px'>", G.shielding(r.head_name), "</td>");
-		    }
+		    ar.push("<td class='delim int'>", G.shielding(r.value), "</td>");
+		    ar.push("<td class='string sw95px'>", G.shielding(r.head_name), "</td>");
 		    ar.push("</tr>");
 		    k++;
 		}

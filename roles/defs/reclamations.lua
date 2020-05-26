@@ -3,7 +3,7 @@
 
 local M = {} -- public interface
 
-M.columns = {channel=true, head=true, distributor=true}
+M.columns = {channel=true, distributor=true}
 M.rows = 500
 
 return M

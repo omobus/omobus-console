@@ -7,11 +7,9 @@ var PLUG = (function() {
     var _cache = {}, _perm = {}, _tags = {}, _F = false /* abort export photos */, _onlyUnchecked = null;
 
     function _getcolumns(perm) {
-	return 9 + (perm.columns == null ? 0 : (
-	    (perm.columns.channel == true ? 1 : 0) + 
-	    (perm.columns.head == true ? 1 : 0) +
-	    (perm.columns.author == true ? 1 : 0)
-	));
+	let x = 11, c = perm.columns || {};
+	if( c.channel == true ) x++;
+	return x;
     }
 
     function _getbody(perm) {
@@ -48,12 +46,8 @@ var PLUG = (function() {
 	ar.push("<th>", lang.targets.subject.caption, "</th>");
 	ar.push("<th>", lang.photo, "</th>");
 	ar.push("<th width='260px'><a href='javascript:void(0)' onclick='PLUG.confirmation_types(this,0.65)'>", lang.targets_compliance.confirmations, "</a></th>");
-	if( perm.columns != null && perm.columns.head == true ) {
-	    ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"head\",0.90)'>", lang.head_name, "</a></th>");
-	}
-	if( perm.columns != null && perm.columns.author == true ) {
-	    ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"author\",0.9)'>", lang.author, "</a></th>");
-	}
+	ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"head\",0.90)'>", lang.head_name, "</a></th>");
+	ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"author\",0.9)'>", lang.author, "</a></th>");
 	ar.push("</tr>", G.thnums(_getcolumns(perm)), "</thead>");
 	ar.push("<tbody id='maintb'></tbody></table>");
 	ar.push(Popup.container());
@@ -232,12 +226,8 @@ var PLUG = (function() {
 		    }
 		    ar.push("</div>");
 		    ar.push("</td>");
-		    if( perm.columns != null && perm.columns.head == true ) {
-			ar.push("<td class='string sw95px'>", G.shielding(r.head_name), "</td>");
-		    }
-		    if( perm.columns != null && perm.columns.author == true ) {
-			ar.push("<td class='string sw95px'>", G.shielding(r.author_name), "</td>");
-		    }
+		    ar.push("<td class='string sw95px'>", G.shielding(r.head_name), "</td>");
+		    ar.push("<td class='string sw95px'>", G.shielding(r.author_name), "</td>");
 		    ar.push("</tr>");
 		    k++;
 		}

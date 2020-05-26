@@ -8,11 +8,10 @@ var PLUG = (function() {
     var _statusColumn = 2;
 
     function _getcolumns(perm) {
-	return 9 + (perm.columns == null ? 0 : (
-	    (perm.columns.channel == true ? 1 : 0) +
-	    (perm.columns.potential == true ? 1 : 0) +
-	    (perm.columns.head == true ? 1 : 0)
-	));
+	let x = 10, c = perm.columns || {};
+	if( c.channel == true ) x++;
+	if( c.potential == true ) x++;
+	return x;
     }
 
     function _getbody(perm) {
@@ -41,9 +40,7 @@ var PLUG = (function() {
 	}
 	ar.push("<th class='date'>", lang.route, "</th>");
 	ar.push("<th><a href='javascript:void(0)' onclick='PLUG.types(this,0.85)'>", lang.discards.type, "</a></th>");
-	if( perm.columns != null && perm.columns.head == true ) {
-	    ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"head\",0.90)'>", lang.head_name, "</a></th>");
-	}
+	ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"head\",0.90)'>", lang.head_name, "</a></th>");
 	ar.push("</tr>", G.thnums(_getcolumns(perm)), "</thead>");
 	ar.push("<tbody id='maintb'></tbody></table>");
 	ar.push(ChannelsPopup.container());
@@ -143,9 +140,7 @@ var PLUG = (function() {
 			ar.push("</div>","</div>");
 		    }
 		    ar.push("</td>");
-		    if( perm.columns != null && perm.columns.head == true ) {
-			ar.push("<td class='string sw95px", r.rejected ? " disabled" : "","'>", G.shielding(r.head_name), "</td>");
-		    }
+		    ar.push("<td class='string sw95px", r.rejected ? " disabled" : "","'>", G.shielding(r.head_name), "</td>");
 		    ar.push("</tr>");
 		}
 		x++;

@@ -8,10 +8,9 @@ var PLUG = (function() {
     var _statusColumn = 2;
 
     function _getcolumns(perm) {
-	return 10 + (perm.columns == null ? 0 : (
-	    (perm.columns.channel == true ? 1 : 0) +
-	    (perm.columns.head == true ? 1 : 0)
-	));
+	let x = 11, c = perm.columns || {};
+	if( c.channel == true ) x++;
+	return x;
     }
 
     function _getbody(perm) {
@@ -38,9 +37,7 @@ var PLUG = (function() {
 	ar.push("<th width='190px'><a href='javascript:void(0)' onclick='PLUG.types(this,0.75)'>", lang.additions.types, "</th>");
 	ar.push("<th>", lang.note, "</th>");
 	ar.push("<th>", lang.photo, "</th>");
-	if( perm.columns != null && perm.columns.head == true ) {
-	    ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"head\",0.90)'>", lang.head_name, "</a></th>");
-	}
+	ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"head\",0.90)'>", lang.head_name, "</a></th>");
 	ar.push("</tr>", G.thnums(_getcolumns(perm)), "</thead>");
 	ar.push("<tbody id='maintb'></tbody></table>");
 	ar.push(ChannelsPopup.container());
@@ -148,9 +145,7 @@ var PLUG = (function() {
 			});
 		    }
 		    ar.push("</td>");
-		    if( perm.columns != null && perm.columns.head == true ) {
-			ar.push("<td class='string", r.rejected ? " disabled" : "","'>", G.shielding(r.head_name), "</td>");
-		    }
+		    ar.push("<td class='string", r.rejected ? " disabled" : "","'>", G.shielding(r.head_name), "</td>");
 		    ar.push("</tr>");
 		}
 		x++;

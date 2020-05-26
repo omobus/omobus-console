@@ -7,10 +7,9 @@ var PLUG = (function() {
     var _cache = {}, _perm = {}, _tags = {}, _F = false /* abort export photos */;
 
     function _getcolumns(perm) {
-	return 9 + (perm.columns == null ? 0 : (
-	    (perm.columns.channel == true ? 1 : 0) + 
-	    (perm.columns.head == true ? 1 : 0)
-	));
+	let x = 10, c = perm.columns || {};
+	if( c.channel == true ) x++;
+	return x;
     }
 
     function _getbody(perm) {
@@ -43,9 +42,7 @@ var PLUG = (function() {
 	ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.categories(this,0.6)'>", lang.categ_name, "</a></th>");
 	ar.push("<th width='90px'>", lang.sla.result, "</th>");
 	ar.push("<th>", lang.photo, "</th>");
-	if( perm.columns != null && perm.columns.head == true ) {
-	    ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"head\",0.90)'>", lang.head_name, "</a></th>");
-	}
+	ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"head\",0.90)'>", lang.head_name, "</a></th>");
 	ar.push("</tr>", G.thnums(_getcolumns(perm)), "</thead>");
 	ar.push("<tbody id='maintb'></tbody></table>");
 	ar.push(MonthsPopup.container());
@@ -148,7 +145,7 @@ var PLUG = (function() {
 		    ar.push("<td class='string sw95px'>", G.shielding(r.categ), "</td>");
 		    ar.push("<td class='int'><a href='javascript:void(0)' onclick='PLUG.more(" + r.row_no + ");'>", 
 			G.getpercent_l(r.sla), "</a></td>");
-		    ar.push("<td class='ref" + (perm.columns != null && perm.columns.head == true ? " delim" : "") + "'>");
+		    ar.push("<td class='delim ref'>");
 		    if( Array.isArray(r.photos) ) {
 			r.photos.forEach(function(arg0, arg1, arg2) {
 			    ar.push("<p><a href='javascript:void(0)' onclick='PLUG.slideshow([" + arg2.join(',') + "]," + 
@@ -156,9 +153,7 @@ var PLUG = (function() {
 			});
 		    }
 		    ar.push("</td>");
-		    if( perm.columns != null && perm.columns.head == true ) {
-			ar.push("<td class='string sw95px'>", G.shielding(r.head_name), "</td>");
-		    }
+		    ar.push("<td class='string sw95px'>", G.shielding(r.head_name), "</td>");
 		    ar.push("</tr>");
 		}
 		data._rows.push(r);

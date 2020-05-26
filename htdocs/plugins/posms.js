@@ -7,11 +7,10 @@ var PLUG = (function() {
     var _cache = {}, _perm = {}, _tags = {}, _F = false /* abort export photos */;
 
     function _getcolumns(perm) {
-	return 10 + (perm.columns == null ? 0 : (
-	    (perm.columns.channel == true ? 1 : 0) + 
-	    (perm.columns.brand == true ? 1 : 0) + 
-	    (perm.columns.head == true ? 1 : 0)
-	));
+	let x = 11, c = perm.columns || {};
+	if( c.channel == true ) x++;
+	if( c.brand == true ) x++;
+	return x;
     }
 
     function _getbody(perm) {
@@ -48,9 +47,7 @@ var PLUG = (function() {
 	}
 	ar.push("<th>", lang.photo, "</th>");
 	ar.push("<th>", lang.note, "</th>");
-	if( perm.columns != null && perm.columns.head == true ) {
-	    ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"head\",0.90)'>", lang.head_name, "</a></th>");
-	}
+	ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"head\",0.90)'>", lang.head_name, "</a></th>");
 	ar.push("</tr>", G.thnums(_getcolumns(perm)), "</thead>");
 	ar.push("<tbody id='maintb'></tbody></table>");
 	ar.push(MonthsPopup.container());
@@ -201,14 +198,12 @@ var PLUG = (function() {
 			    G.getajax({plug: _code, blob: "yes", thumb: "yes", blob_id: r.blob_id}) + "' />");
 		    }
 		    ar.push("</td>");
-		    ar.push("<td class='string note", perm.columns != null && perm.columns.head == true ? " delim" : "", xs, "'>");
+		    ar.push("<td class='delim string note", xs, "'>");
 		    if( !String.isEmpty(r.doc_note) ) {
 			ar.push("<div class='row'>", G.shielding(r.doc_note), "</div>");
 		    }
 		    ar.push("</td>");
-		    if( perm.columns != null && perm.columns.head == true ) {
-			ar.push("<td class='string sw95px", xs, "'>", G.shielding(r.head_name), "</td>");
-		    }
+		    ar.push("<td class='string sw95px", xs, "'>", G.shielding(r.head_name), "</td>");
 		    ar.push("</tr>");
 		    data._rowsVisible.push(r);
 		    k++;
