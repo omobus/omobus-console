@@ -41,6 +41,7 @@ M.permissions = {
     tech 		= require 'roles.defs.tech',
     testings 		= require 'roles.defs.testings',
     tickets 		= require 'roles.defs.tickets',
+    time 		= require 'roles.defs.time',
     training_materials 	= require 'roles.defs.training_materials',
     trainings 		= require 'roles.defs.trainings',
     wishes 		= require 'roles.defs.wishes'
