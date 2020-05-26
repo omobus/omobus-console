@@ -44,10 +44,10 @@ var PLUG = (function() {
 	if( perm.columns != null && perm.columns.distributor == true ) {
 	    ar.push("<th>", lang.distributor, "</th>");
 	}
-	ar.push("<th width='85px'>", lang.dev_login, "</th>");
 	if( perm.columns != null && perm.columns.head == true ) {
 	    ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"head\",0.90)'>", lang.head_name, "</a></th>");
 	}
+	ar.push("<th width='85px'>", lang.dev_login, "</th>");
 	ar.push("</tr>", G.thnums(_getcolumns(perm)), "</thead>");
 	ar.push("<tbody id='maintb'></tbody></table>");
 	ar.push(Dialog.container());
@@ -155,10 +155,10 @@ var PLUG = (function() {
 			}
 			ar.push("<td class='ref sw95px'>", t.join(''), "</td>");
 		    }
-		    ar.push("<td class='int'>", G.shielding(r.dev_login), "</td>");
 		    if( perm.columns != null && perm.columns.head == true ) {
 			ar.push("<td class='string sw95px'>", G.shielding(r.head_name), "</td>");
 		    }
+		    ar.push("<td class='int'>", G.shielding(r.dev_login), "</td>");
 		    ar.push("</tr>");
 		}
 		x++;
