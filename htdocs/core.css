@@ -1561,6 +1561,11 @@ hr {
     max-width: 190px;
 }
 
+.report td.u_name {
+    word-break: break-word;
+    min-width: 160px;
+}
+
 .report td.note {
     word-break: break-word;
     min-width: 70px;
