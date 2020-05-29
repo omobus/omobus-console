@@ -8,7 +8,7 @@ var PLUG = (function() {
     var R = lang[_code];
 
     function _getcolumns(perm) {
-	let x = 21, c = perm.columns || {};
+	let x = 20, c = perm.columns || {};
 	if( c.area == true ) x++;
 	if( c.department == true ) x++;
 	if( c.distributor == true ) x++;
@@ -32,7 +32,7 @@ var PLUG = (function() {
 	ar.push("<th rowspan='2'>", lang.u_name, "</th>");
 	ar.push("<th rowspan='2'>", lang.dev_login, "</th>");
 	ar.push("<th colspan='5'>", R.wd, "</th>");
-	ar.push("<th colspan='9'>", lang.route, "</th>");
+	ar.push("<th colspan='8'>", lang.route, "</th>");
 	if( perm.columns != null && perm.columns.area == true ) {
 	    ar.push("<th rowspan='2'>", lang.area, "</th>");
 	}
@@ -53,7 +53,6 @@ var PLUG = (function() {
 	ar.push("<th>", lang.scheduled, "</th>");
 	ar.push("<th>", lang.closed, "</th>");
 	ar.push("<th>", lang.pending, "</th>");
-	ar.push("<th>", R.other, "</th>");
 	ar.push("<th>", "&#x2713;", "</th>");
 	ar.push("<th>", "&#x2717;", "</th>");
 	ar.push("<th id='rule0'>", lang.less_min.format_a(lang.dash), "</th>");
@@ -61,7 +60,7 @@ var PLUG = (function() {
 	ar.push("<th id='rule2'>", lang.more_meter.format_a(lang.dash), "</th>");
 	ar.push("<th>", lang.b_date, "</th>");
 	ar.push("<th>", lang.e_date, "</th>");
-	ar.push("<th>", R.chargings, "</th>");
+	ar.push("<th>", "&#x1f50c;", "</th>");
 	ar.push("</tr>", G.thnums(_getcolumns(perm)), "</thead><tbody id=\"maintb\"></tbody></table>");
 	ar.push(DaysPopup.container());
 	return ar;
@@ -110,9 +109,9 @@ var PLUG = (function() {
 		    ar.push("<td class='delim int", disabled, "' width='80px'>", G.shielding(r.user_id).mtrunc(12), "</td>");
 		}
 		if( !(r.scheduled > 0 || r.other > 0) ) {
-		    ar.push("<td class='delim ref disabled' colspan='14'>", R.none, "</td>");
+		    ar.push("<td class='delim ref disabled' colspan='13'>", R.none.toLowerCase(), "</td>");
 		} else if( r.canceled > 0 ) {
-		    ar.push("<td class='delim ref disabled' colspan='14'>", G.shielding(r.canceling_note), "</td>");
+		    ar.push("<td class='delim ref disabled' colspan='13'>", G.shielding(r.canceling_note), "</td>");
 		} else {
 		    if( r.route_begin != null || r.route_end != null ) {
 			t = G.gettime_l(Date.parseISO8601(r.route_begin));
@@ -123,13 +122,13 @@ var PLUG = (function() {
 			ar.push("<td class='time'>", G.shielding(Number.HHMM(r.instore_duration)), "</td>");
 			ar.push("<td class='delim int' width='55px'>", r.mileage/1000 > 0 ? (r.mileage/1000.0).toFixed(1) : lang.dash, "</td>");
 		    } else {
-			ar.push("<td class='delim ref disabled' colspan='5'>", lang.none, "</td>");
+			ar.push("<td class='delim ref disabled' colspan='5'>", lang.none.toLowerCase(), "</td>");
 		    }
 		    ar.push("<td class='int' width='40px'>", r.scheduled > 0 ? (G.getint_l(r.scheduled) + 
 			(r.discarded > 0 ? "<sup>&nbsp;(-{0})</sup>".format_a(r.discarded) : "")) : lang.dash, "</td>");
-		    ar.push("<td class='int' width='40px'>", r.closed > 0 ? G.getint_l(r.closed) : lang.dash, "</td>");
+		    ar.push("<td class='int' width='40px'>", r.closed > 0 || r.other > 0 ? (G.getint_l(r.closed,0) + 
+			(r.other > 0 ? "<sup>&nbsp;(+{0})</sup>".format_a(r.other) : "")) : lang.dash, "</td>");
 		    ar.push("<td class='int' width='40px'>", r.pending > 0 ? G.getint_l(r.pending) : lang.dash, "</td>");
-		    ar.push("<td class='int' width='40px'>", r.other > 0 ? G.getint_l(r.other) : lang.dash, "</td>");
 		    ar.push("<td class='int' width='40px'>", r.accepted > 0 ? G.getint_l(r.accepted) : lang.dash, "</td>");
 		    ar.push("<td class='int", r.rejected > 0 ? " attention" : "", "' width='40px'>", 
 			r.rejected > 0 ? G.getint_l(r.rejected) : lang.dash, "</td>");

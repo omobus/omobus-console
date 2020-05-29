@@ -158,7 +158,12 @@ function M.startup(lang, permtb, sestb, params, stor)
     if params.month ~= nil and type(params.month) ~= 'number' then
 	params.month = tonumber(params.month)
     end
-    if params.year ~= nil and params.month ~= nil then
+    if params.user_id ~= nil and validate.isuid(params.user_id) ~= true then
+	params.user_id = nil
+    end
+    if params.year ~= nil and params.month ~= nil and params.user_id ~= nil then
+	return string.format("startup({y:%s,m:%s,u:'%s'},%s);", params.year, params.month, params.user_id, json.encode(permtb))
+    elseif params.year ~= nil and params.month ~= nil then
 	return string.format("startup({y:%s,m:%s},%s);", params.year, params.month, json.encode(permtb))
     else
 	return string.format("startup(null,%s);", json.encode(permtb))

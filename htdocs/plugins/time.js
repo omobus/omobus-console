@@ -5,10 +5,9 @@ var PLUG = (function() {
     /* private properties & methods */
     var _code = "time";
     var _cache = {}, _perm = {}, _tags = {};
-    var _morecolumns2 = 6;
 
     function _getcolumns(perm) {
-	let x = 19, c = perm.columns || {};
+	let x = 18, c = perm.columns || {};
 	if( c.area == true ) x++;
 	if( c.department == true ) x++;
 	if( c.distributor == true ) x++;
@@ -28,93 +27,92 @@ var PLUG = (function() {
 	ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<input class='search' type='text' maxlength='96' autocomplete='off' placeholder='",
 	    lang.search, "' id='plugFilter' onkeyup='return PLUG.filter(this, event);' onpaste='PLUG.filter(this, event); return true;' />");
 	ar.push("</span>");
-	ar.push("<span id='moreGroup'>");
-	ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<span id='plugUN'></span>");
+	ar.push("<span id='moreGroup' class='gone'>");
 	ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.back(this)'>", lang.u_everyone, "</a>");
 	ar.push("</span>");
 	ar.push("</td></tr></table>");
+	/* users page: */
 	ar.push("<div id='usersContainer'>");
-	ar.push("<table width='100%' class='report'><thead><tr>");
-	ar.push("<th class='autoincrement'>", lang.num, "</th>");
-	ar.push("<th>", lang.u_name, "</th>");
-	ar.push("<th width='80px'>", lang.dev_login, "</th>");
+	ar.push("<table width='100%' class='report'>", "<thead>", "<tr>");
+	ar.push("<th rowspan='2' class='autoincrement'>", lang.num, "</th>");
+	ar.push("<th rowspan='2'>", lang.u_name, "</th>");
+	ar.push("<th rowspan='2' width='80px'>", lang.dev_login, "</th>");
+	ar.push("<th colspan='3'>", lang.my, "</th>");
+	ar.push("<th colspan='8'>", lang.route, "</th>");
+	ar.push("<th colspan='3'>", lang.route_compliance.wd, "</th>");
+	if( perm.columns != null && perm.columns.area == true ) {
+	    ar.push("<th rowspan='2'>", lang.area, "</th>");
+	}
+	if( perm.columns != null && perm.columns.department == true ) {
+	    ar.push("<th rowspan='2'>", lang.departmentAbbr, "</th>");
+	}
+	if( perm.columns != null && perm.columns.distributor == true ) {
+	    ar.push("<th rowspan='2'>", lang.distributor, "</th>");
+	}
+	ar.push("<th rowspan='2'><a href='javascript:void(0)' onclick='PLUG.users(this,\"head\",0.90)'>", lang.head_name, "</a></th>");
+	ar.push("</tr>", "<tr>");
 	ar.push("<th>", lang.myAbbr, "</th>");
 	ar.push("<th class='symbol'>", "&#x2691;", "</th>");
 	ar.push("<th>", "%", "</th>");
 	ar.push("<th>", lang.scheduled, "</th>");
 	ar.push("<th>", lang.closed, "</th>");
 	ar.push("<th>", "%", "</th>");
-	ar.push("<th>", lang.route_compliance.other, "</th>");
-	ar.push("<th class='symbol'>", "&#x2713;", "</th>");
-	ar.push("<th class='symbol'>", "&#x2717;", "</th>");
+	ar.push("<th>", "&#x2713;", "</th>");
+	ar.push("<th>", "&#x2717;", "</th>");
 	ar.push("<th id='rule0'>", lang.less_min.format_a(lang.dash), "</th>");
 	ar.push("<th id='rule1'>", lang.more_min.format_a(lang.dash), "</th>");
 	ar.push("<th id='rule2'>", lang.more_meter.format_a(lang.dash), "</th>");
 	ar.push("<th class='symbol'>", "&#x2692;", "</th>");
-ar.push("<th>", "Days", "</th>");
+	ar.push("<th>", lang.days, "</th>");
 	ar.push("<th width='55px'>", lang.mileageAbbr, "</th>");
-	if( perm.columns != null && perm.columns.area == true ) {
-	    ar.push("<th>", lang.area, "</th>");
-	}
-	if( perm.columns != null && perm.columns.department == true ) {
-	    ar.push("<th>", lang.departmentAbbr, "</th>");
-	}
-	if( perm.columns != null && perm.columns.distributor == true ) {
-	    ar.push("<th>", lang.distributor, "</th>");
-	}
-	ar.push("<th><a href='javascript:void(0)' onclick='PLUG.users(this,\"head\",0.90)'>", lang.head_name, "</a></th>");
 	ar.push("</tr>", G.thnums(_getcolumns(perm)), "</thead>");
-	ar.push("<tbody id='maintb'></tbody>");
+	ar.push("<tbody id='maintb'>", "</tbody>");
 	ar.push("</table>");
 	ar.push("</div>");
-	ar.push("<div id='moreContainer'>");
+	/* more page: */
+	ar.push("<div id='moreContainer' class='gone'>");
 	ar.push("<table width='100%'>","<tbody>","<tr>");
 	ar.push("<td width='49%' valign='top'>");
-
-	ar.push("<table width='100%' class='report'><thead><tr>");
-	ar.push("<th rowspan='2' class='autoincrement'>", lang.num, "</th>");
-	ar.push("<th rowspan='2' class='date'>", lang.date, "</th>");
-	ar.push("<th colspan='4'>", lang.route_compliance.wd, "</th>");
+	ar.push("<table  width='100%' class='report'>");
+	ar.push("<tbody id='moretb0'>", "</tbody>");
+	ar.push("</table>");
+	ar.push("<br/>");
+	ar.push("<table width='100%' class='report'>", "<thead>", "<tr>");
+	ar.push("<th rowspan='2' colspan='2' class='autoincrement'>", "&#x2637;", "</th>");
+	ar.push("<th colspan='5'>", lang.route_compliance.wd, "</th>");
 	ar.push("<th colspan='9'>", lang.route, "</th>");
-	ar.push("</tr><tr>");
+	ar.push("</tr>", "<tr>");
 	ar.push("<th>", lang.b_date, "</th>");
 	ar.push("<th>", lang.e_date, "</th>");
 	ar.push("<th>", lang.duration, "</th>");
-	ar.push("<th class='time symbol'>", "&#x2692;", "</th>");
+	ar.push("<th class='symbol'>", "&#x2692;", "</th>");
+	ar.push("<th>", lang.mileageAbbr, "</th>");
 	ar.push("<th>", lang.scheduled, "</th>");
 	ar.push("<th>", lang.closed, "</th>");
 	ar.push("<th>", lang.pending, "</th>");
-	ar.push("<th>", lang.route_compliance.other, "</th>");
-	ar.push("<th class='symbol'>", "&#x2713;", "</th>");
-	ar.push("<th class='symbol'>", "&#x2717;", "</th>");
-	ar.push("<th id='rule0'>", lang.less_min.format_a(lang.dash), "</th>");
-	ar.push("<th id='rule1'>", lang.more_min.format_a(lang.dash), "</th>");
-	ar.push("<th id='rule2'>", lang.more_meter.format_a(lang.dash), "</th>");
-	ar.push("</tr>", G.thnums(15/*_getcolumns(perm)*/), "</thead>");
-	ar.push("<tbody id='moretb1'></tbody>");
+	ar.push("<th>", "&#x2713;", "</th>");
+	ar.push("<th>", "&#x2717;", "</th>");
+	ar.push("<th id='rule0m'>", lang.less_min.format_a(lang.dash), "</th>");
+	ar.push("<th id='rule1m'>", lang.more_min.format_a(lang.dash), "</th>");
+	ar.push("<th id='rule2m'>", lang.more_meter.format_a(lang.dash), "</th>");
+	ar.push("</tr>", G.thnums(15), "</thead>");
+	ar.push("<tbody id='moretb1'>", "</tbody>");
 	ar.push("</table>");
-
-
 	ar.push("</td>");
 	ar.push("<td width='2%'/>");
 	ar.push("<td width='49%' valign='top'>");
-
-
-	ar.push("<table width='100%' class='report'>","<thead>","<tr>");
+	ar.push("<table width='100%' class='report'>", "<thead>", "<tr>");
 	ar.push("<th class='autoincrement'>", lang.num, "</th>");
 	ar.push("<th>", lang.a_name, "</th>");
 	ar.push("<th>", lang.address, "</th>");
 	ar.push("<th>", lang.chan_name, "</th>");
 	ar.push("<th>", lang.poten, "</th>");
 	ar.push("<th class='symbol'>", "&#x2691;", "</th>");
-
-	ar.push("</tr>", G.thnums(_morecolumns2), "</thead>");
+	ar.push("</tr>", G.thnums(6), "</thead>");
 	ar.push("<tbody id='moretb2'></tbody>");
 	ar.push("</table>");
-
-
 	ar.push("</td>");
-	ar.push("</tr>","</tbody>","</table>");
+	ar.push("</tr>", "</tbody>", "</table>");
 	ar.push("</div>");
 	ar.push(MonthsPopup.container());
 	ar.push(UsersPopup.container("headsPopup"));
@@ -146,6 +144,7 @@ ar.push("<th>", "Days", "</th>");
 
     function _datatbl(data, total, f, checked, perm) {
 	var ar = [], size = Array.isArray(data.rows) ? data.rows.length : 0, x = 0, r, t;
+	var sensibleAlarms = ((new Date().getTime() - Date.parseISO8601(data.e_date).getTime())/(1000*60*60*24)) >= 10;
 	for( var i = 0; i < size; i++ ) {
 	    if( (r = data.rows[i]) != null && f.is(r) ) {
 		ar.push("<tr class='clickable" + (typeof checked != 'undefined' && checked[r.user_id] ? " selected'" : "") +
@@ -153,7 +152,7 @@ ar.push("<th>", "Days", "</th>");
 		ar.push("<td class='autoincrement clickable' onclick='PLUG.checkrow(this.parentNode,\"" +
 		    r.user_id + "\");event.stopPropagation();'>", r.row_no, "</td>");
 		ar.push("<td class='string u_name'>", G.shielding(r.u_name), "</td>");
-		ar.push("<td class='ref'>", String.isEmpty(r.dev_login) ? G.shielding(r.user_id).mtrunc(12) : r.dev_login, "</td>");
+		ar.push("<td class='delim ref'>", String.isEmpty(r.dev_login) ? G.shielding(r.user_id).mtrunc(12) : G.shielding(r.dev_login), "</td>");
 		ar.push("<td class='int' width='40px'>", G.getint_l(r._a,0), "</td>");
 		ar.push("<td class='int' width='40px'>");
 		if( r._v > 0 ) {
@@ -167,44 +166,52 @@ ar.push("<th>", "Days", "</th>");
 		}
 		ar.push("</td>");
 		if( r._a > 0 ) {
-		    const t = 100.0*r._vwv/r._a;
-		    ar.push("<td class='int", t > 90 ? "" : " attention", "' width='50px'>", G.getpercent_l(t.toFixed(1)), "</td>");
+		    t = 100.0*r._vwv/r._a;
+		    ar.push("<td class='delim int", /*t > 90 ? "" : " attention",*/ "' width='50px'>", G.getpercent_l(t.toFixed(1)), "</td>");
 		} else {
-		    ar.push("<td class='int' width='50px'>", lang.dash, "</td>");
+		    ar.push("<td class='delim int' width='50px'>", lang.dash, "</td>");
 		}
-		ar.push("<td class='int' width='40px'>");
-		if( r._scheduled > 0 && r._discarded > 0 ) {
-		    ar.push(G.getint_l(r._scheduled,0), "<sup>&nbsp;(-{0})</sup>".format_a(r._discarded));
+		if( !(r._scheduled > 0 || r._other > 0) ) {
+		    ar.push("<td class='delim ref disabled' colspan='8'>", lang.route_compliance.none.toLowerCase(), "</td>");
 		} else {
-		    ar.push(G.getint_l(r._scheduled,0));
-		}
-		ar.push("</td>");
-		ar.push("<td class='int' width='40px'>", G.getint_l(r._closed > 0 ? r._closed : null), "</td>");
-		if( r._scheduled > 0 && r._discarded > 0 ) {
-		    if( r._scheduled > r._discarded ) {
-			const t = 100.0*r._closed/(r._scheduled - r._discarded);
-			ar.push("<td class='int", t >= 100 ? "" : " attention", "' width='50px'>", G.getpercent_l(t.toFixed(1)), "</td>");
+		    ar.push("<td class='int' width='40px'>");
+		    if( r._scheduled > 0 && r._discarded > 0 ) {
+			ar.push(G.getint_l(r._scheduled,0), "<sup>&nbsp;(-{0})</sup>".format_a(r._discarded));
+		    } else {
+			ar.push(G.getint_l(r._scheduled,0));
+		    }
+		    ar.push("</td>");
+		    ar.push("<td class='int' width='40px'>", r._closed > 0 || r._other > 0 ? (G.getint_l(r._closed) + 
+			(r._other > 0 ? "<sup>&nbsp;(+{0})</sup>".format_a(r._other) : "")) : lang.dash, "</td>");
+		    if( r._scheduled > 0 && r._discarded > 0 ) {
+			if( r._scheduled > r._discarded ) {
+			    t = 100.0*r._closed/(r._scheduled - r._discarded);
+			    ar.push("<td class='int", (!sensibleAlarms || t >= 100) ? "" : " incomplete", "' width='50px'>", G.getpercent_l(t.toFixed(1)), "</td>");
+			} else {
+			    ar.push("<td class='int' width='50px'>", lang.dash, "</td>");
+			}
+		    } else if( r._scheduled > 0 ) {
+			t = 100.0*r._closed/r._scheduled;
+			ar.push("<td class='int", (!sensibleAlarms || t >= 100) ? "" : " incomplete", "' width='50px'>", G.getpercent_l(t.toFixed(1)), "</td>");
 		    } else {
 			ar.push("<td class='int' width='50px'>", lang.dash, "</td>");
 		    }
-		} else if( r._scheduled > 0 ) {
-		    const t = 100.0*r._closed/r._scheduled;
-		    ar.push("<td class='int", t >= 100 ? "" : " attention", "' width='50px'>", G.getpercent_l(t.toFixed(1)), "</td>");
-		} else {
-		    ar.push("<td class='int' width='50px'>", lang.dash, "</td>");
+		    ar.push("<td class='int' width='40px'>", r._accepted > 0 ? G.getint_l(r._accepted) : lang.dash, "</td>");
+		    ar.push("<td class='int", r._rejected > 0 ? " attention" : "", "' width='40px'>", 
+			r._rejected > 0 ? G.getint_l(r._rejected) : lang.dash, "</td>");
+		    ar.push("<td class='int", r._warn_min_duration > 0 ? " attention" : "", "' width='40px'>",
+			r._warn_min_duration > 0 ? G.getint_l(r._warn_min_duration) : lang.dash, "</td>");
+		    ar.push("<td class='int' width='40px'>", r._warn_max_duration > 0 ? G.getint_l(r._warn_max_duration) : lang.dash, "</td>");
+		    ar.push("<td class='delim int", r._warn_max_distance > 0 ? " attention" : "", "' width='40px'>",
+			r._warn_max_distance > 0 ? G.getint_l(r._warn_max_distance) : lang.dash, "</td>");
 		}
-		ar.push("<td class='int' width='40px'>", G.getint_l(r._other > 0 ? r._other : null), "</td>");
-		ar.push("<td class='int' width='40px'>", G.getint_l(r._accepted > 0 ? r._accepted : null), "</td>");
-		ar.push("<td class='int", r._rejected > 0 ? " attention" : "", "' width='40px'>", 
-		    G.getint_l(r._rejected > 0 ? r._rejected : null), "</td>");
-		ar.push("<td class='int", r._warn_min_duration > 0 ? " attention" : "", "' width='40px'>",
-		    G.getint_l(r._warn_min_duration > 0 ? r._warn_min_duration : null), "</td>");
-		ar.push("<td class='int' width='40px'>", G.getint_l(r._warn_max_duration > 0 ? r._warn_max_duration : null), "</td>");
-		ar.push("<td class='int", r._warn_max_distance > 0 ? " attention" : "", "' width='40px'>",
-		    G.getint_l(r._warn_max_distance > 0 ? r._warn_max_distance : null), "</td>");
-		ar.push("<td class='time'>", r._instore_duration > 0 && r._days > 0 ? Number.HHMM(r._instore_duration/r._days) : lang.dash, "</td>");
-		ar.push("<td class='int' width='40px'>", G.getint_l(r._days,0), "</td>");
-		ar.push("<td class='int'>", r._mileage/1000 > 0 ? (r._mileage/1000.0).toFixed(1) : lang.dash, "</td>");
+		if( r._days > 0 ) {
+		    ar.push("<td class='time'>", r._instore_duration > 0 ? Number.HHMM(r._instore_duration/r._days) : lang.dash, "</td>");
+		    ar.push("<td class='int' width='40px'>", G.getint_l(r._days,0), "</td>");
+		    ar.push("<td class='delim int'>", r._mileage/1000 > 0 ? (r._mileage/1000.0).toFixed(1) : lang.dash, "</td>");
+		} else {
+		    ar.push("<td class='delim ref disabled' colspan='3'>", lang.none.toLowerCase(), "</td>");
+		}
 		if( perm.columns != null && perm.columns.area == true ) {
 		    ar.push("<td class='ref sw95px'>", G.shielding(r.area), "</td>");
 		}
@@ -255,86 +262,210 @@ ar.push("<th>", "Days", "</th>");
 	return ar;
     }
 
-
-
     function _moremsg(msg, cols) {
-	return ["<tr class='def'><td colspan='", _morecolumns2, "' class='message'>", msg, "</td></tr>"];
+	return ["<tr class='def'><td colspan='", cols, "' class='message'>", msg, "</td></tr>"];
     }
 
-    function _moretbl1(rows, rules, data_ts) {
+    function _moretbl0(data) {
+	var ar = [], info = [];
+	if( !String.isEmpty(data.head_name) ) {
+	    ar.push("<tr>",
+		"<th>", lang.head_name, ":</th>",
+		"<th colspan='3'>", G.shielding(data.head_name), "</th>",
+		"</tr>");
+	}
+	if( !String.isEmpty(data.email) ) {
+	    info.push("<a class='ref' href='mailto:{0}'>{0}</a>".format_a(G.shielding(data.email)));
+	}
+	if( !String.isEmpty(data.mobile) ) {
+	    info.push(G.shielding(data.mobile));
+	}
+	ar.push("<tr>",
+	    "<th width='49%'>", lang.u_name, ":</th>",
+	    "<th colspan='3' width='51%'>", "<b>", G.shielding(data.u_name, lang.dash), "</b>", 
+		info.length > 0 ? ("<br/>"+info.join('&nbsp;&nbsp;')) : "", "</th>",
+	    "</tr>");
+	if( !Array.isEmpty(data._wdays) ) {
+	    const t = []
+	    data._wdays.forEach(function(arg0, arg1, arg2) {
+		if( arg0 > 0 ) {
+		    t.push(lang.calendar.days.namesAbbr[arg1 + 1]);;
+		}
+	    });
+	    ar.push("<tr>",
+		"<th>", lang.wdays, ":</th>",
+		"<th colspan='3'>", t.join('&nbsp;&nbsp;'), "</th>",
+		"</tr>");
+	}
+	ar.push("<tr>",
+	    "<th>", lang.dev_login, ":</th>",
+	    "<th colspan='3'>", G.shielding(data.dev_login, lang.dash), "</th>",
+	    "</tr>");
+	if( !String.isEmpty(data.area) ) {
+	    ar.push("<tr>",
+		"<th>", lang.area, ":</th>",
+		"<th colspan='3'>", G.shielding(data.area), "</th>",
+		"</tr>");
+	}
+	if( !String.isEmpty(data.agency) ) {
+	    ar.push("<tr>",
+		"<th>", lang.agency, ":</th>",
+		"<th colspan='3'>", G.shielding(data.agency), "</th>",
+		"</tr>");
+	}
+	if( !Array.isEmpty(data.departments) ) {
+	    const t = []
+	    data.departments.forEach(function(arg0, arg1, arg2) {
+		t.push(G.shielding(arg0));
+	    });
+	    ar.push("<tr>",
+		"<th>", lang.department, ":</th>",
+		"<th colspan='3'>", t.join('<br/>'), "</th>",
+		"</tr>");
+	}
+	if( !Array.isEmpty(data.distributors) ) {
+	    const t = []
+	    data.distributors.forEach(function(arg0, arg1, arg2) {
+		t.push(G.shielding(arg0));
+	    });
+	    ar.push("<tr>",
+		"<th>", lang.distributor, ":</th>",
+		"<th colspan='3'>", t.join('<br/>'), "</th>",
+		"</tr>");
+	}
+	if( data._a > 0 ) {
+	    ar.push("<tr>");
+	    ar.push("<td class='ref' width='49%'>", lang.my, ":</td>");
+	    ar.push("<td class='int' width='17%'>", G.getint_l(data._a,0), "</td>");
+	    if( data._v > 0 ) {
+		if( data._v != data._vwv ) {
+		    ar.push("<td class='int' width='17%'>", "<span class='symbol'>&#x2691;</span>&nbsp;&nbsp;{0}<sup>&nbsp;({1})</sup>".
+			format_a(data._v, data._vwv - data._v), "</td>");
+		    ar.push("<td class='int' width='17%'>", G.getpercent_l((100.0*data._vwv/data._a).toFixed(1)), "</td>");
+		} else {
+		    ar.push("<td class='int' width='17%'>", "<span class='symbol'>&#x2691;</span>&nbsp;{0}".
+			format_a(data._v), "</td>");
+		    ar.push("<td class='int' width='17%'>", G.getpercent_l((100.0*data._v/data._a).toFixed(1)), "</td>");
+		}
+	    } else {
+		ar.push("<td class='int' width='17%'>", "<span class='symbol'>&#x2691;</span>&nbsp;<i>{0}</i>".format_a(lang.none), "</td>");
+		ar.push("<td class='int' width='17%'>", lang.dash, "</td>");
+	    }
+	    ar.push("</tr>");
+	}
+	if( data._days > 0 ) {
+	    ar.push("<tr>",
+		"<td class='ref' width='49%'>", lang.route_compliance.wd, ":</td>",
+		"<td class='int' width='17%'>", "<span class='symbol'>&#x2692;</span>&nbsp;&nbsp;", 
+		    data._instore_duration > 0 ? Number.HHMM(data._instore_duration/data._days) : lang.dash, 
+		"</td>",
+		"<td class='int' width='17%'>", lang.num_of_days.format_a(G.getint_l(data._days,0)), "</td>",
+		"<td class='int' width='17%'>", data._mileage/1000 > 0 ? lang.kilometers.format_a((data._mileage/1000.0).toFixed(1)) : lang.dash, "</td>",
+		"</tr>");
+	}
+	if( data._scheduled > 0 ) {
+	    ar.push("<tr>");
+	    ar.push("<td class='ref' width='49%'>", lang.route, ":</td>");
+	    if( data._scheduled > 0 && data._discarded > 0 ) {
+		ar.push("<td class='int' width='17%'>", G.getint_l(data._scheduled,0), "<sup>&nbsp;(-{0})</sup>".format_a(data._discarded), "</td>");
+	    } else {
+		ar.push("<td class='int' width='17%'>", G.getint_l(data._scheduled,0), "</td>");
+	    }
+	    ar.push("<td class='int' width='17%'>", data._closed > 0 ? G.getint_l(data._closed) : lang.dash, "</td>");
+	    if( data._scheduled > 0 && data._discarded > 0 ) {
+		if( data._scheduled > data._discarded ) {
+		    ar.push("<td class='int' width='17%'>", G.getpercent_l((100.0*data._closed/(data._scheduled - data._discarded)).toFixed(1)), "</td>");
+		} else {
+		    ar.push("<td class='int' width='17%'>", lang.dash, "</td>");
+		}
+	    } else if( data._scheduled > 0 ) {
+		ar.push("<td class='int' width='17%'>", G.getpercent_l((100.0*data._closed/data._scheduled).toFixed(1)), "</td>");
+	    } else {
+		ar.push("<td class='int' width='17%'>", lang.dash, "</td>");
+	    }
+	    ar.push("</tr>");
+	}
+	return ar;
+    }
+
+    function _moretbl1(data, rules, data_ts) {
 	var ar = [], r, t;
-	for( var i = 0, size = Array.isArray(rows) ? rows.length : 0; i < size; i++ ) {
-	    if( (r = rows[i]) != null ) {
+	var rx = new RegExp("['\"]", "g");
+	for( var i = 0, size = Array.isArray(data.days) ? data.days.length : 0; i < size; i++ ) {
+	    if( (r = data.days[i]) != null ) {
 		const fn = [];
+		const d = Date.parseISO8601(r.route_date);
 		const rule_b = r.rules == null || r.rules.wd == null || r.rules.wd.begin == null ? rules.wd.begin : r.rules.wd.begin;
 		const rule_e = r.rules == null || r.rules.wd == null || r.rules.wd.end == null ? rules.wd.end : r.rules.wd.end;
 		const disabled = !(r.scheduled > 0 || r.other > 0) || r.canceled > 0 ? " disabled" : "";
-		const violations = (disabled != "" || r.violations == null || (!r.violations.gps && !r.violations.tm)) ? "" : " attention footnote";
+		const violations = (disabled != "" || r.violations == null || (!r.violations.gps && !r.violations.tm)) ? "" : " incomplete footnote";
 		if( r.violations != null && r.violations.gps ) { fn.push(lang.violations.gps); }
 		if( r.violations != null && r.violations.tm ) { fn.push(lang.violations.tm); }
 		ar.push("<tr>");
-		ar.push("<td class='autoincrement", violations, disabled, fn.isEmpty() ? "'>" : ("' data-title='" + fn.join(" + ") + "'>"),
-		    i + 1, "</td>");
-/*	if( r.alive != null && r.alive ) {
-	    ar.push("<td class='delim int'><a href='", G.getref({plug:'tech',user_id:r.user_id,date:G.getdate(_cache.date)}),
-	    "'>", r.dev_login, "</a></td>");
-	} else {
-	    ar.push("<td class='delim int", disabled, "'>", G.shielding(r.user_id).mtrunc(12), "</td>");
-	}*/
-ar.push("<td class='date", "", "'>", G.getdate_l(Date.parseISO8601(r.route_date)), "</td>");
-
-		if( !(r.scheduled > 0 || r.other > 0) ) {
-		    ar.push("<td class='delim ref disabled' colspan='13'>", R.none, "</td>");
-		} else if( r.canceled > 0 ) {
-		    ar.push("<td class='delim ref disabled' colspan='13'>", G.shielding(r.canceling_note), "</td>");
+		ar.push("<td class='autoincrement", violations, disabled, fn.isEmpty() ? "'>" : ("' data-title='" + fn.join(" + ") + "'>"));
+		if( r.alive != null && r.alive ) {
+		    ar.push("<a href='", G.getref({plug:'tech',user_id:data.user_id,date:r.route_date}), 
+			"'>", d.getDate(), "</a>");
 		} else {
-		    t = G.gettime_l(Date.parseISO8601(r.b_dt));
-		    ar.push("<td class='time", rule_b != null && t > rule_b ? " attention" : "", "'>", t, "</td>");
-		    t = G.gettime_l(Date.parseISO8601(r.e_dt));
-		    ar.push("<td class='time", rule_e != null && rule_e > t ? " attention" : "", "'>", t, "</td>");
-		    ar.push("<td class='time'>", G.shielding(Number.HHMM(r.duration)), "</td>");
-		    ar.push("<td class='time'>", G.shielding(Number.HHMM(r.instore_duration)), "</td>");
-
-//+ mileage !!!
-
-ar.push("<td class='int' width='40px'>", r.scheduled > 0 ? (G.getint_l(r.scheduled) +
+		    ar.push(d.getDate());
+		}
+		ar.push("</td>");
+		t = ["ref"];
+		if( !(r.wday > 0) ) { t.push("disabled"); }
+		if( !String.isEmpty(r.wdaymv) ) { t.push("footnote"); }
+		ar.push("<td class='", t.join(" "), "'", String.isEmpty(r.wdaymv) ? "" : " data-title='{0}'".format_a(G.shielding(r.wdaymv).
+		    replace(rx,' ')), ">", lang.calendar.days.namesAbbr[d.getDay()], "</td>");
+		if( r.canceled > 0 ) {
+		    ar.push("<td class='ref disabled' colspan='13'>", G.shielding(r.canceling_note), "</td>");
+		} else {
+		    if( r.route_begin == null || r.route_end == null ) {
+			ar.push("<td class='ref disabled' colspan='5'>", lang.none.toLowerCase(), "</td>");
+		    } else {
+			t = G.gettime_l(Date.parseISO8601(r.route_begin));
+			ar.push("<td class='time", rule_b != null && t > rule_b ? " attention" : "", "'>", t, "</td>");
+			t = G.gettime_l(Date.parseISO8601(r.route_end));
+			ar.push("<td class='time", rule_e != null && rule_e > t ? " attention" : "", "'>", t, "</td>");
+			ar.push("<td class='time'>", G.shielding(Number.HHMM(r.route_duration)), "</td>");
+			ar.push("<td class='time'>", G.shielding(Number.HHMM(r.instore_duration)), "</td>");
+			ar.push("<td class='int'>", r.mileage/1000 > 0 ? (r.mileage/1000.0).toFixed(1) : lang.dash, "</td>");
+		    }
+		    ar.push("<td class='int' width='40px'>", r.scheduled > 0 ? (G.getint_l(r.scheduled) +
 			(r.discarded > 0 ? "<sup>&nbsp;(-{0})</sup>".format_a(r.discarded) : "")) : lang.dash, "</td>");
-		    ar.push("<td class='int' width='40px'>", G.getint_l(r.closed > 0 ? r.closed : null), "</td>");
-		    ar.push("<td class='int' width='40px'>", G.getint_l(r.pending > 0 ? r.pending : null), "</td>");
-		    ar.push("<td class='int' width='40px'>", G.getint_l(r.other > 0 ? r.other : null), "</td>");
-		    ar.push("<td class='int' width='40px'>", G.getint_l(r.accepted > 0 ? r.accepted : null), "</td>");
+		    ar.push("<td class='int' width='40px'>", r.closed > 0 || r.other > 0 ? (G.getint_l(r.closed,0) +
+			(r.other > 0 ?  "<sup>&nbsp;(+{0})</sup>".format_a(r.other) : "")) : lang.dash, "</td>");
+		    ar.push("<td class='int' width='40px'>", r.pending > 0 ? G.getint_l(r.pending) : lang.dash, "</td>");
+		    ar.push("<td class='int' width='40px'>", r.accepted > 0 ? G.getint_l(r.accepted) : lang.dash, "</td>");
 		    ar.push("<td class='int", r.rejected > 0 ? " attention" : "", "' 'width='40px'>",
-			G.getint_l(r.rejected > 0 ? r.rejected : null), "</td>");
+			r.rejected > 0 ? G.getint_l(r.rejected) : lang.dash, "</td>");
 		    ar.push("<td class='int", r.warn_min_duration > 0 ? " attention" : "", "' 'width='40px'>",
-			G.getint_l(r.warn_min_duration > 0 ? r.warn_min_duration : null), "</td>");
-		    ar.push("<td class='int' width='40px'>", G.getint_l(r.warn_max_duration > 0 ? r.warn_max_duration : null), "</td>");
+			r.warn_min_duration > 0 ? G.getint_l(r.warn_min_duration) : lang.dash, "</td>");
+		    ar.push("<td class='int' width='40px'>", r.warn_max_duration > 0 ? G.getint_l(r.warn_max_duration) : lang.dash, "</td>");
 		    ar.push("<td class='int", r.warn_max_distance > 0 ? " attention" : "", "' width='40px'>",
-			G.getint_l(r.warn_max_distance > 0 ? r.warn_max_distance : null), "</td>");
+			r.warn_max_distance > 0 ? G.getint_l(r.warn_max_distance) : lang.dash, "</td>");
 		}
 		ar.push("</tr>");
 	    }
 	}
 	if( ar.length == 0 ) {
-	    ar = _moremsg(lang.empty, _morecolumns2);
+	    ar = _moremsg(lang.empty, 15);
 	}
 	if( typeof data_ts == 'string' ) {
-	    ar.push("<tr class='def'><td colspan='", /*_morecolumns2*/15, "' class='watermark'>", lang.data_ts, "&nbsp;", data_ts, "</td></tr>");
+	    ar.push("<tr class='def'><td colspan='", 15, "' class='watermark'>", lang.data_ts, "&nbsp;", data_ts, "</td></tr>");
 	}
 	return ar;
     }
 
-    function _moretbl2(rows, data_ts) {
+    function _moretbl2(data, data_ts) {
 	var ar = [], r;
-	for( var i = 0, size = Array.isArray(rows) ? rows.length : 0; i < size; i++ ) {
-	    if( (r = rows[i]) != null ) {
-		const x = typeof r.v == 'undefined' || r.v == 0 ? " attention" : "";
+	for( var i = 0, size = Array.isArray(data.accounts) ? data.accounts.length : 0; i < size; i++ ) {
+	    if( (r = data.accounts[i]) != null ) {
 		ar.push("<tr>");
-		ar.push("<td class='autoincrement", x, "'>", i + 1, "</td>");
-		ar.push("<td class='string a_name", x, "'>", G.shielding(r.descr), "</td>");
-		ar.push("<td class='string address", x, "'>", G.shielding(r.address), "</td>");
-		ar.push("<td class='ref", x, "'>", G.shielding(r.chan_name), "</td>");
-		ar.push("<td class='ref", x, "'>", G.shielding(r.poten_name), "</td>");
-		ar.push("<td class='int", x, "' width='40px'>");
+		ar.push("<td class='autoincrement", typeof r.v == 'undefined' || r.v == 0 ? " incomplete" : "", "'>", i + 1, "</td>");
+		ar.push("<td class='string a_name'>", G.shielding(r.descr), "</td>");
+		ar.push("<td class='string address'>", G.shielding(r.address), "</td>");
+		ar.push("<td class='ref'>", G.shielding(r.chan_name), "</td>");
+		ar.push("<td class='ref'>", G.shielding(r.poten_name), "</td>");
+		ar.push("<td class='int' width='40px'>");
 		if( r.v > 0 ) {
 		    if( r.v != r.vwv ) {
 			ar.push(G.getint_l(r.v), "<sup>&nbsp;({0})</sup>".format_a(r.vwv||0 - r.v));
@@ -349,24 +480,20 @@ ar.push("<td class='int' width='40px'>", r.scheduled > 0 ? (G.getint_l(r.schedul
 	    }
 	}
 	if( ar.length == 0 ) {
-	    ar = _moremsg(lang.empty, _morecolumns2);
+	    ar = _moremsg(lang.empty, 6);
 	}
 	if( typeof data_ts == 'string' ) {
-	    ar.push("<tr class='def'><td colspan='", _morecolumns2, "' class='watermark'>", lang.data_ts, "&nbsp;", data_ts, "</td></tr>");
+	    ar.push("<tr class='def'><td colspan='", 6, "' class='watermark'>", lang.data_ts, "&nbsp;", data_ts, "</td></tr>");
 	}
 	return ar;
     }
 
-
-
-
-
-
-    function _datareq(y, m) {
+    function _datareq(y, m, u) {
 	ProgressDialog.show();
 	_cache.data = null; // drop the internal cache
 	G.xhr("GET", G.getajax({plug: _code, year: y, month: m}), "json", function(xhr, data) {
 	    if( xhr.status == 200 && data != null && typeof data == 'object' ) {
+		//console.log(data);
 		(data.rows||[]).forEach(function(ptr) {
 		    if( !Array.isEmpty(ptr.accounts) ) {
 			ptr._a = ptr.accounts.length;
@@ -382,6 +509,7 @@ ar.push("<td class='int' width='40px'>", r.scheduled > 0 ? (G.getint_l(r.schedul
 			});
 		    }
 		    if( !Array.isEmpty(ptr.days) ) {
+			ptr._wdays = [1,1,1,1,1,1,1];
 			ptr._scheduled = 0;
 			ptr._closed = 0;
 			ptr._discarded = 0;
@@ -395,6 +523,11 @@ ar.push("<td class='int' width='40px'>", r.scheduled > 0 ? (G.getint_l(r.schedul
 			ptr._duration = 0;
 			ptr._instore_duration = 0;
 			ptr._mileage = 0;
+			if( ptr.rules != null && !Array.isEmpty(ptr.rules.wdays) && ptr.rules.wdays.length == 7 ) {
+			    ptr._wdays = ptr.rules.wdays;
+			} else if( data.rules != null && !Array.isEmpty(data.rules.wdays) && data.rules.wdays.length == 7 ) {
+			    ptr._wdays = data.rules.wdays;
+			}
 			ptr.days.forEach(function(arg) {
 			    if( arg.scheduled > 0 && arg.scheduled != arg.canceled ) {
 				ptr._scheduled += arg.scheduled||0;
@@ -406,8 +539,7 @@ ar.push("<td class='int' width='40px'>", r.scheduled > 0 ? (G.getint_l(r.schedul
 				ptr._warn_min_duration += arg.warn_min_duration||0;
 				ptr._warn_max_duration += arg.warn_max_duration||0;
 				ptr._warn_max_distance += arg.warn_max_distance||0;
-// только если есть закрытые посещения или other !?
-ptr._days++;
+				ptr._days += ((arg.closed||0) + (arg.other||0)) > 0 ? 1 : 0;
 				ptr._duration += arg.duration||0;
 				ptr._instore_duration += arg.instore_duration||0;
 				ptr._mileage += arg.mileage||0;
@@ -418,7 +550,7 @@ ptr._days++;
 				ptr._warn_min_duration += arg.warn_min_duration||0;
 				ptr._warn_max_duration += arg.warn_max_duration||0;
 				ptr._warn_max_distance += arg.warn_max_distance||0;
-				ptr._days++;
+				ptr._days += arg.wday > 0 ? 1 : 0;
 				ptr._duration += arg.duration||0;
 				ptr._instore_duration += arg.instore_duration||0;
 				ptr._mileage += arg.mileage||0;
@@ -426,19 +558,16 @@ ptr._days++;
 			});
 		    }
 		});
-
-
-console.log(data);
-
-
 		_cache.data = data;
 		_tags.tbody.html(_datatbl(data, _tags.total, _getfilter(), _cache.checked, _perm).join(""));
-		_tags.rule0.text(lang.less_min.format_a(typeof data.rules == 'object' ? data.rules.duration.min : lang.dash));
-		_tags.rule1.text(lang.more_min.format_a(typeof data.rules == 'object' ? data.rules.duration.max : lang.dash));
-		_tags.rule2.text(lang.more_meter.format_a(typeof data.rules == 'object' ? data.rules.distance.max : lang.dash));
+		_tags.rule0.forEach(function(arg) { arg.text(lang.less_min.format_a(typeof data.rules == 'object' ? data.rules.duration.min : lang.dash)) });;
+		_tags.rule1.forEach(function(arg) { arg.text(lang.more_min.format_a(typeof data.rules == 'object' ? data.rules.duration.max : lang.dash)) });
+		_tags.rule2.forEach(function(arg) { arg.text(lang.more_meter.format_a(typeof data.rules == 'object' ? data.rules.distance.max : lang.dash)) });
+		_switchTo(typeof u == 'undefined' || u == null ? null : (data.rows||[]).find(k => k.user_id == u));
 	    } else {
 		_tags.tbody.html(_datamsg(lang.failure, _perm).join(""));
 		_tags.total.html("");
+		_switchTo();
 	    }
 	    _tags.ts.html(G.getdatetime_l(new Date()));
 	    ProgressDialog.hide();
@@ -491,49 +620,52 @@ console.log(data);
 	_filterdata();
     }
 
-    function _switchTo(more) {
+    function _switchTo(r) {
+	const more = typeof r != 'undelined' && r != null;
 	_togglePopup();
-	if( more == true ) {
-	    _tags.groups.u.hide();
-	    _tags.containers.u.hide();
-	    _tags.groups.m.show();
-	    _tags.containers.m.show();
-	} else {
-	    _tags.groups.u.show();
-	    _tags.containers.u.show();
-	    _tags.groups.m.hide();
-	    _tags.containers.m.hide();
-	}
+	_tags.moretb0.html(more == true ? _moretbl0(r).join("") : "");
+	_tags.moretb1.html(more == true ? _moretbl1(r, _cache.data.rules, _cache.data.data_ts).join("") : "");
+	_tags.moretb2.html(more == true ? _moretbl2(r, _cache.data.data_ts).join("") : "");
+	_tags.summary.forEach(function(arg) { if( more == true ) { arg.hide(); } else { arg.show(); } });
+	_tags.more.forEach(function(arg) { if( more == true ) { arg.show(); } else { arg.hide(); } });
+	_cache.u = more ? r.user_id : null;
     }
+
+    function _historyState(y, m, u) {
+	var p1 = {y:y, m:m}, p2 = {plug: _code, year: y, month: m};
+	if( typeof u != 'undefined' && u != null ) {
+	    p1.u = u; p2.user_id = u;
+	}
+	history.replaceState(p1, "", G.getref(p2));
+    }
+
 
 /* public properties & methods */
     return {
-	startup: function(tags, y, m, perm) {
+	startup: function(tags, y, m, u, perm) {
 	    _perm = perm;
 	    _tags = tags;
 	    _tags.body.html(_getbody(perm).join(""));
 	    _tags.tbody = _("maintb");
+	    _tags.moretb0 = _("moretb0");
 	    _tags.moretb1 = _("moretb1");
 	    _tags.moretb2 = _("moretb2");
-
 	    _tags.cal = _("plugCal");
 	    _tags.f = _("plugFilter");
 	    _tags.ts = _("timestamp");
 	    _tags.total = _("plugTotal");
-	    _tags.groups = {u: _("usersGroup"), m: _("moreGroup")};
-	    _tags.containers = {u: _("usersContainer"), m: _("moreContainer")};
-	    _tags.rule0 = _("rule0");
-	    _tags.rule1 = _("rule1");
-	    _tags.rule2 = _("rule2");
-
+	    _tags.summary = [_("usersGroup"), _("usersContainer")];
+	    _tags.more = [_("moreGroup"), _("moreContainer")];
+	    _tags.rule0 = [_("rule0"), _("rule0m")];
+	    _tags.rule1 = [_("rule1"), _("rule1m")];
+	    _tags.rule2 = [_("rule2"), _("rule2m")];
 	    _tags.popups = {};
-	    _datareq(y, m);
-	    _switchTo(false);
+	    _datareq(y, m, u);
 	},
 	refresh: function() {
 	    _togglePopup();
 	    _tags.popups = {};
-	    _datareq(_cache.y, _cache.m);
+	    _datareq(_cache.y, _cache.m, _cache.u);
 	},
 	filter: function(tag, ev) {
 	    _togglePopup();
@@ -553,8 +685,8 @@ console.log(data);
 	    _togglePopup("cal", tag, undefined, function(obj) {
 		return MonthsPopup(function(y, m) {
 		    var tmp = _tags.popups[obj];
-		    _datareq(y, m);
-		    history.replaceState({y:y, m:m}, "", G.getref({plug: _code, year: y, month: m}));
+		    _datareq(y, m, _cache.u);
+		    _historyState(y, m, _cache.u);
 		    _tags.popups = {}; _tags.popups[obj] = tmp;
 		}, {year: _cache.y, month: _cache.m, uri: G.getajax({plug: _code, calendar: true})})
 	    });
@@ -567,13 +699,12 @@ console.log(data);
 	    });
 	},
 	more: function(row_no) {
-	    const r = _cache.data.rows[row_no-1];
-_tags.moretb1.html(_moretbl1(r.days, _cache.data.rules, _cache.data.data_ts).join(""));
-_tags.moretb2.html(_moretbl2(r.accounts, _cache.data.data_ts).join(""));
-	    _switchTo(true);
+	    _switchTo(_cache.data.rows[row_no-1]);
+	    _historyState(_cache.y, _cache.m, _cache.u);
 	},
 	back: function() {
-	    _switchTo(false);
+	    _switchTo();
+	    _historyState(_cache.y, _cache.m, _cache.u);
 	}
     }
 })();
@@ -582,9 +713,9 @@ _tags.moretb2.html(_moretbl2(r.accounts, _cache.data.data_ts).join(""));
 function startup(params, perm) {
     if( params == null || typeof params != 'object' || typeof params.y == 'undefined' || typeof params.m == 'undefined' ) {
 	var d = new Date();
-	PLUG.startup({body: _('pluginContainer')}, d.getFullYear(), d.getMonth() + 1, perm);
+	PLUG.startup({body: _('pluginContainer')}, d.getFullYear(), d.getMonth() + 1, null, perm);
     } else {
-	PLUG.startup({body: _('pluginContainer')}, params.y, params.m, perm);
+	PLUG.startup({body: _('pluginContainer')}, params.y, params.m, params.u, perm);
     }
 }
 

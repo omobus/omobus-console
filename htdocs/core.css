@@ -1454,6 +1454,14 @@ hr {
     cursor: default;
 }
 
+.report th a.ref:link, 
+.report th a.ref:visited {
+    text-decoration: none; 
+    color: #416CE5; 
+    border-bottom: 1px solid #416CE5;
+    font-weight: normal;
+}
+
 .report .autoincrement {
     width: 30px;
 }
@@ -1563,7 +1571,7 @@ hr {
 
 .report td.u_name {
     word-break: break-word;
-    min-width: 160px;
+    min-width: 120px;
 }
 
 .report td.note {
