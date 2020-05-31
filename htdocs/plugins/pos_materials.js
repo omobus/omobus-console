@@ -33,7 +33,7 @@ var PLUG = (function() {
 	ar.push("<th>", lang.placement, "</th>");
 	ar.push("<th>", lang.chan_name, "</th>");
 	ar.push("<th>", lang.validity, "</th>");
-	ar.push("<th>", "&#9881;", "</th>");
+	ar.push("<th class='symbol'>", "&#x2699;", "</th>");
 	ar.push("<th>", lang.author, "</th>");
 	ar.push("<th>", "&#9850;", "</th>");
 	ar.push("</tr>", G.thnums(_getcolumns(perm)), "</thead>");
