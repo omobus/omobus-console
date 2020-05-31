@@ -31,7 +31,7 @@ var PLUG = (function() {
 	ar.push("<th>", lang.country, "</th>");
 	ar.push("<th>", lang.brand, "</th>");
 	ar.push("<th>", lang.validity, "</th>");
-	ar.push("<th>", "&#9881;", "</th>");
+	ar.push("<th class='symbol'>", "&#x2699;", "</th>");
 	ar.push("<th>", lang.author, "</th>");
 	ar.push("</tr>", G.thnums(_getcolumns(perm)), "</thead>");
 	ar.push("<tbody id='maintb'></tbody></table>");
