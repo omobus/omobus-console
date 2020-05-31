@@ -324,7 +324,7 @@ var __route = (function() {
 	}
 	ar.push("<tr>",
 	    "<td>", lang.u_name, ":</td>",
-	    "<td class='ref' colspan='3'>", "<b>", G.shielding(data.u_name, lang.dash), "</b>", 
+	    "<td class='ref' colspan='3'>", G.shielding(data.u_name, lang.dash),
 		info.length > 0 ? ("<br/>"+info.join('&nbsp;&nbsp;')) : "", "</td>",
 	    "</tr>");
 	if( !String.isEmpty(data.area) ) {
