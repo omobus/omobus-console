@@ -343,12 +343,12 @@ var PLUG = (function() {
 			format_a(data._v, data._vwv - data._v), "</td>");
 		    ar.push("<td class='int' width='17%'>", G.getpercent_l((100.0*data._vwv/data._a).toFixed(1)), "</td>");
 		} else {
-		    ar.push("<td class='int' width='17%'>", "<span class='symbol'>&#x2691;</span>&nbsp;{0}".
+		    ar.push("<td class='int' width='17%'>", "<span class='symbol'>&#x2691;</span>&nbsp;&nbsp;{0}".
 			format_a(data._v), "</td>");
 		    ar.push("<td class='int' width='17%'>", G.getpercent_l((100.0*data._v/data._a).toFixed(1)), "</td>");
 		}
 	    } else {
-		ar.push("<td class='int' width='17%'>", "<span class='symbol'>&#x2691;</span>&nbsp;<i>{0}</i>".format_a(lang.none), "</td>");
+		ar.push("<td class='int' width='17%'>", "<span class='symbol'>&#x2691;</span>&nbsp;&nbsp;<i>{0}</i>".format_a(lang.none), "</td>");
 		ar.push("<td class='int' width='17%'>", lang.dash, "</td>");
 	    }
 	    ar.push("</tr>");
@@ -468,7 +468,7 @@ var PLUG = (function() {
 		ar.push("<td class='int' width='40px'>");
 		if( r.v > 0 ) {
 		    if( r.v != r.vwv ) {
-			ar.push(G.getint_l(r.v), "<sup>&nbsp;({0})</sup>".format_a(r.vwv||0 - r.v));
+			ar.push(G.getint_l(r.v), "<sup>&nbsp;({0})</sup>".format_a((r.vwv||0) - r.v));
 		    } else {
 			ar.push(G.getint_l(r.v));
 		    }
