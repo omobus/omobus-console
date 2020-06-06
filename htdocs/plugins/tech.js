@@ -70,8 +70,8 @@ var PLUG = (function() {
 	if( typeof __allowedColumns == 'object' && __allowedColumns.distributor ) {
 	    ar.push("<th rowspan='2'>", lang.distributor, "</th>");
 	}
-	ar.push("<th rowspan='2' width='60px'>", lang.mileageAbbr, "</th>");
-	ar.push("<th rowspan='2' width='50px'>", lang.tech.pause, "</th>");
+	ar.push("<th rowspan='2' width='55px'>", lang.mileageAbbr, "</th>");
+	ar.push("<th rowspan='2' width='45px'>", lang.tech.pause, "</th>");
 	ar.push("<th rowspan='2'>", lang.dev_login, "</th>");
 	ar.push("</tr><tr>");
 	ar.push("<th>", lang.b_date, "</th>");
@@ -126,29 +126,36 @@ var PLUG = (function() {
 		ar.push("<td class='string", xs,"'>", G.shielding(r.u_name), "</td>");
 		t = G.shielding(r.code).replace(rx,' ');
 		if( r.code.length > 15 ) {
-		    ar.push("<td class='copyable int footnote{1}' data-title='{0}' onclick='PLUG.copy(\"{0}\");event.stopPropagation();'>".format_a(t, xs), 
+		    ar.push("<td class='copyable delim int footnote{1}' data-title='{0}' onclick='PLUG.copy(\"{0}\");event.stopPropagation();'>".format_a(t, xs), 
 			G.shielding(r.code).mtrunc(15), "</td>");
 		} else {
-		    ar.push("<td class='copyable int{1}' onclick='PLUG.copy(\"{0}\");event.stopPropagation();'>".format_a(t, xs), 
+		    ar.push("<td class='copyable delim int{1}' onclick='PLUG.copy(\"{0}\");event.stopPropagation();'>".format_a(t, xs), 
 			G.shielding(r.code), "</td>");
 		}
-		ar.push("<td class='time", xs,"'>", G.shielding(r.wd_begin), "</td>");
-		ar.push("<td class='time", xs,"'>", G.shielding(r.wd_end), "</td>");
-		ar.push("<td class='time", xs,"'>", G.shielding(r.wd_duration), "</td>");
-		ar.push("<td class='int", xs,"'>", G.getint_l(r.exch_sync_success_total), "</td>");
-		ar.push("<td class='time", xs,"'>", G.shielding(r.exch_sync_success_time), "</td>");
-		ar.push("<td class='int", xs,"'>", G.getint_l(r.exch_docs_success_total), "</td>");
-		ar.push("<td class='time", xs,"'>", G.shielding(r.exch_docs_success_time), "</td>");
-		ar.push("<td class='int", xs,"'>", G.getint_l(r.acts_total), "</td>");
-		ar.push("<td class='time", xs,"'>", G.shielding(r.acts_time), "</td>");
-		ar.push("<td class='int", xs,"'>", G.getint_l(r.docs_total), "</td>");
-		ar.push("<td class='time", xs,"'>", G.shielding(r.docs_time), "</td>");
+/*obsolete_at_2021-06:*/if( typeof r.wd_duration != 'undefined' ) {
+/*obsolete_at_2021-06:*/ar.push("<td class='time", xs,"'>", G.shielding(r.wd_begin), "</td>");
+/*obsolete_at_2021-06:*/ar.push("<td class='time", xs,"'>", G.shielding(r.wd_end), "</td>");
+/*obsolete_at_2021-06:*/ar.push("<td class='delim time", xs,"'>", G.shielding(r.wd_duration), "</td>");
+/*obsolete_at_2021-06:*/} else {
+		ar.push("<td class='time", xs, "'>", G.gettime_l(r.wd_begin), "</td>");
+		ar.push("<td class='time", xs, "'>", G.gettime_l(r.wd_end), "</td>");
+		ar.push("<td class='delim time", xs, "'>", String.isEmpty(r.wd_begin) || String.isEmpty(r.wd_end) ? "" : 
+		    Math.round((Date.parseISO8601(r.wd_end)-Date.parseISO8601(r.wd_begin))/60000).HHMM(), "</td>");
+/*obsolete_at_2021-06:*/}
+		ar.push("<td class='int", xs, "'>", G.getint_l(r.exch_sync_success_total), "</td>");
+		ar.push("<td class='delim time", xs, "'>", G.shielding(r.exch_sync_success_time), "</td>");
+		ar.push("<td class='int", xs, "'>", G.getint_l(r.exch_docs_success_total), "</td>");
+		ar.push("<td class='delim time", xs, "'>", G.shielding(r.exch_docs_success_time), "</td>");
+		ar.push("<td class='int", xs, "'>", G.getint_l(r.acts_total), "</td>");
+		ar.push("<td class='delim time", xs, "'>", G.shielding(r.acts_time), "</td>");
+		ar.push("<td class='int", xs, "'>", G.getint_l(r.docs_total), "</td>");
+		ar.push("<td class='delim time", xs, "'>", G.shielding(r.docs_time), "</td>");
 		if( typeof __allowedColumns == 'object' && __allowedColumns.area ) {
-		    ar.push("<td class='ref", xs,"'>", G.shielding(r.area), "</td>");
+		    ar.push("<td class='ref", xs, "'>", G.shielding(r.area), "</td>");
 		}
 		if( typeof __allowedColumns == 'object' && __allowedColumns.department ) {
 		    var t = []
-/*obsolete:*/ if( typeof r.deps != 'undefined' ) { t.push(G.shielding(r.deps).trunc(15)); }
+/*obsolete_at_2021-06:*/if( typeof r.deps != 'undefined' ) { t.push(G.shielding(r.deps).trunc(15)); }
 		    for( let i = 0, size = Array.isEmpty(r.departments) ? 0 : r.departments.length; i < size; i++ ) {
 			if( i == 2 ) {
 			    t.push("&mldr;");
@@ -163,7 +170,7 @@ var PLUG = (function() {
 		}
 		if( typeof __allowedColumns == 'object' && __allowedColumns.distributor ) {
 		    var t = []
-/*obsolete:*/ if( typeof r.distrs != 'undefined' ) { t.push(G.shielding(r.distrs).trunc(15)); }
+/*obsolete_at_2021-06:*/if( typeof r.distrs != 'undefined' ) { t.push(G.shielding(r.distrs).trunc(15)); }
 		    for( let i = 0, size = Array.isEmpty(r.distributors) ? 0 : r.distributors.length; i < size; i++ ) {
 			if( i == 2 ) {
 			    t.push("&mldr;");
@@ -176,9 +183,9 @@ var PLUG = (function() {
 		    }
 		    ar.push("<td class='ref sw95px'>", t.join(''), "</td>");
 		}
-		ar.push("<td class='int", xs,"'>", (r.dist != null && r.dist/1000 > 0 ? parseFloat(r.dist/1000.0).toFixed(1) : lang.dash), "</td>");
-		ar.push("<td class='int", xs,"'>", (r.pause == null ? lang.dash : r.pause), "</td>");
-		ar.push("<td class='int", xs,"'>", G.shielding(r.dev_login), "</td>");
+		ar.push("<td class='int", xs, "'>", (r.dist != null && r.dist/1000 > 0 ? parseFloat(r.dist/1000.0).toFixed(1) : lang.dash), "</td>");
+		ar.push("<td class='int", xs, "'>", (r.pause == null ? lang.dash : r.pause), "</td>");
+		ar.push("<td class='int", xs, "'>", G.shielding(r.dev_login), "</td>");
 		ar.push("</tr>");
 		x++;
 	    }

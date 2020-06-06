@@ -52,7 +52,7 @@ var __gmap = (function() {
 	    obj = data.trace.last();
 	    ar.push(new google.maps.Marker({
 		position: new google.maps.LatLng(obj.latitude, obj.longitude),
-		title: msgs.finish.format_a(G.gettime_l(Date.parseISO8601(obj.fix_dt)), G.getint_l(data.distance_traveled)),
+		title: msgs.finish.format_a(G.gettime_l(Date.parseISO8601(obj.fix_dt)), data.wd != null && data.wd.mileage != null ? data.wd.mileage : 0),
 		icon: {
 		    url: G.getstaticref('drawable/point-finish.png'), 
 		    scaledSize: new google.maps.Size(16, 16),

@@ -17,7 +17,7 @@ var __ymap = (function() {
 	if( !path.isEmpty() ) {
 	    ar.add(new ymaps.Polyline(
 		path,
-		{ hintContent: lang.tech.route.map.trace.format_a(data.distance_traveled) },
+		{ hintContent: lang.tech.route.map.trace.format_a(data.wd != null && data.wd.mileage != null ? data.wd.mileage : 0) },
 		{ strokeColor: "#0303EE", strokeWidth: 4, strokeOpacity: 0.5 }
 	    ));
 	}
@@ -55,7 +55,7 @@ var __ymap = (function() {
 	    obj = data.trace.last();
 	    ar.add(new ymaps.Placemark(
 		[obj.latitude, obj.longitude],
-		{ hintContent:  msgs.finish.format_a(G.gettime_l(Date.parseISO8601(obj.fix_dt)), data.distance_traveled) },
+		{ hintContent:  msgs.finish.format_a(G.gettime_l(Date.parseISO8601(obj.fix_dt)), data.wd != null && data.wd.mileage != null ? data.wd.mileage : 0) },
 		{ 
 		    iconLayout: 'default#image',
 		    iconImageHref: G.getstaticref('drawable/point-finish.png'),
