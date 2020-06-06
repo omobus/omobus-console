@@ -492,7 +492,7 @@ var PLUG = (function() {
 	ProgressDialog.show();
 	_cache.data = null; // drop the internal cache
 	G.xhr("GET", G.getajax({plug: _code, year: y, month: m}), "json", function(xhr, data) {
-	    if( xhr.status == 200 && data != null && typeof data == 'object' ) {
+	    if( xhr.status == 200 && data != null && typeof data == 'object' && data.code == 'time' ) {
 		//console.log(data);
 		(data.rows||[]).forEach(function(ptr) {
 		    if( !Array.isEmpty(ptr.accounts) ) {
@@ -565,7 +565,7 @@ var PLUG = (function() {
 		_tags.rule2.forEach(function(arg) { arg.text(lang.more_meter.format_a(typeof data.rules == 'object' ? data.rules.distance.max : lang.dash)) });
 		_switchTo(typeof u == 'undefined' || u == null ? null : (data.rows||[]).find(k => k.user_id == u));
 	    } else {
-		_tags.tbody.html(_datamsg(lang.failure, _perm).join(""));
+		_tags.tbody.html(_datamsg(xhr.status == 200 ? lang.empty : lang.failure, _perm).join(""));
 		_tags.total.html("");
 		_switchTo();
 	    }
