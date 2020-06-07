@@ -61,6 +61,8 @@ var PLUG = (function() {
 	ar.push("<th colspan='2'>", lang.tech.exchange.docs, "</th>");
 	ar.push("<th colspan='2'>", lang.tech.acts.title, "</th>");
 	ar.push("<th colspan='2'>", lang.tech.docs.title, "</th>");
+	ar.push("<th rowspan='2' width='55px'>", lang.mileageAbbr, "</th>");
+	ar.push("<th rowspan='2' width='45px'>", lang.tech.pause, "</th>");
 	if( typeof __allowedColumns == 'object' && __allowedColumns.area ) {
 	    ar.push("<th rowspan='2'>", lang.area, "</th>");
 	}
@@ -70,8 +72,6 @@ var PLUG = (function() {
 	if( typeof __allowedColumns == 'object' && __allowedColumns.distributor ) {
 	    ar.push("<th rowspan='2'>", lang.distributor, "</th>");
 	}
-	ar.push("<th rowspan='2' width='55px'>", lang.mileageAbbr, "</th>");
-	ar.push("<th rowspan='2' width='45px'>", lang.tech.pause, "</th>");
 	ar.push("<th rowspan='2'>", lang.dev_login, "</th>");
 	ar.push("</tr><tr>");
 	ar.push("<th>", lang.b_date, "</th>");
@@ -150,6 +150,8 @@ var PLUG = (function() {
 		ar.push("<td class='delim time", xs, "'>", G.shielding(r.acts_time), "</td>");
 		ar.push("<td class='int", xs, "'>", G.getint_l(r.docs_total), "</td>");
 		ar.push("<td class='delim time", xs, "'>", G.shielding(r.docs_time), "</td>");
+		ar.push("<td class='int", xs, "'>", (r.dist != null && r.dist/1000 > 0 ? parseFloat(r.dist/1000.0).toFixed(1) : lang.dash), "</td>");
+		ar.push("<td class='int", xs, "'>", (r.pause == null ? lang.dash : r.pause), "</td>");
 		if( typeof __allowedColumns == 'object' && __allowedColumns.area ) {
 		    ar.push("<td class='ref", xs, "'>", G.shielding(r.area), "</td>");
 		}
@@ -183,8 +185,6 @@ var PLUG = (function() {
 		    }
 		    ar.push("<td class='ref sw95px'>", t.join(''), "</td>");
 		}
-		ar.push("<td class='int", xs, "'>", (r.dist != null && r.dist/1000 > 0 ? parseFloat(r.dist/1000.0).toFixed(1) : lang.dash), "</td>");
-		ar.push("<td class='int", xs, "'>", (r.pause == null ? lang.dash : r.pause), "</td>");
 		ar.push("<td class='int", xs, "'>", G.shielding(r.dev_login), "</td>");
 		ar.push("</tr>");
 		x++;
