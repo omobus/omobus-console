@@ -7,7 +7,7 @@ M.mapEngine = 'Yandex.Maps'
 --M.mapEngine = 'Google.Maps'
 --M.mapKey = 'AIzaSyAGVIfJAbkXL771DhPfC50k37nDoU2R9bE'
 M.columns = {area=true, department=true, distributor=true}
-M.tabs = {a_list=true, route=true}
+M.tabs = {a_list=true}
 M.target = false
 M.urgent = false
 M.zstatus = false

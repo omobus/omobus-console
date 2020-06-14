@@ -447,23 +447,21 @@ function M.scripts(lang, permtb, sestb, params)
     table.insert(ar, '<script src="' .. V.static_prefix .. '/slideshow.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/slideshow.simple.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/plugins/tech.js"> </script>')
-    if permtb.tabs ~= nil and permtb.tabs.route == true then
-	table.insert(ar, '<script src="' .. V.static_prefix .. '/plugins/tech_route.js"> </script>')
-	if permtb.mapEngine == 'Google.Maps' then
-	    if permtb.mapKey then
-		table.insert(ar, '<script src="https://maps.googleapis.com/maps/api/js?v=3&key=' .. permtb.mapKey .. '&libraries=places" type="text/javascript"> </script>')
-	    else
-		table.insert(ar, '<script src="https://maps.googleapis.com/maps/api/js?v=3" type="text/javascript"> </script>')
-	    end
-	    table.insert(ar, '<script src="' .. V.static_prefix .. '/plugins/tech_gmap.js"> </script>')
-	elseif permtb.mapEngine == 'Yandex.Maps' then
-	    if permtb.mapKey then
-		table.insert(ar, '<script src="https://api-maps.yandex.ru/2.1/?lang=ru-RU&apikey=' .. permtb.mapKey .. '" type="text/javascript"> </script>')
-	    else
-		table.insert(ar, '<script src="https://api-maps.yandex.ru/2.1/?lang=ru-RU" type="text/javascript"> </script>')
-	    end
-	    table.insert(ar, '<script src="' .. V.static_prefix .. '/plugins/tech_ymap.js"> </script>')
+    table.insert(ar, '<script src="' .. V.static_prefix .. '/plugins/tech_route.js"> </script>')
+    if permtb.mapEngine == 'Google.Maps' then
+	if permtb.mapKey then
+	    table.insert(ar, '<script src="https://maps.googleapis.com/maps/api/js?v=3&key=' .. permtb.mapKey .. '&libraries=places" type="text/javascript"> </script>')
+	else
+	    table.insert(ar, '<script src="https://maps.googleapis.com/maps/api/js?v=3" type="text/javascript"> </script>')
 	end
+	table.insert(ar, '<script src="' .. V.static_prefix .. '/plugins/tech_gmap.js"> </script>')
+    elseif permtb.mapEngine == 'Yandex.Maps' then
+	if permtb.mapKey then
+	    table.insert(ar, '<script src="https://api-maps.yandex.ru/2.1/?lang=ru-RU&apikey=' .. permtb.mapKey .. '" type="text/javascript"> </script>')
+	else
+	    table.insert(ar, '<script src="https://api-maps.yandex.ru/2.1/?lang=ru-RU" type="text/javascript"> </script>')
+	end
+	table.insert(ar, '<script src="' .. V.static_prefix .. '/plugins/tech_ymap.js"> </script>')
     end
     if permtb.tabs ~= nil and permtb.tabs.a_list == true then 
 	table.insert(ar, '<script src="' .. V.static_prefix .. '/plugins/a_list.js"> </script>')
