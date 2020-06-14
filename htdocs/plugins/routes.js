@@ -32,18 +32,18 @@ var PLUG = (function() {
 	ar.push("<th rowspan='2'>", lang.a_code, "</th>");
 	ar.push("<th rowspan='2'>", lang.a_name, "</th>");
 	ar.push("<th width='380px' rowspan='2'>", lang.address, "</th>");
-	ar.push("<th colspan='7'>", lang.routes.days, "</th>");
 	ar.push("<th colspan='" + perm.weeks + "'>", lang.routes.weeks, "</th>");
+	ar.push("<th colspan='7'>", lang.routes.days, "</th>");
 	ar.push("<th rowspan='2'>", lang.intotal, "</th>");
 	ar.push("<th rowspan='2'>", lang.chan_name, "</th>");
 	ar.push("<th rowspan='2'>", lang.poten, "</th>");
 	ar.push("<th width='95px' rowspan='2'>", lang.taskboard, "</th>");
 	ar.push("</tr><tr>");
-	for( var i = 0, a = lang.calendar.firstDay; i < 7; i++, a++ ) {
-	    ar.push("<th width='20px'>", lang.calendar.days.namesAbbr[a==7?0:a], "</th>");
-	}
 	for( var i = 1; i <= perm.weeks; i++ ) {
 	    ar.push("<th width='20px'>", i,"</th>");
+	}
+	for( var i = 0, a = lang.calendar.firstDay; i < 7; i++, a++ ) {
+	    ar.push("<th width='20px'>", lang.calendar.days.namesAbbr[a==7?0:a], "</th>");
 	}
 	ar.push("</tr>", G.thnums(_getcolumns(perm)), "</thead><tbody id='maintb'></tbody></table>");
 	ar.push("<div id='plugMap' class='map'></div>");
@@ -163,17 +163,17 @@ var PLUG = (function() {
 			r.a_code, "</a></td>");
 		    ar.push("<td class='string" + style + "'>", G.shielding(r.a_name), "</td>");
 		    ar.push("<td class='string delim" + style + "'>", G.shielding(r.address), "</td>");
-		    for( var a = 1, b; a <= 7; a++ ) {
-			ar.push("<td class='bool footnote" + (data.closed || r.hidden ? "" : " clickable") + (a == 7 ? " delim" : "") + 
-			    "'" + (data.closed || r.hidden ? "" : " onclick='PLUG.setdrop(this,\"day\"," + i + "," + a + ")'") + 
-			    " data-title='" + lang.calendar.days.names[a==7?0:a] + "'>", 
-			    (r.days && r.days[a-1] ? _mark : ""), "</td>");
-		    }
 		    for( var a = 1; a <= perm.weeks; a++ ) {
 			ar.push("<td class='bool" + (data.closed || r.hidden || a > data.weeks ? "" : " clickable") + 
 			    (a == perm.weeks ? " delim" : "") + "'" + (data.closed || r.hidden || a > data.weeks ? "" : 
 			    " onclick='PLUG.setdrop(this,\"week\"," + i + "," + a + ")'") + ">", 
 			    (r.weeks && r.weeks[a-1] ? _mark : ""), "</td>");
+		    }
+		    for( var a = 1, b; a <= 7; a++ ) {
+			ar.push("<td class='bool footnote" + (data.closed || r.hidden ? "" : " clickable") + (a == 7 ? " delim" : "") + 
+			    "'" + (data.closed || r.hidden ? "" : " onclick='PLUG.setdrop(this,\"day\"," + i + "," + a + ")'") + 
+			    " data-title='" + lang.calendar.days.names[a==7?0:a] + "'>", 
+			    (r.days && r.days[a-1] ? _mark : ""), "</td>");
 		    }
 		    ar.push("<td class='int delim' id='X-" + r._row_no + "'>", _a(r), "</td>");
 		    ar.push("<td class='ref'>", G.shielding(r.chan), "</td>");
