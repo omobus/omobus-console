@@ -220,7 +220,9 @@ var PLUG = (function() {
 			r._warn_max_distance > 0 ? G.getint_l(r._warn_max_distance) : lang.dash, "</td>");
 		}
 		if( r._days > 0 ) {
-		    ar.push("<td class='time'>", r._instore_duration > 0 ? Number.HHMM(r._instore_duration/r._days) : lang.dash, "</td>");
+		    const rule_t = r.rules == null || r.rules.wd == null || r.rules.wd.timing == null ? data.rules.wd.timing : r.rules.wd.timing;
+		    t = Number.HHMM(r._instore_duration/r._days);
+		    ar.push("<td class='time", rule_t != null && t < rule_t ? " attention" : "", "'>", G.shielding(t, lang.dash), "</td>");
 		    ar.push("<td class='smallint'>", G.getint_l(r._days,0), "</td>");
 		    ar.push("<td class='delim int'>", r._mileage/1000 > 0 ? (r._mileage/1000.0).toFixed(1) : lang.dash, "</td>");
 		} else {
@@ -414,6 +416,7 @@ var PLUG = (function() {
 		const d = Date.parseISO8601(r.route_date);
 		const rule_b = r.rules == null || r.rules.wd == null || r.rules.wd.begin == null ? rules.wd.begin : r.rules.wd.begin;
 		const rule_e = r.rules == null || r.rules.wd == null || r.rules.wd.end == null ? rules.wd.end : r.rules.wd.end;
+		const rule_t = r.rules == null || r.rules.wd == null || r.rules.wd.timing == null ? rules.wd.timing : r.rules.wd.timing;
 		const disabled = !(r.scheduled > 0 || r.other > 0) || r.canceled > 0 ? " disabled" : "";
 		const violations = (disabled != "" || r.violations == null || (!r.violations.gps && !r.violations.tm)) ? "" : " incomplete footnote";
 		if( r.violations != null && r.violations.gps ) { fn.push(lang.violations.gps); }
@@ -443,7 +446,8 @@ var PLUG = (function() {
 			t = G.gettime_l(Date.parseISO8601(r.route_end));
 			ar.push("<td class='time", rule_e != null && rule_e > t ? " attention" : "", "'>", t, "</td>");
 			ar.push("<td class='time'>", G.shielding(Number.HHMM(r.route_duration)), "</td>");
-			ar.push("<td class='time'>", G.shielding(Number.HHMM(r.instore_duration)), "</td>");
+			t = Number.HHMM(r.instore_duration);
+			ar.push("<td class='time", rule_t != null && t < rule_t ? " attention" : "", "'>", G.shielding(t), "</td>");
 			ar.push("<td class='int'>", r.mileage/1000 > 0 ? (r.mileage/1000.0).toFixed(1) : lang.dash, "</td>");
 		    }
 		    ar.push("<td class='smallint'>");
