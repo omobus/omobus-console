@@ -28,6 +28,7 @@ var PLUG = (function() {
 	    lang.search, "' id='plugFilter' onkeyup='return PLUG.filter(this, event);' onpaste='PLUG.filter(this, event); return true;' />");
 	ar.push("</span>");
 	ar.push("<span id='moreGroup' class='gone'>");
+	ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.uncovered(this)'>", lang.time.uncovered, "</a>");
 	ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.back(this)'>", lang.u_everyone, "</a>");
 	ar.push("</span>");
 	ar.push("</td></tr></table>");
@@ -52,17 +53,17 @@ var PLUG = (function() {
 	ar.push("<th rowspan='2'><a href='javascript:void(0)' onclick='PLUG.users(this,\"head\",0.90)'>", lang.head_name, "</a></th>");
 	ar.push("</tr>", "<tr>");
 	ar.push("<th>", lang.myAbbr, "</th>");
-	ar.push("<th class='symbol'>", "&#x2691;", "</th>");
+	ar.push("<th class='symbol footnote' data-title='", lang.time.coverage, "'>", "&#x2691;", "</th>");
 	ar.push("<th>", "%", "</th>");
 	ar.push("<th>", lang.scheduled, "</th>");
 	ar.push("<th>", lang.closed, "</th>");
 	ar.push("<th>", "%", "</th>");
-	ar.push("<th>", "&#x2713;", "</th>");
-	ar.push("<th>", "&#x2717;", "</th>");
+	ar.push("<th class='footnote' data-title='", lang.time.accepted, "'>", "&#x2713;", "</th>");
+	ar.push("<th class='footnote' data-title='", lang.time.rejected, "'>", "&#x2717;", "</th>");
 	ar.push("<th id='rule0'>", lang.less_min.format_a(lang.dash), "</th>");
 	ar.push("<th id='rule1'>", lang.more_min.format_a(lang.dash), "</th>");
 	ar.push("<th id='rule2'>", lang.more_meter.format_a(lang.dash), "</th>");
-	ar.push("<th class='symbol'>", "&#x2692;", "</th>");
+	ar.push("<th class='symbol footnote' data-title='", lang.time.timing, "'>", "&#x2692;", "</th>");
 	ar.push("<th>", lang.days, "</th>");
 	ar.push("<th width='55px'>", lang.mileageAbbr, "</th>");
 	ar.push("</tr>", G.thnums(_getcolumns(perm)), "</thead>");
@@ -85,13 +86,13 @@ var PLUG = (function() {
 	ar.push("<th>", lang.b_date, "</th>");
 	ar.push("<th>", lang.e_date, "</th>");
 	ar.push("<th>", lang.duration, "</th>");
-	ar.push("<th class='symbol'>", "&#x2692;", "</th>");
+	ar.push("<th class='symbol footnote' data-title='", lang.time.timing, "'>", "&#x2692;", "</th>");
 	ar.push("<th>", lang.mileageAbbr, "</th>");
 	ar.push("<th>", lang.scheduled, "</th>");
 	ar.push("<th>", lang.closed, "</th>");
 	ar.push("<th>", lang.pending, "</th>");
-	ar.push("<th>", "&#x2713;", "</th>");
-	ar.push("<th>", "&#x2717;", "</th>");
+	ar.push("<th class='footnote' data-title='", lang.time.accepted, "'>", "&#x2713;", "</th>");
+	ar.push("<th class='footnote' data-title='", lang.time.rejected, "'>", "&#x2717;", "</th>");
 	ar.push("<th id='rule0m'>", lang.less_min.format_a(lang.dash), "</th>");
 	ar.push("<th id='rule1m'>", lang.more_min.format_a(lang.dash), "</th>");
 	ar.push("<th id='rule2m'>", lang.more_meter.format_a(lang.dash), "</th>");
@@ -153,11 +154,12 @@ var PLUG = (function() {
 		    r.user_id + "\");event.stopPropagation();'>", r.row_no, "</td>");
 		ar.push("<td class='string u_name'>", G.shielding(r.u_name), "</td>");
 		ar.push("<td class='delim ref'>", String.isEmpty(r.dev_login) ? G.shielding(r.user_id).mtrunc(12) : G.shielding(r.dev_login), "</td>");
-		ar.push("<td class='int' width='40px'>", G.getint_l(r._a,0), "</td>");
-		ar.push("<td class='int' width='40px'>");
+		ar.push("<td class='smallint'>", G.getint_l(r._a,0), "</td>");
+		ar.push("<td class='smallint'>");
 		if( r._v > 0 ) {
 		    if( r._v != r._vwv ) {
-			ar.push(G.getint_l(r._v), "<sup>&nbsp;({0})</sup>".format_a(r._vwv - r._v));
+			ar.push("<span class='footnote' data-title='{2}'>{0}<sup>&nbsp;({1})</sup></span>".format_a(
+			    G.getint_l(r._v), r._vwv - r._v, lang.time.violations));
 		    } else {
 			ar.push(G.getint_l(r._v));
 		    }
@@ -174,19 +176,31 @@ var PLUG = (function() {
 		if( !(r._scheduled > 0 || r._other > 0) ) {
 		    ar.push("<td class='delim ref disabled' colspan='8'>", lang.route_compliance.none.toLowerCase(), "</td>");
 		} else {
-		    ar.push("<td class='int' width='40px'>");
+		    ar.push("<td class='smallint'>");
 		    if( r._scheduled > 0 && r._discarded > 0 ) {
-			ar.push(G.getint_l(r._scheduled,0), "<sup>&nbsp;(-{0})</sup>".format_a(r._discarded));
+			ar.push( "<span class='footnote' data-title='{2}'>{0}<sup>&nbsp;(-{1})</sup></span>".format_a(
+			    G.getint_l(r._scheduled,0), r._discarded, lang.time.discarded));
 		    } else {
 			ar.push(G.getint_l(r._scheduled,0));
 		    }
 		    ar.push("</td>");
-		    ar.push("<td class='int' width='40px'>", r._closed > 0 || r._other > 0 ? (G.getint_l(r._closed) + 
-			(r._other > 0 ? "<sup>&nbsp;(+{0})</sup>".format_a(r._other) : "")) : lang.dash, "</td>");
+		    ar.push("<td class='smallint'>");
+		    if( r._closed > 0 || r._other > 0 ) {
+			if( r._other > 0 ) {
+			    ar.push("<span class='footnote' data-title='{2}'>{0}<sup>&nbsp;(+{1})</sup></span>".format_a(
+				G.getint_l(r._closed), r._other, lang.time.other));
+			} else {
+			    ar.push(G.getint_l(r._closed));
+			}
+		    } else {
+			ar.push(lang.dash);
+		    }
+		    ar.push("</td>");
 		    if( r._scheduled > 0 && r._discarded > 0 ) {
 			if( r._scheduled > r._discarded ) {
 			    t = 100.0*r._closed/(r._scheduled - r._discarded);
-			    ar.push("<td class='int", (!sensibleAlarms || t >= 100) ? "" : " incomplete", "' width='50px'>", G.getpercent_l(t.toFixed(1)), "</td>");
+			    ar.push("<td class='int", (!sensibleAlarms || t >= 100) ? "" : " incomplete", "' width='50px'>", 
+				G.getpercent_l(t.toFixed(1)), "</td>");
 			} else {
 			    ar.push("<td class='int' width='50px'>", lang.dash, "</td>");
 			}
@@ -196,18 +210,18 @@ var PLUG = (function() {
 		    } else {
 			ar.push("<td class='int' width='50px'>", lang.dash, "</td>");
 		    }
-		    ar.push("<td class='int' width='40px'>", r._accepted > 0 ? G.getint_l(r._accepted) : lang.dash, "</td>");
-		    ar.push("<td class='int", r._rejected > 0 ? " attention" : "", "' width='40px'>", 
+		    ar.push("<td class='smallint'>", r._accepted > 0 ? G.getint_l(r._accepted) : lang.dash, "</td>");
+		    ar.push("<td class='smallint", r._rejected > 0 ? " attention" : "", "'>", 
 			r._rejected > 0 ? G.getint_l(r._rejected) : lang.dash, "</td>");
-		    ar.push("<td class='int", r._warn_min_duration > 0 ? " attention" : "", "' width='40px'>",
+		    ar.push("<td class='smallint", r._warn_min_duration > 0 ? " attention" : "", "'>",
 			r._warn_min_duration > 0 ? G.getint_l(r._warn_min_duration) : lang.dash, "</td>");
-		    ar.push("<td class='int' width='40px'>", r._warn_max_duration > 0 ? G.getint_l(r._warn_max_duration) : lang.dash, "</td>");
-		    ar.push("<td class='delim int", r._warn_max_distance > 0 ? " attention" : "", "' width='40px'>",
+		    ar.push("<td class='smallint'>", r._warn_max_duration > 0 ? G.getint_l(r._warn_max_duration) : lang.dash, "</td>");
+		    ar.push("<td class='delim smallint", r._warn_max_distance > 0 ? " attention" : "", "'>",
 			r._warn_max_distance > 0 ? G.getint_l(r._warn_max_distance) : lang.dash, "</td>");
 		}
 		if( r._days > 0 ) {
 		    ar.push("<td class='time'>", r._instore_duration > 0 ? Number.HHMM(r._instore_duration/r._days) : lang.dash, "</td>");
-		    ar.push("<td class='int' width='40px'>", G.getint_l(r._days,0), "</td>");
+		    ar.push("<td class='smallint'>", G.getint_l(r._days,0), "</td>");
 		    ar.push("<td class='delim int'>", r._mileage/1000 > 0 ? (r._mileage/1000.0).toFixed(1) : lang.dash, "</td>");
 		} else {
 		    ar.push("<td class='delim ref disabled' colspan='3'>", lang.none.toLowerCase(), "</td>");
@@ -339,8 +353,10 @@ var PLUG = (function() {
 	    ar.push("<td class='int' width='17%'>", G.getint_l(data._a,0), "</td>");
 	    if( data._v > 0 ) {
 		if( data._v != data._vwv ) {
-		    ar.push("<td class='int' width='17%'>", "<span class='symbol'>&#x2691;</span>&nbsp;&nbsp;{0}<sup>&nbsp;({1})</sup>".
-			format_a(data._v, data._vwv - data._v), "</td>");
+		    ar.push("<td class='smallint' width='17%'>", "<span class='symbol'>&#x2691;</span>&nbsp;&nbsp;",
+			"<span class='footnote' data-title='{2}'>{0}<sup>&nbsp;({1})</sup></span>".
+			    format_a(data._v, data._vwv - data._v, lang.time.violations), 
+			"</td>");
 		    ar.push("<td class='int' width='17%'>", G.getpercent_l((100.0*data._vwv/data._a).toFixed(1)), "</td>");
 		} else {
 		    ar.push("<td class='int' width='17%'>", "<span class='symbol'>&#x2691;</span>&nbsp;&nbsp;{0}".
@@ -367,7 +383,8 @@ var PLUG = (function() {
 	    ar.push("<tr>");
 	    ar.push("<td class='ref' width='49%'>", lang.route, ":</td>");
 	    if( data._scheduled > 0 && data._discarded > 0 ) {
-		ar.push("<td class='int' width='17%'>", G.getint_l(data._scheduled,0), "<sup>&nbsp;(-{0})</sup>".format_a(data._discarded), "</td>");
+		ar.push("<td class='smallint' width='17%'>", "<span class='footnote' data-title='{2}'>{0}<sup>&nbsp;(-{1})</sup><span>".format_a(
+		    G.getint_l(data._scheduled,0), data._discarded, lang.time.discarded), "</td>");
 	    } else {
 		ar.push("<td class='int' width='17%'>", G.getint_l(data._scheduled,0), "</td>");
 	    }
@@ -429,18 +446,38 @@ var PLUG = (function() {
 			ar.push("<td class='time'>", G.shielding(Number.HHMM(r.instore_duration)), "</td>");
 			ar.push("<td class='int'>", r.mileage/1000 > 0 ? (r.mileage/1000.0).toFixed(1) : lang.dash, "</td>");
 		    }
-		    ar.push("<td class='int' width='40px'>", r.scheduled > 0 ? (G.getint_l(r.scheduled) +
-			(r.discarded > 0 ? "<sup>&nbsp;(-{0})</sup>".format_a(r.discarded) : "")) : lang.dash, "</td>");
-		    ar.push("<td class='int' width='40px'>", r.closed > 0 || r.other > 0 ? (G.getint_l(r.closed,0) +
-			(r.other > 0 ?  "<sup>&nbsp;(+{0})</sup>".format_a(r.other) : "")) : lang.dash, "</td>");
-		    ar.push("<td class='int' width='40px'>", r.pending > 0 ? G.getint_l(r.pending) : lang.dash, "</td>");
-		    ar.push("<td class='int' width='40px'>", r.accepted > 0 ? G.getint_l(r.accepted) : lang.dash, "</td>");
-		    ar.push("<td class='int", r.rejected > 0 ? " attention" : "", "' 'width='40px'>",
+		    ar.push("<td class='smallint'>");
+		    if( r.scheduled > 0 ) {
+			if( r.discarded > 0 ) {
+			    ar.push("<span class='footnote' data-title='{2}'>{0}<sup>&nbsp;(-{1})</sup></span>".format_a(
+				G.getint_l(r.scheduled), r.discarded, lang.time.discarded));
+			} else {
+			    ar.push(G.getint_l(r.scheduled));
+			}
+		    } else {
+			ar.push(lang.dash);
+		    }
+		    ar.push("</td>");
+		    ar.push("<td class='smallint'>");
+		    if( r.closed > 0 || r.other > 0 ) {
+			if( r.other > 0 ) {
+			    ar.push("<span class='footnote' data-title='{2}'>{0}<sup>&nbsp;(+{1})</sup></span>".format_a(
+				G.getint_l(r.closed,0), r.other, lang.time.other));
+			} else {
+			    ar.push(G.getint_l(r.closed));
+			}
+		    } else {
+			ar.push(lang.dash);
+		    } 
+		    ar.push("</td>");
+		    ar.push("<td class='smallint'>", r.pending > 0 ? G.getint_l(r.pending) : lang.dash, "</td>");
+		    ar.push("<td class='smallint'>", r.accepted > 0 ? G.getint_l(r.accepted) : lang.dash, "</td>");
+		    ar.push("<td class='smallint", r.rejected > 0 ? " attention" : "", "'>",
 			r.rejected > 0 ? G.getint_l(r.rejected) : lang.dash, "</td>");
-		    ar.push("<td class='int", r.warn_min_duration > 0 ? " attention" : "", "' 'width='40px'>",
+		    ar.push("<td class='smallint", r.warn_min_duration > 0 ? " attention" : "", "'>",
 			r.warn_min_duration > 0 ? G.getint_l(r.warn_min_duration) : lang.dash, "</td>");
-		    ar.push("<td class='int' width='40px'>", r.warn_max_duration > 0 ? G.getint_l(r.warn_max_duration) : lang.dash, "</td>");
-		    ar.push("<td class='int", r.warn_max_distance > 0 ? " attention" : "", "' width='40px'>",
+		    ar.push("<td class='smallint'>", r.warn_max_duration > 0 ? G.getint_l(r.warn_max_duration) : lang.dash, "</td>");
+		    ar.push("<td class='smallint", r.warn_max_distance > 0 ? " attention" : "", "'>",
 			r.warn_max_distance > 0 ? G.getint_l(r.warn_max_distance) : lang.dash, "</td>");
 		}
 		ar.push("</tr>");
@@ -455,28 +492,32 @@ var PLUG = (function() {
 	return ar;
     }
 
-    function _moretbl2(data, data_ts) {
-	var ar = [], r;
+    function _moretbl2(data, page, f, data_ts) {
+	const maxrows = 25;
+	var ar = [], x = 0, r, z;
 	for( var i = 0, size = Array.isArray(data.accounts) ? data.accounts.length : 0; i < size; i++ ) {
-	    if( (r = data.accounts[i]) != null ) {
-		ar.push("<tr>");
-		ar.push("<td class='autoincrement", typeof r.v == 'undefined' || r.v == 0 ? " incomplete" : "", "'>", i + 1, "</td>");
-		ar.push("<td class='string a_name'>", G.shielding(r.descr), "</td>");
-		ar.push("<td class='string address'>", G.shielding(r.address), "</td>");
-		ar.push("<td class='ref'>", G.shielding(r.chan_name), "</td>");
-		ar.push("<td class='ref'>", G.shielding(r.poten_name), "</td>");
-		ar.push("<td class='int' width='40px'>");
-		if( r.v > 0 ) {
-		    if( r.v != r.vwv ) {
-			ar.push(G.getint_l(r.v), "<sup>&nbsp;({0})</sup>".format_a((r.vwv||0) - r.v));
+	    if( (r = data.accounts[i]) != null && (f != true || typeof r.v == 'undefined' || r.v == 0) ) {
+		if( (page-1)*maxrows <= x && x < page*maxrows ) {
+		    ar.push("<tr>");
+		    ar.push("<td class='autoincrement", typeof r.v == 'undefined' || r.v == 0 ? " incomplete" : "", "'>", i + 1, "</td>");
+		    ar.push("<td class='string a_name'>", G.shielding(r.descr), "</td>");
+		    ar.push("<td class='string address'>", G.shielding(r.address), "</td>");
+		    ar.push("<td class='ref'>", G.shielding(r.chan_name), "</td>");
+		    ar.push("<td class='ref'>", G.shielding(r.poten_name), "</td>");
+		    ar.push("<td class='smallint'>");
+		    if( r.v > 0 ) {
+			if( r.v != r.vwv ) {
+			    ar.push(G.getint_l(r.v), "<sup>&nbsp;({0})</sup>".format_a((r.vwv||0) - r.v));
+			} else {
+			    ar.push(G.getint_l(r.v));
+			}
 		    } else {
-			ar.push(G.getint_l(r.v));
+			ar.push(lang.dash);
 		    }
-		} else {
-		    ar.push(lang.dash);
+		    ar.push("</td>");
+		    ar.push("</tr>");
 		}
-		ar.push("</td>");
-		ar.push("</tr>");
+		x++;
 	    }
 	}
 	if( ar.length == 0 ) {
@@ -484,6 +525,37 @@ var PLUG = (function() {
 	}
 	if( typeof data_ts == 'string' ) {
 	    ar.push("<tr class='def'><td colspan='", 6, "' class='watermark'>", lang.data_ts, "&nbsp;", data_ts, "</td></tr>");
+	}
+	if( (z = Math.floor(x/maxrows) + ((x%maxrows)?1:0)) > 1 /*pages: */ ) {
+	    ar.push("<tr class='def'><td colspan='", 6, "' class='navbar'>");
+	    if( page > 1 ) {
+		ar.push("&nbsp;<a href='javascript:void(0)' onclick='PLUG.page(1)'>|&lt;</a>&nbsp;");
+		ar.push("&nbsp;<a href='javascript:void(0)' onclick='PLUG.page(",page-1,")'>&lt;</a>&nbsp;");
+	    }
+	    if( page == 1 ) {
+		ar.push("&nbsp;",page,"&nbsp;");
+		ar.push("&nbsp;<a href='javascript:void(0)' onclick='PLUG.page(",page+1,")'>",page+1,"</a>");
+		if( (page+2) <= z ) {
+		    ar.push("&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.page(",page+2,")'>",page+2,"</a>");
+		}
+	    } else if( page == z ) {
+		if( (page-2) >= 1 ) {
+		    ar.push("&nbsp;<a href='javascript:void(0)' onclick='PLUG.page(",page-2,")'>",page-2,"</a>&nbsp;");
+		}
+		ar.push("&nbsp;<a href='javascript:void(0)' onclick='PLUG.page(",page-1,")'>",page-1,"</a>&nbsp;");
+		ar.push("&nbsp;",page);
+	    } else {
+		ar.push("&nbsp;<a href='javascript:void(0)' onclick='PLUG.page(",page-1,")'>",page-1,"</a>&nbsp;");
+		ar.push("&nbsp;",page);
+		if( (page+1) <= z ) {
+		    ar.push("&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.page(",page+1,")'>",page+1,"</a>");
+		}
+	    }
+	    if( page < z ) {
+		ar.push("&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.page(",page+1,")'>&gt;</a>&nbsp;");
+		ar.push("&nbsp;<a href='javascript:void(0)' onclick='PLUG.page(",z,")'>&gt;|</a>");
+	    }
+	    ar.push("</td></tr>");
 	}
 	return ar;
     }
@@ -625,10 +697,11 @@ var PLUG = (function() {
 	_togglePopup();
 	_tags.moretb0.html(more == true ? _moretbl0(r).join("") : "");
 	_tags.moretb1.html(more == true ? _moretbl1(r, _cache.data.rules, _cache.data.data_ts).join("") : "");
-	_tags.moretb2.html(more == true ? _moretbl2(r, _cache.data.data_ts).join("") : "");
+	_tags.moretb2.html(more == true ? _moretbl2(r, 1, _cache.uncovered, _cache.data.data_ts).join("") : "");
 	_tags.summary.forEach(function(arg) { if( more == true ) { arg.hide(); } else { arg.show(); } });
 	_tags.more.forEach(function(arg) { if( more == true ) { arg.show(); } else { arg.hide(); } });
 	_cache.u = more ? r.user_id : null;
+	_cache.ptr = more ? r : null;
     }
 
     function _historyState(y, m, u) {
@@ -637,6 +710,10 @@ var PLUG = (function() {
 	    p1.u = u; p2.user_id = u;
 	}
 	history.replaceState(p1, "", G.getref(p2));
+    }
+
+    function _morepage(arg) {
+	_tags.moretb2.html(_moretbl2(_cache.ptr, arg, _cache.uncovered, _cache.data.data_ts).join(""));
     }
 
 
@@ -705,6 +782,20 @@ var PLUG = (function() {
 	back: function() {
 	    _switchTo();
 	    _historyState(_cache.y, _cache.m, _cache.u);
+	},
+	page: function(arg) {
+	    _morepage(arg);
+	    window.scrollTo(0, 0);
+	},
+	uncovered: function(tag) {
+	    if( tag.hasClass("important") ) {
+		_cache.uncovered = null;
+		tag.removeClass('important');
+	    } else {
+		_cache.uncovered = true;
+		tag.addClass('important');
+	    }
+	    _morepage(1);
 	}
     }
 })();

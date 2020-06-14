@@ -1470,6 +1470,10 @@ hr {
     width: 20px;
 }
 
+.report .smallint {
+    width: 40px;
+}
+
 .report .datetime {
     width: 134px;
 }
@@ -1533,6 +1537,7 @@ hr {
 .report td.autoincrement,
 .report td.ref,
 .report td.int,
+.report td.smallint,
 .report td.bool,
 .report td.datetime,
 .report td.date,
