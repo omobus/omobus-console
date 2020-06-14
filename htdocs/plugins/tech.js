@@ -150,8 +150,8 @@ var PLUG = (function() {
 		ar.push("<td class='delim time", xs, "'>", G.shielding(r.acts_time), "</td>");
 		ar.push("<td class='int", xs, "'>", G.getint_l(r.docs_total), "</td>");
 		ar.push("<td class='delim time", xs, "'>", G.shielding(r.docs_time), "</td>");
-		ar.push("<td class='int", xs, "'>", (r.dist != null && r.dist/1000 > 0 ? parseFloat(r.dist/1000.0).toFixed(1) : lang.dash), "</td>");
-		ar.push("<td class='int", xs, "'>", (r.pause == null ? lang.dash : r.pause), "</td>");
+		ar.push("<td class='delim int", xs, "'>", (r.dist != null && r.dist/1000 > 0 ? parseFloat(r.dist/1000.0).toFixed(1) : lang.dash), "</td>");
+		ar.push("<td class='delim int", xs, "'>", (r.pause == null ? lang.dash : r.pause), "</td>");
 		if( typeof __allowedColumns == 'object' && __allowedColumns.area ) {
 		    ar.push("<td class='ref", xs, "'>", G.shielding(r.area), "</td>");
 		}
@@ -183,7 +183,7 @@ var PLUG = (function() {
 			    t.push("<div class='row remark'>", G.shielding(r.distributors[i]), "</div>");
 			}
 		    }
-		    ar.push("<td class='ref sw95px'>", t.join(''), "</td>");
+		    ar.push("<td class='ref Xsw95px'>", t.join(''), "</td>");
 		}
 		ar.push("<td class='int", xs, "'>", G.shielding(r.dev_login), "</td>");
 		ar.push("</tr>");
