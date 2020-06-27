@@ -37,7 +37,7 @@ var PLUG = (function() {
 	ar.push("<table width='100%' class='report'>", "<thead>", "<tr>");
 	ar.push("<th rowspan='2' class='autoincrement'>", lang.num, "</th>");
 	ar.push("<th rowspan='2'>", lang.u_name, "</th>");
-	ar.push("<th rowspan='2' width='80px'>", lang.dev_login, "</th>");
+	ar.push("<th rowspan='2'>", lang.u_code, "</th>");
 	ar.push("<th colspan='3'>", lang.my, "</th>");
 	ar.push("<th colspan='8'>", lang.route, "</th>");
 	ar.push("<th colspan='3'>", lang.route_compliance.wd, "</th>");
@@ -146,14 +146,27 @@ var PLUG = (function() {
     function _datatbl(data, total, f, checked, perm) {
 	var ar = [], size = Array.isArray(data.rows) ? data.rows.length : 0, x = 0, r, t;
 	var sensibleAlarms = ((new Date().getTime() - Date.parseISO8601(data.e_date).getTime())/(1000*60*60*24)) >= 10;
+	var rx = new RegExp("['\"]", "g");
 	for( var i = 0; i < size; i++ ) {
 	    if( (r = data.rows[i]) != null && f.is(r) ) {
 		ar.push("<tr class='clickable" + (typeof checked != 'undefined' && checked[r.user_id] ? " selected'" : "") +
 		    "' onclick='PLUG.more(" + r.row_no + ")'>");
 		ar.push("<td class='autoincrement clickable' onclick='PLUG.checkrow(this.parentNode,\"" +
 		    r.user_id + "\");event.stopPropagation();'>", r.row_no, "</td>");
-		ar.push("<td class='string u_name'>", G.shielding(r.u_name), "</td>");
-		ar.push("<td class='delim ref'>", String.isEmpty(r.dev_login) ? G.shielding(r.user_id).mtrunc(12) : G.shielding(r.dev_login), "</td>");
+		if( String.isEmpty(r.dev_login) ) {
+		    ar.push("<td class='string u_name'>", G.shielding(r.u_name), "</td>");
+		} else {
+		    ar.push("<td class='string u_name footnote' data-title='{0}: {1}'>".format_a(lang.dev_login, r.dev_login), 
+			G.shielding(r.u_name), "</td>");
+		}
+		t = G.shielding(r.user_id).replace(rx,' ');
+		if( r.user_id.length > 15 ) {
+		    ar.push("<td class='copyable delim int footnote' data-title='{0}' onclick='PLUG.copy(\"{0}\");event.stopPropagation();'>"
+			.format_a(t), G.shielding(r.user_id).mtrunc(15), "</td>");
+		} else {
+		    ar.push("<td class='copyable delim int' onclick='PLUG.copy(\"{0}\");event.stopPropagation();'>".format_a(t),
+			G.shielding(r.user_id), "</td>");
+		}
 		ar.push("<td class='smallint'>", G.getint_l(r._a,0), "</td>");
 		ar.push("<td class='smallint'>");
 		if( r._v > 0 ) {
@@ -199,14 +212,15 @@ var PLUG = (function() {
 		    if( r._scheduled > 0 && r._discarded > 0 ) {
 			if( r._scheduled > r._discarded ) {
 			    t = 100.0*r._closed/(r._scheduled - r._discarded);
-			    ar.push("<td class='int", (!sensibleAlarms || t >= 100) ? "" : " incomplete", "' width='50px'>", 
+			    ar.push("<td class='int", (!sensibleAlarms || t >= 100) ? "" : " violation", "' width='50px'>", 
 				G.getpercent_l(t.toFixed(1)), "</td>");
 			} else {
 			    ar.push("<td class='int' width='50px'>", lang.dash, "</td>");
 			}
 		    } else if( r._scheduled > 0 ) {
 			t = 100.0*r._closed/r._scheduled;
-			ar.push("<td class='int", (!sensibleAlarms || t >= 100) ? "" : " incomplete", "' width='50px'>", G.getpercent_l(t.toFixed(1)), "</td>");
+			ar.push("<td class='int", (!sensibleAlarms || t >= 100) ? "" : " violation", "' width='50px'>", 
+			    G.getpercent_l(t.toFixed(1)), "</td>");
 		    } else {
 			ar.push("<td class='int' width='50px'>", lang.dash, "</td>");
 		    }
@@ -418,7 +432,7 @@ var PLUG = (function() {
 		const rule_e = r.rules == null || r.rules.wd == null || r.rules.wd.end == null ? rules.wd.end : r.rules.wd.end;
 		const rule_t = r.rules == null || r.rules.wd == null || r.rules.wd.timing == null ? rules.wd.timing : r.rules.wd.timing;
 		const disabled = !(r.scheduled > 0 || r.other > 0) || r.canceled > 0 ? " disabled" : "";
-		const violations = (disabled != "" || r.violations == null || (!r.violations.gps && !r.violations.tm)) ? "" : " incomplete footnote";
+		const violations = (disabled != "" || r.violations == null || (!r.violations.gps && !r.violations.tm)) ? "" : " violation footnote";
 		if( r.violations != null && r.violations.gps ) { fn.push(lang.violations.gps); }
 		if( r.violations != null && r.violations.tm ) { fn.push(lang.violations.tm); }
 		ar.push("<tr>");
@@ -800,6 +814,11 @@ var PLUG = (function() {
 		tag.addClass('important');
 	    }
 	    _morepage(1);
+	},
+	copy: function(text) {
+	    navigator.clipboard.writeText(text);
+	    Toast.show(lang.notices.clipboard);
+	    console.log(text);
 	}
     }
 })();

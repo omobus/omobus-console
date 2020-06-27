@@ -124,13 +124,13 @@ var PLUG = (function() {
 		ar.push("<td class='autoincrement", xs,"' onclick='PLUG.checkrow(this.parentNode,\"", k, "\");event.stopPropagation();'>", 
 		    r.row_no, "</td>");
 		ar.push("<td class='string", xs,"'>", G.shielding(r.u_name), "</td>");
-		t = G.shielding(r.code).replace(rx,' ');
-		if( r.code.length > 15 ) {
+		t = G.shielding(r.user_id).replace(rx,' ');
+		if( r.user_id.length > 15 ) {
 		    ar.push("<td class='copyable delim int footnote{1}' data-title='{0}' onclick='PLUG.copy(\"{0}\");event.stopPropagation();'>".format_a(t, xs), 
-			G.shielding(r.code).mtrunc(15), "</td>");
+			G.shielding(r.user_id).mtrunc(15), "</td>");
 		} else {
 		    ar.push("<td class='copyable delim int{1}' onclick='PLUG.copy(\"{0}\");event.stopPropagation();'>".format_a(t, xs), 
-			G.shielding(r.code), "</td>");
+			G.shielding(r.user_id), "</td>");
 		}
 /*obsolete_at_2021-06:*/if( typeof r.wd_duration != 'undefined' ) {
 /*obsolete_at_2021-06:*/ar.push("<td class='time", xs,"'>", G.shielding(r.wd_begin), "</td>");

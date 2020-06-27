@@ -131,8 +131,8 @@ var lang = {
     department: "Подразделение",
     departmentAbbr: "Подр.",
     department_everything: "Все подразделения",
-    dev_login: "<i>Login</i> в OMOBUS",
-    dev_id: "<i>Уникальный</i> код устройства",
+    dev_login: "Login в OMOBUS",
+    dev_id: "Уникальный код устройства",
     discount: "Скидка",
     discard_types_everything: "Все причины исключения из маршрута",
     discards: {
