@@ -87,7 +87,7 @@ function RetailChainsPopup(rows, selection, params /* params = { everything: tru
     RetailChainsPopup.cleanup = function(rows, id) {
 	var container = _(id == null || typeof id == 'undefined' ? "retailchainsPopup" : id);
 	container.removeAttribute("X-uid");
-	rows.forEach(function(arg) { arg._selected = null; });
+	if( !Array.isEmpty(rows) ) { rows.forEach(function(arg) { arg._selected = null; }); }
     };
 }(RetailChainsPopup));
 

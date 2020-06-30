@@ -93,7 +93,7 @@ function UsersPopup(users, selection, params /* params = { everyone: true|false,
     UsersPopup.cleanup = function(rows, id) {
 	var container = _(id == null || typeof id == 'undefined' ? "usersPopup" : id);
 	container.removeAttribute("X-uid");
-	rows.forEach(function(arg) { arg._selected = null; });
+	if( !Array.isEmpty(rows) ) { rows.forEach(function(arg) { arg._selected = null; }); }
     };
 }(UsersPopup));
 
