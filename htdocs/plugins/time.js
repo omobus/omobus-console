@@ -796,6 +796,7 @@ var PLUG = (function() {
 	more: function(row_no) {
 	    _switchTo(_cache.data.rows[row_no-1]);
 	    _historyState(_cache.y, _cache.m, _cache.u);
+	    window.scrollTo(0, 0);
 	},
 	back: function() {
 	    _switchTo();
