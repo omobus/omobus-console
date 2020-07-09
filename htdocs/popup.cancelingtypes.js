@@ -87,7 +87,7 @@ function CancelingTypesPopup(rows, selection, params /* params = { everything: t
     CancelingTypesPopup.cleanup = function(rows, id) {
 	var container = _(id == null || typeof id == 'undefined' ? "cancelingtypesPopup" : id);
 	container.removeAttribute("X-uid");
-	if( !Array.isEmpty(rows) ) { ows.forEach(function(arg) { arg._selected = null; }); }
+	if( !Array.isEmpty(rows) ) { rows.forEach(function(arg) { arg._selected = null; }); }
     };
 }(CancelingTypesPopup));
 
