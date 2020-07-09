@@ -37,7 +37,7 @@ var PLUG = (function() {
 	ar.push("<table width='100%' class='report'>", "<thead>", "<tr>");
 	ar.push("<th rowspan='2' class='autoincrement'>", lang.num, "</th>");
 	ar.push("<th rowspan='2'>", lang.u_name, "</th>");
-	ar.push("<th rowspan='2'>", lang.u_code, "</th>");
+	ar.push("<th rowspan='2'>", lang.dev_login, "</th>");
 	ar.push("<th colspan='3'>", lang.my, "</th>");
 	ar.push("<th colspan='8'>", lang.route, "</th>");
 	ar.push("<th colspan='3'>", lang.route_compliance.wd, "</th>");
@@ -159,14 +159,7 @@ var PLUG = (function() {
 		    ar.push("<td class='string u_name footnote' data-title='{0}: {1}'>".format_a(lang.dev_login, r.dev_login), 
 			G.shielding(r.u_name), "</td>");
 		}
-		t = G.shielding(r.user_id).replace(rx,' ');
-		if( r.user_id.length > 15 ) {
-		    ar.push("<td class='copyable delim int footnote' data-title='{0}' onclick='PLUG.copy(\"{0}\");event.stopPropagation();'>"
-			.format_a(t), G.shielding(r.user_id).mtrunc(15), "</td>");
-		} else {
-		    ar.push("<td class='copyable delim int' onclick='PLUG.copy(\"{0}\");event.stopPropagation();'>".format_a(t),
-			G.shielding(r.user_id), "</td>");
-		}
+		ar.push("<td class='delim int'>".format_a(t), G.shielding(r.dev_login), "</td>");
 		ar.push("<td class='smallint'>", G.getint_l(r._a,0), "</td>");
 		ar.push("<td class='smallint'>");
 		if( r._v > 0 ) {
@@ -438,7 +431,7 @@ var PLUG = (function() {
 		ar.push("<tr>");
 		ar.push("<td class='autoincrement", violations, disabled, fn.isEmpty() ? "'>" : ("' data-title='" + fn.join(" + ") + "'>"));
 		if( r.alive != null && r.alive ) {
-		    ar.push("<a href='", G.getref({plug:'tech',user_id:data.user_id,date:r.route_date}), 
+		    ar.push("<a target='_blank' href='", G.getref({plug:'tech',user_id:data.user_id,date:r.route_date}), 
 			"'>", d.getDate(), "</a>");
 		} else {
 		    ar.push(d.getDate());
@@ -815,11 +808,6 @@ var PLUG = (function() {
 		tag.addClass('important');
 	    }
 	    _morepage(1);
-	},
-	copy: function(text) {
-	    navigator.clipboard.writeText(text);
-	    Toast.show(lang.notices.clipboard);
-	    console.log(text);
 	}
     }
 })();
