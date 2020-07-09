@@ -30,7 +30,7 @@ var PLUG = (function() {
 	ar.push("<table width='100%' class='report'><thead><tr>");
 	ar.push("<th rowspan='2' class='autoincrement'>", lang.num, "</th>");
 	ar.push("<th rowspan='2'>", lang.u_name, "</th>");
-	ar.push("<th rowspan='2'>", lang.u_code, "</th>");
+	ar.push("<th rowspan='2'>", lang.dev_login, "</th>");
 	ar.push("<th colspan='5'>", R.wd, "</th>");
 	ar.push("<th colspan='8'>", lang.route, "</th>");
 	if( perm.columns != null && perm.columns.area == true ) {
@@ -88,7 +88,6 @@ var PLUG = (function() {
 
     function _datatbl(data, total, date, f, checked, perm) {
 	var ar = [], size = Array.isArray(data.rows) ? data.rows.length : 0, x = 0, r, t;
-	var rx = new RegExp("['\"]", "g");
 	for( var i = 0; i < size; i++ ) {
 	    if( (r = data.rows[i]) != null && f.is(r) ) {
 		var fn = [];
@@ -107,28 +106,14 @@ var PLUG = (function() {
 		    ar.push("<td class='string u_name{2} footnote' data-title='{0}: {1}'>".format_a(lang.dev_login, r.dev_login, disabled),
 			G.shielding(r.u_name), "</td>");
 		}
-		t = G.shielding(r.user_id).replace(rx,' ');
-		if( r.user_id.length > 12 ) {
-		    ar.push("<td class='copyable int delim{1} footnote' data-title='{0}' onclick='PLUG.copy(\"{0}\");event.stopPropagation();'>"
-			.format_a(t, disabled));
-		    if( r.alive != null && r.alive ) {
-			ar.push("<a href='", G.getref({plug:'tech',user_id:r.user_id,date:G.getdate(_cache.date)}), 
-			    "' onclick='event.stopPropagation()'>", G.shielding(r.user_id).mtrunc(12), "</a>");
-		    } else {
-			ar.push(G.shielding(r.user_id).mtrunc(12));
-		    }
-		    ar.push("</td>");
+		ar.push("<td class='int delim", disabled, "'>");
+		if( r.alive != null && r.alive ) {
+		    ar.push("<a target='_blank' href='", G.getref({plug:'tech',user_id:r.user_id,date:G.getdate(_cache.date)}), 
+			"'>", G.shielding(r.dev_login), "</a>");
 		} else {
-		    ar.push("<td class='copyable delim int{1}' onclick='PLUG.copy(\"{0}\");event.stopPropagation();'>".
-			format_a(t, disabled));
-		    if( r.alive != null && r.alive ) {
-			ar.push("<a href='", G.getref({plug:'tech',user_id:r.user_id,date:G.getdate(_cache.date)}), 
-			    "' onclick='event.stopPropagation()'>", G.shielding(r.user_id), "</a>");
-		    } else {
-			ar.push(G.shielding(r.user_id));
-		    }
-		    ar.push("</td>");
+		    ar.push(G.shielding(r.dev_login));
 		}
+		ar.push("</td>");
 		if( !(r.scheduled > 0 || r.other > 0) ) {
 		    ar.push("<td class='delim ref disabled' colspan='13'>", R.none.toLowerCase(), "</td>");
 		} else if( r.canceled > 0 ) {
