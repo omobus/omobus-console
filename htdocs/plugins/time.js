@@ -411,6 +411,12 @@ var PLUG = (function() {
 	    }
 	    ar.push("</tr>");
 	}
+	if( data._total_mileage/1000 > 0 ) {
+	    ar.push("<tr>",
+		"<td class='ref'>", lang.mileage, ":</td>",
+		"<td class='int' colspan='3'>", lang.kilometers.format_a((data._total_mileage/1000.0).toFixed(1)), "</td>",
+		"</tr>");
+	}
 	return ar;
     }
 
@@ -606,6 +612,7 @@ var PLUG = (function() {
 			ptr._duration = 0;
 			ptr._instore_duration = 0;
 			ptr._mileage = 0;
+			ptr._total_mileage = 0;
 			if( ptr.rules != null && !Array.isEmpty(ptr.rules.wdays) && ptr.rules.wdays.length == 7 ) {
 			    ptr._wdays = ptr.rules.wdays;
 			} else if( data.rules != null && !Array.isEmpty(data.rules.wdays) && data.rules.wdays.length == 7 ) {
@@ -626,6 +633,7 @@ var PLUG = (function() {
 				ptr._duration += arg.duration||0;
 				ptr._instore_duration += arg.instore_duration||0;
 				ptr._mileage += arg.mileage||0;
+				ptr._total_mileage += arg.total_mileage||0;
 			    } else if( arg.scheduled == null || arg.scheduled == 0 ) {
 				ptr._other += arg.other||0;
 				ptr._accepted += arg.accepted||0;
@@ -637,6 +645,7 @@ var PLUG = (function() {
 				ptr._duration += arg.duration||0;
 				ptr._instore_duration += arg.instore_duration||0;
 				ptr._mileage += arg.mileage||0;
+				ptr._total_mileage += arg.total_mileage||0;
 			    }
 			});
 		    }
