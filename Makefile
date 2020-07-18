@@ -1,7 +1,7 @@
 # Copyright (c) 2006 - 2020 omobus-console authors, see the included COPYRIGHT file.
 
 PACKAGE_NAME 	= omobus-console
-PACKAGE_VERSION = 3.5.6
+PACKAGE_VERSION = 3.5.7
 COPYRIGHT 	= Copyright (c) 2006 - 2020 ak obs, ltd. <info@omobus.net>
 SUPPORT 	= Support and bug reports: <support@omobus.net>
 AUTHOR		= Author: Igor Artemov <i_artemov@omobus.net>
