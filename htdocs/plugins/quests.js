@@ -251,7 +251,7 @@ var PLUG = (function() {
 			ws.cell("K{0}".format_a(i + offset)).value(r.city);
 			ws.cell("L{0}".format_a(i + offset)).value(r.rc);
 			ws.cell("M{0}".format_a(i + offset)).value(r.ka_code);
-			ws.cell("N{0}".format_a(i + offset)).value(r.gname);
+			ws.cell("N{0}".format_a(i + offset)).value(r.qname);
 			ws.cell("O{0}".format_a(i + offset)).value(r.qrow_id);
 			ws.cell("P{0}".format_a(i + offset)).value(r.qpath);
 			ws.cell("Q{0}".format_a(i + offset)).value(r.qrow);
