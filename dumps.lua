@@ -50,7 +50,7 @@ function M.list(config, username)
 	if core.contains(tb, '__unlocked__') then
 	    local ar = {}
 	    for index, value in ipairs(tb) do
-		if value ~= '__unlocked__' then
+		if value ~= '__unlocked__' and value ~= '.' and value ~= '..' then
 		    table.insert(ar, core.split(value, '+')[1])
 		end
 	    end
