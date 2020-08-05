@@ -7,7 +7,7 @@ var PLUG = (function() {
     var _cache = {}, _perm = {}, _tags = {};
 
     function _getcolumns(perm) {
-	let x = 18, c = perm.columns || {};
+	let x = 19, c = perm.columns || {};
 	if( c.area == true ) x++;
 	if( c.department == true ) x++;
 	if( c.distributor == true ) x++;
@@ -40,7 +40,7 @@ var PLUG = (function() {
 	ar.push("<th rowspan='2'>", lang.dev_login, "</th>");
 	ar.push("<th colspan='3'>", lang.my, "</th>");
 	ar.push("<th colspan='8'>", lang.route, "</th>");
-	ar.push("<th colspan='3'>", lang.route_compliance.wd, "</th>");
+	ar.push("<th colspan='4'>", lang.route_compliance.wd, "</th>");
 	if( perm.columns != null && perm.columns.area == true ) {
 	    ar.push("<th rowspan='2'>", lang.area, "</th>");
 	}
@@ -64,6 +64,7 @@ var PLUG = (function() {
 	ar.push("<th id='rule1'>", lang.more_min.format_a(lang.dash), "</th>");
 	ar.push("<th id='rule2'>", lang.more_meter.format_a(lang.dash), "</th>");
 	ar.push("<th class='symbol footnote' data-title='", lang.time.timing, "'>", "&#x2692;", "</th>");
+	ar.push("<th>", "%", "</th>");
 	ar.push("<th>", lang.days, "</th>");
 	ar.push("<th width='55px'>", lang.mileageAbbr, "</th>");
 	ar.push("</tr>", G.thnums(_getcolumns(perm)), "</thead>");
@@ -230,10 +231,18 @@ var PLUG = (function() {
 		    const rule_t = r.rules == null || r.rules.wd == null || r.rules.wd.timing == null ? data.rules.wd.timing : r.rules.wd.timing;
 		    t = Number.HHMM(r._instore_duration/r._days);
 		    ar.push("<td class='time", rule_t != null && t < rule_t ? " attention" : "", "'>", G.shielding(t, lang.dash), "</td>");
+		    if( rule_t == null ) {
+			ar.push("<td class='int'>", lang.dash, "</td>");
+		    } else if( t >= rule_t ) {
+			ar.push("<td class='int'>", G.getpercent_l(100), "</td>");
+		    } else {
+			t = rule_t.split(':');
+			ar.push("<td class='int'>", G.getpercent_l((100.0*(r._instore_duration/r._days)/((+t[0])*60+(+t[1]))).toFixed(1)), "</td>");
+		    }
 		    ar.push("<td class='smallint'>", G.getint_l(r._days,0), "</td>");
 		    ar.push("<td class='delim int'>", r._mileage/1000 > 0 ? (r._mileage/1000.0).toFixed(1) : lang.dash, "</td>");
 		} else {
-		    ar.push("<td class='delim ref disabled' colspan='3'>", lang.none.toLowerCase(), "</td>");
+		    ar.push("<td class='delim ref disabled' colspan='4'>", lang.none.toLowerCase(), "</td>");
 		}
 		if( perm.columns != null && perm.columns.area == true ) {
 		    ar.push("<td class='ref sw95px'>", G.shielding(r.area), "</td>");
