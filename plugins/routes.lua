@@ -27,14 +27,22 @@ local function compress(content_blob)
     return zlib.deflate(9):finish(content_blob)
 end
 
-local function cycles(stor, sestb)
+local function cycles(stor, sestb, a)
     return stor.get(function(tran, func_execute) return func_execute(tran,
 [[
-select cycle_id, b_date, e_date, cycle_no, closed, extract(year from b_date::date) "year" from route_cycles 
-    where hidden=0
+select 
+    cycle_id, 
+    b_date, 
+    e_date, 
+    cycle_no, 
+    case when status = 'closed' or status = %f% then 1 else 0 end closed, 
+    extract(year from b_date::date) "year" 
+from route_cycles 
+    where hidden = 0
 order by b_date desc
 ]]
-        , "//routes/cycles/")
+	, "//routes/cycles/"
+	, { f = a and '' or 'inprogress' } )
     end
     )
 end
@@ -45,16 +53,25 @@ local function data(stor, sestb, cycle_id, a)
 
 	tmp, err = func_execute(tran,
 [[
-select cycle_id, b_date, e_date, cycle_no, closed, extract(year from b_date::date) "year", ceil((e_date::date - b_date::date)::float/7) weeks from route_cycles 
-    where hidden=0 and (%cid% is null or cycle_id=%cid%) 
+select 
+    cycle_id, 
+    b_date, 
+    e_date, 
+    cycle_no, 
+    case when status = 'closed' or status = %f% then 1 else 0 end closed, 
+    extract(year from b_date::date) "year", 
+    ceil((e_date::date - b_date::date)::float/7) weeks 
+from route_cycles 
+    where hidden = 0 and (%cid% is null or cycle_id = %cid%) 
 order by b_date desc limit 1
 ]]
 	    , "//routes/cycle/"
-	    , {cid = cycle_id == nil and stor.NULL or cycle_id}
+	    , { cid = cycle_id == nil and stor.NULL or cycle_id, f = a and '' or 'inprogress' }
 	)
 	if (err == nil or err == false) and tmp ~= nil and #tmp >= 1 then
 	    tb = tmp[1];
 	    tb.code = "routes"
+	    tb.closed = tonumber(tb.closed)
 	    cycle_id = tb.cycle_id
 	else
 	    return nil, err
@@ -118,7 +135,7 @@ order by descr
 	    return nil, err
 	end
 
-	if a then
+	if tb.closed == nil or tb.closed == 0 then
 	    tb.accounts, err = func_execute(tran,
 [[
 select 
@@ -174,21 +191,42 @@ order by a.descr, a.address
     )
 end
 
-local function set(stor, uid, command, user_id, cycle_id, account_id, arg)
+local function set(stor, uid, reqdt, command, user_id, cycle_id, account_id, arg, a)
     return stor.get(function(tran, func_execute)
 	local tb, err = func_execute(tran,
 [[
-select * from console.req_route(%req_uid%, %cmd%, (%user_id%, %cycle_id%, %account_id%), %arg%)
+select 
+    case when status = 'closed' or status = %f% then 1 else 0 end closed
+from route_cycles 
+    where hidden = 0 and cycle_id = %cid%
 ]]
-	    , "//routes/set/"
-	    , {req_uid = uid, cmd = command, user_id = user_id, cycle_id = cycle_id, account_id = account_id, 
-	       arg = arg == nil and stor.NULL or tonumber(arg)}
+	    , "//routes/cycle/"
+	    , { cid = cycle_id == nil and stor.NULL or cycle_id, f = a and '' or 'inprogress' }
 	)
-	if (err == nil or err == false) and tb ~= nil and #tb == 1 then
-	    if tb[1].req_route == nil or tb[1].req_route == 0 then
+	if (err == nil or err == false) and tb ~= nil and #tb >= 1 then
+	    if tonumber(tb.closed) == 1 then
 		tb = {status='request_denied'}
-	    elseif command == 'add' then
+	    else
 		tb, err = func_execute(tran,
+[[
+select * from console.req_route(%req_uid%, %req_dt%, %cmd%, (%user_id%, %cycle_id%, %account_id%), %arg%)
+]]
+		    , "//routes/set/"
+		    , {
+			req_uid = uid, 
+			req_dt = reqdt, 
+			cmd = command, 
+			user_id = user_id, 
+			cycle_id = cycle_id, 
+			account_id = account_id, 
+			arg = arg == nil and stor.NULL or tonumber(arg)
+		    }
+		)
+		if (err == nil or err == false) and tb ~= nil and #tb == 1 then
+		    if tb[1].req_route == nil or tb[1].req_route == 0 then
+			tb = {status='request_denied'}
+		    elseif command == 'add' then
+			tb, err = func_execute(tran,
 [[
 select 
     r.account_id, a.code a_code, a.descr a_name, a.address, a.latitude, a.longitude, c.descr chan, p.descr poten, a.approved, a.locked, a.hidden,
@@ -203,20 +241,24 @@ from routes r
 where
     r.cycle_id = %cycle_id% and r.user_id = %user_id% and r.account_id = %account_id%
 ]]
-		    , "//routes/dump/"
-		    , {user_id = user_id, cycle_id = cycle_id, account_id = account_id}
-		)
-		if (err == nil or err == false) and tb ~= nil and #tb == 1 then
-		    tb = tb[1]
-		    tb.status = 'success'
-		    tb.weeks = core.split(tb.weeks, ',', tonumber)
-		    tb.days = core.split(tb.days, ',', tonumber)
-		    tb.row_id = genid(tb.user_id, tb.cycle_id, tb.account_id)
+			    , "//routes/dump/"
+			    , {user_id = user_id, cycle_id = cycle_id, account_id = account_id}
+			)
+			if (err == nil or err == false) and tb ~= nil and #tb == 1 then
+			    tb = tb[1]
+			    tb.status = 'success'
+			    tb.weeks = core.split(tb.weeks, ',', tonumber)
+			    tb.days = core.split(tb.days, ',', tonumber)
+			    tb.row_id = genid(tb.user_id, tb.cycle_id, tb.account_id)
+			else
+			    tb = {status='runtime_error'}
+			end
+		    else
+			tb = {status='success'}
+		    end
 		else
 		    tb = {status='runtime_error'}
 		end
-	    else
-		tb = {status='success'}
 	    end
 	else
 	    tb = {status='runtime_error'}
@@ -226,110 +268,105 @@ where
     end, false)
 end
 
-local function ajax_cycles(sestb, stor, res)
-    local tb, err = cycles(stor, sestb)
-    if err then
-	scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
-	scgi.writeBody(res, "Internal server error")
-    elseif tb == nil then
-	scgi.writeHeader(res, 200, {["Content-Type"] = mime.json .. "; charset=utf-8"})
-	scgi.writeBody(res, "{}")
-    else
-	scgi.writeHeader(res, 200, {["Content-Type"] = mime.json .. "; charset=utf-8"})
-	scgi.writeBody(res, json.encode(tb))
-    end
-end
-
-local function ajax_data(permtb, sestb, sestb, params, stor, res)
-    -- validate input data
-    assert(params.cycle_id == nil or validate.isuid(params.cycle_id), 
-	string.format("function %s() [cycle_id] is invalid.", debug.getinfo(1,"n").name))
-    -- execute query
-    local tb, err = data(stor, sestb, params.cycle_id, permtb.add)
-    if err then
-	scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
-	scgi.writeBody(res, "Internal server error")
-    elseif tb == nil then
-	scgi.writeHeader(res, 200, {["Content-Type"] = mime.json .. "; charset=utf-8"})
-	scgi.writeBody(res, "{}")
-    else
-	local i, v, idx, tmp
-	idx = {}
-	tmp = {}
-	if tb.users ~= nil then
-	    for i, v in ipairs(tb.users) do
-		idx[v.user_id] = 1
-	    end
-	end
-	if tb.accounts ~= nil then
-	    for i, v in ipairs(tb.accounts) do
-		v.row_id = genid('', '', v.account_id)
-	    end
-	end
-	if tb.routes ~= nil then
-	    for i, v in ipairs(tb.routes) do
-		if idx[v.user_id] ~= nil then
-		    table.insert(tmp, v);
-		    v.weeks = core.split(v.weeks, ',', tonumber)
-		    v.days = core.split(v.days, ',', tonumber)
-		    v.row_id = genid(v.user_id, v.cycle_id, v.account_id)
-		end
-	    end
-	end
-	tb.routes = tmp
-	scgi.writeHeader(res, 200, {["Content-Type"] = mime.json .. "; charset=utf-8", ["Content-Encoding"] = "deflate"})
-	scgi.writeBody(res, compress(json.encode(tb)))
-    end
-end
-
-local function ajax_set(permtb, sestb, params, content, stor, res)
-    local commands = {"set/day","drop/day","set/week","drop/week","remove","restore","add"}
-    -- validate input data
-    assert(validate.isuid(params.user_id), 
-	string.format("function %s() [user_id] is not valid.", debug.getinfo(1,"n").name))
-    assert(validate.isuid(params.cycle_id), 
-	string.format("function %s() [cycle_id] is not valid.", debug.getinfo(1,"n").name))
-    assert(validate.isuid(params.account_id), 
-	string.format("function %s() [account_id] is not valid.", debug.getinfo(1,"n").name))
-    assert(params.cmd ~= nil and core.contains(commands, params.cmd), 
-	string.format("function %s() unsupported command.", debug.getinfo(1,"n").name))
-    -- execute query
-    local tb, err = set(stor, sestb.erpid or sestb.username, params.cmd, params.user_id, 
-	params.cycle_id, params.account_id, params.arg)
-    if err then
-	scgi.writeHeader(res, 500, {["Content-Type"] = mime.json})
-	scgi.writeBody(res, "{\"status\":\"internal server error\"}")
-    else
-	scgi.writeHeader(res, 200, {["Content-Type"] = mime.json})
-	scgi.writeBody(res, json.encode(tb))
-    end
-end
-
 
 -- *** plugin interface: begin
 function M.scripts(lang, permtb, sestb, params)
-    return [[
-    <script src="https://api-maps.yandex.ru/2.1/?lang=ru-RU" type="text/javascript"> </script>
-    <script src="]] .. V.static_prefix .. [[/popup_L.cycles.js"> </script>
-    <script src="]] .. V.static_prefix .. [[/popup.users.js"> </script>
-    <script src="]] .. V.static_prefix .. [[/plugins/routes.js"> </script>
-]]
+    local ar = {}
+    if permtb.mapEngine == 'Google.Maps' then
+	if permtb.mapKey then
+	    table.insert(ar, '<script src="https://maps.googleapis.com/maps/api/js?v=3&key=' .. permtb.mapKey .. '&libraries=places" type="text/javascript"> </script>')
+	else
+	    table.insert(ar, '<script src="https://maps.googleapis.com/maps/api/js?v=3" type="text/javascript"> </script>')
+	end
+    elseif permtb.mapEngine == 'Yandex.Maps' then
+	if permtb.mapKey then
+	    table.insert(ar, '<script src="https://api-maps.yandex.ru/2.1/?lang=ru-RU&apikey=' .. permtb.mapKey .. '" type="text/javascript"> </script>')
+	else
+	    table.insert(ar, '<script src="https://api-maps.yandex.ru/2.1/?lang=ru-RU" type="text/javascript"> </script>')
+	end
+    end
+    table.insert(ar, '<script src="' .. V.static_prefix .. '/popup_L.cycles.js"> </script>')
+    table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.users.js"> </script>')
+    table.insert(ar, '<script src="' .. V.static_prefix .. '/plugins/routes.js"> </script>')
+    return table.concat(ar,"\n")
 end
 
 function M.startup(lang, permtb, sestb, params, stor)
-    assert(params.cycle_id == nil or validate.isuid(params.cycle_id), 
-	string.format("function %s() [cycle_id] is invalid.", debug.getinfo(1,"n").name))
+    assert(params.cycle_id == nil or validate.isuid(params.cycle_id), "invalid [cycle_id] parameter.")
     return "startup(_('pluginContainer')," .. (params.cycle_id == nil and "null" or ("'" .. params.cycle_id .. "'")) 
 	.. "," .. json.encode(permtb) .. ");"
 end
 
 function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor, res)
     if method == "GET" and params.cycles ~= nil then
-	ajax_cycles(sestb, stor, res)
+	local tb, err = cycles(stor, sestb, permtb.inprogress)
+	if err then
+	    scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
+	    scgi.writeBody(res, "Internal server error")
+	elseif tb == nil then
+	    scgi.writeHeader(res, 200, {["Content-Type"] = mime.json .. "; charset=utf-8"})
+	    scgi.writeBody(res, "{}")
+	else
+	    scgi.writeHeader(res, 200, {["Content-Type"] = mime.json .. "; charset=utf-8"})
+	    scgi.writeBody(res, json.encode(tb))
+	end
     elseif method == "GET" then
-	ajax_data(permtb, sestb, sestb, params, stor, res)
+	-- validate input data
+	assert(params.cycle_id == nil or validate.isuid(params.cycle_id), "invalid [cycle_id] parameter.")
+	-- execute query
+	local tb, err = data(stor, sestb, params.cycle_id, permtb.inprogress)
+	if err then
+	    scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
+	    scgi.writeBody(res, "Internal server error")
+	elseif tb == nil then
+	    scgi.writeHeader(res, 200, {["Content-Type"] = mime.json .. "; charset=utf-8"})
+	    scgi.writeBody(res, "{}")
+	else
+	    local i, v, idx, tmp
+	    idx = {}
+	    tmp = {}
+	    if tb.users ~= nil then
+		for i, v in ipairs(tb.users) do
+		    idx[v.user_id] = 1
+		end
+	    end
+	    if tb.accounts ~= nil then
+		for i, v in ipairs(tb.accounts) do
+		    v.row_id = genid('', '', v.account_id)
+		end
+	    end
+	    if tb.routes ~= nil then
+		for i, v in ipairs(tb.routes) do
+		    if idx[v.user_id] ~= nil then
+			table.insert(tmp, v);
+			v.weeks = core.split(v.weeks, ',', tonumber)
+			v.days = core.split(v.days, ',', tonumber)
+			v.row_id = genid(v.user_id, v.cycle_id, v.account_id)
+		    end
+		end
+	    end
+	    tb.routes = tmp
+	    scgi.writeHeader(res, 200, {["Content-Type"] = mime.json .. "; charset=utf-8", ["Content-Encoding"] = "deflate"})
+	    scgi.writeBody(res, compress(json.encode(tb)))
+	end
     elseif method == "POST" or method == "PUT" or method == "DELETE" then
-	ajax_set(permtb, sestb, params, content, stor, res)
+	local commands = {"set/day","drop/day","set/week","drop/week","remove","restore","add"}
+	-- validate input data
+	assert(validate.isdatetime(params._datetime), "invalid [_datetime] parameter.")
+	assert(validate.isuid(params.user_id), "invalid [user_id] parameter.")
+	assert(validate.isuid(params.cycle_id), "invalid [cycle_id] parameter.")
+	assert(validate.isuid(params.account_id), "invalid [account_id] parameter.")
+	assert(params.cmd ~= nil and core.contains(commands, params.cmd), "unsupported command.")
+	-- execute query
+	local tb, err = set(stor, sestb.erpid or sestb.username, params._datetime, params.cmd, params.user_id, 
+	    params.cycle_id, params.account_id, params.arg, permtb.inprogress)
+	if err then
+	    scgi.writeHeader(res, 500, {["Content-Type"] = mime.json})
+	    scgi.writeBody(res, "{\"status\":\"internal server error\"}")
+	else
+	    scgi.writeHeader(res, 200, {["Content-Type"] = mime.json})
+	    scgi.writeBody(res, json.encode(tb))
+	end
     else
 	scgi.writeHeader(res, 400, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
 	scgi.writeBody(res, "Bad request. Mehtod " .. method .. " does not supported.")

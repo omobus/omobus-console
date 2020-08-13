@@ -1639,6 +1639,10 @@ hr {
     border-right-color: #d0d0d0;
 }
 
+.report td.delim2 {
+    border-right-color: #adadad;
+}
+
 .report tbody td.def,
 .report tbody td.def:hover  {
     background-color: #f6f6f6;

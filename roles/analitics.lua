@@ -71,6 +71,7 @@ M.permissions.planograms.remove = true
 M.permissions.pos_materials.remove = true
 M.permissions.posms.target = true
 M.permissions.posms.urgent = true
+M.permissions.routes.inprogress = true
 M.permissions.targets.remove = true
 M.permissions.targets_compliance.remark = true
 M.permissions.training_materials.remove = true

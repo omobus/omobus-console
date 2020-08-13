@@ -73,6 +73,7 @@ M.permissions.pos_materials.remove = true
 M.permissions.pos_materials.edit = true
 M.permissions.posms.target = true
 M.permissions.posms.urgent = true
+M.permissions.routes.inprogress = true
 M.permissions.targets.remove = true
 M.permissions.targets.edit = true
 M.permissions.targets_compliance.remark = true
