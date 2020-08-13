@@ -4,10 +4,10 @@
 var PLUG = (function() {
 /* private properties & methods */
     var _code = "tickets";
-    var _opt = {
+    /*var _opt = {
 	L: {lines: 8, length: 2, width: 4, radius: 6, corners: 1, rotate: 0, direction: 1, speed: 1, trail: 60, shadow: false, hwaccel: false, top: "auto"},
 	D: {lines: 8, length: 2, width: 2, radius: 5, corners: 1, rotate: 0, direction: 1, speed: 1, trail: 60, shadow: false, hwaccel: false, top: "32px", left: "550px"}
-    };
+    };*/
     var _cache = null, _perm = null, _elem = null, _context = null;
 
 
@@ -97,8 +97,9 @@ var PLUG = (function() {
     }
 
     function _setdata(tbody, f) {
-	var sp = new Spinner(_opt.L).spin(_elem.spin.get(0));
-	_elem.spin.show(); tbody.hide();
+	//var sp = new Spinner(_opt.L).spin(_elem.spin.get(0));
+	//_elem.spin.show(); tbody.hide();
+ProgressDialog.show();
 	_cache = null; // drop the internal cache
 	G.xhr("GET", G.getajax({plug: _code}), "json", function(xhr, data) {
 	    if( xhr.status == 200 && data != null && typeof data == 'object' ) {
@@ -108,17 +109,20 @@ var PLUG = (function() {
 		tbody.html(_failed(lang.failure).join(""));
 	    }
 	    _elem.ts.text(G.getdatetime_l(new Date()));
-	    tbody.show(); sp.stop(); _elem.spin.hide();
+	    //tbody.show(); sp.stop(); _elem.spin.hide();
+ProgressDialog.hide();
 	}).send();
     }
 
     function _filterdata(tbody, f) {
 	if( _cache != null ) {
-	    var sp = new Spinner(_opt.L).spin(_elem.spin.get(0));
-	    _elem.spin.show(); tbody.hide();
+	    //var sp = new Spinner(_opt.L).spin(_elem.spin.get(0));
+	    //_elem.spin.show(); tbody.hide();
+ProgressDialog.show();
 	    setTimeout(function() {
 		tbody.html(_success(_cache, f, _getobjcache(), _perm).join(""));
-		sp.stop(); _elem.spin.hide(); tbody.show();
+		//sp.stop(); _elem.spin.hide(); tbody.show();
+ProgressDialog.hide();
 	    }, 0);
 	}
     }
@@ -255,7 +259,8 @@ a.push("</div>");
 	} else if( context.issue == null ) {
 	    _showmsg(context._msg, lang.tickets.msg2);
 	} else {
-	    var sp = new Spinner(_opt.D).spin(_context._spin.get(0));
+ProgressDialog.show();
+	    //var sp = new Spinner(_opt.D).spin(_context._spin.get(0));
 	    var xhr = G.xhr("POST", G.getajax({plug: _code, user_id: context.u.user_id}), "", function(xhr) {
 		_disable(context._commit, false);
 		if( xhr.status == 200 ) {
@@ -263,7 +268,8 @@ a.push("</div>");
 		} else {
 		    _showmsg(msg, lang.tickets.msg3);
 		}
-		sp.stop();
+		//sp.stop();
+ProgressDialog.hide();
 	    });
 	    _disable(context._commit, true);
 	    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
@@ -277,7 +283,8 @@ a.push("</div>");
 	if( _perm.min_resolution_length > context.note.length ) {
 	    _showmsg(context._msg, lang.tickets.msg4.format_a(_perm.min_resolution_length));
 	} else {
-	    var sp = new Spinner(_opt.D).spin(_context._spin.get(0));
+ProgressDialog.show();
+	    //var sp = new Spinner(_opt.D).spin(_context._spin.get(0));
 	    var xhr = G.xhr("PUT", G.getajax({plug: _code, ticket_id: context.ticket_id}), "", function(xhr) {
 		_disable(context._commit, false);
 		if( xhr.status == 200 ) {
@@ -285,7 +292,8 @@ a.push("</div>");
 		} else {
 		    _showmsg(msg, lang.tickets.msg3);
 		}
-		sp.stop();
+		//sp.stop();
+ProgressDialog.hide();
 	    });
 	    _disable(context._commit, true);
 	    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");

@@ -15,15 +15,15 @@ var PLUG = (function() {
 	var ar = [];
 	ar.push("<table class='headerbar' width='100%'><tr><td><h1>");
 	ar.push("<span>", lang.routes.title1, "</span>&nbsp;");
-	ar.push("<a id='plugCycle' href='javascript:void(0);' onclick='PLUG.cycles(this)'>[&nbsp;-&nbsp;]</a><span id='plugTotal'></span>");
+	ar.push("<a id='plugCycle' href='javascript:void(0);' onclick='PLUG.cycles(this)'>[&nbsp;-&nbsp;]</a>");
 	ar.push("</h1></td><td class='r'>");
 	ar.push("<span>", lang.received_ts, "</span>&nbsp;<span id='timestamp'>&nbsp;-&nbsp;</span>");
-	ar.push("&nbsp;(<a href='javascript:void(0);' onclick='PLUG.refresh();'>", lang.refresh, "</a>)");
+	ar.push("&nbsp;(<a href='javascript:void(0);' onclick='PLUG.refresh();'>", lang.refresh, "</a>)<span id='plugTotal'></span>");
 	ar.push("<span id='usersFilter'>&nbsp&nbsp;|&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.users(this, 0.8)'>", lang.u_everyone, "</a></span>");
-	if( perm.add ) {
-	    ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.accounts(this)' class='important'>", lang.routes.route, "</a>");
+	ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.accounts(this)' class='important'>", lang.routes.route, "</a>");
+	if( typeof ymaps != 'undefined' || (typeof google != 'undefined' && typeof google.maps != 'undefined') ) {
+	    ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.toggle(this)'>", lang.routes.map, "</a>");
 	}
-	ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.toggle(this)'>", lang.routes.map, "</a>");
 	ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<input class='search' type='text' maxlength='96' autocomplete='off' placeholder='",
 	    lang.search, "' id='plugFilter' onkeyup='return PLUG.filter(this, event);' onpaste='PLUG.filter(this, event); return true;' />");
 	ar.push("</td></tr></table>");
@@ -51,20 +51,6 @@ var PLUG = (function() {
 	ar.push(UsersPopup.container());
 	ar.push(Dialog.container());
 	return ar;
-    }
-
-    function _getobjcache() {
-	return G.getobjcache(_code, null);
-    }
-
-    function _checkrow(tr, objcache, row_id) {
-	if( tr.className == 'selected' ) {
-	    tr.className = null;
-	    objcache.setchecked(row_id);
-	} else {
-	    tr.className = 'selected';
-	    objcache.setchecked(row_id, true);
-	}
     }
 
     function _shielding(data, r) {
@@ -106,9 +92,26 @@ var PLUG = (function() {
     }
 
     function _getfilter() {
-	return Filter((typeof _cache.userFilter == 'string' ? "user_id={0}$ ".format_a(_cache.userFilter) : "" ) + _tags.f.val(), false, 
-	    {user_id:true,dev_login:true,u_name:true,account_id:true,a_code:true,a_name:true,address:true,chan:true,poten:true,
-	    retail_chain:true,ka_code:true,region:true,city:true});
+	var a = [];
+	if( typeof _cache.userFilter == 'string' ) {
+	    a.push("user_id={0}$ ".format_a(_cache.userFilter));
+	}
+	a.push(_tags.f.val());
+	return Filter(a.join(' '), false, {
+	    user_id:true,
+	    dev_login:true,
+	    u_name:true,
+	    account_id:true,
+	    a_code:true,
+	    a_name:true,
+	    address:true,
+	    chan:true,
+	    poten:true,
+	    retail_chain:true,
+	    ka_code:true,
+	    region:true,
+	    city:true
+	});
     }
 
     function _a(r, def) {
@@ -149,28 +152,28 @@ var PLUG = (function() {
 	return ["<tr class='def'><td colspan='" + _getcolumns(perm) + "' class='message'>", msg, "</td></tr>"];
     }
 
-    function _datatbl(data, page, total, f, objcache, perm) {
+    function _datatbl(data, page, total, f, checked, perm) {
 	var ar = [], x = 0, z;
 	for( var i = 0, k = 0, r = null, size = Array.isArray(data.rows) ? data.rows.length : 0; i < size; i++ ) {
 	    if( (r = data.rows[i]) != null && f.is(r) ) {
 		if( (page-1)*perm.rows <= x && x < page*perm.rows ) {
 		    var style = (r.hidden || r.locked ? " strikethrough attention" : "");
 		    style += (r._code == 'route' ? "" : " disabled");
-		    ar.push("<tr", (objcache.getchecked(r.row_id) ? " class='selected'" : ""), ">");
+		    ar.push("<tr", (typeof checked != 'undefined' && checked[r.row_id] ? " class='selected'" : ""), ">");
 		    ar.push("<td class='autoincrement clickable' onclick=\"PLUG.checkrow(this.parentNode,'" + 
 			r.row_id + "');event.stopPropagation();\">", r._row_no, "</td>");
 		    ar.push("<td class='int'><a href='javascript:void(0);' onclick='PLUG.more(this, " + i + ")'>", 
 			r.a_code, "</a></td>");
 		    ar.push("<td class='string" + style + "'>", G.shielding(r.a_name), "</td>");
-		    ar.push("<td class='string delim" + style + "'>", G.shielding(r.address), "</td>");
+		    ar.push("<td class='string delim2" + style + "'>", G.shielding(r.address), "</td>");
 		    for( var a = 1; a <= perm.weeks; a++ ) {
 			ar.push("<td class='bool" + (data.closed || r.hidden || a > data.weeks ? "" : " clickable") + 
-			    (a == perm.weeks ? " delim" : "") + "'" + (data.closed || r.hidden || a > data.weeks ? "" : 
+			    (a == perm.weeks ? " delim2" : "") + "'" + (data.closed || r.hidden || a > data.weeks ? "" : 
 			    " onclick='PLUG.setdrop(this,\"week\"," + i + "," + a + ")'") + ">", 
 			    (r.weeks && r.weeks[a-1] ? _mark : ""), "</td>");
 		    }
 		    for( var a = 1, b; a <= 7; a++ ) {
-			ar.push("<td class='bool footnote" + (data.closed || r.hidden ? "" : " clickable") + (a == 7 ? " delim" : "") + 
+			ar.push("<td class='bool footnote" + (data.closed || r.hidden ? "" : " clickable") + (a == 7 ? " delim2" : "") + 
 			    "'" + (data.closed || r.hidden ? "" : " onclick='PLUG.setdrop(this,\"day\"," + i + "," + a + ")'") + 
 			    " data-title='" + lang.calendar.days.names[a==7?0:a] + "'>", 
 			    (r.days && r.days[a-1] ? _mark : ""), "</td>");
@@ -234,14 +237,12 @@ var PLUG = (function() {
 	return ar;
     }
 
-    function _setdata(cycle_id) {
-	var sp, uri = {plug: _code};
+    function _datareq(cycle_id) {
+	var uri = {plug: _code};
 	if( cycle_id != null ) {
 	    uri.cycle_id = cycle_id;
 	}
-	_tags.tbody.hide();
-	_tags.total.html("");
-	sp = spinnerLarge(_tags.body, "50%", "50%");
+	ProgressDialog.show();
 	_cache.data = null; // drop the internal cache
 	G.xhr("GET", G.getajax(uri), "json", function(xhr, data) {
 	    if( xhr.status == 200 && data != null && typeof data == 'object' ) {
@@ -249,31 +250,29 @@ var PLUG = (function() {
 		    (Array.isArray(data.users) && data.users.length == 1) ? data.users[0].user_id : _cache.userFilter) 
 		    : _compilerows(data.routes);
 		_cache.data = data;
-		_tags.tbody.html(_datatbl(data, 1, _tags.total, _getfilter(), _getobjcache(), _perm).join(""));
+		//console.log(data);
+		_tags.tbody.html(_datatbl(data, 1, _tags.total, _getfilter(), _cache.checked, _perm).join(""));
 		_tags.cycle.html(lang.routes.cycle.format_a(data.cycle_no, data.year));
 		(Array.isArray(data.users) && data.users.length > 1) ? _tags.users.show() : _tags.users.hide();
 		_cleanupmap();
-		if( !_tags.map.isHidden() ) _compilemap();
+		if( !_tags.map.isHidden() ) {
+		    _compilemap();
+		}
 	    } else {
 		_tags.tbody.html(_datamsg(lang.failure, _perm).join(""));
 		_tags.cycle.html("[&nbsp;-&nbsp;]");
 	    }
 	    _tags.ts.html(G.getdatetime_l(new Date()));
-	    _tags.tbody.show();
-	    sp.stop();
+	    ProgressDialog.hide();
 	}).send();
     }
 
     function _page(page) {
-	var sp;
 	if( _cache.data != null ) {
-	    _tags.tbody.hide();
-	    _tags.total.html("");
-	    sp = spinnerLarge(_tags.body, "50%", "50%");
+	    ProgressDialog.show();
 	    setTimeout(function() {
-		_tags.tbody.html(_datatbl(_cache.data, page, _tags.total, _getfilter(), _getobjcache(), _perm).join(""));
-		_tags.tbody.show();
-		sp.stop();
+		_tags.tbody.html(_datatbl(_cache.data, page, _tags.total, _getfilter(), _cache.checked, _perm).join(""));
+		ProgressDialog.hide();
 	    }, 0);
 	}
     }
@@ -311,8 +310,8 @@ var PLUG = (function() {
 	}
     }
 
-    function _setdrop(tag, row, name, arg, onsuccess) {
-	var x = row[name+"s"];
+    function _setdrop(row, name, arg, onsuccess) {
+	var x = row["{0}s".format_a(name)];
 	var f = Array.isArray(x) && x[arg-1];
 	if( typeof row.user_id == 'undefined' ) {
 	    Toast.show(lang.routes.msg0);
@@ -323,44 +322,59 @@ var PLUG = (function() {
 	} else if( (row.hidden || row.locked) && !f ) {
 	    Toast.show(lang.routes.msg3);
 	} else {
-	    var sp = spinnerSmall(tag);
-	    var x = row[name+"s"];
-	    G.xhr("PUT", G.getajax({plug: _code, cmd: f ? ("drop/"+name) : ("set/"+name), user_id: row.user_id, 
-		    cycle_id: row.cycle_id, account_id: row.account_id, arg: arg}), "json", function(xhr, data) {
+	    ProgressDialog.show();
+	    G.xhr("PUT", G.getajax({
+		    plug: _code, 
+		    _datetime: G.getdatetime(new Date()), 
+		    cmd: f ? ("drop/"+name) : ("set/"+name), 
+		    user_id: row.user_id, 
+		    cycle_id: row.cycle_id, 
+		    account_id: row.account_id, 
+		    arg: arg
+		}), "json", function(xhr, data) {
 		if( xhr.status == 200 && data.status == 'success' ) {
 		    onsuccess(row);
 		} else {
 		    Toast.show(data.status == 'request_denied' ? lang.routes[name=="week"?'msg5':'msg4'] : lang.errors.runtime);
 		}
-		sp.stop();
+		ProgressDialog.hide();
 	    }).send();
 	}
     }
 
-    function _remove(tag, row, onsuccess) {
-	var sp = spinnerSmall(tag.parentElement);
-	tag.hide();
-	G.xhr("DELETE", G.getajax({plug: _code, cmd: row._deleted ? "restore" : "remove", user_id: row.user_id, cycle_id: row.cycle_id, 
-		account_id: row.account_id}), "", function(xhr) {
+    function _remove(row, onsuccess) {
+	ProgressDialog.show();
+	G.xhr("DELETE", G.getajax({
+		plug: _code, 
+		_datetime: G.getdatetime(new Date()), 
+		cmd: row._deleted ? "restore" : "remove", 
+		user_id: row.user_id, 
+		cycle_id: row.cycle_id, 
+		account_id: row.account_id
+	    }), "", function(xhr) {
 	    if( xhr.status == 200 ) {
 		onsuccess(row);
 	    } else {
 		Toast.show(lang.errors.runtime);
 	    }
-	    sp.stop();
-	    tag.show();
+	    ProgressDialog.hide();
 	}).send();
     }
 
-    function _add(tag, row, onsuccess) {
+    function _add(row, onsuccess) {
 	if( typeof row.user_id == 'undefined' || row.user_id == null ) {
 	    Toast.show(lang.routes.msg0);
 	    return;
 	}
-	var sp = spinnerSmall(tag.parentElement);
-	tag.hide();
-	G.xhr("POST", G.getajax({plug: _code, cmd: "add", user_id: row.user_id, cycle_id: row.cycle_id, account_id: row.account_id}), 
-		"json", function(xhr, data) {
+	ProgressDialog.show();
+	G.xhr("POST", G.getajax({
+		plug: _code, 
+		_datetime: G.getdatetime(new Date()), 
+		cmd: "add", 
+		user_id: row.user_id, 
+		cycle_id: row.cycle_id, 
+		account_id: row.account_id
+	    }), "json", function(xhr, data) {
 	    if( xhr.status == 200 && typeof data.row_id != 'undefined' ) {
 		data._code = 'route';
 		data._row_no = row._row_no;
@@ -368,8 +382,7 @@ var PLUG = (function() {
 	    } else {
 		Toast.show(lang.errors.runtime);
 	    }
-	    sp.stop();
-	    tag.show();
+	    ProgressDialog.hide();
 	}).send();
     }
 
@@ -432,7 +445,7 @@ var PLUG = (function() {
 	    _tags.total = _("plugTotal");
 	    _tags.map = _("plugMap");
 	    _tags.tbl = _("plugTable");
-	    _setdata(cycle_id);
+	    _datareq(cycle_id);
 	},
 	refresh: function() {
 	    if( _cache.cyclesPopup != null ) {
@@ -441,7 +454,7 @@ var PLUG = (function() {
 	    if( _cache.usersPopup != null ) {
 		_cache.usersPopup.hide();
 	    }
-	    _setdata(_cache.data == null ? null : _cache.data.cycle_id);
+	    _datareq(_cache.data == null ? null : _cache.data.cycle_id);
 	    _cache.cyclesPopup = null;
 	    _cache.usersPopup = null;
 	},
@@ -456,8 +469,13 @@ var PLUG = (function() {
 	    _page(arg);
 	    window.scrollTo(0, 0);
 	},
-	checkrow: function(tr, row_id) {
-	    _checkrow(tr, _getobjcache(), row_id);
+	checkrow: function(tag, row_id) {
+	    G.checkrow(tag, function(arg) {
+		if( typeof _cache.checked == 'undefined' ) {
+		    _cache.checked = {};
+		}
+		_cache.checked[row_id] = arg;
+	    });
 	},
 	cycles: function(tag) {
 	    if( _cache.usersPopup != null ) {
@@ -465,7 +483,7 @@ var PLUG = (function() {
 	    }
 	    if( _cache.cyclesPopup == null ) {
 		_cache.cyclesPopup = CyclesPopup(function(cycle_id) {
-		    _setdata(cycle_id);
+		    _datareq(cycle_id);
 		    history.pushState({cycle_id: cycle_id}, "", G.getref({plug: _code, cycle_id: cycle_id}));
 		}, {cycle_id: _cache.data.cycle_id, uri: G.getajax({plug: _code, cycles: true})});
 	    }
@@ -547,30 +565,32 @@ var PLUG = (function() {
 	    }
 	},
 	setdrop: function(tag, name, row_no, arg) {
-	    _setdrop(tag, _shielding(_cache.data, _cache.data.rows[row_no]), name, arg, function(row) {
-		var x = _("X-"+row._row_no);
-		tag.html(row[name+"s"][arg-1] ? '' : _mark);
-		row[name+"s"][arg-1] = row[name+"s"][arg-1] ? 0 : 1;
+	    _setdrop(_shielding(_cache.data, _cache.data.rows[row_no]), name, arg, function(row) {
+		var x = _("X-{0}".format_a(row._row_no));
+		var ref = row["{0}s".format_a(name)];
+		tag.html(ref[arg-1] ? '' : _mark);
+		ref[arg-1] = ref[arg-1] ? 0 : 1;
 		x.html(_a(row));
 		_cleanupmap();
 	    });
 	},
 	remove: function(tag, row_no) {
-	    _remove(tag, _cache.data.rows[row_no], function(row) {
+	    _remove(_cache.data.rows[row_no], function(row) {
+		var x = _("X-{0}".format_a(row._row_no));
 		row._deleted = row._deleted ? 0 : 1;
 		tag.html(row._deleted ? lang.restore.ref : lang.remove.ref);
-		_("X-"+row._row_no).removeClass('attention');
+		x.removeClass('attention');
 	    });
 	},
 	add: function(tag, row_no) {
-	    _add(tag, _shielding(_cache.data, _cache.data.rows[row_no]), function(row) {
+	    _add(_shielding(_cache.data, _cache.data.rows[row_no]), function(row) {
 		if( !Array.isArray(_cache.data.routes) ) {
 		    _cache.data.routes = [];
 		}
 		_cache.data.routes.splice(0, 0, row);
 		_cache.data.rows[row_no] = row;
 		tag.html(lang.remove.ref);
-		tag.setAttribute("onclick", "PLUG.remove(this," + row_no + ")");
+		tag.setAttribute("onclick", "PLUG.remove(this,{0})".format_a(row_no));
 		tag.parentNode.parentNode.childNodes.forEach(function(x) {
 		    x.removeClass('disabled');
 		});

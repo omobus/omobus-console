@@ -4,11 +4,11 @@
 var PLUG = (function() {
 /* private properties & methods */
     var _code = "targets";
-    var _opt = {
+    /*var _opt = {
 	L: {lines: 8, length: 2, width: 4, radius: 6, corners: 1, rotate: 0, direction: 1, speed: 1, trail: 60, shadow: false, hwaccel: false, top: "auto"},
 	S: {lines: 6, length: 1, width: 2, radius: 3, corners: 1, rotate: 0, direction: 1, speed: 1, trail: 60, shadow: false, hwaccel: false, top: "auto", left: "auto"},
 	D: {lines: 8, length: 2, width: 2, radius: 5, corners: 1, rotate: 0, direction: 1, speed: 1, trail: 60, shadow: false, hwaccel: false, top: "32px", left: "705px"}
-    };
+    };*/
     var _cache = null, _perm = null, _elem = null, _context = null;
 
 
@@ -139,8 +139,9 @@ var PLUG = (function() {
     }
 
     function _setdata(tbody, f) {
-	var sp = new Spinner(_opt.L).spin(_elem.spin.get(0));
-	_elem.spin.show(); tbody.hide();
+	//var sp = new Spinner(_opt.L).spin(_elem.spin.get(0));
+	//_elem.spin.show(); tbody.hide();
+ProgressDialog.show();
 	_cache = null; // drop the internal cache
 	G.xhr("GET", G.getajax({plug: _code}), "json", function(xhr, data) {
 	    if( xhr.status == 200 && data != null && typeof data == 'object' ) {
@@ -153,25 +154,29 @@ var PLUG = (function() {
 		tbody.html(_failed(_perm, lang.failure).join(""));
 	    }
 	    _elem.ts.text(G.getdatetime_l(new Date()));
-	    tbody.show(); sp.stop(); _elem.spin.hide();
+ProgressDialog.hide();
+	    //tbody.show(); sp.stop(); _elem.spin.hide();
 	}).send();
     }
 
     function _filterdata(tbody, f) {
 	if( _cache != null ) {
-	    var sp = new Spinner(_opt.L).spin(_elem.spin.get(0));
-	    _elem.spin.show(); tbody.hide();
+	    //var sp = new Spinner(_opt.L).spin(_elem.spin.get(0));
+	    //_elem.spin.show(); tbody.hide();
+ProgressDialog.show();
 	    setTimeout(function() {
 		tbody.html(_success(_cache, f, _getobjcache(), _perm).join(""));
-		sp.stop(); _elem.spin.hide(); tbody.show();
+		//sp.stop(); _elem.spin.hide(); tbody.show();
+ProgressDialog.hide();
 	    }, 0);
 	}
     }
 
     function _remove(tbody, row_no, target_id) {
-	var tag = tbody.find("#aR"+row_no), sp = new Spinner(_opt.S);
+	var tag = tbody.find("#aR"+row_no)/*, sp = new Spinner(_opt.S)*/;
 	tag.html("");
-	tag.get(0).appendChild(sp.spin().el);
+	//tag.get(0).appendChild(sp.spin().el);
+ProgressDialog.show();
 	G.xhr("DELETE", G.getajax({plug: _code, target_id: target_id}), "", function(xhr) {
 	    if( xhr.status == 200 ) {
 		tag.text(lang.plus);
@@ -179,7 +184,8 @@ var PLUG = (function() {
 	    } else {
 		//tag.text("");
 	    }
-	    sp.stop();
+	    //sp.stop();
+ProgressDialog.hide();
 	}).send();
     }
 
@@ -440,7 +446,8 @@ var PLUG = (function() {
 	} else if( params.b_date > params.e_date ) {
 	    _showmsg(_context._msg, lang.errors.target.date);
 	} else {
-	    var sp = new Spinner(_opt.D).spin(_context._spin.get(0));
+	    //var sp = new Spinner(_opt.D).spin(_context._spin.get(0));
+ProgressDialog.show();
 	    var xhr = G.xhr(context.target_id ? "PUT" : "POST", G.getajax({plug: _code, target_id: context.target_id}), "", function(xhr) {
 		_disable(context._commit, false);
 		if( xhr.status == 200 ) {
@@ -448,7 +455,8 @@ var PLUG = (function() {
 		} else {
 		    _showmsg(_context._msg, lang.errors.runtime);
 		}
-		sp.stop();
+		//sp.stop();
+ProgressDialog.hide();
 	    });
 	    _disable(context._commit, true);
 params._datetime = G.getdatetime(new Date());
