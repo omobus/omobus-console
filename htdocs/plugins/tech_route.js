@@ -132,8 +132,8 @@ var __route = (function() {
 			"' onclick='PLUG.slideshow([{0}],1)".format_a(ptr.blob_id),
 		    "'>", G.shielding(a.descr), "</td>");
 		ar.push("<td class='string'>", G.shielding(a.address), "</td>");
-		ar.push("<td class='ref'>", G.shielding(r.chan), "</td>");
-		ar.push("<td class='ref'>", G.shielding(r.poten), "</td>");
+		ar.push("<td class='ref'>", G.shielding(a.chan), "</td>");
+		ar.push("<td class='ref'>", G.shielding(a.poten), "</td>");
 		ar.push("<td class='timesec'>", _tm(date, Date.parseISO8601(r.b_dt)), "</td>");
 		ar.push("<td class='timesec'>", _tm(date, Date.parseISO8601(r.e_dt)), "</td>");
 		ar.push("<td class='int", (r.strict == null || r.strict == 0 || r.duration == null || data.rules == null || (data.rules.duration.min <= r.duration && 
