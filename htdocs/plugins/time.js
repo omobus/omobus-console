@@ -230,7 +230,7 @@ var PLUG = (function() {
 		if( r._days > 0 ) {
 		    const rule_t = r.rules == null || r.rules.wd == null || r.rules.wd.timing == null ? data.rules.wd.timing : r.rules.wd.timing;
 		    t = Number.HHMM(r._instore_duration/r._days);
-		    ar.push("<td class='time", rule_t != null && t < rule_t ? " attention" : "", "'>", G.shielding(t, lang.dash), "</td>");
+		    ar.push("<td class='time", rule_t != null && t < rule_t ? " violation" : "", "'>", G.shielding(t, lang.dash), "</td>");
 		    if( rule_t == null ) {
 			ar.push("<td class='int'>", lang.dash, "</td>");
 		    } else if( t >= rule_t ) {
