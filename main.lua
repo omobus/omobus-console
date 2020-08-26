@@ -244,7 +244,6 @@ local function default_page(lang, sestb, params, res, plug_data)
     table.insert(ar, '<script src="' .. V.static_prefix .. '/json.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/number.extra.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/progress.js"> </script>')
-    table.insert(ar, '<script src="' .. V.static_prefix .. '/spinner.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/string.extra.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/toast.js"> </script>')
     if plug_data ~= nil then
