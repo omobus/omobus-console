@@ -84,7 +84,7 @@ Filter.prototype._dump = function(args) {
     var ar = [], own = this;
     this._enumerateKeys(args, function(k, v) {
 	if( typeof own._maptb == 'undefined' || (typeof own._maptb[k] != 'undefined' && own._maptb[k] == true) ) {
-	    if( this._short ) {
+	    if( own._short ) {
 		ar.push(v,"\n");
 	    } else {
 		ar.push(k,"=",v,"\n");
