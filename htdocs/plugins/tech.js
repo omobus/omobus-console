@@ -168,7 +168,7 @@ var PLUG = (function() {
 			    t.push("<div class='row remark'>", G.shielding(r.departments[i]), "</div>");
 			}
 		    }
-		    ar.push("<td class='ref Xsw95px'>", t.join(''), "</td>");
+		    ar.push("<td class='ref Xsw95px", xs, "'>", t.join(''), "</td>");
 		}
 		if( typeof __allowedColumns == 'object' && __allowedColumns.distributor ) {
 		    var t = []
@@ -183,7 +183,7 @@ var PLUG = (function() {
 			    t.push("<div class='row remark'>", G.shielding(r.distributors[i]), "</div>");
 			}
 		    }
-		    ar.push("<td class='ref Xsw95px'>", t.join(''), "</td>");
+		    ar.push("<td class='ref Xsw95px", xs, "'>", t.join(''), "</td>");
 		}
 		ar.push("<td class='int", xs, "'>", G.shielding(r.dev_login), "</td>");
 		ar.push("</tr>");
