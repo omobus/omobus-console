@@ -131,7 +131,7 @@ UsersPopup.prototype._foreach = function(tags, cb) {
 }
 
 UsersPopup.prototype._onsearch = function(value) {
-    var f = Filter(value, true/*, {user_id:true,dev_login:true,descr:true}*/);
+    var f = Filter(value, true, {user_id:true,dev_login:true,descr:true});
     var empty = true;
     for( var i = 0, size = this._users.length; i < size; i++ ) {
 	if( f.is(this._users[i]) ) {
