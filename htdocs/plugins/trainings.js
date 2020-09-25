@@ -11,7 +11,7 @@ var PLUG = (function() {
     }
 
     function _getcolumns(perm) {
-	let x = 13, c = perm.columns || {};
+	let x = 14, c = perm.columns || {};
 	if( c.channel == true ) x++;
 	if( c.brand == true ) x++;
 	return x;
@@ -54,6 +54,7 @@ var PLUG = (function() {
 	ar.push("<th>", lang.photo, "</th>");
 	ar.push("<th>", lang.note, "</th>");
 	ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"head\",0.90)'>", lang.head_name, "</a></th>");
+	ar.push("<th>", lang.activity_type, "</th>");
 	ar.push("</tr>", G.thnums(_getcolumns(perm)), "</thead>");
 	ar.push("<tbody id='maintb'></tbody></table>");
 	ar.push(MonthsPopup.container());
@@ -137,6 +138,7 @@ var PLUG = (function() {
 		    ar.push("</td>");
 		    ar.push("<td class='delim string note'>", G.shielding(r.doc_note), "</td>");
 		    ar.push("<td class='string sw95px'>", G.shielding(r.head_name), "</td>");
+		    ar.push("<td class='string'>", G.shielding(r.activity_type), "</td>");
 		    ar.push("</tr>");
 		    k++;
 		}
@@ -295,6 +297,7 @@ var PLUG = (function() {
 			}
 			ws.cell("V{0}".format_a(i + offset)).value(r.doc_note);
 			ws.cell("W{0}".format_a(i + offset)).value(r.head_name);
+			ws.cell("X{0}".format_a(i + offset)).value(r.activity_type);
 		    }
 		    wb.outputAsync()
 			.then(function(blob) {
