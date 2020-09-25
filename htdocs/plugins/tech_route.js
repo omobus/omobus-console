@@ -27,7 +27,7 @@ var __route = (function() {
 	ar.push("<th width='45px'>", lang.tech.route.duration, "</th>");
 	ar.push("<th width='75px' colspan='2'>", lang.dist, "</th>");
 	ar.push("<th width='45px'>", lang.mileageAbbr, "</th>");
-	ar.push("<th>", lang.tech.route.activity_type, "</th>");
+	ar.push("<th>", lang.activity_type, "</th>");
 	ar.push("<th class='bool'>", "&#8281;", "</th>");
 	ar.push("</tr>", G.thnums(_columns), "</thead>");
 	ar.push("<tbody id='xztb'></tbody></table>");

@@ -42,6 +42,7 @@ var lang = {
     a_code: "Код",
     a_name: "Наименование",
     abort: "прервать", 
+    activity_type: "Вид активности",
     additions: {
 	title: "Заявки на регистрацию нового клиента",
 	types: "Тип нового клиента",
@@ -540,7 +541,6 @@ var lang = {
 	    title0: "Маршрут",
 	    title1: "На карте",
 	    duration: "Прод., мин.",
-	    activity_type: "Вид",
 	    unsched: "<i>ВНЕПЛАНОВОЕ ДЕЙСТВИЕ</i>:",
 	    addition: "<i>НОВЫЙ КЛИЕНТ</i>:",
 	    pending: "Отложено: {0}.",
