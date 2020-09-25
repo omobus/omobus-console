@@ -100,12 +100,7 @@ var PLUG = (function() {
 		ar.push("<tr" + (typeof checked != 'undefined' && checked[r.user_id] ? " class='selected'" : "") + ">");
 		ar.push("<td class='autoincrement clickable", violations, disabled, fn.isEmpty() ? "'" : ("' data-title='" + fn.join(" + ") + "'"),
 		    " onclick='PLUG.checkrow(this.parentNode,\"", r.user_id, "\");event.stopPropagation();'>", r.row_no, "</td>");
-		if( String.isEmpty(r.dev_login) ) {
-		    ar.push("<td class='string u_name", disabled, "'>", G.shielding(r.u_name), "</td>");
-		} else {
-		    ar.push("<td class='string u_name{2} footnote' data-title='{0}: {1}'>".format_a(lang.dev_login, r.dev_login, disabled),
-			G.shielding(r.u_name), "</td>");
-		}
+		ar.push("<td class='string u_name", disabled, "'>", G.shielding(r.u_name), "</td>");
 		ar.push("<td class='int delim", disabled, "'>");
 		if( r.alive != null && r.alive ) {
 		    ar.push("<a target='_blank' href='", G.getref({plug:'tech',user_id:r.user_id,date:G.getdate(_cache.date)}), 
