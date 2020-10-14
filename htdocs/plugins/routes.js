@@ -178,7 +178,7 @@ var PLUG = (function() {
 			    " data-title='" + lang.calendar.days.names[a==7?0:a] + "'>", 
 			    (r.days && r.days[a-1] ? _mark : ""), "</td>");
 		    }
-		    ar.push("<td class='int delim' id='X-" + r._row_no + "'>", _a(r), "</td>");
+		    ar.push("<td class='int delim2' id='X-" + r._row_no + "'>", _a(r), "</td>");
 		    ar.push("<td class='ref'>", G.shielding(r.chan), "</td>");
 		    ar.push("<td class='ref'>", G.shielding(r.poten), "</td>");
 		    if( !data.closed && r._code == 'route' ) {
