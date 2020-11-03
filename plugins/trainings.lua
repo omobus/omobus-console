@@ -128,7 +128,7 @@ select tm_id, descr, hidden from training_materials
 		, "//trainings/training_materials"
 	    )
 	end
-	if err == nil or err == false then
+	if permtb.channel == true and (err == nil or err == false) then
 	    tb.brands, err = func_execute(tran,
 [[
 select
@@ -163,6 +163,15 @@ select job_title_id, descr, hidden from job_titles
     order by descr
 ]]
 		, "//trainings/job_titles"
+	    )
+	end
+	if permtb.loyalty == true and (err == nil or err == false) then
+	    tb.loyalty_levels, err = func_execute(tran,
+[[
+select loyalty_level_id, descr, hidden from loyalty_levels
+    order by descr
+]]
+		, "//trainings/loyalty_levels"
 	    )
 	end
 	if err == nil or err == false then
@@ -217,6 +226,7 @@ local function personalize(sestb, data)
     local idx_rcs = {}
     local idx_contacts = {}
     local idx_job_titles = {}
+    local idx_loyalty_levels = {}
     local idx_tms = {}
     local idx_brands = {}
     local idx_types = {}
@@ -244,6 +254,7 @@ local function personalize(sestb, data)
 		if v.brand_id ~= nil then idx_brands[v.brand_id] = 1; end
 		if v.contact_id ~= nil then idx_contacts[v.contact_id] = 1; end
 		if v.job_title_id ~= nil then idx_job_titles[v.job_title_id] = 1; end
+		if v.loyalty_level_id ~= nil then idx_loyalty_levels[v.loyalty_level_id] = 1; end
 		if v.head_id ~= nil then idx_heads[v.head_id] = 1; end
 		table.insert(tb, v); 
 		v.row_no = #tb
@@ -260,6 +271,7 @@ local function personalize(sestb, data)
 	    if v.brand_id ~= nil then idx_brands[v.brand_id] = 1; end
 	    if v.contact_id ~= nil then idx_contacts[v.contact_id] = 1; end
 	    if v.job_title_id ~= nil then idx_job_titles[v.job_title_id] = 1; end
+	    if v.loyalty_level_id ~= nil then idx_loyalty_levels[v.loyalty_level_id] = 1; end
 	    if v.head_id ~= nil then idx_heads[v.head_id] = 1; end
 	end
     end
@@ -273,6 +285,7 @@ local function personalize(sestb, data)
     p.brands = core.reduce(data.brands, 'brand_id', idx_brands)
     p.contacts = core.reduce(data.contacts, 'contact_id', idx_contacts)
     p.job_titles = core.reduce(data.job_titles, 'job_title_id', idx_job_titles)
+    p.loyalty_levels = core.reduce(data.loyalty_levels, 'loyalty_level_id', idx_loyalty_levels)
 
     return json.encode(p)
 end
@@ -288,6 +301,7 @@ function M.scripts(lang, permtb, sestb, params)
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.retailchains.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.contacts.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.jobtitles.js"> </script>')
+    table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.loyaltylevels.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.tms.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.brands.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.trainingtypes.js"> </script>')

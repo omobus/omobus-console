@@ -107,6 +107,9 @@ var lang = {
     },
     contact: "Контакт",
     contact_everything: "Все контакты",
+    contacts: {
+	title: "Контакты"
+    },
     country: "Страна",
     country_everything: "Все страны",
     created_date: "Дата создания",
@@ -288,6 +291,8 @@ var lang = {
     },
     ka_code: "Тип сети",
     kilometers: "{0} км.",
+    loyalty_level: "Категоря контакта",
+    loyalty_level_everything: "Все категории контактов",
     managment: "<div><b>УПРАВЛЯЮЩИЕ ОТЧЕТЫ</b></div><div>Отчеты управления позволяют вносить изменения в исходные данные, используемые в ходе работы OMOBUS.</div>",
     manuf_date: "Дата производства",
     mileage: "Общий пробег за весь день",

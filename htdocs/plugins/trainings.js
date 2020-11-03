@@ -14,6 +14,7 @@ var PLUG = (function() {
 	let x = 14, c = perm.columns || {};
 	if( c.channel == true ) x++;
 	if( c.brand == true ) x++;
+	if( c.loyalty == true ) x++;
 	return x;
     }
 
@@ -50,6 +51,9 @@ var PLUG = (function() {
 	}
 	ar.push("<th><a href='javascript:void(0)' onclick='PLUG.contacts(this, 0.65)'>", lang.contact, "</a></th>");
 	ar.push("<th><a href='javascript:void(0)' onclick='PLUG.jobs(this, 0.70)'>", lang.job_title, "</a></th>");
+	if( perm.columns != null && perm.columns.loyalty == true ) {
+	    ar.push("<th><a href='javascript:void(0)' onclick='PLUG.levels(this, 0.70)'>", lang.loyalty_level, "</a></th>");
+	}
 	ar.push("<th><a href='javascript:void(0)' onclick='PLUG.types(this, 0.85)'>", lang.training_type, "</a></th>");
 	ar.push("<th>", lang.photo, "</th>");
 	ar.push("<th>", lang.note, "</th>");
@@ -62,6 +66,7 @@ var PLUG = (function() {
 	ar.push(ChannelsPopup.container());
 	ar.push(ContactsPopup.container());
 	ar.push(JobTitlesPopup.container());
+	ar.push(LoyaltyLevelsPopup.container());
 	ar.push(RetailChainsPopup.container());
 	ar.push(TrainingMaterialsPopup.container());
 	ar.push(TrainingTypesPopup.container());
@@ -93,6 +98,7 @@ var PLUG = (function() {
 	    brand_id:true,
 	    contact_id:true,
 	    job_title_id:true,
+	    loyalty_level_id:true,
 	    training_type_id:true,
 	    doc_note:true,
 	    head_id:true
@@ -127,6 +133,9 @@ var PLUG = (function() {
 		    }
 		    ar.push("<td class='string'>", _fmtcontact(r), "</td>");
 		    ar.push("<td class='ref'>", G.shielding(r.job_title), "</td>");
+		    if( perm.columns != null && perm.columns.loyalty == true ) {
+			ar.push("<td class='ref'>", G.shielding(r.loyalty_level), "</td>");
+		    }
 		    ar.push("<td class='ref'>", G.shielding(r.training_type), "</td>");
 		    ar.push("<td class='ref'>");
 		    if( Array.isArray(r.photos) ) {
@@ -286,18 +295,19 @@ var PLUG = (function() {
 			ws.cell("P{0}".format_a(i + offset)).value(r.tm);
 			ws.cell("Q{0}".format_a(i + offset)).value(_fmtcontact(r));
 			ws.cell("R{0}".format_a(i + offset)).value(r.job_title);
-			ws.cell("S{0}".format_a(i + offset)).value(r.training_type);
+			ws.cell("S{0}".format_a(i + offset)).value(r.loyalty_level);
+			ws.cell("T{0}".format_a(i + offset)).value(r.training_type);
 			if( Array.isArray(r.refs) && r.refs.length > 0 ) {
-			    const n = ["T","U"];
+			    const n = ["U","V"];
 			    r.refs.forEach(function(val, index) {
 				ws.cell("{1}{0}".format_a(i + offset,n[index])).value("[ {0} ]".format_a(index + 1))
 				.style({ fontColor: "0563c1", underline: true })
 				.hyperlink({ hyperlink: G.getphotoref(r.refs[index],true) });
 			    });
 			}
-			ws.cell("V{0}".format_a(i + offset)).value(r.doc_note);
-			ws.cell("W{0}".format_a(i + offset)).value(r.head_name);
-			ws.cell("X{0}".format_a(i + offset)).value(r.activity_type);
+			ws.cell("W{0}".format_a(i + offset)).value(r.doc_note);
+			ws.cell("X{0}".format_a(i + offset)).value(r.head_name);
+			ws.cell("Y{0}".format_a(i + offset)).value(r.activity_type);
 		    }
 		    wb.outputAsync()
 			.then(function(blob) {
@@ -428,6 +438,13 @@ var PLUG = (function() {
 	    _togglePopup("job_titles", tag, offset, function(obj) {
 		return JobTitlesPopup(_cache.data[obj], function(arg, i, ar) {
 		    _onpopup(tag, arg, "job_title_id");
+		})
+	    });
+	},
+	levels: function(tag, offset) {
+	    _togglePopup("loyalty_levels", tag, offset, function(obj) {
+		return LoyaltyLevelsPopup(_cache.data[obj], function(arg, i, ar) {
+		    _onpopup(tag, arg, "loyalty_level_id");
 		})
 	    });
 	},
