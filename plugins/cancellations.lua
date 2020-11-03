@@ -64,7 +64,7 @@ order by descr
 	    end
 	elseif sestb.department ~= nil or sestb.country ~= nil then
 	    tb.rows, err = func_execute(tran, 
-		qs:replace("$(0)", "where (%dep_id% is null or (u.dep_ids is not null and cardinality(u.dep_ids) > 0 and u.dep_ids[1]=any(string_to_array(%dep_id%,',')::uids_t))) and (%country_id% is null or (u.country_id=any(string_to_array(%country_id%,',')::uids_t)))"),
+		qs:replace("$(0)", "where (%dep_id% is null or u.dep_ids is null or u.dep_ids && string_to_array(%dep_id%,',')::uids_t) and (%country_id% is null or (u.country_id=any(string_to_array(%country_id%,',')::uids_t)))"),
 		"//cancellations/get", { 
 		    dep_id = sestb.department == nil and stor.NULL or sestb.department,
 		    country_id = sestb.country == nil and stor.NULL or sestb.country
@@ -74,8 +74,8 @@ order by descr
 [[
 select user_id, descr, dev_login, area, hidden from users
     where hidden=0 and 
-	(%dep_id% is null or (u.dep_ids is not null and cardinality(u.dep_ids) > 0 and u.dep_ids[1]=any(string_to_array(%dep_id%,',')::uids_t))) and 
-	(%country_id% is null or (u.country_id=any(string_to_array(%country_id%,',')::uids_t)))
+	and (%dep_id% is null or dep_ids is null or dep_ids && string_to_array(%dep_id%,',')::uids_t)
+	and (%country_id% is null or (country_id=any(string_to_array(%country_id%,',')::uids_t)))
 order by descr
 ]]
 		    , "//cancellations/mans/users/", { 
@@ -213,8 +213,8 @@ select user_id from users
 [[
 select user_id from users 
     where user_id = %user_id%
-	and (%dep_id% is null or (u.dep_ids is not null and cardinality(u.dep_ids) > 0 and u.dep_ids[1]=any(string_to_array(%dep_id%,',')::uids_t)))
-	and (%country_id% is null or (u.country_id=any(string_to_array(%country_id%,',')::uids_t)))
+	and (%dep_id% is null or dep_ids is null or dep_ids && string_to_array(%dep_id%,',')::uids_t)
+	and (%country_id% is null or (country_id=any(string_to_array(%country_id%,',')::uids_t)))
 ]]
 		, "//cancellations/staff/", { 
 		    user_id = user_id,

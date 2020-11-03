@@ -56,7 +56,7 @@ select account_id from (select expand_cities(city_id) city_id, chan_id from my_c
 	    tb._users, err = func_execute(tran,
 [[
 select user_id from users
-    where (%dep_id% is null or (dep_ids is not null and cardinality(dep_ids) > 0 and dep_ids[1]=any(string_to_array(%dep_id%,',')::uids_t)))
+    where (%dep_id% is null or dep_ids is null or dep_ids && string_to_array(%dep_id%,',')::uids_t)
 	and (%country_id% is null or (country_id=any(string_to_array(%country_id%,',')::uids_t)))
 ]]
 		, "//targets_compliance/F.users"

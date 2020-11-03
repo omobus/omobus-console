@@ -92,7 +92,7 @@ where u.hidden=0
 [[
 select user_id, descr, dev_login from users 
     where hidden=0 
-	and (%dep_id% is null or (dep_ids is not null and cardinality(dep_ids) > 0 and dep_ids[1]=any(string_to_array(%dep_id%,',')::uids_t)))
+	and (%dep_id% is null or dep_ids is null or dep_ids && string_to_array(%dep_id%,',')::uids_t)
 	and (%country_id% is null or (country_id=any(string_to_array(%country_id%,',')::uids_t)))
 order by descr
 ]]

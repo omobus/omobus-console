@@ -55,7 +55,7 @@ order by j.inserted_ts desc, j.fix_dt desc
 		    rejected = (permtb.data ~= nil and permtb.data.rejected == true) and 1 or 0
 		})
 	elseif sestb.department ~= nil or sestb.country ~= nil then
-	    tb.rows, err = func_execute(tran, qs:replace("$(0)", "(%dep_id% is null or (u.dep_ids is not null and cardinality(u.dep_ids) > 0 and u.dep_ids[1]=any(string_to_array(%dep_id%,',')::uids_t))) and (%country_id% is null or (u.country_id=any(string_to_array(%country_id%,',')::uids_t))) and "),
+	    tb.rows, err = func_execute(tran, qs:replace("$(0)", "(%dep_id% is null or u.dep_ids is null or u.dep_ids && string_to_array(%dep_id%,',')::uids_t) and (%country_id% is null or (u.country_id=any(string_to_array(%country_id%,',')::uids_t))) and "),
 		"//additions/get", { 
 		    dep_id = sestb.department == nil and stor.NULL or sestb.department,
 		    country_id = sestb.country == nil and stor.NULL or sestb.country,
