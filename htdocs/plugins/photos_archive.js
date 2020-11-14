@@ -111,13 +111,18 @@ var PLUG = (function() {
 	for( var i = 0, k = 0; i < size; i++ ) {
 	    if( (r = data.rows[i]) != null && f.is(r) ) {
 		if( (page-1)*perm.rows <= x && x < page*perm.rows ) {
-		    var xs = (r.hidden || r.locked ? " strikethrough attention" : "");
+		    var xs = "";
+		    if( r.hidden ) {
+			xs = " strikethrough attention";
+		    } else if ( r.locked ) {
+			xs = " strikethrough";
+		    }
 		    ar.push("<tr" + (typeof checked != 'undefined' && checked[r.account_id] ? " class='selected'" : "") + ">");
 		    ar.push("<td class='autoincrement clickable' onclick=\"PLUG.checkrow(this.parentNode,'" +
 			r.account_id + "');event.stopPropagation();\">", r.row_no, "</td>");
 		    ar.push("<td class='int", xs, "'>", G.shielding(r.code), "</td>");
 		    ar.push("<td class='string a_name", xs, "'>", G.shielding(r.descr), "</td>");
-		    ar.push("<td class='string note", xs, "'>", G.shielding(r.address), "</td>");
+		    ar.push("<td class='string a_address", xs, "'>", G.shielding(r.address), "</td>");
 		    if( perm.columns != null && perm.columns.region == true ) {
 			ar.push("<td class='ref sw95px", xs, "'>", G.shielding(r.region), "</td>");
 		    }

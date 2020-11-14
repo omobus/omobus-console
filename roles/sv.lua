@@ -16,6 +16,7 @@ M.permissions = {
     checkups 		= require 'roles.defs.checkups',
     comments 		= require 'roles.defs.comments',
     confirmations 	= require 'roles.defs.confirmations',
+    contacts 		= require 'roles.defs.contacts',
     deletions 		= require 'roles.defs.deletions',
     discards 		= require 'roles.defs.discards',
     info_materials 	= require 'roles.defs._ro',

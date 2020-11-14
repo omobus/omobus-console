@@ -7,10 +7,10 @@ local V = require 'version'
 local mime = require 'mime'
 local scgi = require 'scgi'
 local json = require 'json'
-local multipart = require 'multipart'
 local validate = require 'validate'
 local core = require 'core'
 local zlib = require 'zlib'
+local log = require 'log'
 
 
 local function data(stor, permtb, sestb)
@@ -21,13 +21,13 @@ local function data(stor, permtb, sestb)
 [[
 select 
     x.contact_id,
-    x.account_id, a.code a_code, a.descr a_name, a.address,
+    x.account_id, a.code a_code, a.descr a_name, a.address, a.hidden a_hidden, a.locked a_locked,
     /*re.descr region,*/
     /*c.descr city,*/
     a.rc_id, r.descr rc, r.ka_code,
     /*p.descr poten,*/
     a.chan_id, ch.descr chan,
-    x."name",
+    x.name "name",
     x.surname,
     x.patronymic,
     x.job_title_id, j.descr job_title,
@@ -35,11 +35,12 @@ select
     x.mobile,
     x.email,
     x.loyalty_level_id, l.descr loyalty_level,
-    x."locked",
+    x.locked "locked",
     x.extra_info,
     x.author_id, coalesce(au.descr, x.author_id) author,
     x.updated_ts,
-    x."_isAlienData"
+    x."_isAlienData",
+    case when x.consent is not null then 1 else null end "_isConsentExist"
 from contacts x 
     left join job_titles j on j.job_title_id = x.job_title_id
     left join loyalty_levels l on l.loyalty_level_id = x.loyalty_level_id
@@ -155,22 +156,22 @@ select loyalty_level_id, descr, hidden from loyalty_levels
     )
 end
 
-local function photo(stor, blob_id)
+local function consent(stor, contact_id)
     return stor.get(function(tran, func_execute) return func_execute(tran,
 [[
-select photo_get(%blob_id%::blob_t) photo
+select consent from contacts where contact_id = %contact_id%
 ]]
-	, "//contacts/photo"
-	, {blob_id = blob_id})
+	, "//contacts/consent"
+	, {contact_id = contact_id})
     end
     )
 end
 
-local function compress(content_blob)
-    return zlib.deflate(9):finish(content_blob)
+local function compress(arg)
+    return zlib.deflate(6):finish(arg)
 end
 
-local function personalize(sestb, datatb)
+local function personalize(datatb)
     local idx_chans = {}
     local idx_rcs = {}
     local idx_jobs = {}
@@ -181,11 +182,12 @@ local function personalize(sestb, datatb)
 	if v.rc_id ~= nil then idx_rcs[v.rc_id] = 1; end
 	if v.job_title_id ~= nil then idx_jobs[v.job_title_id] = 1; end
 	if v.loyalty_level_id ~= nil then idx_levels[v.loyalty_level_id] = 1; end
+	v.row_no = i
     end
 
-    p.channels = core.reduce(datatb.channels, 'chan_id', idx_chans)
-    p.retail_chains = core.reduce(datatb.retail_chains, 'rc_id', idx_rcs)
-    p.job_titles = core.reduce(datatb.job_titles, 'job_title_id', idx_jobs)
+    datatb.channels = core.reduce(datatb.channels, 'chan_id', idx_chans)
+    datatb.retail_chains = core.reduce(datatb.retail_chains, 'rc_id', idx_rcs)
+    datatb.job_titles = core.reduce(datatb.job_titles, 'job_title_id', idx_jobs)
 
     return datatb
 end
@@ -210,20 +212,20 @@ end
 function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor, res)
     local tb, err
     if method == "GET" then
-	if params.blob ~= nil then
+	if params.consent ~= nil and params.contact_id ~= nil then
 	    -- validate input data
-	    assert(validate.isuid(params.blob_id), "invalid [blob_id] parameter.")
+	    assert(validate.isuid(params.contact_id), "invalid [contact_id] parameter.")
 	    -- execute query
-	    tb, err = photo(stor, params.blob_id)
+	    tb, err = consent(stor, params.contact_id)
 	    if err then
 		scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
 		scgi.writeBody(res, "Internal server error")
-	    elseif tb == nil or #tb ~= 1 or tb[1].photo == nil then
+	    elseif tb == nil or #tb ~= 1 or tb[1].consent == nil then
 		scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
 		scgi.writeBody(res, "Invalid input parameters")
 	    else
 		scgi.writeHeader(res, 200, {["Content-Type"] = mime.jpeg})
-		scgi.writeBody(res, tb[1].photo)
+		scgi.writeBody(res, tb[1].consent)
 	    end
 	else
 	    -- execute query
@@ -231,12 +233,12 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
 	    if err then
 		scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
 		scgi.writeBody(res, "Internal server error")
-	    elseif tb == nil or tb.content == nil or #tb.content ~= 1 then
+	    elseif tb == nil or tb.rows == nil then
 		scgi.writeHeader(res, 200, {["Content-Type"] = mime.json .. "; charset=utf-8"})
 		scgi.writeBody(res, "{}")
 	    else
 		scgi.writeHeader(res, 200, {["Content-Type"] = mime.json .. "; charset=utf-8", ["Content-Encoding"] = "deflate"})
-		scgi.writeBody(res, compress(json.encode(personalize(sestb, tb))))
+		scgi.writeBody(res, compress(json.encode(personalize(tb))))
 	    end
 	end
     else

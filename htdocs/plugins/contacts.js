@@ -3,20 +3,25 @@
 
 var PLUG = (function() {
     /* private properties & methods */
-    var _code = "additions";
+    var _code = "contacts";
     var _cache = {}, _perm = {}, _tags = {};
-    var _statusColumn = 2;
+
+
+    function _fmtcontact(d) {
+	return lang.personFormat.format({name: G.shielding(d.name), patronymic: G.shielding(d.patronymic), surname: G.shielding(d.surname)});
+    }
 
     function _getcolumns(perm) {
-	let x = 11, c = perm.columns || {};
+	let x = 13, c = perm.columns || {};
 	if( c.channel == true ) x++;
+	if( c.loyalty == true ) x++;
 	return x;
     }
 
     function _getbody(perm) {
 	var ar = [];
 	ar.push("<table class='headerbar' width='100%'><tr><td><h1>");
-	ar.push("<span>", lang.additions.title, "</span>");
+	ar.push("<span>", lang.contacts.title, "</span>");
 	ar.push("</h1></td><td class='r'>");
 	ar.push("<span>", lang.received_ts, "</span>&nbsp;<span id='timestamp'>&nbsp;-&nbsp;</span>");
 	ar.push("&nbsp;(<a href='javascript:void(0);' onclick='PLUG.refresh();'>", lang.refresh, "</a>)<span id='plugTotal'></span>");
@@ -25,25 +30,30 @@ var PLUG = (function() {
 	ar.push("</td></tr></table>");
 	ar.push("<table width='100%' class='report'><thead><tr>");
 	ar.push("<th class='autoincrement'>", lang.num, "</th>");
-	ar.push("<th class='date'>", lang.created_date, "</th>");
-	ar.push("<th class='bool'>", "&#x2610;", "</th>");
-	ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"user\",0.2)'>", lang.u_name, "</a></th>");
+	ar.push("<th>", lang.contact, "</th>");
+	ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.jobs(this, 0.30)'>", lang.job_title, "</a></th>");
+	if( perm.columns != null && perm.columns.loyalty == true ) {
+	    ar.push("<th width='65px'><a href='javascript:void(0)' onclick='PLUG.levels(this, 0.30)'>", lang.loyalty_level, "</a></th>");
+	}
+	ar.push("<th width='95px'>", lang.phone, "</th>");
+	ar.push("<th width='95px'>", lang.mobile, "</th>");
+	ar.push("<th>", lang.email, "</th>");
 	ar.push("<th>", lang.a_code, "</th>");
-	ar.push("<th>", lang.a_name, "</th>");
-	ar.push("<th>", "{0} / {1}".format_a(lang.address,lang.legal_address), "</th>");
+	ar.push("<th><a href='javascript:void(0)' onclick='PLUG.retail_chains(this)'>", lang.a_name, "</a></th>");
+	ar.push("<th>", lang.address, "</th>");
 	if( perm.columns != null && perm.columns.channel == true ) {
 	    ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.channels(this)'>", lang.chan_name, "</a></th>");
 	}
-	ar.push("<th width='190px'><a href='javascript:void(0)' onclick='PLUG.types(this,0.75)'>", lang.additions.types, "</th>");
+	ar.push("<th class='symbol'>", "&#x203B;", "</th>");
 	ar.push("<th>", lang.note, "</th>");
-	ar.push("<th>", lang.photo, "</th>");
-	ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"head\",0.90)'>", lang.head_name, "</a></th>");
+	ar.push("<th>", lang.author, "</th>");
+	ar.push("<th>", "&#9850;", "</th>");
 	ar.push("</tr>", G.thnums(_getcolumns(perm)), "</thead>");
 	ar.push("<tbody id='maintb'></tbody></table>");
 	ar.push(ChannelsPopup.container());
-	ar.push(AdditionTypesPopup.container());
-	ar.push(UsersPopup.container());
-	ar.push(UsersPopup.container("headsPopup"));
+	ar.push(RetailChainsPopup.container());
+	ar.push(JobTitlesPopup.container());
+	ar.push(LoyaltyLevelsPopup.container());
 	ar.push(SlideshowSimple.container());
 	return ar;
     }
@@ -56,15 +66,7 @@ var PLUG = (function() {
 	    }
 	}
 	a.push(_tags.f.val());
-	return Filter(a.join(' '), false, {
-	    doc_id:true,
-	    fix_dt:true, 
-	    user_id:true, dev_login:true, u_name:true,
-	    a_code:true, a_name:true, address:true, legal_address:true,
-	    chan_id:true, chan:true, 
-	    addition_type_id:true, addition_type:true, 
-	    head_id:true
-	});
+	return Filter(a.join(' '), false);
     }
 
     function _datamsg(msg, perm) {
@@ -76,76 +78,44 @@ var PLUG = (function() {
 	for( var i = 0; i < size; i++ ) {
 	    if( (r = data.rows[i]) != null && f.is(r) ) {
 		if( (page-1)*perm.rows <= x && x < page*perm.rows ) {
-		    ar.push("<tr" + (typeof checked != 'undefined' && checked[r.doc_id] ? " class='selected'" : "") + ">");
+		    var xs = "";
+		    if( r.a_hidden ) {
+			xs = " strikethrough attention";
+		    } else if ( r.a_locked ) {
+			xs = " strikethrough";
+		    }
+		    ar.push("<tr" + (typeof checked != 'undefined' && checked[r.contact_id] ? " class='selected'" : "") + ">");
 		    ar.push("<td class='autoincrement clickable' onclick=\"PLUG.checkrow(this.parentNode,'" +
-			r.doc_id + "');event.stopPropagation();\">", r.row_no, "</td>");
-		    ar.push("<td class='date", r.rejected ? " disabled" : "", "'>", 
-			G.getdatetime_l(Date.parseISO8601(r.fix_dt)), "</td>");
-		    if( r.rejected ) {
-			ar.push("<td class='bool footnote' data-title='{0}'>".format_a(lang.reject.cap), lang.reject.mark, "</td>");
-		    } else if( r.validated && (r.v_name || r.v_code) ) {
-			ar.push("<td class='bool footnote' data-title='{0}: {1}'>".format_a(lang.validate.cap, G.shielding(r.v_name || r.v_code)), 
-			    lang.validate.mark, "</td>");
-		    } else if( r.validated ) {
-			ar.push("<td class='bool footnote' data-title='{0}'>".format_a(lang.validate.cap), lang.validate.mark, "</td>");
+			r.contact_id + "');event.stopPropagation();\">", r.row_no, "</td>");
+		    ar.push("<td class='string'>", _fmtcontact(r), "</td>");
+		    if( r.locked ) {
+			ar.push("<td class='ref strikethrough footnote' data-title='", lang.contacts.footnote0, "'>", 
+			    G.shielding(r.job_title), "</td>");
 		    } else {
-			ar.push("<td class='bool'>", "&nbsp", "</td>");
+			ar.push("<td class='ref'>", G.shielding(r.job_title), "</td>");
 		    }
-		    ar.push("<td class='string sw95px", r.rejected ? " disabled" : "", "'>", G.shielding(r.u_name), "</td>");
-		    ar.push("<td class='string", r.rejected ? " disabled" : "", "'>", G.shielding(r.a_code), "</td>");
-		    ar.push("<td class='string a_name", r.rejected ? " disabled" : "", "'>");
-		    ar.push(G.shielding(r.a_name));
-		    if( !String.isEmpty(r.number) ) {
-			ar.push("<hr/><div class='row remark'><i>", G.shielding(r.number), "</i></div>");
+		    if( perm.columns != null && perm.columns.loyalty == true ) {
+			ar.push("<td class='ref'>", G.shielding(r.loyalty_level), "</td>");
 		    }
-		    ar.push("</td>");
-		    ar.push("<td class='string a_address", r.rejected ? " disabled" : "", "'>");
-		    if( !String.isEmpty(r.address) ) {
-			ar.push("<div class='row'>", G.shielding(r.address), "</div>");
-		    }
-		    if( !String.isEmpty(r.legal_address) ) {
-			ar.push("<hr/><div class='row remark'><i>", G.shielding(r.legal_address), "</i></div>");
-		    }
-		    ar.push("</td>");
+		    ar.push("<td class='int'>", G.shielding(r.phone), "</td>");
+		    ar.push("<td class='int'>", G.shielding(r.mobile), "</td>");
+		    ar.push("<td class='int'>", G.shielding(r.email), "</td>");
+		    ar.push("<td class='int", xs, "'>", G.shielding(r.a_code), "</td>");
+		    ar.push("<td class='string a_name", xs, "'>", G.shielding(r.a_name), "</td>");
+		    ar.push("<td class='string a_address", xs, "'>", G.shielding(r.address), "</td>");
 		    if( perm.columns != null && perm.columns.channel == true ) {
-			ar.push("<td class='ref sw95px", r.rejected ? " disabled" : "", "'>", G.shielding(r.chan), "</td>");
+			ar.push("<td class='ref sw95px'>", G.shielding(r.chan), "</td>");
 		    }
-		    ar.push("<td class='ref", r.rejected ? " disabled" : "","'>");
-		    if( !String.isEmpty(r.addition_type) ) {
-			ar.push("<div class='row'>", G.shielding(r.addition_type), "</div>");
-		    }
-		    if( (perm.validate && !r.validated && !r.rejected) || (perm.reject && !r.rejected) ) {
-			ar.push("<div>","<hr/>","<div class='row'>");
-			if( perm.validate && !r.validated && !r.rejected ) {
-			    ar.push("&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.validate(this,", r.row_no, 
-				",\"", r.doc_id, "\")'>", lang.validate.ref, "</a>&nbsp;&nbsp;");
-			}
-			if( perm.reject && !r.rejected ) {
-			    ar.push("&nbsp;&nbsp;<a class='attention' href='javascript:void(0)' onclick='PLUG.reject(this,", r.row_no, 
-				",\"", r.doc_id, "\")'>", lang.reject.ref, "</a>&nbsp;&nbsp;");
-			}
-			ar.push("</div>","</div>");
-		    }
-		    ar.push("</td>");
-		    ar.push("<td class='ref note", r.rejected ? " disabled" : "","'>");
-		    if( Array.isArray(r.attrs) ) {
-			r.attrs.forEach(function(arg0, arg1, arg2) {
-			    ar.push("<div class='row'>", G.shielding(arg0), "</div>");
-			});
-		    }
-		    if( !String.isEmpty(r.note) ) {
-			ar.push("<div class='row'><i>", G.shielding(r.note), "</i></div>");
-		    }
-		    ar.push("</td>");
 		    ar.push("<td class='ref'>");
-		    if( Array.isArray(r.photos) ) {
-			r.photos.forEach(function(arg0, arg1, arg2) {
-			    ar.push("<p><a href='javascript:void(0)' onclick='PLUG.slideshow([" + arg2.join(',') + "]," +
-				(arg1+1) + ")'>[&nbsp;" + (arg1+1) + "&nbsp;]</a></p>");
-			});
+		    if( r._isconsentexist ) {
+			ar.push("<a href='javascript:void(0)' onclick='PLUG.slideshow(\"{0}\")'>[&nbsp;&#x203B;&nbsp;]</a>".format_a(r.contact_id));
+		    } else {
+			ar.push("&nbsp;");
 		    }
 		    ar.push("</td>");
-		    ar.push("<td class='string", r.rejected ? " disabled" : "","'>", G.shielding(r.head_name), "</td>");
+		    ar.push("<td class='string note'>", G.shielding(r.extra_info), "</td>");
+		    ar.push("<td class='string sw95px'>", G.shielding(r.author), "</td>");
+		    ar.push("<td width='14px' class='int'>", r._isaliendata ? "&#9850;" : "&nbsp;", "</td>");
 		    ar.push("</tr>");
 		}
 		x++;
@@ -257,35 +227,6 @@ var PLUG = (function() {
 	_page(1);
     }
 
-    function _changeStatus(self, method, row_no, doc_id) {
-	ProgressDialog.show();
-	self.style.visibility = 'hidden';
-	G.xhr(method, G.getajax({plug: _code, doc_id: doc_id, _datetime: G.getdatetime(new Date())}), "", function(xhr) {
-	    if( xhr.status == 200 ) {
-		_cache.data.rows[row_no-1][method == 'PUT' ? 'validated' : 'rejected'] = true;
-		for(var i = 0, cells = self.parentNode.parentNode.parentNode.parentNode.cells, size = cells.length; i < size; i++ ) {
-		    var x = cells[i];
-		    if( i == _statusColumn ) {
-			x.html(lang[method == 'PUT' ? 'validate' : 'reject'].mark);
-			x.addClass('footnote');
-			x.setAttribute('data-title', lang[method == 'PUT' ? 'validate' : 'reject'].cap);
-		    } else if( method != 'PUT' )  {
-			x.addClass('disabled');
-		    }
-		}
-		if( method == 'PUT' ) {
-		    self.remove();
-		} else {
-		    self.parentNode.parentNode.remove();
-		}
-	    } else {
-		self.style.visibility = 'visible';
-		Toast.show(lang.errors.runtime);
-	    }
-	    ProgressDialog.hide();
-	}).send();
-    }
-
 
 /* public properties & methods */
     return {
@@ -323,13 +264,6 @@ var PLUG = (function() {
 		_cache.checked[row_id] = arg;
 	    });
 	},
-	users: function(tag, type, offset) {
-	    _togglePopup(type+"s", tag, offset, function(obj) {
-		return UsersPopup(_cache.data[obj], function(arg, i, ar) {
-		    _onpopup(tag, arg, "user_id", type+"_id");
-		}, {container:type+"sPopup", everyone:true})
-	    });
-	},
 	channels: function(tag, offset) {
 	    _togglePopup("channels", tag, offset, function(obj) {
 		return ChannelsPopup(_cache.data[obj], function(arg, i, ar) {
@@ -337,23 +271,29 @@ var PLUG = (function() {
 		})
 	    });
 	},
-	types: function(tag, offset) {
-	    _togglePopup("types", tag, offset, function(obj) {
-		return AdditionTypesPopup(_cache.data[obj], function(arg, i, ar) {
-		    _onpopup(tag, arg, "addition_type_id");
+	retail_chains: function(tag, offset) {
+	    _togglePopup("retail_chains", tag, offset, function(obj) {
+		return RetailChainsPopup(_cache.data[obj], function(arg, i, ar) {
+		    _onpopup(tag, arg, "rc_id");
 		})
 	    });
 	},
-	slideshow: function(blobs, position) {
-	    var ar = [];
-	    blobs.forEach(function(arg) { ar.push(G.getajax({plug: _code, blob: "yes", blob_id: arg})); });
-	    SlideshowSimple(ar, {idx: position}).show();
+	jobs: function(tag, offset) {
+	    _togglePopup("job_titles", tag, offset, function(obj) {
+		return JobTitlesPopup(_cache.data[obj], function(arg, i, ar) {
+		    _onpopup(tag, arg, "job_title_id");
+		})
+	    });
 	},
-	validate: function(tag, row_no, doc_id) {
-	    _changeStatus(tag, "PUT", row_no, doc_id);
+	levels: function(tag, offset) {
+	    _togglePopup("loyalty_levels", tag, offset, function(obj) {
+		return LoyaltyLevelsPopup(_cache.data[obj], function(arg, i, ar) {
+		    _onpopup(tag, arg, "loyalty_level_id");
+		})
+	    });
 	},
-	reject: function(tag, row_no, doc_id) {
-	    _changeStatus(tag, "DELETE", row_no, doc_id);
+	slideshow: function(contact_id) {
+	    SlideshowSimple([G.getajax({plug: _code, consent: "yes", contact_id: contact_id})]).show();
 	}
     }
 })();

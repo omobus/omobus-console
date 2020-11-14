@@ -15,6 +15,7 @@ local modules = {
 	checkups 		= require 'plugins.checkups',
 	comments 		= require 'plugins.comments',
 	confirmations 		= require 'plugins.confirmations',
+	contacts 		= require 'plugins.contacts',
 	deletions 		= require 'plugins.deletions',
 	discards 		= require 'plugins.discards',
 	info_materials 		= require 'plugins.info_materials',

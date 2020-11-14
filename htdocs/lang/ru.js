@@ -39,8 +39,8 @@ var lang = {
 
     /* String resources: */
 
-    a_code: "Код",
-    a_name: "Наименование",
+    a_code: "Код клиента",
+    a_name: "Наименование клиента",
     abort: "прервать", 
     activity_type: "Вид активности",
     additions: {
@@ -108,7 +108,8 @@ var lang = {
     contact: "Контакт",
     contact_everything: "Все контакты",
     contacts: {
-	title: "Контакты"
+	title: "Контакты",
+	footnote0: "Контакт временно не работает"
     },
     country: "Страна",
     country_everything: "Все страны",
@@ -291,14 +292,14 @@ var lang = {
     },
     ka_code: "Тип сети",
     kilometers: "{0} км.",
-    loyalty_level: "Категоря контакта",
+    loyalty_level: "Категория контакта",
     loyalty_level_everything: "Все категории контактов",
     managment: "<div><b>УПРАВЛЯЮЩИЕ ОТЧЕТЫ</b></div><div>Отчеты управления позволяют вносить изменения в исходные данные, используемые в ходе работы OMOBUS.</div>",
     manuf_date: "Дата производства",
     mileage: "Общий пробег за весь день",
     mileageAbbr: "Пробег, км.",
     minutes: "{0} мин.",
-    mobile: "Мобильный",
+    mobile: "Мобильный телефон",
     modified: "Последнее изменение",
     more_meter: ">{0} м.",
     more_min: ">{0} мин.",
