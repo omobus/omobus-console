@@ -183,7 +183,7 @@ var PLUG = (function() {
 		    ar.push("<td class='ref'>", G.shielding(r.poten), "</td>");
 		    if( !data.closed && r._code == 'route' ) {
 			ar.push("<td class='ref'><a href='javascript:void(0);' onclick='PLUG.remove(this, " + i + ")'>",
-			    (r._deleted ? lang.restore.ref : lang.remove.ref), "</a></td>");
+			    (r._deleted ? lang.restore : lang.remove.ref), "</a></td>");
 		    } else if( !data.closed && r._code == 'account' ) {
 			ar.push("<td class='ref'><a href='javascript:void(0);' onclick='PLUG.add(this, " + i + ")'>",
 			    lang.add, "</a></td>");
