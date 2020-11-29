@@ -8,7 +8,9 @@ var PLUG = (function() {
     var _statusColumn = 2;
 
     function _getcolumns(perm) {
-	let x = 9, c = perm.columns || {};
+	let x = 16 + perm.weeks, c = perm.columns || {};
+	if( perm.validate == true ) x++;
+	if( perm.reject == true ) x++;
 	if( c.channel == true ) x++;
 	return x;
     }
@@ -24,18 +26,33 @@ var PLUG = (function() {
 	    lang.search, "' id='plugFilter' onkeyup='return PLUG.filter(this, event);' onpaste='PLUG.filter(this, event); return true;' />");
 	ar.push("</td></tr></table>");
 	ar.push("<table width='100%' class='report'><thead><tr>");
-	ar.push("<th class='autoincrement'>", lang.num, "</th>");
-	ar.push("<th class='date'>", lang.created_date, "</th>");
-	ar.push("<th class='bool'>", "&#x2610;", "</th>");
-	ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"user\",0.2)'>", lang.u_name, "</a></th>");
-	ar.push("<th>", lang.a_code, "</th>");
-	ar.push("<th><a href='javascript:void(0)' onclick='PLUG.retail_chains(this)'>", lang.a_name, "</a></th>");
-	ar.push("<th>", lang.address, "</th>");
+	ar.push("<th rowspan='2' class='autoincrement'>", lang.num, "</th>");
+	ar.push("<th rowspan='2' class='date'>", lang.created_date, "</th>");
+	ar.push("<th rowspan='2' class='bool'>", "&#x2610;", "</th>");
+	ar.push("<th rowspan='2' class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"user\",0.2)'>", lang.u_name, "</a></th>");
+	ar.push("<th rowspan='2'>", lang.a_code, "</th>");
+	ar.push("<th rowspan='2'><a href='javascript:void(0)' onclick='PLUG.retail_chains(this)'>", lang.a_name, "</a></th>");
+	ar.push("<th rowspan='2'>", lang.address, "</th>");
 	if( perm.columns != null && perm.columns.channel == true ) {
-	    ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.channels(this)'>", lang.chan_name, "</a></th>");
+	    ar.push("<th rowspan='2' class='sw95px'><a href='javascript:void(0)' onclick='PLUG.channels(this)'>", lang.chan_name, "</a></th>");
 	}
-	ar.push("<th>", lang.wishes.type, "</th>");
-	ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"head\",0.90)'>", lang.head_name, "</a></th>");
+	ar.push("<th colspan='", perm.weeks, "'>", lang.routes.weeks, "</th>");
+	ar.push("<th colspan='7'>", lang.routes.days, "</th>");
+	if( perm.validate ) {
+	    ar.push("<th width='27px' rowspan='2' class='symbol'>", "&#x2713;", "</th>");
+	}
+	if( perm.reject ) {
+	    ar.push("<th width='27px' rowspan='2' class='symbol'>", "&#x2421;", "</th>");
+	}
+	ar.push("<th rowspan='2'>", lang.note, "</th>");
+	ar.push("<th rowspan='2' class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"head\",0.90)'>", lang.head_name, "</a></th>");
+	ar.push("</tr><tr>");
+	for( var i = 1; i <= perm.weeks; i++ ) {
+	    ar.push("<th width='20px'>", i,"</th>");
+	}
+	for( var i = 0, a = lang.calendar.firstDay; i < 7; i++, a++ ) {
+	    ar.push("<th width='20px'>", lang.calendar.days.namesAbbr[a==7?0:a], "</th>");
+	}
 	ar.push("</tr>", G.thnums(_getcolumns(perm)), "</thead>");
 	ar.push("<tbody id='maintb'></tbody></table>");
 	ar.push(ChannelsPopup.container());
@@ -81,12 +98,12 @@ var PLUG = (function() {
 		    ar.push("<td class='date", r.rejected ? " disabled" : "", "'>", 
 			G.getdatetime_l(Date.parseISO8601(r.fix_dt)), "</td>");
 		    if( r.rejected ) {
-			ar.push("<td class='bool footnote' data-title='{0}'>".format_a(lang.reject.cap), lang.reject.mark, "</td>");
+			ar.push("<td class='bool footnote' data-title='", lang.wishes.rejected, "'>", "&#x2715;", "</td>");
 		    } else if( r.validated && (r.v_name || r.v_code) ) {
-			ar.push("<td class='bool footnote' data-title='{0}: {1}'>".format_a(lang.validate.cap, G.shielding(r.v_name || r.v_code)), 
-			    lang.validate.mark, "</td>");
+			ar.push("<td class='bool footnote' data-title='", lang.wishes.accepted[0].format_a(G.shielding(r.v_name || r.v_code)), 
+			    "'>", lang.plus, "</td>");
 		    } else if( r.validated ) {
-			ar.push("<td class='bool footnote' data-title='{0}'>".format_a(lang.validate.cap), lang.validate.mark, "</td>");
+			ar.push("<td class='bool footnote' data-title='", lang.wishes.accepted[1], "'>", lang.plus, "</td>");
 		    } else {
 			ar.push("<td class='bool'>", "&nbsp", "</td>");
 		    }
@@ -96,34 +113,41 @@ var PLUG = (function() {
 			G.shielding(r.a_code), "</td>");
 		    ar.push("<td class='string a_name", r.closed ? " strikethrough attention" : "", r.rejected ? " disabled" : "", "'>", 
 			G.shielding(r.a_name), "</td>");
-		    ar.push("<td class='string a_address", r.closed ? " strikethrough attention" : "", r.rejected ? " disabled" : "", 
-			"'>", G.shielding(r.address), "</td>");
 		    if( perm.columns != null && perm.columns.channel == true ) {
-			ar.push("<td class='ref sw95px", r.rejected ? " disabled" : "", "'>", G.shielding(r.chan), "</td>");
+			ar.push("<td class='string a_address", r.closed ? " strikethrough attention" : "", r.rejected ? " disabled" : "", 
+			    "'>", G.shielding(r.address), "</td>");
+			ar.push("<td class='ref sw95px", r.rejected ? " disabled" : "", " delim2'>", G.shielding(r.chan), "</td>");
+		    } else {
+			ar.push("<td class='string a_address", r.closed ? " strikethrough attention" : "", r.rejected ? " disabled" : "", 
+			    " delim2'>", G.shielding(r.address), "</td>");
 		    }
-		    ar.push("<td class='ref", r.rejected ? " disabled" : "","'>");
-		    if( !String.isEmpty(r.weeks) ) {
-			ar.push("<div class='row'>", G.shielding(r.weeks), "</div>");
+		    for( let a = 1, f = Array.isArray(r.weeks); a <= perm.weeks; a++ ) {
+			ar.push("<td class='bool", r.rejected ? " disabled" : "", a == perm.weeks ? " delim2" : "", "'>",
+			    f && r.weeks[a-1] ? "&bull;" : "", "</td>");
 		    }
-		    if( !String.isEmpty(r.days) ) {
-			ar.push("<div class='row'>", G.shielding(r.days), "</div>");
+		    for( let a = 1, f = Array.isArray(r.days); a <= 7; a++ ) {
+			ar.push("<td class='bool", r.rejected ? " disabled" : "", a == 7 ? " delim2" : "", "'>",
+			    f && r.days[a-1] ? "&bull;" : "", "</td>");
 		    }
-		    if( !String.isEmpty(r.note) ) {
-			ar.push("<div class='row'><i>", G.shielding(r.note), "</i></div>");
-		    }
-		    if( (perm.validate && !r.validated && !r.rejected && !r.closed) || (perm.reject && !r.rejected) ) {
-			ar.push("<div>","<hr/>","<div class='row'>");
-			if( perm.validate && !r.validated && !r.rejected && !r.closed ) {
-			    ar.push("&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.validate(this,", r.row_no, 
-				",\"", r.user_id, "\",\"", r.account_id, "\")'>", lang.validate.ref, "</a>&nbsp;&nbsp;");
+		    if( perm.validate ) {
+			if( !r.validated /*&& !r.rejected*/ && !r.closed ) {
+			    ar.push("<td class='ref footnote' data-title='{0}'>".format_a(lang.wishes.accept),
+				"<a class='symbol' href='javascript:void(0)' onclick='PLUG.validate(this,{0},\"{1}\",\"{2}\")'>"
+				    .format_a(r.row_no, r.user_id, r.account_id), "&#x2713", "</a>", "</td>");
+			} else {
+			    ar.push("<td class='ref'>","</td>");
 			}
-			if( perm.reject && !r.rejected ) {
-			    ar.push("&nbsp;&nbsp;<a class='attention' href='javascript:void(0)' onclick='PLUG.reject(this,", r.row_no, 
-				",\"", r.user_id, "\",\"", r.account_id, "\")'>", lang.reject.ref, "</a>&nbsp;&nbsp;");
-			}
-			ar.push("</div>","</div>");
 		    }
-		    ar.push("</td>");
+		    if( perm.reject ) {
+			if( !r.rejected ) {
+			    ar.push("<td class='ref footnote' data-title='{0}'>".format_a(lang.wishes.reject), 
+				"<a class='attention symbol' href='javascript:void(0)' onclick='PLUG.reject(this,{0},\"{1}\",\"{2}\")'>"
+				    .format_a(r.row_no, r.user_id, r.account_id), "&#x2715", "</a>", "</td>");
+			} else {
+			    ar.push("<td class='ref'>","</td>");
+			}
+		    }
+		    ar.push("<td class='note", r.rejected ? " disabled" : "", "'>", G.shielding(r.note), "</td>");
 		    ar.push("<td class='string sw95px", r.rejected ? " disabled" : "","'>", G.shielding(r.head_name), "</td>");
 		    ar.push("</tr>");
 		}
@@ -242,21 +266,23 @@ var PLUG = (function() {
 	G.xhr(method, G.getajax({plug: _code, account_id: account_id, user_id: user_id, _datetime: G.getdatetime(new Date())}), "", function(xhr) {
 	    if( xhr.status == 200 ) {
 		_cache.data.rows[row_no-1][method == 'PUT' ? 'validated' : 'rejected'] = true;
-		for(var i = 0, cells = self.parentNode.parentNode.parentNode.parentNode.cells, size = cells.length; i < size; i++ ) {
+		for(var i = 0, cells = self.parentNode.parentNode.cells, size = cells.length; i < size; i++ ) {
 		    var x = cells[i];
 		    if( i == _statusColumn ) {
-			x.html(lang[method == 'PUT' ? 'validate' : 'reject'].mark);
+			x.html(method == 'PUT' ? lang.plus : '&#x2715');
+			x.removeClass('disabled');
 			x.addClass('footnote');
-			x.setAttribute('data-title', lang[method == 'PUT' ? 'validate' : 'reject'].cap);
-		    } else if( method != 'PUT' )  {
-			x.addClass('disabled');
+			x.setAttribute('data-title', method == 'PUT' ? lang.wishes.accepted[1] : lang.wishes.rejected);
+		    } else {
+			if( method != 'PUT' )  {
+			    x.addClass('disabled');
+			} else {
+			    x.removeClass('disabled');
+			}
 		    }
 		}
-		if( method == 'PUT' ) {
-		    self.remove();
-		} else {
-		    self.parentNode.parentNode.remove();
-		}
+		self.parentNode.removeClass('footnote');
+		self.remove();
 	    } else {
 		self.style.visibility = 'visible';
 		Toast.show(lang.errors.runtime);

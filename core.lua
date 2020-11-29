@@ -10,14 +10,14 @@ function M.split(str, pat, fn)
     local s, e, cap = str:find(fpat, 1)
     while s do
 	if s ~= 1 or cap ~= "" then
-	    table.insert(t, fn ~= nil and fn(cap) or cap)
+	    table.insert(t, (fn ~= nil and type(fn) == 'function') and fn(cap) or cap)
 	end
 	last_end = e+1
 	s, e, cap = str:find(fpat, last_end)
     end
     if last_end <= #str then
 	cap = str:sub(last_end)
-	table.insert(t, fn ~= nil and fn(cap) or cap)
+	table.insert(t, (fn ~= nil and type(fn) == 'function') and fn(cap) or cap)
     end
     return t
 end

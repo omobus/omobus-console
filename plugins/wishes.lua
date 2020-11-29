@@ -28,11 +28,12 @@ select
     a.chan_id, ch.descr chan,
     j.user_id, u.descr u_name, u.dev_login, u.area,
     j.validator_id v_code, v.descr v_name,
-    j.fix_dt, j.note, w.descr weeks, d.descr days,
+    j.fix_dt, 
+    array_to_string(weeks,',') weeks,
+    array_to_string(days,',') days,
+    j.note, 
     u.executivehead_id head_id, ex.descr head_name
 from j_wishes j
-    left join wish_weeks w on w.wish_week_id = j.wish_week_id
-    left join wish_days d on d.wish_day_id = j.wish_day_id
     left join accounts a on a.account_id = j.account_id
     left join potentials p on a.poten_id = p.poten_id
     left join channels ch on a.chan_id = ch.chan_id
@@ -157,7 +158,8 @@ local function personalize(data)
 
     for i, v in ipairs(data.rows) do
 	v.row_no = i
-
+	v.weeks = core.split(v.weeks, ',', tonumber)
+	v.days = core.split(v.days, ',', tonumber)
 	idx_users[v.user_id] = 1
 	if v.chan_id ~= nil then idx_channels[v.chan_id] = 1; end
 	if v.rc_id ~= nil then idx_rcs[v.rc_id] = 1; end

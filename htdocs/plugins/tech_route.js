@@ -242,7 +242,8 @@ var __route = (function() {
 	    "</tr>");
 	ar.push("<tr>",
 	    "<td>", lang.dev_id, ":</td>",
-	    "<td class='ref' colspan='2' width='260px'>", devids.join('<br/>'), "</td>",
+	    "<td class='ref", Array.isArray(data.dev_ids) && data.dev_ids.length > 1 ? " attention" : "" , "' colspan='2' width='260px'>", 
+		devids.join('<br/>'), "</td>",
 	    "</tr>");
 	ar.push("<tr>",
 	    "<td>", lang.tech.route.packets.title, ":</td>",
@@ -1112,12 +1113,25 @@ var __route = (function() {
 		ar.push("</div>");
 		ar.push("<table width='100%' class='report'>");
 		ar.push("<tr class='def'>");
-		ar.push("<td class='divider' colspan='2'>", lang.wishes.type, "</td>");
-		ar.push("<td class='divider'>", lang.note, "</td>");
+		ar.push("<td colspan='", __routeWeeks, "' class='divider'>", lang.routes.weeks, "</td>");
+		ar.push("<td colspan='7' class='divider'>", lang.routes.days, "</td>");
+		ar.push("<td rowspan='2' class='divider'>", lang.note, "</td>");
+		ar.push("</tr>");
+		ar.push("<tr class='def'>");
+		for( let i = 1; i <= __routeWeeks; i++ ) {
+		    ar.push("<td width='20px' class='divider'>", i,"</td>");
+		}
+		for( let i = 0, a = lang.calendar.firstDay; i < 7; i++, a++ ) {
+		    ar.push("<td width='20px' class='divider'>", lang.calendar.days.namesAbbr[a==7?0:a], "</td>");
+		}
 		ar.push("</tr>");
 		ar.push("<tr>");
-		ar.push("<td class='string' width='30%'>", G.shielding(r.weeks), "</td>");
-		ar.push("<td class='string' width='30%'>", G.shielding(r.days), "</td>");
+		for( let a = 1, f = Array.isArray(r.weeks); a <= __routeWeeks; a++ ) {
+		    ar.push("<td class='bool'>", f && r.weeks[a-1] ? "&bull;" : "", "</td>");
+		}
+		for( let a = 1, f = Array.isArray(r.days); a <= 7; a++ ) {
+		    ar.push("<td class='bool'>", f && r.days[a-1] ? "&bull;" : "", "</td>");
+		}
 		ar.push("<td class='string'>", G.shielding(r.doc_note), "</td>");
 		ar.push("</tr>");
 		ar.push("</table>");
