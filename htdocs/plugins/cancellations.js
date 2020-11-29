@@ -8,7 +8,8 @@ var PLUG = (function() {
     var _statusColumn = 2;
 
     function _getcolumns(perm) {
-	let x = 7, c = perm.columns || {};
+	let x = 8, c = perm.columns || {};
+	if( perm.restore == true || perm.revoke == true ) x++;
 	if( c.area == true ) x++;
 	if( c.department == true ) x++;
 	if( c.distributor == true ) x++;
@@ -34,6 +35,10 @@ var PLUG = (function() {
 	ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"user\",0.2)'>", lang.u_name, "</a></th>");
 	ar.push("<th>", lang.u_code, "</th>");
 	ar.push("<th>", lang.cancellations.type, "</th>");
+	ar.push("<th>", lang.note, "</th>");
+	if( perm.restore == true || perm.revoke == true ) {
+	    ar.push("<th class='symbol'>", "&#x2699;", "</th>");
+	}
 	if( perm.columns != null && perm.columns.area == true ) {
 	    ar.push("<th>", lang.area, "</th>");
 	}
@@ -98,29 +103,23 @@ var PLUG = (function() {
 			ar.push("<td class='copyable int' onclick='PLUG.copy(\"{0}\");event.stopPropagation();'>".format_a(t),
 			    G.shielding(r.u_code), "</td>");
 		    }
-		    ar.push("<td class='ref'>");
-		    if( !String.isEmpty(r.canceling_type) ) {
-			ar.push("<div class='row'>", G.shielding(r.canceling_type), "</div>");
-		    }
-		    if( !String.isEmpty(r.note) ) {
-			ar.push("<div class='row'><i>", G.shielding(r.note), "</i></div>");
-		    }
+		    ar.push("<td class='ref Xsw95px'>", G.shielding(r.canceling_type), "</td>");
+		    ar.push("<td class='string note'>", G.shielding(r.note), "</td>");
 		    if( perm.restore == true || perm.revoke == true ) {
-			ar.push("<div>","<hr/>","<div class='row'>");
+			ar.push("<td class='ref'>");
 			if( r.hidden ) {
 			    if( perm.restore == true ) {
 				ar.push("<a href='javascript:void(0)' onclick='PLUG.restore(this,", r.row_no, ");'>", 
-				    lang.restore.ref, "</a>");
+				    lang.restore, "</a>");
 			    }
 			} else {
 			    if( perm.revoke == true ) {
 				ar.push("<a class='attention' href='javascript:void(0)' onclick='PLUG.revoke(this,", r.row_no, ");'>", 
-				    lang.revoke.ref, "</a>");
+				    lang.revoke, "</a>");
 			    }
 			}
-			ar.push("</div>","</div>");
+			ar.push("</td>");
 		    }
-		    ar.push("</td>");
 		    if( perm.columns != null && perm.columns.area == true ) {
 			ar.push("<td class='ref sw95px'>", G.shielding(r.area), "</td>");
 		    }
@@ -309,7 +308,7 @@ var PLUG = (function() {
 		data.hidden = 1;
 		tags.route_date.addClass("strikethrough attention");
 		if( perm.restore == true ) {
-		    tags.ref.html(lang.restore.ref);
+		    tags.ref.html(lang.restore);
 		    tags.ref.onclick = function() { PLUG.restore(tags.ref, data.row_no, perm); }
 		    tags.ref.removeClass("attention");
 		} else {
@@ -336,7 +335,7 @@ var PLUG = (function() {
 		tags.route_date.removeClass("strikethrough");
 		tags.route_date.removeClass("attention");
 		if( perm.restore == true ) {
-		    tags.ref.html(lang.revoke.ref);
+		    tags.ref.html(lang.revoke);
 		    tags.ref.onclick = function() { PLUG.revoke(tags.ref, data.row_no, perm); }
 		    tags.ref.addClass("attention");
 		} else {
