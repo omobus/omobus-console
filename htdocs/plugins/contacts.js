@@ -25,6 +25,7 @@ var PLUG = (function() {
 	ar.push("</h1></td><td class='r'>");
 	ar.push("<span>", lang.received_ts, "</span>&nbsp;<span id='timestamp'>&nbsp;-&nbsp;</span>");
 	ar.push("&nbsp;(<a href='javascript:void(0);' onclick='PLUG.refresh();'>", lang.refresh, "</a>)<span id='plugTotal'></span>");
+	ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.xlsx(this)'>", lang.export.xlsx, "</a>");
 	ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<input class='search' type='text' maxlength='96' autocomplete='off' placeholder='",
 	    lang.search, "' id='plugFilter' onkeyup='return PLUG.filter(this, event);' onpaste='PLUG.filter(this, event); return true;' />");
 	ar.push("</td></tr></table>");
@@ -44,9 +45,9 @@ var PLUG = (function() {
 	if( perm.columns != null && perm.columns.channel == true ) {
 	    ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.channels(this)'>", lang.chan_name, "</a></th>");
 	}
-	ar.push("<th class='symbol'>", "&#x203B;", "</th>");
+	ar.push("<th class='symbol'><a href='javascript:void(0)' onclick='PLUG.consent(this)'>", "&#x203B;", "<a/></th>");
 	ar.push("<th>", lang.note, "</th>");
-	ar.push("<th>", lang.author, "</th>");
+	ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"author\",0.90)'>", lang.author, "</a></th>");
 	ar.push("<th>", "&#9850;", "</th>");
 	ar.push("</tr>", G.thnums(_getcolumns(perm)), "</thead>");
 	ar.push("<tbody id='maintb'></tbody></table>");
@@ -54,6 +55,7 @@ var PLUG = (function() {
 	ar.push(RetailChainsPopup.container());
 	ar.push(JobTitlesPopup.container());
 	ar.push(LoyaltyLevelsPopup.container());
+	ar.push(UsersPopup.container("authorsPopup"));
 	ar.push(SlideshowSimple.container());
 	return ar;
     }
@@ -66,7 +68,20 @@ var PLUG = (function() {
 	    }
 	}
 	a.push(_tags.f.val());
-	return Filter(a.join(' '), false);
+	return Filter(a.join(' '), false, {
+	    account_id:true, a_code:true, a_name:true, address:true,
+	    chan_id: true, chan:true,
+	    poten:true,
+	    rc_id:true, rc:true, ka_code:true,
+	    region:true,
+	    city:true,
+	    contact_id:true, name:true, surname:true, patronymic:true, phone:true, mobile:true, email:true,
+	    job_title_id:true, job_title:true,
+	    loyalty_level_id:true,
+	    extra_info:true,
+	    author_id:true, author:true,
+	    _isconsentexist:true
+	});
     }
 
     function _datamsg(msg, perm) {
@@ -75,6 +90,7 @@ var PLUG = (function() {
 
     function _datatbl(data, page, total, f, checked, perm) {
 	var ar = [], size = Array.isArray(data.rows) ? data.rows.length : 0, x = 0, r, z;
+	data._rows = [];
 	for( var i = 0; i < size; i++ ) {
 	    if( (r = data.rows[i]) != null && f.is(r) ) {
 		if( (page-1)*perm.rows <= x && x < page*perm.rows ) {
@@ -118,6 +134,7 @@ var PLUG = (function() {
 		    ar.push("<td width='14px' class='int'>", r._isaliendata ? "&#9850;" : "&nbsp;", "</td>");
 		    ar.push("</tr>");
 		}
+		data._rows.push(r);
 		x++;
 	    }
 	}
@@ -128,10 +145,6 @@ var PLUG = (function() {
 	}
 	if( ar.length == 0 ) {
 	    ar = _datamsg(lang.empty, perm);
-	}
-	if( typeof data.data_ts == 'string' ) {
-	    ar.push("<tr class='def'><td colspan='" + _getcolumns(perm) + "' class='watermark'>" + lang.data_ts +
-		"&nbsp;" + data.data_ts + "</td></tr>");
 	}
 	if( (z = Math.floor(x/perm.rows) + ((x%perm.rows)?1:0)) > 1 /*pages: */ ) {
 	    ar.push("<tr class='def'><td colspan='" + _getcolumns(perm) + "' class='navbar'>");
@@ -227,6 +240,75 @@ var PLUG = (function() {
 	_page(1);
     }
 
+    function _toxlsx() {
+	var ar = [], data_ts;
+	var func = function(data_ts, ar, templ) {
+	    XlsxPopulate.fromDataAsync(templ)
+		.then(wb => {
+		    var offset = 4;
+		    var ws = wb.sheet(0);
+		    wb.properties()._node.children = [];
+		    wb.property('Title', lang.photos.title);
+		    wb.property('Author', __AUTHOR__);
+		    ws.name(_code);
+		    for( var i = 0, size = Math.min(ar.length,1048576 - offset), x; i < size; i++ ) {
+			r = ar[i];
+			ws.cell("A{0}".format_a(i + offset)).value(r.row_no);
+			ws.cell("B{0}".format_a(i + offset)).value(r.contact_id);
+			ws.cell("C{0}".format_a(i + offset)).value(_fmtcontact(r));
+			ws.cell("D{0}".format_a(i + offset)).value(r.job_title);
+			ws.cell("E{0}".format_a(i + offset)).value(r.loyalty_level);
+			ws.cell("F{0}".format_a(i + offset)).value(r.phone);
+			ws.cell("G{0}".format_a(i + offset)).value(r.mobile);
+			ws.cell("H{0}".format_a(i + offset)).value(r.email);
+			ws.cell("I{0}".format_a(i + offset)).value(r.a_code);
+			ws.cell("J{0}".format_a(i + offset)).value(r.a_name);
+			ws.cell("K{0}".format_a(i + offset)).value(r.address);
+			ws.cell("L{0}".format_a(i + offset)).value(r.chan);
+			ws.cell("M{0}".format_a(i + offset)).value(r.poten);
+			ws.cell("N{0}".format_a(i + offset)).value(r.region);
+			ws.cell("O{0}".format_a(i + offset)).value(r.city);
+			ws.cell("P{0}".format_a(i + offset)).value(r.rc);
+			ws.cell("Q{0}".format_a(i + offset)).value(r.ka_code);
+			ws.cell("R{0}".format_a(i + offset)).value(r._isconsentexist ? 1 : 0);
+			ws.cell("S{0}".format_a(i + offset)).value(r.doc_note);
+			ws.cell("T{0}".format_a(i + offset)).value(r.author);
+			ws.cell("U{0}".format_a(i + offset)).value(/*Date.parseISO8601(*/r.updated_ts/*)*/);
+		    }
+		    wb.outputAsync()
+			.then(function(blob) {
+			    saveAs(blob, "{0}.xlsx".format_a(_code));
+			    ProgressDialog.hide();
+			})
+		})
+		.catch(function(err) {
+		    ProgressDialog.hide();
+		    Toast.show(lang.errors.xlsx);
+		    console.log(err);
+		});
+	}
+	if( _cache.data != null && Array.isArray(_cache.data._rows) ) {
+	    _cache.data._rows.forEach(function(r, i) {
+		ar.push(r);
+	    });
+	    data_ts = _cache.data.data_ts;
+	}
+	ProgressDialog.show();
+	if( _cache.xlsx == null ) {
+	    G.xhr("GET", G.getstaticref("assets/{0}.xlsx".format_a(_code)), "arraybuffer", function(xhr, data) {
+		if( xhr.status == 200 && data != null ) {
+		    func(data_ts, ar, data);
+		    _cache.xlsx = data;
+		} else {
+		    ProgressDialog.hide();
+		    Toast.show(lang.errors.not_found);
+		}
+	    }).send();
+	} else {
+	    func(data_ts, ar, _cache.xlsx);
+	}
+    }
+
 
 /* public properties & methods */
     return {
@@ -264,6 +346,13 @@ var PLUG = (function() {
 		_cache.checked[row_id] = arg;
 	    });
 	},
+	users: function(tag, type, offset) {
+	    _togglePopup(type+"s", tag, offset, function(obj) {
+		return UsersPopup(_cache.data[obj], function(arg, i, ar) {
+		    _onpopup(tag, arg, "user_id", type+"_id");
+		}, {container:type+"sPopup", everyone:true})
+	    });
+	},
 	channels: function(tag, offset) {
 	    _togglePopup("channels", tag, offset, function(obj) {
 		return ChannelsPopup(_cache.data[obj], function(arg, i, ar) {
@@ -292,8 +381,25 @@ var PLUG = (function() {
 		})
 	    });
 	},
+	consent: function(tag) {
+	    if( _cache.xfilters == null ) {
+		_cache.xfilters = {};
+	    }
+	    const x = _cache.xfilters;
+	    if( typeof x._isconsentexist == 'undefined' || x._isconsentexist == null ) {
+		x._isconsentexist = Filter.escape("_isconsentexist", "1");
+		tag.addClass('important');
+	    } else {
+		x._isconsentexist = null;
+		tag.removeClass('important')
+	    }
+	    _page(1);
+	},
 	slideshow: function(contact_id) {
 	    SlideshowSimple([G.getajax({plug: _code, consent: "yes", contact_id: contact_id})]).show();
+	},
+	xlsx: function() {
+	    _toxlsx();
 	}
     }
 })();

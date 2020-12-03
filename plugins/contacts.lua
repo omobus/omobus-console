@@ -15,7 +15,7 @@ local log = require 'log'
 
 local function data(stor, permtb, sestb)
     return stor.get(function(tran, func_execute)
-	local tb, err, tmp, qs
+	local tb, err, qs
 	tb = {}
 	qs =
 [[
@@ -114,6 +114,15 @@ and x.account_id in (
 		"//contacts/get"
 	    )
         end
+	if err == nil or err == false then
+	    tb.users, err = func_execute(tran,
+[[
+select user_id, descr, dev_login, area, hidden from users
+    order by descr
+]]
+		, "//contacts/users"
+	    )
+	end
 	if permtb.channel == true and (err == nil or err == false) then
 	    tb.channels, err = func_execute(tran,
 [[
@@ -174,20 +183,24 @@ end
 local function personalize(datatb)
     local idx_chans = {}
     local idx_rcs = {}
-    local idx_jobs = {}
-    local idx_levels = {}
+    local idx_jts = {}
+    local idx_lls = {}
+    local idx_aus = {}
 
     for i, v in ipairs(datatb.rows) do
 	if v.chan_id ~= nil then idx_chans[v.chan_id] = 1; end
 	if v.rc_id ~= nil then idx_rcs[v.rc_id] = 1; end
-	if v.job_title_id ~= nil then idx_jobs[v.job_title_id] = 1; end
-	if v.loyalty_level_id ~= nil then idx_levels[v.loyalty_level_id] = 1; end
+	if v.job_title_id ~= nil then idx_jts[v.job_title_id] = 1; end
+	if v.loyalty_level_id ~= nil then idx_lls[v.loyalty_level_id] = 1; end
+	if v.author_id ~= nil then idx_aus[v.author_id] = 1; end
 	v.row_no = i
     end
 
     datatb.channels = core.reduce(datatb.channels, 'chan_id', idx_chans)
     datatb.retail_chains = core.reduce(datatb.retail_chains, 'rc_id', idx_rcs)
-    datatb.job_titles = core.reduce(datatb.job_titles, 'job_title_id', idx_jobs)
+    datatb.job_titles = core.reduce(datatb.job_titles, 'job_title_id', idx_jts)
+    datatb.authors = core.reduce(datatb.users, 'user_id', idx_aus)
+    datatb.users = nil
 
     return datatb
 end
@@ -196,10 +209,12 @@ end
 -- *** plugin interface: begin
 function M.scripts(lang, permtb, sestb, params)
     local ar = {}
+    table.insert(ar, '<script src="' .. V.static_prefix .. '/libs/xlsx-1.21.0.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.channels.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.retailchains.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.jobtitles.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.loyaltylevels.js"> </script>')
+    table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.users.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/slideshow.simple.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/plugins/contacts.js"> </script>')
     return table.concat(ar,"\n")
