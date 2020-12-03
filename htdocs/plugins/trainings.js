@@ -58,10 +58,11 @@ var PLUG = (function() {
 	ar.push("<th>", lang.photo, "</th>");
 	ar.push("<th>", lang.note, "</th>");
 	ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"head\",0.90)'>", lang.head_name, "</a></th>");
-	ar.push("<th>", lang.activity_type, "</th>");
+	ar.push("<th><a href='javascript:void(0)' onclick='PLUG.ats(this, 0.95)'>", lang.activity_type, "</a></th>");
 	ar.push("</tr>", G.thnums(_getcolumns(perm)), "</thead>");
 	ar.push("<tbody id='maintb'></tbody></table>");
 	ar.push(MonthsPopup.container());
+	ar.push(ActivityTypesPopup.container());
 	ar.push(BrandsPopup.container());
 	ar.push(ChannelsPopup.container());
 	ar.push(ContactsPopup.container());
@@ -94,14 +95,15 @@ var PLUG = (function() {
 	    rc_id:true, rc:true, ka_code:true, 
 	    region:true, 
 	    city:true, 
-	    tm_id:true,
-	    brand_id:true,
-	    contact_id:true,
-	    job_title_id:true,
+	    tm_id:true, tm:true,
+	    brand_id:true, brand:true,
+	    contact_id:true, name:true, surname:true, patronymic:true,
+	    job_title_id:true, job_title:true,
 	    loyalty_level_id:true,
-	    training_type_id:true,
+	    training_type_id:true, training_type:true,
 	    doc_note:true,
-	    head_id:true
+	    head_id:true,
+	    activity_type_id:true, activity_type:true
 	});
     }
 
@@ -452,6 +454,13 @@ var PLUG = (function() {
 	    _togglePopup("types", tag, offset, function(obj) {
 		return TrainingTypesPopup(_cache.data[obj], function(arg, i, ar) {
 		    _onpopup(tag, arg, "training_type_id");
+		})
+	    });
+	},
+	ats: function(tag, offset) {
+	    _togglePopup("activity_types", tag, offset, function(obj) {
+		return ActivityTypesPopup(_cache.data[obj], function(arg, i, ar) {
+		    _onpopup(tag, arg, "activity_type_id");
 		})
 	    });
 	},

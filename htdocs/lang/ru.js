@@ -43,6 +43,7 @@ var lang = {
     a_name: "Наименование клиента",
     abort: "прервать", 
     activity_type: "Вид активности",
+    activity_type_everything: "Все виды активности",
     add: "Добавить",
     additions: {
 	title: "Заявки на регистрацию нового клиента",

@@ -175,6 +175,15 @@ select loyalty_level_id, descr, hidden from loyalty_levels
 	    )
 	end
 	if err == nil or err == false then
+	    tb.activity_types, err = func_execute(tran,
+[[
+select activity_type_id, descr, hidden from activity_types
+    order by descr
+]]
+		, "//trainings/activity_types"
+	    )
+	end
+	if err == nil or err == false then
 	    tb.content, err = func_execute(tran,
 [[
 select content_ts, content_type, content_compress, content_blob from content_get('stat_trainings', '', 
@@ -226,11 +235,12 @@ local function personalize(sestb, data)
     local idx_rcs = {}
     local idx_contacts = {}
     local idx_job_titles = {}
-    local idx_loyalty_levels = {}
+    local idx_lls = {}
     local idx_tms = {}
     local idx_brands = {}
     local idx_types = {}
     local idx_heads = {}
+    local idx_ats = {}
 
     if sestb.erpid ~= nil or sestb.department ~= nil or sestb.country ~= nil or sestb.distributor ~= nil or sestb.agency ~= nil then
 	local idx0, idx1, tb = {}, {}, {}
@@ -254,7 +264,8 @@ local function personalize(sestb, data)
 		if v.brand_id ~= nil then idx_brands[v.brand_id] = 1; end
 		if v.contact_id ~= nil then idx_contacts[v.contact_id] = 1; end
 		if v.job_title_id ~= nil then idx_job_titles[v.job_title_id] = 1; end
-		if v.loyalty_level_id ~= nil then idx_loyalty_levels[v.loyalty_level_id] = 1; end
+		if v.loyalty_level_id ~= nil then idx_lls[v.loyalty_level_id] = 1; end
+		if v.activity_type_id ~= nil then idx_ats[v.activity_type_id] = 1; end
 		if v.head_id ~= nil then idx_heads[v.head_id] = 1; end
 		table.insert(tb, v); 
 		v.row_no = #tb
@@ -271,7 +282,8 @@ local function personalize(sestb, data)
 	    if v.brand_id ~= nil then idx_brands[v.brand_id] = 1; end
 	    if v.contact_id ~= nil then idx_contacts[v.contact_id] = 1; end
 	    if v.job_title_id ~= nil then idx_job_titles[v.job_title_id] = 1; end
-	    if v.loyalty_level_id ~= nil then idx_loyalty_levels[v.loyalty_level_id] = 1; end
+	    if v.loyalty_level_id ~= nil then idx_lls[v.loyalty_level_id] = 1; end
+	    if v.activity_type_id ~= nil then idx_ats[v.activity_type_id] = 1; end
 	    if v.head_id ~= nil then idx_heads[v.head_id] = 1; end
 	end
     end
@@ -285,7 +297,8 @@ local function personalize(sestb, data)
     p.brands = core.reduce(data.brands, 'brand_id', idx_brands)
     p.contacts = core.reduce(data.contacts, 'contact_id', idx_contacts)
     p.job_titles = core.reduce(data.job_titles, 'job_title_id', idx_job_titles)
-    p.loyalty_levels = core.reduce(data.loyalty_levels, 'loyalty_level_id', idx_loyalty_levels)
+    p.loyalty_levels = core.reduce(data.loyalty_levels, 'loyalty_level_id', idx_lls)
+    p.activity_types = core.reduce(data.activity_types, 'activity_type_id', idx_ats)
 
     return json.encode(p)
 end
@@ -306,6 +319,7 @@ function M.scripts(lang, permtb, sestb, params)
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.brands.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.trainingtypes.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.users.js"> </script>')
+    table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.activitytypes.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/slideshow.simple.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/plugins/trainings.js"> </script>')
     return table.concat(ar,"\n")
