@@ -17,7 +17,7 @@ mkdir -m 755 -p $APKS
 cp -afvp $PREFIX/apks.htm $APKS/index.htm || :
 cp -auvp $PREFIX/apks.css $APKS/index.css || :
 rm $APKS/*.apk || :
-cp -auvp /var/lib/omobus.d/data/modules/omobus-droid-3.5.*.apk $APKS || :
+cp -auvp /var/lib/omobus.d/data/core/omobus-droid-3.5.*.apk $APKS || :
 chmod 0644 $APKS/omobus-droid-3.5.*.apk
 droid=$(ls $APKS | grep 'omobus-droid-3\.5\.[[:digit:]]*\.apk')
 sed -i -e 's/omobus-droid.apk/'$droid'/g' $APKS/index.htm
