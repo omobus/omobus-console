@@ -304,6 +304,16 @@ var __route = (function() {
 		"<td class='int' colspan='2'>", data.exchanges.docs.packets ? data.exchanges.docs.packets : lang.dash, "</td>",
 		"</tr>");
 	}
+	if( !Array.isEmpty(data.trace) ) {
+	    let x = 0;
+	    data.trace.forEach(function(arg) { if( arg.control_point == 1 ) { x++; } });
+	    ar.push("<tr>",
+		"<td>", lang.tech.route.positions.title, ":</td>",
+		"<td class='int' colspan='2' width='260px'>", 
+		lang.tech.route.positions.value.format_a(data.trace.length, x, G.gettime_l(data.trace.last().fix_dt)), 
+		"</td>",
+		"</tr>");
+	}
 	ar.push("</table>");
 	ar.push("</td>");
 	/* delimeter: */
