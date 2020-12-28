@@ -7,7 +7,7 @@ var PLUG = (function() {
     var _cache = {}, _perm = {}, _tags = {};
 
     function _getcolumns(perm) {
-	let x = 11, c = perm.columns || {};
+	let x = 10, c = perm.columns || {};
 	if( c.channel == true ) x++;
 	if( c.brand == true ) x++;
 	if( c.category == true ) x++;
@@ -43,7 +43,6 @@ var PLUG = (function() {
 	    ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.categories(this)'>", lang.categ_name, "</a></th>");
 	}
 	ar.push("<th>", lang.product, "</th>");
-	ar.push("<th class='date'>", lang.manuf_date, "</th>");
 	ar.push("<th class='numeric' width='55px'>", lang.stock, "</th>");
 	ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"head\",0.90)'>", lang.head_name, "</a></th>");
 	ar.push("<th class='bool' width='35px'>", "&#x267A;", "</th>");
@@ -112,7 +111,6 @@ var PLUG = (function() {
 			ar.push("<td class='ref sw95px'>", G.shielding(r.categ), "</td>");
 		    }
 		    ar.push("<td class='string note'>", G.shielding(r.prod), "</td>");
-		    ar.push("<td class='date'>", G.getdate_l(Date.parseISO8601(r.manuf_date)), "</td>");
 		    ar.push("<td class='int delim'>", r.stock, "</td>");
 		    ar.push("<td class='string sw95px'>", G.shielding(r.head_name), "</td>");
 		    ar.push("<td class='bool'>", String.isEmpty(r.scratch) ? "" : "&#x267A;", "</td>");
@@ -262,10 +260,9 @@ var PLUG = (function() {
 			ws.cell("O{0}".format_a(i + offset)).value(r.brand);
 			ws.cell("P{0}".format_a(i + offset)).value(r.p_code);
 			ws.cell("Q{0}".format_a(i + offset)).value(r.prod);
-			ws.cell("R{0}".format_a(i + offset)).value(Date.parseISO8601(r.manuf_date));
-			ws.cell("S{0}".format_a(i + offset)).value(r.stock);
-			ws.cell("T{0}".format_a(i + offset)).value(r.head_name);
-			ws.cell("U{0}".format_a(i + offset)).value(String.isEmpty(r.scratch) ? "" : "♺");
+			ws.cell("R{0}".format_a(i + offset)).value(r.stock);
+			ws.cell("S{0}".format_a(i + offset)).value(r.head_name);
+			ws.cell("T{0}".format_a(i + offset)).value(String.isEmpty(r.scratch) ? "" : "♺");
 		    }
 		    wb.outputAsync()
 			.then(function(blob) {

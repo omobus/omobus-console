@@ -4,7 +4,7 @@
 PLUG.registerRef("stock", (function() {
     /* private properties & methods */
     var _cache = {}; // internal cache object for preventing reloading data
-    var _columns = 9;
+    var _columns = 8;
 
     function _gettable() {
 	var ar = [];
@@ -15,7 +15,6 @@ PLUG.registerRef("stock", (function() {
 	ar.push("<th>", lang.a_name, "</th>");
 	ar.push("<th>", lang.address, "</th>");
 	ar.push("<th>", lang.product, "</th>");
-	ar.push("<th class='date'>", lang.manuf_date, "</th>");
 	ar.push("<th width='75px'>", lang.stock, "</th>");
 	ar.push("<th class='bool' width='35px'>", "&#x267A;", "</th>");
 	ar.push("</tr>", G.thnums(_columns), "</thead><tbody id='xztb'></tbody></table>");
@@ -35,7 +34,6 @@ PLUG.registerRef("stock", (function() {
 	    ar.push("<td class='string'>", G.shielding(r.a_name), "</td>");
 	    ar.push("<td class='string'>", G.shielding(r.address), "</td>");
 	    ar.push("<td class='string'>", G.shielding(r.prod), "</td>");
-	    ar.push("<td class='date'>", G.getdate_l(Date.parseISO8601(r.manuf_date)), "</td>");
 	    ar.push("<td class='int'>", G.getint_l(r.stock), "</td>");
 	    ar.push("<td class='bool'>", String.isEmpty(r.scratch) ? "" : "&#x267A;", "</td>");
 	    ar.push("</tr>");
