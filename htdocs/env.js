@@ -1,5 +1,5 @@
 /* -*- JavaScript -*- */
-/* Copyright (c) 2006 - 2020 omobus-console authors, see the included COPYRIGHT file. */
+/* Copyright (c) 2006 - 2021 omobus-console authors, see the included COPYRIGHT file. */
 
 function isEnvironmentCorrect() {
     return document.addEventListener && window.XMLHttpRequest && window.FormData && window.File && window.FileReader && window.FileList && window.Blob &&

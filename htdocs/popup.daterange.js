@@ -1,5 +1,5 @@
 /* -*- JavaScript -*- */
-/* Copyright (c) 2006 - 2020 omobus-console authors, see the included COPYRIGHT file. */
+/* Copyright (c) 2006 - 2021 omobus-console authors, see the included COPYRIGHT file. */
 
 function DateRangePopup(min, max, selection, params /* params = {b_date = '2020-05-01', e_date = '2020-05-05', container = "DOM container"} */) {
     if( !(this instanceof DateRangePopup) ) {

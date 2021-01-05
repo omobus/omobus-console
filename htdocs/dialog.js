@@ -1,5 +1,5 @@
 /* -*- JavaScript -*- */
-/* Copyright (c) 2006 - 2020 omobus-console authors, see the included COPYRIGHT file. */
+/* Copyright (c) 2006 - 2021 omobus-console authors, see the included COPYRIGHT file. */
 
 function Dialog(params /* params = { container = "DOM container", width, title, body, buttons, onHideListener, onScrollListener}: */) {
     if( !(this instanceof Dialog) ) {

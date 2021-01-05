@@ -1,5 +1,5 @@
 /* -*- JavaScript -*- */
-/* Copyright (c) 2006 - 2020 omobus-console authors, see the included COPYRIGHT file. */
+/* Copyright (c) 2006 - 2021 omobus-console authors, see the included COPYRIGHT file. */
 
 function UsersPopup(users, selection, params /* params = { everyone: true|false, container: "DOM container", defaults: "user_id"} */) {
     if( !(this instanceof UsersPopup) ) {
