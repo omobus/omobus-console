@@ -154,13 +154,8 @@ var PLUG = (function() {
 		    "' onclick='PLUG.more(" + r.row_no + ")'>");
 		ar.push("<td class='autoincrement clickable' onclick='PLUG.checkrow(this.parentNode,\"" +
 		    r.user_id + "\");event.stopPropagation();'>", r.row_no, "</td>");
-		if( String.isEmpty(r.dev_login) ) {
-		    ar.push("<td class='string u_name'>", G.shielding(r.u_name), "</td>");
-		} else {
-		    ar.push("<td class='string u_name footnote' data-title='{0}: {1}'>".format_a(lang.dev_login, r.dev_login), 
-			G.shielding(r.u_name), "</td>");
-		}
-		ar.push("<td class='delim int'>".format_a(t), G.shielding(r.dev_login), "</td>");
+		ar.push("<td class='string u_name'>", G.shielding(r.u_name), "</td>");
+		ar.push("<td class='delim int'>", G.shielding(r.dev_login), "</td>");
 		ar.push("<td class='smallint'>", G.getint_l(r._a,0), "</td>");
 		ar.push("<td class='smallint'>");
 		if( r._v > 0 ) {
@@ -440,9 +435,11 @@ var PLUG = (function() {
 		const rule_e = r.rules == null || r.rules.wd == null || r.rules.wd.end == null ? rules.wd.end : r.rules.wd.end;
 		const rule_t = r.rules == null || r.rules.wd == null || r.rules.wd.timing == null ? rules.wd.timing : r.rules.wd.timing;
 		const disabled = !(r.scheduled > 0 || r.other > 0) || r.canceled > 0 ? " disabled" : "";
-		const violations = (disabled != "" || r.violations == null || (!r.violations.gps && !r.violations.tm)) ? "" : " violation footnote";
+		const violations = (disabled != "" || r.violations == null || (!r.violations.gps && !r.violations.tm && !r.violations.oom)) 
+		    ? "" : " violation footnote";
 		if( r.violations != null && r.violations.gps ) { fn.push(lang.violations.gps); }
 		if( r.violations != null && r.violations.tm ) { fn.push(lang.violations.tm); }
+		if( r.violations != null && r.violations.oom ) { fn.push(lang.violations.oom); }
 		ar.push("<tr>");
 		ar.push("<td class='autoincrement", violations, disabled, fn.isEmpty() ? "'>" : ("' data-title='" + fn.join(" + ") + "'>"));
 		if( r.alive != null && r.alive ) {

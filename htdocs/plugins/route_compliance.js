@@ -94,9 +94,11 @@ var PLUG = (function() {
 		var rule_b = r.rules == null || r.rules.wd == null || r.rules.wd.begin == null ? data.rules.wd.begin : r.rules.wd.begin;
 		var rule_e = r.rules == null || r.rules.wd == null || r.rules.wd.end == null ? data.rules.wd.end : r.rules.wd.end;
 		var disabled = !(r.scheduled > 0 || r.other > 0) || r.canceled > 0 ? " disabled" : "";
-		var violations = (disabled != "" || r.violations == null || (!r.violations.gps && !r.violations.tm)) ? "" : " violation footnote";
+		var violations = (disabled != "" || r.violations == null || (!r.violations.gps && !r.violations.tm && !r.violations.oom)) 
+		    ? "" : " violation footnote";
 		if( r.violations.gps ) { fn.push(lang.violations.gps); }
 		if( r.violations.tm ) { fn.push(lang.violations.tm); }
+		if( r.violations.oom ) { fn.push(lang.violations.oom); }
 		ar.push("<tr" + (typeof checked != 'undefined' && checked[r.user_id] ? " class='selected'" : "") + ">");
 		ar.push("<td class='autoincrement clickable", violations, disabled, fn.isEmpty() ? "'" : ("' data-title='" + fn.join(" + ") + "'"),
 		    " onclick='PLUG.checkrow(this.parentNode,\"", r.user_id, "\");event.stopPropagation();'>", r.row_no, "</td>");

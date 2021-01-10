@@ -213,6 +213,9 @@ var __route = (function() {
 	    if( data.violations.tm_changed ) {
 		violations.push(lang.violations.tm);
 	    }
+	    if( data.violations.oom ) {
+		violations.push(lang.violations.oom);
+	    }
 	}
 	if( Array.isArray(data.user_documents) ) {
 	    docs = {};
