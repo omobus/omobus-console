@@ -578,7 +578,7 @@ var PLUG = (function() {
 	    _remove(_cache.data.rows[row_no], function(row) {
 		var x = _("X-{0}".format_a(row._row_no));
 		row._deleted = row._deleted ? 0 : 1;
-		tag.html(row._deleted ? lang.restore.ref : lang.remove.ref);
+		tag.html(row._deleted ? lang.restore : lang.remove.ref);
 		x.removeClass('attention');
 	    });
 	},
