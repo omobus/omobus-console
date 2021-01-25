@@ -8,7 +8,7 @@ var PLUG = (function() {
     var _statusColumn = 2;
 
     function _getcolumns(perm) {
-	let x = 10, c = perm.columns || {};
+	let x = 8, c = perm.columns || {};
 	if( perm.validate == true ) x++;
 	if( perm.reject == true ) x++;
 	if( c.channel == true ) x++;
