@@ -2035,7 +2035,13 @@ var __route = (function() {
 		} else if( !Array.isEmpty(ptr.rows) && ptr.rows.first().hasOwnProperty("_pkey") ) {
 		    /* grouping by rows */
 		    if( f ) {
-			x = obj[a_id][code] = {fix_dt: ptr.fix_dt, duration: ptr.duration, rows: ptr.rows.clone()};
+			x = obj[a_id][code] = {};
+			if( typeof agg == 'function' ) {
+			    agg(ptr, x);
+			}
+			x.fix_dt = ptr.fix_dt;
+			x.duration = ptr.duration;
+			x.rows = ptr.rows.clone();
 		    } else {
 			ptr.rows.forEach(function(element1, index, array) {
 			    let j = x.rows.findIndex(function(element2) {
