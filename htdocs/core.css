@@ -356,6 +356,9 @@ hr {
     background-image:    -moz-linear-gradient(left, rgba(154,154,154,0.5), rgba(154,154,154,0.5), rgba(154,154,154,0.5));
 }
 
+.dialog p {
+}
+
 .dialog div.scrollable {
     overflow-y: auto;
     overflow-x: hidden;
@@ -364,6 +367,11 @@ hr {
 .dialog div.row {
     padding-top: 8px;
     padding-bottom: 8px;
+}
+
+.dialog div.ref {
+    padding-top: 4px;
+    padding-bottom: 4px;
 }
 
 .dialog div.attention {

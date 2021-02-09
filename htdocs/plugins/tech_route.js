@@ -4,7 +4,7 @@
 var __route = (function() {
     /* private properties & methods */
     var _cache = {}; // internal cache object for preventing reloading data
-    var _columns = 17;
+    var _columns = 18;
 
     function _fixpower(arg) {
 	return arg == null ? null : (arg === 255 ? '~0' : arg);
@@ -28,7 +28,7 @@ var __route = (function() {
 	ar.push("<th width='75px' colspan='2'>", lang.dist, "</th>");
 	ar.push("<th width='45px'>", lang.mileageAbbr, "</th>");
 	ar.push("<th>", lang.activity_type, "</th>");
-	ar.push("<th class='bool'>", "&#8281;", "</th>");
+	ar.push("<th class='bool' colspan='2'>", "&#8281;", "</th>");
 	ar.push("</tr>", G.thnums(_columns), "</thead>");
 	ar.push("<tbody id='xztb'></tbody></table>");
 	ar.push("<div id='routeStats'></div>");
@@ -120,8 +120,8 @@ var __route = (function() {
 		ar.push("<td class='bool", r.canceled == null ? "" : " footnote' data-title='{0}.".format_a(_canceling(r).join(". ")), "'>", 
 		    r.canceled == null ? "" : "+", "</td>");
 		ar.push("<td class='int'>");
-		if( data._d != null && data._d.hasOwnProperty(r.account_id) ) {
-		    ar.push("<a href='javascript:void(0)' onclick='__route.more(\"", u_id, "\",\"", r.account_id, "\")'>", G.shielding(a.a_code), "</a>");
+		if( data._x != null && data._x.hasOwnProperty(r.account_id) ) {
+		    ar.push("<a href='javascript:void(0)' onclick='__route.more1(\"", u_id, "\",\"", r.account_id, "\")'>", G.shielding(a.a_code), "</a>");
 		} else {
 		    ar.push(G.shielding(a.a_code));
 		}
@@ -146,17 +146,27 @@ var __route = (function() {
 		ptr = data.discards == null ? null : data.discards[r.account_id];
 		ar.push("<td class='ref", ptr == null ? "" : (" strikethrough footnote_L' data-title='" + lang.tech.route.discard.format_a(_discard(ptr).join('. '))),
 		    "'>", G.shielding(r.activity_type), "</td>");
-		if( typeof r.docs == 'undefined' && typeof r.extra_info == 'undefined' ) {
-		    ar.push("<td class='int' width='30px'>", "&nbsp;", "</td>");
-		} else if( !String.isEmpty(r.extra_info) ) {
-		    ar.push("<td class='int footnote_L' data-title='{0}.".format_a(r.extra_info), "' width='30px'>", 
-			(typeof r.docs != 'undefined' && r.docs > 0) ? "&#x1F613;<sup>{0}</sup>".format_a(G.getint_l(r.docs)) : "&#x1F613;", 
-			"</td>");
-		} else if( typeof r.docs != 'undefined' && r.docs > 0 ) {
-		    ar.push("<td class='int' width='30px'>", G.getint_l(r.docs), "</td>");
+		if( String.isEmpty(r.extra_info) ) {
+		    ar.push("<td class='bool'>", "&nbsp;", "</td>");
 		} else {
-		    ar.push("<td class='int' width='30px'>", "&nbsp;", "</td>");
+		    ar.push("<td class='bool footnote_L' data-title='{0}: {1}.".format_a(lang.repentance, G.shielding(r.extra_info)), 
+			"' width='30px'>", "&#x1F613;", "</td>");
 		}
+		ar.push("<td class='bool'>");
+		if( typeof r.docs != 'undefined' && r.docs > 0 ) {
+		    if( data._d != null && data._d.hasOwnProperty("{0}:{1}".format_a(r.account_id,r.a_cookie)) ) {
+			ar.push("<a href='javascript:void(0)' onclick='__route.more2(\"", u_id, "\",\"", r.account_id, "\",\"", r.a_cookie, "\")'>", 
+			    G.getint_l(r.docs), "</a>"); 
+		    } else {
+			ar.push(G.getint_l(r.docs));
+		    }
+		} else if( data._d != null && data._d.hasOwnProperty("{0}:{1}".format_a(r.account_id,r.a_cookie)) ) {
+		    ar.push("<a href='javascript:void(0)' onclick='__route.more2(\"", u_id, "\",\"", r.account_id, "\",\"", r.a_cookie, "\")'>", 
+			"*", "</a>"); 
+		} else {
+		    ar.push("&nbsp;");
+		}
+		ar.push("</td>");
 		ar.push("</tr>");
 	    } else if( z._t == "unsched" ) {
 		ar.push("<tr class='clickable'", (typeof checked != 'undefined' && checked[k]) ? "class='selected' " : "",
@@ -433,8 +443,13 @@ var __route = (function() {
 	return ar;
     }
 
-    function _moretbl(data, account_id) {
-	var ar = [], a = data.my_accounts[account_id] || {}, xs;
+    function _moretbl1(data, account_id) {
+	const duration = function(arg) {
+	    let d = 0;
+	    arg.forEach(function(e) { d += e.duration || 0; });
+	    return d;
+	}
+	let ar = [], a = data.my_accounts[account_id] || {}, xs;
 	ar.push("<table width='100%'>","<tr>","<td>");
 	ar.push("<div>", "<b>{0}: {1}</b>".format_a(G.shielding(a.a_code), G.shielding(a.descr)), "</div>");
 	ar.push("<div>", G.shielding(a.address), "</div>");
@@ -456,7 +471,712 @@ var __route = (function() {
 	ar.push("<div>", "{0}: <b>{1}</b>".format_a(lang.date, G.getdate_l(data.date)), "</div>");
 	ar.push("</td>","</tr>","</table>");
 	ar.push("<br/>");
-	(data._d[account_id] || []).forEach(function(r, index) {
+	((data._x[account_id] || [])._refs || []).forEach(function(element, index) {
+	    let r = element.ref, t = element._t;
+	    if( index > 0 ) {
+		ar.push("<hr/>");
+	    }
+	    if( t == "advt" ) {
+		ar.push("<div>");
+		ar.push("<h2>", "{0}".format_a(lang.doctypes[t]), "</h2>");
+		ar.push("<span class='watermark'>", "{0}: {1}".format_a(lang.time_spent, lang.seconds.format_a(r.duration)), "</span>");
+		ar.push("</div>");
+		ar.push("<table width='100%' class='report'>");
+		ar.push("<tr class='def'>");
+		ar.push("<td class='divider'>", lang.num, "</td>");
+		ar.push("<td class='divider'>", lang.pos_material, "</td>");
+		ar.push("<td class='divider'>", lang.placement, "</td>");
+		ar.push("<td class='divider'>", lang.exist, "</td>");
+		ar.push("<td class='divider' width='35px'>", "&nbsp;", "</td>");
+		ar.push("</tr>");
+		r.rows.forEach(function(arg0, row_no) {
+		    ar.push("<tr>");
+		    ar.push("<td class='autoincrement'>", row_no + 1, "</td>");
+		    ar.push("<td class='string'>", G.shielding(arg0.posm), "</td>");
+		    ar.push("<td class='ref'>", G.shielding(arg0.placement), "</td>");
+		    ar.push("<td class='int'>", G.getint_l(arg0.qty), "</td>");
+		    ar.push("<td class='bool'>", String.isEmpty(arg0.scratch) ? "" : "&#x267A;", "</td>");
+		    ar.push("</tr>");
+		});
+		ar.push("</table>");
+	    } else if( t == "audit" ) {
+		r.forEach(function(e, index) {
+		    if( index > 0 ) {
+			ar.push("<hr/>");
+		    }
+		    ar.push("<div>");
+		    ar.push("<h2>", "{0}".format_a(lang.doctypes[t]), 
+			"<span class='r'>", "{0}. <i>{1}</i>: {2}".format_a(G.shielding(e.categ).trunc(30), lang.sla.result, G.getpercent_l(e.sla)),
+			"</span>", "</h2>");
+		    ar.push("<span class='watermark'>", "{0}: {1}".format_a(lang.time_spent, lang.seconds.format_a(e.duration)), "</span>");
+		    ar.push("</div>");
+		    ar.push("<table width='100%' class='report'>");
+		    ar.push("<tr class='def'>");
+		    ar.push("<td class='divider'>", lang.num, "</td>");
+		    ar.push("<td class='divider'>", lang.sla.criteria, "</td>");
+		    ar.push("<td class='divider' width='50px'>", lang.sla.score, "</td>");
+		    ar.push("<td class='divider'>", lang.note, "</td>");
+		    ar.push("<td class='divider' width='50px'>", lang.photo, "</td>");
+		    ar.push("</tr>");
+		    e.rows.forEach(function(arg0, arg1, arg3) {
+			ar.push("<tr>");
+			ar.push("<td class='autoincrement'>", arg0.row_no + 1, "</td>");
+			ar.push("<td class='string'>", G.shielding(arg0.descr), "</td>");
+			ar.push("<td class='int'>", G.getint_l(arg0.score), "</td>");
+			ar.push("<td class='string'>", G.shielding(arg0.note), "</td>");
+			if( arg1 == 0 ) {
+			    ar.push("<td class='ref def' rowspan='", arg3.length, "'>");
+			    if( Array.isArray(e.photos) ) {
+				e.photos.forEach(function(arg0, arg1, arg2) {
+				    ar.push("<div class='ref'><a href='javascript:void(0)' onclick='PLUG.slideshow([", arg2.join(','), "],",
+					(arg1+1), ")'>[&nbsp;", (arg1+1), "&nbsp;]</a></div>");
+				});
+			    }
+			    ar.push("</td>");
+			}
+			ar.push("</tr>");
+		    });
+		    ar.push("</table>");
+		});
+	    } else if( t == "checkup" ) {
+		ar.push("<div>");
+		ar.push("<h2>", "{0}".format_a(lang.doctypes[t]), "</h2>");
+		ar.push("<span class='watermark'>", "{0}: {1}".format_a(lang.time_spent, lang.seconds.format_a(r.duration)), "</span>");
+		ar.push("</div>");
+		ar.push("<table width='100%' class='report'>");
+		ar.push("<tr class='def'>");
+		ar.push("<td class='divider'>", lang.num, "</td>");
+		ar.push("<td class='divider'>", lang.code, "</td>");
+		ar.push("<td class='divider'>", lang.product, "</td>");
+		ar.push("<td class='divider'>", lang.placement, "</td>");
+		ar.push("<td class='divider'>", lang.exist, "</td>");
+		ar.push("</tr>");
+		r.rows.forEach(function(arg0, row_no) {
+		    ar.push("<tr>");
+		    ar.push("<td class='autoincrement'>", row_no + 1, "</td>");
+		    ar.push("<td class='int'>", G.shielding(arg0.p_code), "</td>");
+		    ar.push("<td class='string'>", G.shielding(arg0.prod), "</td>");
+		    ar.push("<td class='ref'>", G.shielding(arg0.placement), "</td>");
+		    ar.push("<td class='bool'>", arg0.exist == 1 ? lang.plus : (arg0.exist == 2 ? lang.shortage : lang.dash), "</td>");
+		    ar.push("</tr>");
+		});
+		ar.push("</table>");
+	    } else if( t == "comment" ) {
+		ar.push("<div>");
+		ar.push("<h2>", "{0}".format_a(lang.doctypes[t]), "</h2>");
+		ar.push("<span class='watermark'>", "{0}: {1}".format_a(lang.time_spent, lang.seconds.format_a(duration(r))), "</span>");
+		ar.push("</div>");
+		ar.push("<table width='100%' class='report'>");
+		ar.push("<tr class='def'>");
+		ar.push("<td class='divider'>", lang.num, "</td>");
+		ar.push("<td class='divider'>", lang.comments.type, "</td>");
+		ar.push("<td class='divider'>", lang.note, "</td>");
+		ar.push("<td class='divider'>", lang.photo, "</td>");
+		ar.push("</tr>");
+		r.forEach(function(e, row_no) {
+		    ar.push("<tr>");
+		    ar.push("<td class='autoincrement'>", row_no + 1, "</td>");
+		    ar.push("<td class='string' width='250px'>", G.shielding(e.comment_type), "</td>");
+		    ar.push("<td class='string'>", G.shielding(e.doc_note), "</td>");
+		    ar.push("<td class='ref' width='95px'>");
+		    if( String.isEmpty(e.blob_id) ) {
+			ar.push("&nbsp;");
+		    } else {
+			ar.push("<a href='javascript:void(0);' onclick='PLUG.slideshow([\"", e.blob_id, "\"],1)'>",
+			    lang.view, "</a>");
+		    }
+		    ar.push("</td>");
+		    ar.push("</tr>");
+		});
+		ar.push("</table>");
+	    } else if( t == "confirmation" ) {
+		ar.push("<div>");
+		ar.push("<h2>", "{0}".format_a(lang.doctypes[t]), "</h2>");
+		ar.push("<span class='watermark'>", "{0}: {1}".format_a(lang.time_spent, lang.seconds.format_a(duration(r))), "</span>");
+		ar.push("</div>");
+		ar.push("<table width='100%' class='report'>");
+		ar.push("<tr class='def'>");
+		ar.push("<td class='divider'>", lang.num, "</td>");
+		ar.push("<td class='divider' width='150px'>", lang.targets.subject.caption, "</td>");
+		ar.push("<td class='divider'>", lang.targets.body.caption, "</td>");
+		ar.push("<td class='divider'>", lang.validity, "</td>");
+		ar.push("<td class='divider' width='180px'>", lang.confirmations.type, "</td>");
+		ar.push("<td class='divider'>", lang.photo, "</td>");
+		ar.push("</tr>");
+		r.forEach(function(e, row_no) {
+		    ar.push("<tr>");
+		    ar.push("<td class='autoincrement'>", row_no + 1, "</td>");
+		    ar.push("<td class='string'>", G.shielding(e.subject), "<div class='watermark'>", G.shielding(e.target_type), "</div></td>");
+		    ar.push("<td class='string'>", G.shielding(e.body), "</td>");
+		    ar.push("<td class='date'>", G.getdate_l(e.b_date), "<div class='watermark'>", G.getdate_l(e.e_date), "</div></td>");
+		    ar.push("<td class='ref'>", G.shielding(e.confirm), "<div class='watermark'>", G.shielding(e.doc_note), "</div></td>");
+		    ar.push("<td class='ref'>");
+		    if( Array.isArray(e.photos) ) {
+			r.photos.forEach(function(arg0, arg1, arg2) {
+			    ar.push("<div class='ref'><a href='javascript:void(0)' onclick='PLUG.slideshow([", arg2.join(','), "],",
+				(arg1+1), ")'>[&nbsp;", (arg1+1), "&nbsp;]</a></div>");
+			});
+		    }
+		    ar.push("</td>");
+		    ar.push("</tr>");
+		});
+		ar.push("</table>");
+	    } else if( t == "oos" ) {
+		ar.push("<div>");
+		ar.push("<h2>", "{0}".format_a(lang.doctypes[t]), "</h2>");
+		ar.push("<span class='watermark'>", "{0}: {1}".format_a(lang.time_spent, lang.seconds.format_a(r.duration)), "</span>");
+		ar.push("</div>");
+		ar.push("<table width='100%' class='report'>");
+		ar.push("<tr class='def'>");
+		ar.push("<td class='divider'>", lang.num, "</td>");
+		ar.push("<td class='divider'>", lang.code, "</td>");
+		ar.push("<td class='divider'>", lang.product, "</td>");
+		ar.push("<td class='divider'>", lang.oos_type, "</td>");
+		ar.push("<td class='divider'>", lang.note, "</td>");
+		ar.push("</tr>");
+		r.rows.forEach(function(arg0, row_no) {
+		    ar.push("<tr>");
+		    ar.push("<td class='autoincrement'>", row_no + 1, "</td>");
+		    ar.push("<td class='int'>", G.shielding(arg0.p_code), "</td>");
+		    ar.push("<td class='string'>", G.shielding(arg0.prod), "</td>");
+		    ar.push("<td class='ref'>", G.shielding(arg0.oos_type), "</td>");
+		    ar.push("<td class='string'>", G.shielding(arg0.note), "</td>");
+		    ar.push("</tr>");
+		});
+		ar.push("</table>");
+	    } else if( t == "order" ) {
+		r.forEach(function(e, index) {
+		    if( index > 0 ) {
+			ar.push("<hr/>");
+		    }
+		    ar.push("<div>");
+		    ar.push("<h2>", "{0}".format_a(lang.doctypes[t]), 
+			"<span class='r'>", "{0}. <i>{1}</i>: {2}".format_a(G.shielding(e.order_type).trunc(20), lang.amount, G.getcurrency_l(e.amount)),
+			"</span>", "</h2>");
+		    ar.push("<span class='watermark'>", "{0}: {1}".format_a(lang.time_spent, lang.seconds.format_a(e.duration)), "</span>");
+		    ar.push("</div>");
+		    ar.push("<table width='100%' class='report'>");
+		    ar.push("<tr class='def'>");
+		    ar.push("<td class='divider'>", lang.num, "</td>");
+		    ar.push("<td class='divider'>", lang.code, "</td>");
+		    ar.push("<td class='divider'>", lang.product, "</td>");
+		    ar.push("<td class='divider' width='95px'>", lang.price, "</td>");
+		    ar.push("<td class='divider' width='55px'>", lang.qty, "</td>");
+		    ar.push("<td class='divider'>", lang.pack, "</td>");
+		    ar.push("<td class='divider' width='65px'>", lang.discount, "</td>");
+		    ar.push("<td class='divider' width='95px'>", lang.amount, "</td>");
+		    ar.push("</tr>");
+		    e.rows.forEach(function(arg0) {
+			ar.push("<tr>");
+			ar.push("<td class='autoincrement'>", arg0.row_no + 1, "</td>");
+			ar.push("<td class='int'>", G.shielding(arg0.p_code), "</td>");
+			ar.push("<td class='string'>", G.shielding(arg0.prod), "</td>");
+			ar.push("<td class='numeric'>", G.getcurrency_l(arg0.unit_price), "</td>");
+			ar.push("<td class='int'>", G.getint_l(arg0.qty), "</td>");
+			ar.push("<td class='int'>", G.shielding(arg0.pack_name), "</td>");
+			ar.push("<td class='int'>", arg0.discount > 0 ? G.getpercent_l(arg0.discount) : lang.dash, "</td>");
+			ar.push("<td class='numeric'>", G.getcurrency_l(arg0.amount), "</td>");
+			ar.push("</tr>");
+		    });
+		    ar.push("</table>");
+		});
+	    } else if( t == "photo" ) {
+		xs = typeof r.revoked != 'undefined' && r.revoked ? ' strikethrough' : '';
+		ar.push("<div>");
+		ar.push("<h2>", "{0}".format_a(lang.doctypes[t]), "</h2>");
+		ar.push("<span class='watermark'>", "{0}: {1}".format_a(lang.time_spent, lang.seconds.format_a(duration(r))), "</span>");
+		ar.push("</div>");
+		ar.push("<table width='100%' class='report'>");
+		ar.push("<tr class='def'>");
+		ar.push("<td class='divider'>", lang.num, "</td>");
+		ar.push("<td class='divider'>", lang.placement, "</td>");
+		ar.push("<td class='divider'>", lang.brand, "</td>");
+		ar.push("<td class='divider'>", lang.photos.type, "</td>");
+		ar.push("<td class='divider'>", lang.photo, "</td>");
+		ar.push("<td class='divider'>", lang.note, "</td>");
+		ar.push("</tr>");
+		r.forEach(function(e, row_no) {
+		    ar.push("<tr>");
+		    ar.push("<td class='autoincrement'>", row_no + 1, "</td>");
+		    ar.push("<td class='ref", xs, "' width='200px'>", G.shielding(e.placement), "</td>");
+		    ar.push("<td class='ref", xs, "' width='100px'>", G.shielding(e.brand), "</td>");
+		    ar.push("<td class='ref", xs, "' width='200px'>", G.shielding(e.photo_type), "</td>");
+		    ar.push("<td class='ref' width='130px'>");
+		    if( String.isEmpty(e.blob_id) ) {
+			ar.push("&nbsp;");
+		    } else {
+			ar.push("<img class='clickable' onclick='PLUG.slideshow([", e.blob_id, "],1)' height='90px' src='",
+			    G.getajax({plug: "tech", blob: "yes", thumb: "yes", blob_id: e.blob_id}), "' />");
+		    }
+		    ar.push("</td>");
+		    ar.push("<td class='string", xs, "'>");
+		    if( !String.isEmpty(r.doc_note) ) {
+			ar.push("<div class='row'>", G.shielding(e.doc_note), "</div>");
+		    }
+		    if( !Array.isEmpty(e.photo_params) ) {
+			if( !String.isEmpty(e.doc_note) ) {
+			    ar.push("<hr/>");
+			}
+			e.photo_params.forEach(function(val, index) {
+			    if( index > 0 ) { ar.push("<hr/>"); }
+			    ar.push("<div class='row remark'>", G.shielding(val), "</div>");
+			});
+		    }
+		    ar.push("</td>");
+		    ar.push("</tr>");
+		});
+		ar.push("</table>");
+	    } else if( t == "posm" ) {
+		xs = typeof r.revoked != 'undefined' && r.revoked ? ' strikethrough' : '';
+		ar.push("<div>");
+		ar.push("<h2>", "{0}".format_a(lang.doctypes[t]), "</h2>");
+		ar.push("<span class='watermark'>", "{0}: {1}".format_a(lang.time_spent, lang.seconds.format_a(duration(r))), "</span>");
+		ar.push("</div>");
+		ar.push("<table width='100%' class='report'>");
+		ar.push("<tr class='def'>");
+		ar.push("<td class='divider'>", lang.num, "</td>");
+		ar.push("<td class='divider'>", lang.placement, "</td>");
+		ar.push("<td class='divider'>", lang.pos_material, "</td>");
+		ar.push("<td class='divider'>", lang.photo, "</td>");
+		ar.push("<td class='divider'>", lang.note, "</td>");
+		ar.push("</tr>");
+		r.forEach(function(e, row_no) {
+		    ar.push("<tr>");
+		    ar.push("<td class='autoincrement'>", row_no + 1, "</td>");
+		    ar.push("<td class='ref", xs, "' width='200px'>", G.shielding(e.placement), "</td>");
+		    ar.push("<td class='ref", xs, "' width='300px'>", G.shielding(e.posm), "</td>");
+		    ar.push("<td class='ref' width='130px'>");
+		    if( String.isEmpty(e.blob_id) ) {
+			ar.push("&nbsp;");
+		    } else {
+			ar.push("<img class='clickable' onclick='PLUG.slideshow([", e.blob_id, "],1)' height='90px' src='",
+			    G.getajax({plug: "tech", blob: "yes", thumb: "yes", blob_id: e.blob_id}), "' />");
+		    }
+		    ar.push("</td>");
+		    ar.push("<td class='string", xs, "'>", G.shielding(e.doc_note), "</td>");
+		    ar.push("</tr>");
+		});
+		ar.push("</table>");
+	    } else if( t == "presence" ) {
+		ar.push("<div>");
+		ar.push("<h2>", "{0}".format_a(lang.doctypes[t]), "</h2>");
+		ar.push("<span class='watermark'>", "{0}: {1}".format_a(lang.time_spent, lang.seconds.format_a(r.duration)), "</span>");
+		ar.push("</div>");
+		ar.push("<table width='100%' class='report'>");
+		ar.push("<tr class='def'>");
+		ar.push("<td class='divider'>", lang.num, "</td>");
+		ar.push("<td class='divider'>", lang.code, "</td>");
+		ar.push("<td class='divider'>", lang.product, "</td>");
+		ar.push("<td class='divider' width='75px'>", lang.facing, "</td>");
+		ar.push("<td class='divider' width='75px'>", lang.shelf_stock, "</td>");
+		ar.push("<td class='divider' width='35px'>", "&nbsp;", "</td>");
+		ar.push("</tr>");
+		r.rows.forEach(function(arg0, row_no) {
+		    ar.push("<tr>");
+		    ar.push("<td class='autoincrement'>", row_no + 1, "</td>");
+		    ar.push("<td class='int'>", G.shielding(arg0.p_code), "</td>");
+		    ar.push("<td class='string'>", G.shielding(arg0.prod), "</td>");
+		    ar.push("<td class='int'>", G.getint_l(arg0.facing), "</td>");
+		    ar.push("<td class='int'>", G.getint_l(arg0.stock), "</td>");
+		    ar.push("<td class='bool'>", String.isEmpty(arg0.scratch) ? "" : "&#x267A;", "</td>");
+		    ar.push("</tr>");
+		});
+		ar.push("</table>");
+	    } else if( t == "presentation" ) {
+		ar.push("<div>");
+		ar.push("<h2>", "{0}".format_a(lang.doctypes[t]), "</h2>");
+		ar.push("<span class='watermark'>", "{0}: {1}".format_a(lang.time_spent, lang.seconds.format_a(duration(r))), "</span>");
+		ar.push("</div>");
+		ar.push("<table width='100%' class='report'>");
+		ar.push("<tr class='def'>");
+		ar.push("<td class='divider'>", lang.num, "</td>");
+		ar.push("<td class='divider' width='450px'>", lang.training_material, "</td>");
+		ar.push("<td class='divider' width='75px'>", lang.participants, "</td>");
+		ar.push("<td class='divider'>", lang.note, "</td>");
+		ar.push("<td class='divider'>", lang.photo, "</td>");
+		ar.push("</tr>");
+		r.forEach(function(e, row_no) {
+		    ar.push("<tr>");
+		    ar.push("<td class='autoincrement'>", row_no + 1, "</td>");
+		    ar.push("<td class='ref'>");
+		    if( Array.isArray(e.tms) ) {
+			e.tms.forEach(function(arg0, arg1) {
+			    if( arg1 > 0 ) {
+				ar.push("<br/>");
+			    }
+			    ar.push(G.shielding(arg0));
+			});
+		    }
+		    ar.push("</td>");
+		    ar.push("<td class='int'>", G.getint_l(e.participants), "</td>");
+		    ar.push("<td class='string'>", G.shielding(e.doc_note), "</td>");
+		    ar.push("<td class='ref'>");
+		    if( Array.isArray(e.photos) ) {
+			e.photos.forEach(function(arg0, arg1, arg2) {
+			    ar.push("<div class='ref'><a href='javascript:void(0)' onclick='PLUG.slideshow([", arg2.join(','), "],",
+				(arg1+1), ")'>[&nbsp;", (arg1+1), "&nbsp;]</a></div>");
+			});
+		    }
+		    ar.push("</td>");
+		    ar.push("</tr>");
+		});
+		ar.push("</table>");
+	    } else if( t == "price" ) {
+		ar.push("<div>");
+		ar.push("<h2>", "{0}".format_a(lang.doctypes[t]), "</h2>");
+		ar.push("<span class='watermark'>", "{0}: {1}".format_a(lang.time_spent, lang.seconds.format_a(r.duration)), "</span>");
+		ar.push("</div>");
+		ar.push("<table width='100%' class='report'>");
+		ar.push("<tr class='def'>");
+		ar.push("<td class='divider'>", lang.num, "</td>");
+		ar.push("<td class='divider'>", lang.code, "</td>");
+		ar.push("<td class='divider'>", lang.product, "</td>");
+		ar.push("<td class='divider' width='95px'>", lang.price, "</td>");
+		ar.push("<td class='divider' width='35px'>", lang.promo, "</td>");
+		ar.push("<td class='divider' width='95px'>", lang.rrp, "</td>");
+		ar.push("<td class='divider' width='35px'>", "&nbsp;", "</td>");
+		ar.push("</tr>");
+		r.rows.forEach(function(arg0, row_no) {
+		    ar.push("<tr>");
+		    ar.push("<td class='autoincrement'>", row_no + 1, "</td>");
+		    ar.push("<td class='int'>", G.shielding(arg0.p_code), "</td>");
+		    ar.push("<td class='string'>", G.shielding(arg0.prod), "</td>");
+		    ar.push("<td class='int'>", G.getcurrency_l(arg0.price), "</td>");
+		    ar.push("<td class='bool'>", (arg0.promo ? lang.plus : "&nbsp;"), "</td>");
+		    ar.push("<td class='int'>", G.getcurrency_l(arg0.rrp), "</td>");
+		    ar.push("<td class='bool'>", String.isEmpty(arg0.scratch) ? "" : "&#x267A;", "</td>");
+		    ar.push("</tr>");
+		});
+		ar.push("</table>");
+	    } else if( t == "promo" ) {
+		ar.push("<div>");
+		ar.push("<h2>", "{0}".format_a(lang.doctypes[t]), "</h2>");
+		ar.push("<span class='watermark'>", "{0}: {1}".format_a(lang.time_spent, lang.seconds.format_a(duration(r))), "</span>");
+		ar.push("</div>");
+		ar.push("<table width='100%' class='report'>");
+		ar.push("<tr class='def'>");
+		ar.push("<td class='divider'>", lang.num, "</td>");
+		ar.push("<td class='divider'>", lang.categ_name, "</td>");
+		ar.push("<td class='divider'>", lang.brand, "</td>");
+		ar.push("<td class='divider' Xwidth='300px'>", lang.promos.type, "</td>");
+		ar.push("<td class='divider'>", lang.note, "</td>");
+		ar.push("<td class='divider'>", lang.photo, "</td>");
+		ar.push("</tr>");
+		r.forEach(function(e, row_no) {
+		    ar.push("<tr>");
+		    ar.push("<td class='autoincrement'>", row_no + 1, "</td>");
+		    ar.push("<td class='ref'>", G.shielding(e.categ), "</td>");
+		    ar.push("<td class='ref'>", G.shielding(e.brand), "</td>");
+		    ar.push("<td class='ref'>");
+		    if( Array.isArray(e.promo_types) ) {
+			e.promo_types.forEach(function(arg0, arg1) {
+			    if( arg1 > 0 ) {
+				ar.push("<br/>");
+			    }
+			    ar.push(G.shielding(arg0));
+			});
+		    }
+		    ar.push("</td>");
+		    ar.push("<td class='string'>", G.shielding(e.doc_note), "</td>");
+		    ar.push("<td class='ref'>");
+		    if( Array.isArray(e.photos) ) {
+			e.photos.forEach(function(arg0, arg1, arg2) {
+			    ar.push("<div class='ref'><a href='javascript:void(0)' onclick='PLUG.slideshow([", arg2.join(','), "],",
+				(arg1+1), ")'>[&nbsp;", (arg1+1), "&nbsp;]</a></div>");
+			});
+		    }
+		    ar.push("</td>");
+		    ar.push("</tr>");
+		});
+		ar.push("</table>");
+	    } else if( t == "quest" ) {
+		ar.push("<div>");
+		ar.push("<h2>", "{0}".format_a(lang.doctypes[t]), "</h2>");
+		ar.push("<span class='watermark'>", "{0}: {1}".format_a(lang.time_spent, lang.seconds.format_a(r.duration)), "</span>");
+		ar.push("</div>");
+		ar.push("<table width='100%' class='report'>");
+		ar.push("<tr class='def'>");
+		ar.push("<td class='divider'>", lang.num, "</td>");
+		ar.push("<td class='divider'>", lang.qname, "</td>");
+		ar.push("<td class='divider'>", lang.qpath, "</td>");
+		ar.push("<td class='divider'>", lang.qrow, "</td>");
+		ar.push("<td class='divider'>", lang.qvalue, "</td>");
+		ar.push("</tr>");
+		r.rows.forEach(function(arg0, row_no) {
+		    ar.push("<tr>");
+		    ar.push("<td class='autoincrement'>", row_no + 1, "</td>");
+		    ar.push("<td class='ref'>", G.shielding(arg0.qname), "</td>");
+		    ar.push("<td class='string'>", G.shielding(arg0.qpath), "</td>");
+		    ar.push("<td class='string'>", G.shielding(arg0.qrow), "</td>");
+		    ar.push("<td class='ref'>", G.shielding(arg0.value), "</td>");
+		    ar.push("</tr>");
+		});
+		ar.push("</table>");
+	    } else if( t == "rating" ) {
+		ar.push("<div>");
+		ar.push("<h2>", "{0}".format_a(lang.doctypes[t]), 
+		    "<span class='r'>", "{0}. <i>{1}</i>: {2}".format_a(G.shielding(r.e_name), lang.sla.result, G.getsla_l(r.assessment, r.sla)),
+		    "</span>", "</h2>");
+		ar.push("<span class='watermark'>", "{0}: {1}".format_a(lang.time_spent, lang.seconds.format_a(r.duration)), "</span>");
+		ar.push("</div>");
+		ar.push("<table width='100%' class='report'>");
+		ar.push("<tr class='def'>");
+		ar.push("<td class='divider'>", lang.num, "</td>");
+		ar.push("<td class='divider'>", lang.sla.criteria, "</td>");
+		ar.push("<td class='divider' width='50px'>", lang.sla.score, "</td>");
+		ar.push("<td class='divider'>", lang.note, "</td>");
+		ar.push("</tr>");
+		r.rows.forEach(function(arg0, row_no) {
+		    ar.push("<tr>");
+		    ar.push("<td class='autoincrement'>", row_no + 1, "</td>");
+		    ar.push("<td class='string'>", G.shielding(arg0.descr), "</td>");
+		    ar.push("<td class='int'>", G.getint_l(arg0.score), "</td>");
+		    ar.push("<td class='string'>", G.shielding(arg0.note), "</td>");
+		    ar.push("</tr>");
+		});
+		ar.push("</table>");
+	    } else if( t == "reclamation" ) {
+		r.forEach(function(e, index) {
+		    if( index > 0 ) {
+			ar.push("<hr/>");
+		    }
+		    ar.push("<div>");
+		    ar.push("<h2>", "{0}".format_a(lang.doctypes[t]), 
+			"<span class='r'>", "<i>{0}</i>: {1}".format_a(lang.amount, G.getcurrency_l(e.amount)),
+			"</span>", "</h2>");
+		    ar.push("<span class='watermark'>", "{0}: {1}".format_a(lang.time_spent, lang.seconds.format_a(e.duration)), "</span>");
+		    ar.push("</div>");
+		    ar.push("<table width='100%' class='report'>");
+		    ar.push("<tr class='def'>");
+		    ar.push("<td class='divider'>", lang.num, "</td>");
+		    ar.push("<td class='divider'>", lang.code, "</td>");
+		    ar.push("<td class='divider'>", lang.product, "</td>");
+		    ar.push("<td class='divider' width='95px'>", lang.price, "</td>");
+		    ar.push("<td class='divider' width='55px'>", lang.qty, "</td>");
+		    ar.push("<td class='divider'>", lang.pack, "</td>");
+		    ar.push("<td class='divider' width='95px'>", lang.amount, "</td>");
+		    ar.push("<td class='divider'>", lang.reclamation_type, "</td>");
+		    ar.push("</tr>");
+		    e.rows.forEach(function(arg0) {
+			ar.push("<tr>");
+			ar.push("<td class='autoincrement'>", arg0.row_no + 1, "</td>");
+			ar.push("<td class='int'>", G.shielding(arg0.p_code), "</td>");
+			ar.push("<td class='string'>", G.shielding(arg0.prod), "</td>");
+			ar.push("<td class='numeric'>", G.getcurrency_l(arg0.unit_price), "</td>");
+			ar.push("<td class='int'>", G.getint_l(arg0.qty), "</td>");
+			ar.push("<td class='int'>", G.shielding(arg0.pack_name), "</td>");
+			ar.push("<td class='numeric'>", G.getcurrency_l(arg0.amount), "</td>");
+			ar.push("<td class='ref'>", G.shielding(arg0.reclamation_type), "</td>");
+			ar.push("</tr>");
+		    });
+		    ar.push("</table>");
+		});
+	    } else if( t == "shelf" ) {
+		r.forEach(function(e, index) {
+		    if( index > 0 ) {
+			ar.push("<hr/>");
+		    }
+		    ar.push("<div>");
+		    ar.push("<h2>", "{0}".format_a(lang.doctypes[t]), 
+			"<span class='r'>", "{0}: {1} / {2}".format_a(G.shielding(e.categ).trunc(30), G.getpercent_l(e.sos), G.getpercent_l(e.soa)),
+			"</span>", "</h2>");
+		    ar.push("<span class='watermark'>", "{0}: {1}".format_a(lang.time_spent, lang.seconds.format_a(e.duration)), "</span>");
+		    ar.push("</div>");
+		    ar.push("<table width='100%' class='report'>");
+		    ar.push("<tr class='def'>");
+		    ar.push("<td class='divider'>", lang.num, "</td>");
+		    ar.push("<td class='divider'>", lang.brand, "</td>");
+		    ar.push("<td class='divider' width='75px'>", lang.facing, "</td>");
+		    ar.push("<td class='divider' width='75px'>", lang.assortment, "</td>");
+		    ar.push("<td class='divider' width='50px'>", lang.photo, "</td>");
+		    ar.push("</tr>");
+		    e.rows.forEach(function(arg0, arg1, arg3) {
+			ar.push("<tr>");
+			ar.push("<td class='autoincrement'>", arg0.row_no + 1, "</td>");
+			ar.push("<td class='string'>", G.shielding(arg0.descr, lang.other), "</td>");
+			ar.push("<td class='int'>", G.getint_l(arg0.facing), "</td>");
+			ar.push("<td class='int'>", G.getint_l(arg0.assortment), "</td>");
+			if( arg1 == 0 ) {
+			    ar.push("<td class='ref def' rowspan='", arg3.length, "'>");
+			    if( Array.isArray(e.photos) ) {
+				e.photos.forEach(function(arg0, arg1, arg2) {
+				    ar.push("<div class='ref'><a href='javascript:void(0)' onclick='PLUG.slideshow([", arg2.join(','), "],",
+					(arg1+1), ")'>[&nbsp;", (arg1+1), "&nbsp;]</a></div>");
+				});
+			    }
+			    ar.push("</td>");
+			}
+			ar.push("</tr>");
+		    });
+		    ar.push("</table>");
+		});
+	    } else if( t == "stock" ) {
+		ar.push("<div>");
+		ar.push("<h2>", "{0}".format_a(lang.doctypes[t]), "</h2>");
+		ar.push("<span class='watermark'>", "{0}: {1}".format_a(lang.time_spent, lang.seconds.format_a(r.duration)), "</span>");
+		ar.push("</div>");
+		ar.push("<table width='100%' class='report'>");
+		ar.push("<tr class='def'>");
+		ar.push("<td class='divider'>", lang.num, "</td>");
+		ar.push("<td class='divider'>", lang.code, "</td>");
+		ar.push("<td class='divider'>", lang.product, "</td>");
+		ar.push("<td class='divider' width='75px'>", lang.stock, "</td>");
+		ar.push("<td class='divider' width='35px'>", "&nbsp;", "</td>");
+		ar.push("</tr>");
+		r.rows.forEach(function(arg0, row_no) {
+		    ar.push("<tr>");
+		    ar.push("<td class='autoincrement'>", row_no + 1, "</td>");
+		    ar.push("<td class='int'>", G.shielding(arg0.p_code), "</td>");
+		    ar.push("<td class='string'>", G.shielding(arg0.prod), "</td>");
+		    ar.push("<td class='int'>", G.getint_l(arg0.stock), "</td>");
+		    ar.push("<td class='bool'>", String.isEmpty(arg0.scratch) ? "" : "&#x267A;", "</td>");
+		    ar.push("</tr>");
+		});
+		ar.push("</table>");
+	    } else if( t == "target" ) {
+		ar.push("<div>");
+		ar.push("<h2>", "{0}".format_a(lang.doctypes[t]), "</h2>");
+		ar.push("<span class='watermark'>", "{0}: {1}".format_a(lang.time_spent, lang.seconds.format_a(duration(r))), "</span>");
+		ar.push("</div>");
+		ar.push("<table width='100%' class='report'>");
+		ar.push("<tr class='def'>");
+		ar.push("<td class='divider'>", lang.num, "</td>");
+		ar.push("<td class='divider'>", lang.targets.subject.caption, "</td>");
+		ar.push("<td class='divider'>", lang.targets.body.caption, "</td>");
+		ar.push("<td class='divider'>", lang.validity, "</td>");
+		ar.push("<td class='divider'>", lang.targets.type, "</td>");
+		ar.push("<td class='divider'>", lang.photo, "</td>");
+		ar.push("</tr>");
+		r.forEach(function(e, row_no) {
+		    ar.push("<tr>");
+		    ar.push("<td class='autoincrement'>", row_no + 1, "</td>");
+		    ar.push("<td class='string' width='150px'>", G.shielding(e.subject), "</td>");
+		    ar.push("<td class='string'>", G.shielding(e.doc_note), "</td>");
+		    ar.push("<td class='date'>", G.getdate_l(e.b_date), "<div class='watermark'>", G.getdate_l(e.e_date), "</div></td>");
+		    ar.push("<td class='ref' width='180px'>", G.shielding(e.target_type), "</td>");
+		    ar.push("<td class='ref' width='95px'>");
+		    if( String.isEmpty(e.blob_id) ) {
+			ar.push("&nbsp;");
+		    } else {
+			ar.push("<a href='javascript:void(0);' onclick='PLUG.slideshow([\"", e.blob_id, "\"],1)'>",
+			    lang.view, "</a>");
+		    }
+		    ar.push("</td>");
+		    ar.push("</tr>");
+		});
+		ar.push("</table>");
+/*
+	    } else if( t == "testing" ) {
+		ar.push("<div>");
+		ar.push("<h2>", "{0} {1} {2} / {3}".format_a(lang.doctypes[t], lang.num, r.doc_no, r.doc_id), 
+		    "<span class='r'>", "{0}. <i>{1}</i>: {2}".format_a(lang.personFormat.format({name: G.shielding(r.name), patronymic: G.shielding(r.patronymic), 
+			surname: G.shielding(r.surname)}).trim().trunc(20), lang.sla.result, G.getpercent_l(r.sla)),
+		    "</span>", "</h2>");
+		ar.push("<span class='watermark'>", "{0}: {1}".format_a(lang.fix_time, G.getlongtime_l(r.fix_dt)), 
+		    "&nbsp;&nbsp;&nbsp;(", lang.seconds.format_a(r.duration), ")", "</span>");
+		ar.push("</div>");
+		ar.push("<table width='100%' class='report'>");
+		ar.push("<tr class='def'>");
+		ar.push("<td class='divider'>", lang.num, "</td>");
+		ar.push("<td class='divider'>", lang.sla.criteria, "</td>");
+		ar.push("<td class='divider' width='50px'>", lang.sla.score, "</td>");
+		ar.push("<td class='divider'>", lang.note, "</td>");
+		ar.push("</tr>");
+		r.rows.forEach(function(arg0, arg1) {
+		    ar.push("<tr>");
+		    ar.push("<td class='autoincrement'>", arg0.row_no + 1, "</td>");
+		    ar.push("<td class='string'>", G.shielding(arg0.descr), "</td>");
+		    ar.push("<td class='int'>", G.getint_l(arg0.score), "</td>");
+		    ar.push("<td class='string'>", G.shielding(arg0.note), "</td>");
+		    ar.push("</tr>");
+		});
+		ar.push("</table>");
+*/
+	    } else if( t == "training" ) {
+		ar.push("<div>");
+		ar.push("<h2>", "{0}".format_a(lang.doctypes[t]), "</h2>");
+		ar.push("<span class='watermark'>", "{0}: {1}".format_a(lang.time_spent, lang.seconds.format_a(duration(r))), "</span>");
+		ar.push("</div>");
+		ar.push("<table width='100%' class='report'>");
+		ar.push("<tr class='def'>");
+		ar.push("<td class='divider'>", lang.num, "</td>");
+		ar.push("<td class='divider'>", lang.training_type, "</td>");
+		ar.push("<td class='divider' width='300px'>", lang.training_material, "</td>");
+		ar.push("<td class='divider' width='250px'>", lang.contact, "</td>");
+		ar.push("<td class='divider'>", lang.note, "</td>");
+		ar.push("<td class='divider'>", lang.photo, "</td>");
+		ar.push("</tr>");
+		r.forEach(function(e, row_no) {
+		    ar.push("<tr>");
+		    ar.push("<td class='autoincrement'>", row_no + 1, "</td>");
+		    ar.push("<td class='autoincrement'>", G.shielding(e.training_type), "</td>");
+		    ar.push("<td class='ref'>");
+		    if( Array.isArray(e.tms) ) {
+			e.tms.forEach(function(arg0, arg1) {
+			    if( arg1 > 0 ) {
+				ar.push("<br/>");
+			    }
+			    ar.push(G.shielding(arg0));
+			});
+		    }
+		    ar.push("</td>");
+		    ar.push("<td class='ref'>");
+		    if( Array.isArray(e.contacts) ) {
+			e.contacts.forEach(function(arg0, arg1) {
+			    if( arg1 > 0 ) {
+				ar.push("<br/>");
+			    }
+			    ar.push(lang.personFormat.format({name: G.shielding(arg0.name), patronymic: G.shielding(arg0.patronymic), 
+				surname: G.shielding(arg0.surname)}).trim());
+			});
+		    }
+		    ar.push("</td>");
+		    ar.push("<td class='string'>", G.shielding(e.doc_note), "</td>");
+		    ar.push("<td class='ref'>");
+		    if( Array.isArray(e.photos) ) {
+			e.photos.forEach(function(arg0, arg1, arg2) {
+			    ar.push("<div class='ref'><a href='javascript:void(0)' onclick='PLUG.slideshow([", arg2.join(','), "],",
+				(arg1+1), ")'>[&nbsp;", (arg1+1), "&nbsp;]</a></div>");
+			});
+		    }
+		    ar.push("</td>");
+		    ar.push("</tr>");
+		});
+		ar.push("</table>");
+	    }
+	});
+	ar.push("<br/>");
+	return ar;
+    }
+
+    function _moretbl2(data, account_id, a_cookie) {
+	let ar = [], a = data.my_accounts[account_id] || {}, xs;
+	let b = data.route.find(function(e) { return e.account_id == account_id && e.a_cookie == a_cookie; });
+	ar.push("<table width='100%'>","<tr>","<td>");
+	ar.push("<div>", "<b>{0}: {1}</b>".format_a(G.shielding(a.a_code), G.shielding(a.descr)), "</div>");
+	ar.push("<div>", G.shielding(a.address), "</div>");
+	if( !String.isEmpty(a.chan) ) {
+	    ar.push("<div>", "{0}: {1}".format_a(lang.chan_name, G.shielding(a.chan)), "</div>");
+	}
+	if( !String.isEmpty(a.poten) ) {
+	    ar.push("<div>", "{0}: {1}".format_a(lang.poten, G.shielding(a.poten)), "</div>");
+	}
+	if( !String.isEmpty(a.rc) ) {
+	    ar.push("<div>", "{0}: {1}".format_a(lang.rc_name, G.shielding(a.rc)), "</div>");
+	}
+	if( typeof a.cash_register == 'number' && a.cash_register > 0 ) {
+	    ar.push("<div>", "{0}: {1}".format_a(lang.cash_registers, a.cash_register), "</div>");
+	}
+	ar.push("</td>", "<td width='10px'/>", "<td width='270px' style='text-align:right;'>");
+	ar.push("<div>", "{0}: {1}".format_a(lang.u_code, G.shielding(data.user_id)), "</div>");
+	ar.push("<div>", "{0}: {1}".format_a(lang.dev_login, G.shielding(data.dev_login)), "</div>");
+	ar.push("<div>", "<i>{0}</i>".format_a(G.shielding(b.activity_type)), "</div>");
+	ar.push("<div>", "{0}: <b>{1}</b> ({2} - {3})".format_a(lang.date, G.getdate_l(data.date),
+	    G.gettime_l(b.b_dt), G.gettime_l(b.e_dt)), "</div>");
+	ar.push("<div>", "{0}: {1}".format_a(lang.cookie, G.shielding(b.a_cookie)), "</div>");
+	ar.push("</td>","</tr>","</table>");
+	ar.push("<br/>");
+	(data._d["{0}:{1}".format_a(account_id, a_cookie)] || []).forEach(function(r, index) {
 	    if( index > 0 ) {
 		ar.push("<hr/>");
 	    }
@@ -487,7 +1207,7 @@ var __route = (function() {
 	    } else if( r._t == "audit" ) {
 		ar.push("<div>");
 		ar.push("<h2>", "{0} {1} {2} / {3}".format_a(lang.doctypes[r._t], lang.num, r.doc_no, r.doc_id), 
-		    "<span class='r'>", "{0}. <i>{1}</i>: {2}".format_a(G.shielding(r.categ), lang.sla.result, G.getpercent_l(r.sla)),
+		    "<span class='r'>", "{0}. <i>{1}</i>: {2}".format_a(G.shielding(r.categ).trunc(20), lang.sla.result, G.getpercent_l(r.sla)),
 		    "</span>", "</h2>");
 		ar.push("<span class='watermark'>", "{0}: {1}".format_a(lang.fix_time, G.getlongtime_l(r.fix_dt)), 
 		    "&nbsp;&nbsp;&nbsp;(", lang.seconds.format_a(r.duration), ")", "</span>");
@@ -500,18 +1220,18 @@ var __route = (function() {
 		ar.push("<td class='divider'>", lang.note, "</td>");
 		ar.push("<td class='divider' width='50px'>", lang.photo, "</td>");
 		ar.push("</tr>");
-		r.criterias.forEach(function(arg0, arg1) {
+		r.rows.forEach(function(arg0, arg1, arg3) {
 		    ar.push("<tr>");
 		    ar.push("<td class='autoincrement'>", arg0.row_no + 1, "</td>");
 		    ar.push("<td class='string'>", G.shielding(arg0.descr), "</td>");
 		    ar.push("<td class='int'>", G.getint_l(arg0.score), "</td>");
 		    ar.push("<td class='string'>", G.shielding(arg0.note), "</td>");
 		    if( arg1 == 0 ) {
-			ar.push("<td class='ref def' rowspan='", r.criterias.length, "'>");
+			ar.push("<td class='ref def' rowspan='", arg3.length, "'>");
 			if( Array.isArray(r.photos) ) {
 			    r.photos.forEach(function(arg0, arg1, arg2) {
-				ar.push("<p><a href='javascript:void(0)' onclick='PLUG.slideshow([", arg2.join(','), "],",
-				    (arg1+1), ")'>[&nbsp;", (arg1+1), "&nbsp;]</a></p>");
+				ar.push("<div class='ref'><a href='javascript:void(0)' onclick='PLUG.slideshow([", arg2.join(','), "],",
+				    (arg1+1), ")'>[&nbsp;", (arg1+1), "&nbsp;]</a></div>");
 			    });
 			}
 			ar.push("</td>");
@@ -590,8 +1310,8 @@ var __route = (function() {
 		ar.push("<td class='ref'>");
 		if( Array.isArray(r.photos) ) {
 		    r.photos.forEach(function(arg0, arg1, arg2) {
-			ar.push("<p><a href='javascript:void(0)' onclick='PLUG.slideshow([", arg2.join(','), "],",
-			    (arg1+1), ")'>[&nbsp;", (arg1+1), "&nbsp;]</a></p>");
+			ar.push("<div class='ref'><a href='javascript:void(0)' onclick='PLUG.slideshow([", arg2.join(','), "],",
+			    (arg1+1), ")'>[&nbsp;", (arg1+1), "&nbsp;]</a></div>");
 		    });
 		}
 		ar.push("</td>");
@@ -707,7 +1427,7 @@ var __route = (function() {
 		if( !String.isEmpty(r.doc_note) ) {
 			ar.push("<div class='row'>", G.shielding(r.doc_note), "</div>");
 		}
-		if( Array.isArray(r.photo_params) && r.photo_params.length > 0 ) {
+		if( !Array.isEmpty(r.photo_params) ) {
 		    if( !String.isEmpty(r.doc_note) ) {
 			ar.push("<hr/>");
 		    }
@@ -802,8 +1522,8 @@ var __route = (function() {
 		ar.push("<td class='ref'>");
 		if( Array.isArray(r.photos) ) {
 		    r.photos.forEach(function(arg0, arg1, arg2) {
-			ar.push("<p><a href='javascript:void(0)' onclick='PLUG.slideshow([", arg2.join(','), "],",
-			    (arg1+1), ")'>[&nbsp;", (arg1+1), "&nbsp;]</a></p>");
+			ar.push("<div class='ref'><a href='javascript:void(0)' onclick='PLUG.slideshow([", arg2.join(','), "],",
+			    (arg1+1), ")'>[&nbsp;", (arg1+1), "&nbsp;]</a></div>");
 		    });
 		}
 		ar.push("</td>");
@@ -868,8 +1588,8 @@ var __route = (function() {
 		ar.push("<td class='ref'>");
 		if( Array.isArray(r.photos) ) {
 		    r.photos.forEach(function(arg0, arg1, arg2) {
-			ar.push("<p><a href='javascript:void(0)' onclick='PLUG.slideshow([", arg2.join(','), "],",
-			    (arg1+1), ")'>[&nbsp;", (arg1+1), "&nbsp;]</a></p>");
+			ar.push("<div class='ref'><a href='javascript:void(0)' onclick='PLUG.slideshow([", arg2.join(','), "],",
+			    (arg1+1), ")'>[&nbsp;", (arg1+1), "&nbsp;]</a></div>");
 		    });
 		}
 		ar.push("</td>");
@@ -914,7 +1634,7 @@ var __route = (function() {
 		ar.push("<td class='divider' width='50px'>", lang.sla.score, "</td>");
 		ar.push("<td class='divider'>", lang.note, "</td>");
 		ar.push("</tr>");
-		r.criterias.forEach(function(arg0, arg1) {
+		r.rows.forEach(function(arg0, arg1) {
 		    ar.push("<tr>");
 		    ar.push("<td class='autoincrement'>", arg0.row_no + 1, "</td>");
 		    ar.push("<td class='string'>", G.shielding(arg0.descr), "</td>");
@@ -971,18 +1691,18 @@ var __route = (function() {
 		ar.push("<td class='divider' width='75px'>", lang.assortment, "</td>");
 		ar.push("<td class='divider' width='50px'>", lang.photo, "</td>");
 		ar.push("</tr>");
-		r.brands.forEach(function(arg0, arg1) {
+		r.rows.forEach(function(arg0, arg1, arg3) {
 		    ar.push("<tr>");
 		    ar.push("<td class='autoincrement'>", arg0.row_no + 1, "</td>");
 		    ar.push("<td class='string'>", G.shielding(arg0.descr, lang.other), "</td>");
 		    ar.push("<td class='int'>", G.getint_l(arg0.facing), "</td>");
 		    ar.push("<td class='int'>", G.getint_l(arg0.assortment), "</td>");
 		    if( arg1 == 0 ) {
-			ar.push("<td class='ref def' rowspan='", r.brands.length, "'>");
+			ar.push("<td class='ref def' rowspan='", arg3.length, "'>");
 			if( Array.isArray(r.photos) ) {
 			    r.photos.forEach(function(arg0, arg1, arg2) {
-				ar.push("<p><a href='javascript:void(0)' onclick='PLUG.slideshow([", arg2.join(','), "],",
-				    (arg1+1), ")'>[&nbsp;", (arg1+1), "&nbsp;]</a></p>");
+				ar.push("<div class='ref'><a href='javascript:void(0)' onclick='PLUG.slideshow([", arg2.join(','), "],",
+				    (arg1+1), ")'>[&nbsp;", (arg1+1), "&nbsp;]</a></div>");
 			    });
 			}
 			ar.push("</td>");
@@ -1059,7 +1779,7 @@ var __route = (function() {
 		ar.push("<td class='divider' width='50px'>", lang.sla.score, "</td>");
 		ar.push("<td class='divider'>", lang.note, "</td>");
 		ar.push("</tr>");
-		r.criterias.forEach(function(arg0, arg1) {
+		r.rows.forEach(function(arg0, arg1) {
 		    ar.push("<tr>");
 		    ar.push("<td class='autoincrement'>", arg0.row_no + 1, "</td>");
 		    ar.push("<td class='string'>", G.shielding(arg0.descr), "</td>");
@@ -1108,8 +1828,8 @@ var __route = (function() {
 		ar.push("<td class='ref'>");
 		if( Array.isArray(r.photos) ) {
 		    r.photos.forEach(function(arg0, arg1, arg2) {
-			ar.push("<p><a href='javascript:void(0)' onclick='PLUG.slideshow([", arg2.join(','), "],",
-			    (arg1+1), ")'>[&nbsp;", (arg1+1), "&nbsp;]</a></p>");
+			ar.push("<div class='ref'><a href='javascript:void(0)' onclick='PLUG.slideshow([", arg2.join(','), "],",
+			    (arg1+1), ")'>[&nbsp;", (arg1+1), "&nbsp;]</a></div>");
 		    });
 		}
 		ar.push("</td>");
@@ -1223,14 +1943,15 @@ var __route = (function() {
     }
 
     function _compile_docs(data) {
-	var obj = {};
-	var cb = function(code, a_id, ptr) {
-	    var x;
-	    if( !String.isEmpty(ptr.fix_dt) && !String.isEmpty(ptr.doc_no) ) {
-		if( !obj.hasOwnProperty(a_id) ) {
-		    x = obj[a_id] = [];
+	const obj = {};
+	const cb = function(code, a_id, ptr) {
+	    let x;
+	    if( !String.isEmpty(ptr.fix_dt) && !String.isEmpty(ptr.doc_no) && !String.isEmpty(ptr.a_cookie) ) {
+		const z = "{0}:{1}".format_a(a_id, ptr.a_cookie);
+		if( !obj.hasOwnProperty(z) ) {
+		    x = obj[z] = [];
 		} else {
-		    x = obj[a_id];
+		    x = obj[z];
 		}
 		if( x.every(function(element, index, array) {
 		    if( element.fix_dt.localeCompare(this.fix_dt) >= 0 ) {
@@ -1244,15 +1965,18 @@ var __route = (function() {
 		ptr._t = code;
 	    }
 	}
-	var fn = function(code) {
-	    var x = data["{0}s".format_a(code)] || data[code] || data["{0}es".format_a(code)], z;
-	    if( x != null ) {
+	const fn = function(code) {
+	    let x, z;
+	    if( (x = data["{0}s".format_a(code)] || data[code] || data["{0}es".format_a(code)]) != null ) {
 		for( var k in x ) {
-		    z = x[k];
-		    if( Array.isArray(z) ) {
-			x[k].forEach(function(element, index, array) { cb(code, k, element); });
-		    } else if( z != null ) {
-			cb(code, k, z);
+		    if( (z = x[k]) != null ) {
+			if( Array.isArray(z) ) {
+			    z.forEach(function(element, index, array) { 
+				cb(code, k, element); 
+			    });
+			} else {
+			    cb(code, k, z);
+			}
 		    }
 		}
 	    }
@@ -1264,7 +1988,6 @@ var __route = (function() {
 	fn("comment");
 	fn("confirmation");
 	fn("deletion");
-	fn("extra");
 	fn("oos");
 	fn("order");
 	fn("photo");
@@ -1282,6 +2005,114 @@ var __route = (function() {
 	fn("testing");
 	fn("training");
 	fn("wish");
+
+	return obj;
+    }
+
+    function _compile_results(data) {
+	const obj = {}, rv = {};
+	const cb = function(code, a_id, ptr, agg) {
+	    let f = true, x, t;
+	    if( !String.isEmpty(ptr.fix_dt) && !String.isEmpty(ptr.doc_no) ) {
+		if( !obj.hasOwnProperty(a_id) ) {
+		    obj[a_id] = {};
+		    x = obj[a_id][code] = [];
+		} else if( !obj[a_id].hasOwnProperty(code) ) {
+		    x = obj[a_id][code] = [];
+		} else {
+		    x = obj[a_id][code];
+		    f = false;
+		}
+		if( ptr.hasOwnProperty("_pkey") ) {
+		    /* grouping by document */
+		    t = x.findIndex(function(element1) {
+			return element1._pkey == ptr._pkey && element1.fix_dt.localeCompare(ptr.fix_dt) < 0;
+		    });
+		    if( t >= 0 ) {
+			x.splice(t, 1);
+		    }
+		    x.push(ptr);
+		} else if( !Array.isEmpty(ptr.rows) && ptr.rows.first().hasOwnProperty("_pkey") ) {
+		    /* grouping by rows */
+		    if( f ) {
+			x = obj[a_id][code] = {fix_dt: ptr.fix_dt, duration: ptr.duration, rows: ptr.rows.clone()};
+		    } else {
+			ptr.rows.forEach(function(element1, index, array) {
+			    let j = x.rows.findIndex(function(element2) {
+				return element1._pkey == element2._pkey;
+			    });
+			    if( j >= 0 ) {
+				x.rows[j] = element1;
+			    } else {
+				x.rows.push(element1);
+			    }
+			});
+			if( typeof agg == 'function' ) {
+			    agg(ptr, x);
+			}
+			x.fix_dt = ptr.fix_dt;
+			x.duration += ptr.duration;
+		    }
+		} else {
+		    /* without grouping */
+		    x.push(ptr);
+		}
+	    }
+	}
+	const fn = function(code, agg) {
+	    let x, z;
+	    if( (x = data["{0}s".format_a(code)] || data[code] || data["{0}es".format_a(code)]) != null ) {
+		for( const k in x ) {
+		    if( (z = x[k]) != null ) {
+			if( Array.isArray(z) ) {
+			    z.forEach(function(element, index, array) { 
+				cb(code, k, element, agg);
+			    });
+			} else {
+			    cb(code, k, z, agg);
+			}
+		    }
+		}
+		/* adding ref to the ordering list */
+		for( const k in obj ) {
+		    if( (z = obj[k]) != null ) {
+			if( z.hasOwnProperty(code) ) {
+			    if( !Array.isArray(z._refs) ) {
+				z._refs = [];
+			    }
+			    z._refs.push({_t:code,ref:z[code]});
+			}
+		    }
+		}
+	    }
+	}
+
+	/* #1 */
+	fn("order");
+	fn("reclamation");
+	/* #2 */
+	fn("rating", function(arg0, arg1) { arg1.e_name = arg0.e_name; arg1.sla = arg0.sla; arg1.assessment = arg0.assessment; });
+	fn("audit");
+	/* #3 */
+	fn("checkup");
+	fn("presence");
+	fn("photo");
+	fn("posm");
+	fn("confirmation");
+	fn("price");
+	fn("advt");
+	fn("shelf");
+	/* #4 */
+	fn("oos");
+	fn("stock");
+	/* #5 */
+	fn("target");
+	fn("training");
+	fn("presentation");
+	fn("testing");
+	fn("promo");
+	fn("comment");
+	fn("quest");
 
 	return obj;
     }
@@ -1310,8 +2141,15 @@ var __route = (function() {
 		_cache.data[user_id] = null; // drops the internal cache
 		G.xhr("GET", G.getajax({plug: "tech", code: "tech_route", user_id: user_id, date: G.getdate(date)}), "json", function(xhr, data) {
 		    if( xhr.status == 200 &&  data != null && typeof data == 'object' ) {
+/* obsolete after 2022.06 BEGIN */
+			for( k in data.audits) { data.audits[k].forEach(function(arg) { if( !Array.isArray(arg.rows) && Array.isArray(arg.criterias) ) arg.rows = arg.criterias; }); }
+			for( k in data.ratings) { data.ratings[k].forEach(function(arg) { if( !Array.isArray(arg.rows) && Array.isArray(arg.criterias) ) arg.rows = arg.criterias; }); }
+			for( k in data.testings) { data.testings[k].forEach(function(arg) { if( !Array.isArray(arg.rows) && Array.isArray(arg.criterias) ) arg.rows = arg.criterias; }); }
+			for( k in data.shelfs) { data.shelfs[k].forEach(function(arg) { if( !Array.isArray(arg.rows) && Array.isArray(arg.brands) ) arg.rows = arg.brands; }); }
+/* END */
 			data._c = _compile_route(data);
 			data._d = _compile_docs(data);
+			data._x = _compile_results(data);
 			//console.log(data);
 			_cache.data[user_id] = data;
 			tbody.html(_datatbl(data, user_id, date, _cache.checked).join(""));
@@ -1339,8 +2177,12 @@ var __route = (function() {
 	    _cache.data = {};
 	},
 
-	more: function(user_id, account_id) {
-	    Dialog({width: 880, title: lang.tech.route.more, body: _moretbl(_cache.data[user_id], account_id).join('')}).show();
+	more1: function(user_id, account_id) {
+	    Dialog({width: 880, title: lang.tech.route.more1, body: _moretbl1(_cache.data[user_id], account_id).join('')}).show();
+	},
+
+	more2: function(user_id, account_id, a_cookie) {
+	    Dialog({width: 880, title: lang.tech.route.more2, body: _moretbl2(_cache.data[user_id], account_id, a_cookie).join('')}).show();
 	},
 
 	zstatus: function(tag, user_id, row_no, guid, offset) {
