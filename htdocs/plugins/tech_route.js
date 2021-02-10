@@ -4,10 +4,22 @@
 var __route = (function() {
     /* private properties & methods */
     var _cache = {}; // internal cache object for preventing reloading data
-    var _columns = 18;
 
     function _fixpower(arg) {
 	return arg == null ? null : (arg === 255 ? '~0' : arg);
+    }
+
+    function _optcols() {
+	var a = 0;
+	if( typeof __allowedColumns == 'object' ) {
+	    if( __allowedColumns.channel ) a++;
+	    if( __allowedColumns.potential ) a++;
+	}
+	return a;
+    }
+
+    function _getcolumns() {
+	return 16 + _optcols();
     }
 
     function _gettable() {
@@ -20,8 +32,14 @@ var __route = (function() {
 	ar.push("<th>", lang.a_code, "</th>");
 	ar.push("<th>", lang.a_name, "</th>");
 	ar.push("<th>", lang.address, "</th>");
-	ar.push("<th>", lang.chan_name, "</th>");
-	ar.push("<th>", lang.poten, "</th>");
+	if( typeof __allowedColumns == 'object' ) {
+	    if( __allowedColumns.channel ) {
+		ar.push("<th>", lang.chan_name, "</th>");
+	    }
+	    if( __allowedColumns.potential ) {
+		ar.push("<th>", lang.poten, "</th>");
+	    }
+	}
 	ar.push("<th class='timesec'>", lang.b_date, "</th>");
 	ar.push("<th class='timesec'>", lang.e_date, "</th>");
 	ar.push("<th width='45px'>", lang.tech.route.duration, "</th>");
@@ -29,7 +47,7 @@ var __route = (function() {
 	ar.push("<th width='45px'>", lang.mileageAbbr, "</th>");
 	ar.push("<th>", lang.activity_type, "</th>");
 	ar.push("<th class='bool' colspan='2'>", "&#8281;", "</th>");
-	ar.push("</tr>", G.thnums(_columns), "</thead>");
+	ar.push("</tr>", G.thnums(_getcolumns()), "</thead>");
 	ar.push("<tbody id='xztb'></tbody></table>");
 	ar.push("<div id='routeStats'></div>");
 	return ar;
@@ -132,8 +150,14 @@ var __route = (function() {
 			"' onclick='PLUG.slideshow([{0}],1)".format_a(ptr.blob_id),
 		    "'>", G.shielding(a.descr), "</td>");
 		ar.push("<td class='string'>", G.shielding(a.address), "</td>");
-		ar.push("<td class='ref'>", G.shielding(a.chan), "</td>");
-		ar.push("<td class='ref'>", G.shielding(a.poten), "</td>");
+		if( typeof __allowedColumns == 'object' ) {
+		    if( __allowedColumns.channel ) {
+			ar.push("<td class='ref'>", G.shielding(a.chan), "</td>");
+		    }
+		    if( __allowedColumns.potential ) {
+			ar.push("<td class='ref'>", G.shielding(a.poten), "</td>");
+		    }
+		}
 		ar.push("<td class='timesec'>", _tm(date, Date.parseISO8601(r.b_dt)), "</td>");
 		ar.push("<td class='timesec'>", _tm(date, Date.parseISO8601(r.e_dt)), "</td>");
 		ar.push("<td class='int", (r.strict == null || r.strict == 0 || r.duration == null || data.rules == null || (data.rules.duration.min <= r.duration && 
@@ -171,8 +195,8 @@ var __route = (function() {
 	    } else if( z._t == "unsched" ) {
 		ar.push("<tr class='clickable'", (typeof checked != 'undefined' && checked[k]) ? "class='selected' " : "",
 		    " onclick='__route.checkrow(this,\"", k, "\")'>");
-		ar.push("<td colspan='5'>", lang.tech.route.unsched, "</td>");
-		ar.push("<td colspan='4'>", _unsched(r).join(". "), "</td>");
+		ar.push("<td colspan='4'>", lang.tech.route.unsched, "</td>");
+		ar.push("<td colspan='", 3 + _optcols(), "'>", _unsched(r).join(". "), "</td>");
 		ar.push("<td colspan='2' class='datetime'>", _tm(date, Date.parseISO8601(r.fix_dt)), "</td>");
 		ar.push("<td colspan='7'>&nbsp;</td>");
 		ar.push("</tr>");
@@ -186,8 +210,8 @@ var __route = (function() {
 		}
 		ar.push("<tr class='clickable'", (typeof checked != 'undefined' && checked[k]) ? "class='selected' " : "",
 		    " onclick='__route.checkrow(this,\"", k, "\")'>");
-		ar.push("<td colspan='5'>", lang.tech.route.addition, "</td>");
-		ar.push("<td colspan='4'>", _addition(r).join(' '), "</td>");
+		ar.push("<td colspan='4'>", lang.tech.route.addition, "</td>");
+		ar.push("<td colspan='", 3 + _optcols(), "'>", _addition(r).join(' '), "</td>");
 		ar.push("<td colspan='2' class='datetime'>", _tm(date, Date.parseISO8601(r.fix_dt)), "</td>");
 		ar.push("<td colspan='7' class='ref'", Array.isArray(r.photos) ? " onclick='event.stopPropagation();'" : "", ">", 
 		    Array.isArray(r.photos) ? blobs.join("&nbsp;&nbsp;") : "&nbsp;", "</td>");
@@ -195,17 +219,18 @@ var __route = (function() {
 	    } else if( z._t == "joint" ) {
 		ar.push("<tr class='watermark'>");
 		ar.push("<td colspan='4'>&nbsp;</td>");
-		ar.push("<td colspan='5'>", (r.state=='begin'?lang.tech.route.joint.b:lang.tech.route.joint.e).format_a(G.shielding(r.e_name)), "</td>");
+		ar.push("<td colspan='", 3 + _optcols(), "'>", (r.state =='begin' ? lang.tech.route.joint.b : lang.tech.route.joint.e).
+		    format_a(G.shielding(r.e_name)), "</td>");
 		ar.push("<td colspan='2' class='datetime'>", _tm(date, Date.parseISO8601(r.fix_dt)), "</td>");
 		ar.push("<td colspan='7'>&nbsp;</td>");
 		ar.push("</tr>");
 	    }
 	}
 	if( ar.length == 0 ) {
-	    ar = ["<tr class='def'><td colspan='", _columns, "' class='message'>", lang.empty, "</td></tr>"];
+	    ar = ["<tr class='def'><td colspan='", _getcolumns(), "' class='message'>", lang.empty, "</td></tr>"];
 	}
 	if( typeof data.data_ts == 'string' ) {
-	    ar.push("<tr class='def'><td colspan='", _columns, "' class='watermark'>", lang.data_ts, "&nbsp;", data.data_ts, "</td></tr>");
+	    ar.push("<tr class='def'><td colspan='", _getcolumns(), "' class='watermark'>", lang.data_ts, "&nbsp;", data.data_ts, "</td></tr>");
 	}
 
 	return ar;
@@ -2161,7 +2186,7 @@ var __route = (function() {
 			tbody.html(_datatbl(data, user_id, date, _cache.checked).join(""));
 			stats.html(_statstbl(data).join(""));
 		    } else {
-			tbody.html(["<tr class='def'><td colspan='", _columns, "' class='message'>", lang.failure, "</td></tr>"].join(""));
+			tbody.html(["<tr class='def'><td colspan='", _getcolumns(), "' class='message'>", lang.failure, "</td></tr>"].join(""));
 			stats.html("");
 		    }
 		    ProgressDialog.hide();
