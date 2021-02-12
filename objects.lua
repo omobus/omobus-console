@@ -23,7 +23,6 @@ M.monthly_reports = {
     "prices", 
     "posms", 
     "promos",
-    "testings", 
     "trainings", 
     "presentations", 
     "audits", 

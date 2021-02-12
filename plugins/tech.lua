@@ -485,7 +485,6 @@ function M.scripts(lang, permtb, sestb, params)
     table.insert(ar, '<script src="' .. V.static_prefix .. '/plugins/tech_shelfs.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/plugins/tech_stocks.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/plugins/tech_targets.js"> </script>')
-    table.insert(ar, '<script src="' .. V.static_prefix .. '/plugins/tech_testings.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/plugins/tech_trainings.js"> </script>')
 
     return table.concat(ar,"\n")

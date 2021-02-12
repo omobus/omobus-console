@@ -1090,33 +1090,6 @@ var __route = (function() {
 		    ar.push("</tr>");
 		});
 		ar.push("</table>");
-/*
-	    } else if( t == "testing" ) {
-		ar.push("<div>");
-		ar.push("<h2>", "{0} {1} {2} / {3}".format_a(lang.doctypes[t], lang.num, r.doc_no, r.doc_id), 
-		    "<span class='r'>", "{0}. <i>{1}</i>: {2}".format_a(lang.personFormat.format({name: G.shielding(r.name), patronymic: G.shielding(r.patronymic), 
-			surname: G.shielding(r.surname)}).trim().trunc(20), lang.sla.result, G.getpercent_l(r.sla)),
-		    "</span>", "</h2>");
-		ar.push("<span class='watermark'>", "{0}: {1}".format_a(lang.fix_time, G.getlongtime_l(r.fix_dt)), 
-		    "&nbsp;&nbsp;&nbsp;(", lang.seconds.format_a(r.duration), ")", "</span>");
-		ar.push("</div>");
-		ar.push("<table width='100%' class='report'>");
-		ar.push("<tr class='def'>");
-		ar.push("<td class='divider'>", lang.num, "</td>");
-		ar.push("<td class='divider'>", lang.sla.criteria, "</td>");
-		ar.push("<td class='divider' width='50px'>", lang.sla.score, "</td>");
-		ar.push("<td class='divider'>", lang.note, "</td>");
-		ar.push("</tr>");
-		r.rows.forEach(function(arg0, arg1) {
-		    ar.push("<tr>");
-		    ar.push("<td class='autoincrement'>", arg0.row_no + 1, "</td>");
-		    ar.push("<td class='string'>", G.shielding(arg0.descr), "</td>");
-		    ar.push("<td class='int'>", G.getint_l(arg0.score), "</td>");
-		    ar.push("<td class='string'>", G.shielding(arg0.note), "</td>");
-		    ar.push("</tr>");
-		});
-		ar.push("</table>");
-*/
 	    } else if( t == "training" ) {
 		ar.push("<div>");
 		ar.push("<h2>", "{0}".format_a(lang.doctypes[t]), "</h2>");
@@ -1788,31 +1761,6 @@ var __route = (function() {
 		ar.push("</td>");
 		ar.push("</tr>");
 		ar.push("</table>");
-	    } else if( r._t == "testing" ) {
-		ar.push("<div>");
-		ar.push("<h2>", "{0} {1} {2} / {3}".format_a(lang.doctypes[r._t], lang.num, r.doc_no, r.doc_id), 
-		    "<span class='r'>", "{0}. <i>{1}</i>: {2}".format_a(lang.personFormat.format({name: G.shielding(r.name), patronymic: G.shielding(r.patronymic), 
-			surname: G.shielding(r.surname)}).trim().trunc(20), lang.sla.result, G.getpercent_l(r.sla)),
-		    "</span>", "</h2>");
-		ar.push("<span class='watermark'>", "{0}: {1}".format_a(lang.fix_time, G.getlongtime_l(r.fix_dt)), 
-		    "&nbsp;&nbsp;&nbsp;(", lang.seconds.format_a(r.duration), ")", "</span>");
-		ar.push("</div>");
-		ar.push("<table width='100%' class='report'>");
-		ar.push("<tr class='def'>");
-		ar.push("<td class='divider'>", lang.num, "</td>");
-		ar.push("<td class='divider'>", lang.sla.criteria, "</td>");
-		ar.push("<td class='divider' width='50px'>", lang.sla.score, "</td>");
-		ar.push("<td class='divider'>", lang.note, "</td>");
-		ar.push("</tr>");
-		r.rows.forEach(function(arg0, arg1) {
-		    ar.push("<tr>");
-		    ar.push("<td class='autoincrement'>", arg0.row_no + 1, "</td>");
-		    ar.push("<td class='string'>", G.shielding(arg0.descr), "</td>");
-		    ar.push("<td class='int'>", G.getint_l(arg0.score), "</td>");
-		    ar.push("<td class='string'>", G.shielding(arg0.note), "</td>");
-		    ar.push("</tr>");
-		});
-		ar.push("</table>");
 	    } else if( r._t == "training" ) {
 		ar.push("<div>");
 		ar.push("<h2>", "{0} {1} {2} / {3}".format_a(lang.doctypes[r._t], lang.num, r.doc_no, r.doc_id), 
@@ -2027,7 +1975,6 @@ var __route = (function() {
 	fn("shelf");
 	fn("stock");
 	fn("target");
-	fn("testing");
 	fn("training");
 	fn("wish");
 
@@ -2140,7 +2087,6 @@ var __route = (function() {
 	fn("target");
 	fn("training");
 	fn("presentation");
-	fn("testing");
 	fn("promo");
 	fn("comment");
 	fn("quest");
@@ -2175,7 +2121,6 @@ var __route = (function() {
 /* obsolete after 2022.06 BEGIN */
 			for( k in data.audits) { data.audits[k].forEach(function(arg) { if( !Array.isArray(arg.rows) && Array.isArray(arg.criterias) ) arg.rows = arg.criterias; }); }
 			for( k in data.ratings) { data.ratings[k].forEach(function(arg) { if( !Array.isArray(arg.rows) && Array.isArray(arg.criterias) ) arg.rows = arg.criterias; }); }
-			for( k in data.testings) { data.testings[k].forEach(function(arg) { if( !Array.isArray(arg.rows) && Array.isArray(arg.criterias) ) arg.rows = arg.criterias; }); }
 			for( k in data.shelfs) { data.shelfs[k].forEach(function(arg) { if( !Array.isArray(arg.rows) && Array.isArray(arg.brands) ) arg.rows = arg.brands; }); }
 /* END */
 			data._c = _compile_route(data);

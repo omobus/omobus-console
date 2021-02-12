@@ -42,7 +42,6 @@ M.permissions = {
     targets 		= require 'roles.defs.targets',
     targets_compliance 	= require 'roles.defs.targets_compliance',
     tech 		= require 'roles.defs.tech',
-    testings 		= require 'roles.defs.testings',
     tickets 		= require 'roles.defs._ro',
     time 		= require 'roles.defs.time',
     training_materials 	= require 'roles.defs._ro',

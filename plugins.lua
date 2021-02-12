@@ -41,7 +41,6 @@ local modules = {
 	targets 		= require 'plugins.targets',
 	targets_compliance 	= require 'plugins.targets_compliance',
 	tech 			= require 'plugins.tech',
-	testings 		= require 'plugins.testings',
 	tickets 		= require 'plugins.tickets',
 	time 			= require 'plugins.time',
 	training_materials 	= require 'plugins.training_materials',
