@@ -637,7 +637,7 @@ var __route = (function() {
 		    ar.push("<td class='ref'>", G.shielding(e.confirm), "<div class='watermark'>", G.shielding(e.doc_note), "</div></td>");
 		    ar.push("<td class='ref'>");
 		    if( Array.isArray(e.photos) ) {
-			r.photos.forEach(function(arg0, arg1, arg2) {
+			e.photos.forEach(function(arg0, arg1, arg2) {
 			    ar.push("<div class='ref'><a href='javascript:void(0)' onclick='PLUG.slideshow([", arg2.join(','), "],",
 				(arg1+1), ")'>[&nbsp;", (arg1+1), "&nbsp;]</a></div>");
 			});
