@@ -48,13 +48,13 @@ var PLUG = (function() {
 	ar.push("<th>", lang.b_date, "</th>");
 	ar.push("<th>", lang.e_date, "</th>");
 	ar.push("<th>", lang.duration, "</th>");
-	ar.push("<th class='symbol'>", "&#x2692;", "</th>");
+	ar.push("<th class='symbol footnote' data-title='", lang.time.timing, "'>", "&#x2692;", "</th>");
 	ar.push("<th>", lang.mileageAbbr, "</th>");
 	ar.push("<th>", lang.scheduled, "</th>");
 	ar.push("<th>", lang.closed, "</th>");
 	ar.push("<th>", lang.pending, "</th>");
-	ar.push("<th>", "&#x2713;", "</th>");
-	ar.push("<th>", "&#x2717;", "</th>");
+	ar.push("<th class='footnote' data-title='", lang.time.accepted, "'>", "&#x2713;", "</th>");
+	ar.push("<th class='footnote' data-title='", lang.time.rejected, "'>", "&#x2717;", "</th>");
 	ar.push("<th id='rule0'>", lang.less_min.format_a(lang.dash), "</th>");
 	ar.push("<th id='rule1'>", lang.more_min.format_a(lang.dash), "</th>");
 	ar.push("<th id='rule2'>", lang.more_meter.format_a(lang.dash), "</th>");
@@ -127,18 +127,38 @@ var PLUG = (function() {
 		    } else {
 			ar.push("<td class='delim ref disabled' colspan='5'>", lang.none.toLowerCase(), "</td>");
 		    }
-		    ar.push("<td class='int' width='40px'>", r.scheduled > 0 ? (G.getint_l(r.scheduled) + 
-			(r.discarded > 0 ? "<sup>&nbsp;(-{0})</sup>".format_a(r.discarded) : "")) : lang.dash, "</td>");
-		    ar.push("<td class='int' width='40px'>", r.closed > 0 || r.other > 0 ? (G.getint_l(r.closed,0) + 
-			(r.other > 0 ? "<sup>&nbsp;(+{0})</sup>".format_a(r.other) : "")) : lang.dash, "</td>");
-		    ar.push("<td class='int' width='40px'>", r.pending > 0 ? G.getint_l(r.pending) : lang.dash, "</td>");
-		    ar.push("<td class='int' width='40px'>", r.accepted > 0 ? G.getint_l(r.accepted) : lang.dash, "</td>");
-		    ar.push("<td class='int", r.rejected > 0 ? " attention" : "", "' width='40px'>", 
+		    ar.push("<td class='smallint'>");
+		    if( r.scheduled > 0 ) {
+			if( r.discarded > 0 ) {
+			    ar.push("<span class='footnote' data-title='{2}'>{0}<sup>&nbsp;(-{1})</sup></span>".format_a(
+				G.getint_l(r.scheduled), r.discarded, lang.time.discarded));
+			} else {
+			    ar.push(G.getint_l(r.scheduled));
+			}
+		    } else {
+			ar.push(lang.dash);
+		    }
+		    ar.push("</td>");
+		    ar.push("<td class='smallint'>");
+		    if( r.closed > 0 || r.other > 0 ) {
+			if( r.other > 0 ) {
+			    ar.push("<span class='footnote' data-title='{2}'>{0}<sup>&nbsp;(+{1})</sup></span>".format_a(
+				G.getint_l(r.closed,0), r.other, lang.time.other));
+			} else {
+			    ar.push(G.getint_l(r.closed));
+			}
+		    } else {
+			ar.push(lang.dash);
+		    }
+		    ar.push("</td>");
+		    ar.push("<td class='smallint'>", r.pending > 0 ? G.getint_l(r.pending) : lang.dash, "</td>");
+		    ar.push("<td class='smallint'>", r.accepted > 0 ? G.getint_l(r.accepted) : lang.dash, "</td>");
+		    ar.push("<td class='smallint", r.rejected > 0 ? " attention" : "", "'>", 
 			r.rejected > 0 ? G.getint_l(r.rejected) : lang.dash, "</td>");
-		    ar.push("<td class='int", r.warn_min_duration > 0 ? " attention" : "", "' width='40px'>", 
+		    ar.push("<td class='smallint", r.warn_min_duration > 0 ? " attention" : "", "'>", 
 			r.warn_min_duration > 0 ? G.getint_l(r.warn_min_duration) : lang.dash, "</td>");
-		    ar.push("<td class='int' width='40px'>", r.warn_max_duration > 0 ? G.getint_l(r.warn_max_duration) : lang.dash, "</td>");
-		    ar.push("<td class='delim int", r.warn_max_distance > 0 ? " attention" : "", "' width='40px'>", 
+		    ar.push("<td class='smallint'>", r.warn_max_duration > 0 ? G.getint_l(r.warn_max_duration) : lang.dash, "</td>");
+		    ar.push("<td class='delim smallint", r.warn_max_distance > 0 ? " attention" : "", "'>", 
 			r.warn_max_distance > 0 ? G.getint_l(r.warn_max_distance) : lang.dash, "</td>");
 		}
 		if( perm.columns != null && perm.columns.area == true ) {
