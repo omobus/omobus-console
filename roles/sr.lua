@@ -13,6 +13,7 @@ M.permissions = {
     checkups 		= require 'roles.defs.checkups',
     comments 		= require 'roles.defs.comments',
     confirmations 	= require 'roles.defs.confirmations',
+    contacts 		= require 'roles.defs.contacts',
     joint_routes 	= require 'roles.defs.joint_routes',
     oos 		= require 'roles.defs.oos',
     orders 		= require 'roles.defs.orders',
