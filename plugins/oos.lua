@@ -104,7 +104,7 @@ select chan_id, descr, hidden from channels
 	if err == nil or err == false then
 	    tb.retail_chains, err = func_execute(tran,
 [[
-select rc_id, descr, ka_code, hidden from retail_chains
+select rc_id, descr, ka_type, hidden from retail_chains
     order by descr
 ]]
 		, "//oos/retail_chains"

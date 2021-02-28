@@ -108,7 +108,7 @@ var PLUG = (function() {
 	    chan:true,
 	    poten:true,
 	    retail_chain:true,
-	    ka_code:true,
+	    ka_type:true,
 	    region:true,
 	    city:true
 	});

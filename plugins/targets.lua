@@ -69,7 +69,7 @@ order by x.b_date desc, x.e_date, x.subject
 	end
 	if err == nil or err == false then
 	    tb.retail_chains, err = func_execute(tran, 
-		"select rc_id, descr, ka_code from retail_chains where hidden=0 order by descr", 
+		"select rc_id, descr, ka_type from retail_chains where hidden=0 order by descr", 
 		"//targets/retail_chains/")
 	end
 	if err == nil or err == false then

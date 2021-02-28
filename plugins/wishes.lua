@@ -23,7 +23,7 @@ select
     j.account_id, a.code a_code, a.descr a_name, a.address,
     /*reg.descr region,*/
     /*c.descr city,*/
-    a.rc_id, r.descr rc, r.ka_code,
+    a.rc_id, r.descr rc, r.ka_type,
     p.descr poten,
     a.chan_id, ch.descr chan,
     j.user_id, u.descr u_name, u.dev_login, u.area,
@@ -116,7 +116,7 @@ select chan_id, descr, hidden from channels
 	if err == nil or err == false then
 	    tb.retail_chains, err = func_execute(tran,
 [[
-select rc_id, descr, ka_code, hidden from retail_chains
+select rc_id, descr, ka_type, hidden from retail_chains
     order by descr
 ]]
 		, "//wishes/retail_chains/"

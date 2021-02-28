@@ -140,7 +140,7 @@ order by descr
 [[
 select 
     a.account_id, a.code a_code, a.descr a_name, a.address, a.latitude, a.longitude, c.descr chan, p.descr poten, 
-    z.descr ratail_chain, z.ka_code, r.descr region, i.descr city, a.locked, a.approved
+    z.descr ratail_chain, z.ka_type, r.descr region, i.descr city, a.locked, a.approved
 from accounts a
     left join potentials p on a.poten_id = p.poten_id
     left join channels c on a.chan_id = c.chan_id

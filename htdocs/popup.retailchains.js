@@ -106,7 +106,7 @@ RetailChainsPopup.prototype._get = function(rows, everything) {
         if( (r = rows[i]) != null ) {
 	    ar.push("<tr " + (r._selected ? "class='selected'" : "") + "><td " + (r.hidden ? "class='strikethrough'" : "") + ">",
 		G.shielding(r.descr, lang.dash), 
-		typeof r.ka_code == 'undefined' ? "" : "<br/><span class='watermark'>{0}:&nbsp;&nbsp;{1}</span>".format_a(lang.ka_code, r.ka_code),
+		typeof r.ka_type == 'undefined' ? "" : "<br/><span class='watermark'>{0}:&nbsp;&nbsp;{1}</span>".format_a(lang.ka_type, r.ka_type),
 		"</td></tr>");
         }
     }

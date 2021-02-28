@@ -70,7 +70,7 @@ var PLUG = (function() {
 	    account_id:true, a_code:true, a_name:true, address:true, 
 	    chan_id: true, chan:true, 
 	    poten:true, 
-	    rc_id:true, rc:true, ka_code:true, 
+	    rc_id:true, rc:true, ka_type:true, 
 	    region:true, city:true, 
 	    categ_id:true, categ:true,
 	    head_id:true
@@ -294,7 +294,7 @@ var PLUG = (function() {
 			ws.cell("J{0}".format_a(i + offset)).value(r.region);
 			ws.cell("K{0}".format_a(i + offset)).value(r.city);
 			ws.cell("L{0}".format_a(i + offset)).value(r.rc);
-			ws.cell("M{0}".format_a(i + offset)).value(r.ka_code);
+			ws.cell("M{0}".format_a(i + offset)).value(r.ka_type);
 			ws.cell("N{0}".format_a(i + offset)).value(r.categ);
 			ws.cell("O{0}".format_a(i + offset)).value(G.getpercent_l(r.sla));
 			if( Array.isArray(r.refs) && r.refs.length > 0 ) {

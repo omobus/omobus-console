@@ -74,7 +74,7 @@ var PLUG = (function() {
 	    account_id:true, a_code:true, a_name:true, address:true, 
 	    chan_id:true, chan:true, 
 	    poten_id:true, poten:true,
-	    rc_id:true, rc:true, ka_code:true, 
+	    rc_id:true, rc:true, ka_type:true, 
 	    region:true, 
 	    city:true, 
 	    activity_type:true,

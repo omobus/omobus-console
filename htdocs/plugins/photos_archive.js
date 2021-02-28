@@ -95,7 +95,7 @@ var PLUG = (function() {
 	    account_id:true, code:true, a_name:true, address:true, 
 	    chan_id:true, chan:true, 
 	    poten_id:true, poten:true,
-	    rc_id:true, rc:true, ka_code:true,
+	    rc_id:true, rc:true, ka_type:true,
 	    region_id:true, region:true,
 	    city_id:true, city:true
 	});
@@ -229,7 +229,7 @@ var PLUG = (function() {
 		    });
 		    _resolveLinks(data.rows, data.objects.retail_chains, "rc_id", function(r, ptr) {
 			r.rc = ptr.descr;
-			r.ka_code = ptr.ka_code;
+			r.ka_type = ptr.ka_type;
 		    });
 		    _resolveLinks(data.rows, data.objects.channels, "chan_id", function(r, ptr) {
 			r.chan = ptr.descr;

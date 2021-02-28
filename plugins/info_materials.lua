@@ -65,13 +65,13 @@ and (
 	    if err == nil or err == false then
 		tb.retail_chains, err = func_execute(tran,
 [[
-select rc_id, descr, ka_code, country_id from retail_chains
+select rc_id, descr, ka_type, country_id from retail_chains
     where hidden = 0 and (
 	country_id = any(string_to_array(%country_id%,',')::uids_t)
 	    or
 	country_id in (select country_id from users where user_id=%user_id%)
 	)
-order by descr, ka_code, rc_id
+order by descr, ka_type, rc_id
 ]]
 		    , "//info_materials/retail_chains", { 
 			user_id = sestb.erpid,
@@ -128,9 +128,9 @@ and (
 	    if err == nil or err == false then
 		tb.retail_chains, err = func_execute(tran,
 [[
-select rc_id, descr, ka_code, country_id from retail_chains
+select rc_id, descr, ka_type, country_id from retail_chains
     where hidden = 0 and (%country_id% is null or country_id = any(string_to_array(%country_id%,',')::uids_t))
-order by descr, ka_code, rc_id
+order by descr, ka_type, rc_id
 ]]
 		    , "//info_materials/retail_chains", {
 			country_id = sestb.country == nil and stor.NULL or sestb.country
@@ -168,9 +168,9 @@ order by row_no, descr
 	    if err == nil or err == false then
 		tb.retail_chains, err = func_execute(tran,
 [[
-select rc_id, descr, ka_code, country_id from retail_chains
+select rc_id, descr, ka_type, country_id from retail_chains
     where hidden = 0
-order by descr, ka_code, rc_id
+order by descr, ka_type, rc_id
 ]]
 		    , "//info_materials/retail_chains"
 		)
