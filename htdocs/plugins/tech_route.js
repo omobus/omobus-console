@@ -195,8 +195,8 @@ var __route = (function() {
 	    } else if( z._t == "unsched" ) {
 		ar.push("<tr class='clickable'", (typeof checked != 'undefined' && checked[k]) ? "class='selected' " : "",
 		    " onclick='__route.checkrow(this,\"", k, "\")'>");
-		ar.push("<td colspan='4'>", lang.tech.route.unsched, "</td>");
-		ar.push("<td colspan='", 3 + _optcols(), "'>", _unsched(r).join(". "), "</td>");
+		ar.push("<td colspan='5'>", lang.tech.route.unsched, "</td>");
+		ar.push("<td colspan='", 2 + _optcols(), "'>", _unsched(r).join(". "), "</td>");
 		ar.push("<td colspan='2' class='datetime'>", _tm(date, Date.parseISO8601(r.fix_dt)), "</td>");
 		ar.push("<td colspan='7'>&nbsp;</td>");
 		ar.push("</tr>");
@@ -210,16 +210,16 @@ var __route = (function() {
 		}
 		ar.push("<tr class='clickable'", (typeof checked != 'undefined' && checked[k]) ? "class='selected' " : "",
 		    " onclick='__route.checkrow(this,\"", k, "\")'>");
-		ar.push("<td colspan='4'>", lang.tech.route.addition, "</td>");
-		ar.push("<td colspan='", 3 + _optcols(), "'>", _addition(r).join(' '), "</td>");
+		ar.push("<td colspan='5'>", lang.tech.route.addition, "</td>");
+		ar.push("<td colspan='", 2 + _optcols(), "'>", _addition(r).join(' '), "</td>");
 		ar.push("<td colspan='2' class='datetime'>", _tm(date, Date.parseISO8601(r.fix_dt)), "</td>");
 		ar.push("<td colspan='7' class='ref'", Array.isArray(r.photos) ? " onclick='event.stopPropagation();'" : "", ">", 
 		    Array.isArray(r.photos) ? blobs.join("&nbsp;&nbsp;") : "&nbsp;", "</td>");
 		ar.push("</tr>");
 	    } else if( z._t == "joint" ) {
 		ar.push("<tr class='watermark'>");
-		ar.push("<td colspan='4'>&nbsp;</td>");
-		ar.push("<td colspan='", 3 + _optcols(), "'>", (r.state =='begin' ? lang.tech.route.joint.b : lang.tech.route.joint.e).
+		ar.push("<td colspan='5'>&nbsp;</td>");
+		ar.push("<td colspan='", 2 + _optcols(), "'>", (r.state =='begin' ? lang.tech.route.joint.b : lang.tech.route.joint.e).
 		    format_a(G.shielding(r.e_name)), "</td>");
 		ar.push("<td colspan='2' class='datetime'>", _tm(date, Date.parseISO8601(r.fix_dt)), "</td>");
 		ar.push("<td colspan='7'>&nbsp;</td>");
