@@ -23,8 +23,9 @@ select
     m.descr, 
     blob_length(m.blob) blob_size,
     m.content_type,
-    m.country_id, c.descr country, 
     array_to_string(m.brand_ids,'|') brand_ids, (select string_agg(descr, '|') from brands where brand_id=any(m.brand_ids)) brands,
+    m.country_id, c.descr country, 
+    array_to_string(m.dep_ids,'|') dep_ids, (select string_agg(descr, '|') from departments where dep_id=any(m.dep_ids)) departments,
     m.rc_id, r.descr rc,
     array_to_string(m.chan_ids,'|') chan_ids, (select string_agg(descr, '|') from channels where chan_id=any(m.chan_ids)) channels,
     m.author_id, case when u.user_id is null then m.author_id else u.descr end author,
@@ -49,10 +50,9 @@ and (
 		or
 	    m.country_id in (select country_id from users where user_id=%user_id%)
 	) and (
-	    (select dep_ids from users where user_id=%user_id%) is null
+	    m.dep_ids is null
 		or
-	    (select count(brand_id) from brands where (dep_id in (select unnest(dep_ids) from users 
-		where user_id=%user_id% and dep_ids is not null) or dep_id is null) and brand_id=any(m.brand_ids)) > 0
+	    (select case when dep_ids is null or m.dep_ids && dep_ids then 1 else 0 end from users where user_id = %user_id%) > 0
 	)
     )
 )
@@ -96,6 +96,16 @@ order by descr, ka_type, rc_id
 		)
 	    end
 	    if err == nil or err == false then
+		tb.departments, err = func_execute(tran,
+[[
+select dep_id, descr from departments
+    where hidden = 0 and (select case when NIL(dep_id) is null or dep_id=any(dep_ids) then 1 else 0 end from users where user_id=%user_id%) > 0
+order by descr, dep_id
+]]
+		    , "//planograms/departments", { user_id = sestb.erpid}
+		)
+	    end
+	    if err == nil or err == false then
 		tb.countries, err = func_execute(tran,
 [[
 select country_id, descr from countries
@@ -119,10 +129,9 @@ and (
     lower(m.author_id)=lower(%my%)
 	or
     (
-	(%country_id% is null or (m.country_id=any(string_to_array(%country_id%,',')::uids_t)))
+	(%country_id% is null or m.country_id = any(string_to_array(%country_id%,',')::uids_t))
 	    and
-	(select count(brand_id) from brands where (%dep_id% is null or dep_id is null or 
-	    dep_id=any(string_to_array(%dep_id%,',')::uids_t)) and brand_id=any(m.brand_ids)) > 0
+	(%dep_id% is null or m.dep_ids is null or m.dep_ids && string_to_array(%dep_id%,',')::uids_t)
     )
 )
 ]]
@@ -156,6 +165,18 @@ order by descr, ka_type, rc_id
 			country_id = sestb.country == nil and stor.NULL or sestb.country
 		    }
 		)
+	    end
+	    if err == nil or err == false then
+		tb.departments, err = func_execute(tran,
+[[
+select dep_id, descr from departments
+    where hidden = 0 and (%dep_id% is null or dep_id is null or dep_id=any(string_to_array(%dep_id%,',')::uids_t))
+order by descr, dep_id
+]]
+		    , "//planograms/departments", {
+			dep_id = sestb.department == nil and stor.NULL or sestb.department
+		}
+	    )
 	    end
 	    if err == nil or err == false then
 		tb.countries, err = func_execute(tran,
@@ -194,6 +215,16 @@ order by descr, ka_type, rc_id
 		)
 	    end
 	    if err == nil or err == false then
+		tb.departments, err = func_execute(tran,
+[[
+select dep_id, descr from departments
+    where hidden = 0
+order by descr, dep_id
+]]
+		    , "//info_materials/departments"
+		)
+	    end
+	    if err == nil or err == false then
 		tb.countries, err = func_execute(tran,
 [[
 select country_id, descr from countries
@@ -212,6 +243,54 @@ select chan_id, descr from channels
 order by descr
 ]]
 		, "//planograms/channels"
+	    )
+	end
+
+	--[[ get data for filters without any limitations ]]
+	tb._f = {}
+	if err == nil or err == false then
+	    tb._f.brands, err = func_execute(tran,
+[[
+select brand_id, descr, hidden from brands
+    order by descr, row_no
+]]
+		, "//planograms/_f/brands"
+	    )
+	end
+	if err == nil or err == false then
+	    tb._f.retail_chains, err = func_execute(tran,
+[[
+select rc_id, descr, ka_type, country_id, hidden from retail_chains
+    order by descr, ka_type
+]]
+		, "//planograms/_f/retail_chains"
+	    )
+	end
+	if err == nil or err == false then
+	    tb._f.channels, err = func_execute(tran,
+[[
+select chan_id, descr, hidden from channels
+    order by descr
+]]
+		, "//planograms/_f/channels"
+	    )
+	end
+	if err == nil or err == false then
+	    tb._f.departments, err = func_execute(tran,
+[[
+select dep_id, descr, hidden from departments
+    order by descr, dep_id
+]]
+		, "//planograms/_f/departments"
+	    )
+	end
+	if err == nil or err == false then
+	    tb._f.countries, err = func_execute(tran,
+[[
+select country_id, descr, hidden from countries
+    order by row_no, descr
+]]
+	    , "//planograms/_f/countries"
 	    )
 	end
 
@@ -258,8 +337,9 @@ local function put(stor, uid, params)
 [[
 select console.req_planogram(%req_uid%, %_datetime%, 'edit', %pl_id%, (
 	%name%, 
+	string_to_array(%brand_ids%,','),
 	%country_id%, 
-	string_to_array(%brand_ids%,','), 
+	string_to_array(%dep_ids%,','),
 	%rc_id%,
 	string_to_array(%chan_ids%,','),
 	%b_date%,
@@ -291,6 +371,11 @@ end
 
 local function personalize(data, u_id)
     local p = {}
+    local idx_brands = {}
+    local idx_chans = {}
+    local idx_rcs = {}
+    local idx_deps = {}
+    local idx_couns = {}
 
     if data.rows ~= nil then
 	for i, v in ipairs(data.rows) do
@@ -300,15 +385,30 @@ local function personalize(data, u_id)
 	    v.brands = split(v.brands)
 	    v.chan_ids = split(v.chan_ids)
 	    v.channels = split(v.channels)
+	    v.dep_ids = split(v.dep_ids)
+	    v.departments = split(v.departments)
+
+	    if v.brand_ids ~= nil then for _, q in ipairs(v.brand_ids) do idx_brands[q] = 1; end; end
+	    if v.chan_ids ~= nil then for _, q in ipairs(v.chan_ids) do idx_chans[q] = 1; end; end
+	    if v.rc_id ~= nil then idx_rcs[v.rc_id] = 1; end
+	    if v.dep_ids ~= nil then for _, q in ipairs(v.dep_ids) do idx_deps[q] = 1; end; end
+	    if v.country_id ~= nil then idx_couns[v.country_id] = 1; end
 	end
     end
 
     p.rows = data.rows
     p.mans = {}
-    p.mans.countries = data.countries
     p.mans.brands = data.brands
+    p.mans.countries = data.countries
+    p.mans.departments = data.departments
     p.mans.retail_chains = data.retail_chains
     p.mans.channels = data.channels
+    p._f = {}
+    p._f.brands = core.reduce(data._f.brands, 'brand_id', idx_brands)
+    p._f.countries = core.reduce(data._f.countries, 'country_id', idx_couns)
+    p._f.departments = core.reduce(data._f.departments, 'dep_id', idx_deps)
+    p._f.channels = core.reduce(data._f.channels, 'chan_id', idx_chans)
+    p._f.retail_chains = core.reduce(data._f.retail_chains, 'rc_id', idx_rcs)
 
     return p
 end
@@ -318,7 +418,10 @@ end
 function M.scripts(lang, permtb, sestb, params)
     local ar = {}
     table.insert(ar, '<script src="' .. V.static_prefix .. '/slideshow.simple.js"> </script>')
+    table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.brands.js"> </script>')
+    table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.channels.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.countries.js"> </script>')
+    table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.departments.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.retailchains.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/plugins/planograms.js"> </script>')
     return table.concat(ar,"\n")
@@ -399,13 +502,15 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
 	assert(mp, "unable to parse multipart data.")
 	assert(validate.isdatetime(mp._datetime), "invalid [_datetime] parameter.")
 	assert(#mp.name, "invalid [name] parameter.")
-	assert(validate.isuid(mp.country_id), "invalid [country_id] parameter.")
 	assert(validate.isuids(mp.brand_ids), "invalid [brand_ids] parameter.")
+	assert(validate.isuid(mp.country_id), "invalid [country_id] parameter.")
+	assert(mp.dep_ids == nil or validate.isuids(mp.dep_ids), "invalid [dep_ids] parameter.")
 	assert(mp.rc_id == nil or validate.isuids(mp.rc_id), "invalid [rc_id] parameter.")
 	assert(mp.chan_ids == nil or validate.isuids(mp.chan_ids), "invalid [chan_ids] parameter.")
 	assert(mp.b_date == nil or validate.isdate(mp.b_date), "invalid [b_date] parameter.")
 	assert(mp.e_date == nil or validate.isdate(mp.e_date), "invalid [e_date] parameter.")
 	-- set unknown values
+	if mp.dep_ids == nil then mp.dep_ids = stor.NULL end
 	if mp.rc_id == nil then mp.rc_id = stor.NULL end
 	if mp.chan_ids == nil then mp.chan_ids = stor.NULL end
 	if mp.b_date == nil then mp.b_date = stor.NULL end

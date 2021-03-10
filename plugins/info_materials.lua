@@ -24,18 +24,17 @@ select
     blob_length(m.blob) blob_size,
     m.content_type,
     m.country_id, c.descr country, 
-    m.dep_id, d.descr department, 
+    array_to_string(m.dep_ids,'|') dep_ids, (select string_agg(descr, '|') from departments where dep_id=any(m.dep_ids)) departments, 
     m.rc_id, r.descr rc,
     array_to_string(m.chan_ids,'|') chan_ids, (select string_agg(descr, '|') from channels where chan_id=any(m.chan_ids)) channels,
     m.author_id, case when u.user_id is null then m.author_id else u.descr end author,
     m.b_date,
     m.e_date
 from info_materials m
-    left join departments d on d.dep_id=m.dep_id
-    left join countries c on c.country_id=m.country_id
-    left join retail_chains r on r.rc_id=m.rc_id
-    left join users u on u.user_id=m.author_id
-where m.hidden=0 $(0)
+    left join countries c on c.country_id = m.country_id
+    left join retail_chains r on r.rc_id = m.rc_id
+    left join users u on u.user_id = m.author_id
+where m.hidden = 0 $(0)
 order by case when current_timestamp - m.updated_ts < '1 day' then current_timestamp - m.updated_ts else null end, m.descr, m.infom_id
 ]]
 	if sestb.erpid ~= nil then
@@ -48,11 +47,11 @@ and (
 	(
 	    m.country_id = any(string_to_array(%country_id%,',')::uids_t)
 		or
-	    m.country_id in (select country_id from users where user_id=%user_id%)
+	    m.country_id in (select country_id from users where user_id = %user_id%)
 	) and (
-	    m.dep_id is null
+	    m.dep_ids is null
 		or
-	    (select case when dep_ids is null or m.dep_id=any(dep_ids) then 1 else 0 end from users where user_id=%user_id%) > 0
+	    (select case when dep_ids is null or m.dep_ids && dep_ids then 1 else 0 end from users where user_id = %user_id%) > 0
 	)
     )
 )
@@ -115,7 +114,7 @@ and (
     (
 	(%country_id% is null or m.country_id = any(string_to_array(%country_id%,',')::uids_t))
 	    and
-	(%dep_id% is null or m.dep_id is null or m.dep_id = any(string_to_array(%dep_id%,',')::uids_t))
+	(%dep_id% is null or m.dep_ids is null or m.dep_ids && string_to_array(%dep_id%,',')::uids_t)
     )
 )
 ]]
@@ -196,6 +195,7 @@ order by row_no, descr
 		)
 	    end
 	end
+
 	if err == nil or err == false then
 	    tb.channels, err = func_execute(tran,
 [[
@@ -204,6 +204,45 @@ select chan_id, descr from channels
 order by descr
 ]]
 		, "//info_materials/channels"
+	    )
+	end
+
+	--[[ get data for filters without any limitations ]]
+	tb._f = {}
+	if err == nil or err == false then
+	    tb._f.retail_chains, err = func_execute(tran,
+[[
+select rc_id, descr, ka_type, country_id, hidden from retail_chains
+    order by descr, ka_type, rc_id
+]]
+		, "//info_materials/_f/retail_chains"
+	    )
+	end
+	if err == nil or err == false then
+	    tb._f.channels, err = func_execute(tran,
+[[
+select chan_id, descr, hidden from channels
+    order by descr
+]]
+		, "//info_materials/_f/channels"
+	    )
+	end
+	if err == nil or err == false then
+	    tb._f.departments, err = func_execute(tran,
+[[
+select dep_id, descr, hidden from departments
+    order by descr, dep_id
+]]
+		, "//info_materials/_f/departments"
+	    )
+	end
+	if err == nil or err == false then
+	    tb._f.countries, err = func_execute(tran,
+[[
+select country_id, descr, hidden from countries
+    order by row_no, descr
+]]
+		, "//info_materials/_f/countries"
 	    )
 	end
 
@@ -251,7 +290,7 @@ local function put(stor, uid, params)
 select console.req_info_material(%req_uid%, %_datetime%, 'edit', %infom_id%, (
 	%name%, 
 	%country_id%, 
-	%dep_id%, 
+	string_to_array(%dep_ids%,','),
 	%rc_id%, 
 	string_to_array(%chan_ids%,','),
 	%b_date%,
@@ -283,6 +322,10 @@ end
 
 local function personalize(data, u_id)
     local p = {}
+    local idx_chans = {}
+    local idx_rcs = {}
+    local idx_deps = {}
+    local idx_couns = {}
 
     if data.rows ~= nil then
 	for i, v in ipairs(data.rows) do
@@ -290,6 +333,13 @@ local function personalize(data, u_id)
 	    v._isowner = (v.author_id ~= nil and u_id:lower() == v.author_id:lower()) and true or false
 	    v.chan_ids = split(v.chan_ids)
 	    v.channels = split(v.channels)
+	    v.dep_ids = split(v.dep_ids)
+	    v.departments = split(v.departments)
+
+	    if v.chan_ids ~= nil then for _, q in ipairs(v.chan_ids) do idx_chans[q] = 1; end; end
+	    if v.rc_id ~= nil then idx_rcs[v.rc_id] = 1; end
+	    if v.dep_ids ~= nil then for _, q in ipairs(v.dep_ids) do idx_deps[q] = 1; end; end
+	    if v.country_id ~= nil then idx_couns[v.country_id] = 1; end
 	end
     end
 
@@ -299,6 +349,11 @@ local function personalize(data, u_id)
     p.mans.departments = data.departments
     p.mans.retail_chains = data.retail_chains
     p.mans.channels = data.channels
+    p._f = {}
+    p._f.countries = core.reduce(data._f.countries, 'country_id', idx_couns)
+    p._f.departments = core.reduce(data._f.departments, 'dep_id', idx_deps)
+    p._f.channels = core.reduce(data._f.channels, 'chan_id', idx_chans)
+    p._f.retail_chains = core.reduce(data._f.retail_chains, 'rc_id', idx_rcs)
 
     return p
 end
@@ -310,6 +365,7 @@ function M.scripts(lang, permtb, sestb, params)
     table.insert(ar, '<script src="' .. V.static_prefix .. '/slideshow.simple.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.countries.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.departments.js"> </script>')
+    table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.channels.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.retailchains.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/plugins/info_materials.js"> </script>')
     return table.concat(ar,"\n")
@@ -394,13 +450,13 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
 	assert(validate.isdatetime(mp._datetime), "invalid [_datetime] parameter.")
 	assert(#mp.name, "invalid [name] parameter.")
 	assert(validate.isuid(mp.country_id), "invalid [country_id] parameter.")
-	assert(mp.dep_id == nil or validate.isuid(mp.dep_id), "invalid [dep_id] parameter.")
+	assert(mp.dep_ids == nil or validate.isuids(mp.dep_ids), "invalid [dep_ids] parameter.")
 	assert(mp.rc_id == nil or validate.isuid(mp.rc_id), "invalid [rc_id] parameter.")
 	assert(mp.chan_ids == nil or validate.isuids(mp.chan_ids), "invalid [chan_ids] parameter.")
 	assert(mp.b_date == nil or validate.isdate(mp.b_date), "invalid [b_date] parameter.")
 	assert(mp.e_date == nil or validate.isdate(mp.e_date), "invalid [e_date] parameter.")
 	-- set unknown values
-	if mp.dep_id == nil then mp.dep_id = stor.NULL end
+	if mp.dep_ids == nil then mp.dep_ids = stor.NULL end
 	if mp.rc_id == nil then mp.rc_id = stor.NULL end
 	if mp.chan_ids == nil then mp.chan_ids = stor.NULL end
 	if mp.b_date == nil then mp.b_date = stor.NULL end

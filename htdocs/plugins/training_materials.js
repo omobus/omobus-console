@@ -7,7 +7,7 @@ var PLUG = (function() {
     var _cache = {}, _perm = {}, _tags = {};
 
     function _getcolumns(perm) {
-	return 9;
+	return 10;
     }
 
     function _getbody(perm) {
@@ -28,8 +28,9 @@ var PLUG = (function() {
 	ar.push("<th>", lang.code, "</th>");
 	ar.push("<th>", lang.training_material, "</th>");
 	ar.push("<th>", lang.blob_size, "</th>");
-	ar.push("<th>", lang.country, "</th>");
-	ar.push("<th>", lang.brand, "</th>");
+	ar.push("<th><a href='javascript:void(0)' onclick='PLUG.brands(this)'>", lang.brand, "</a></th>");
+	ar.push("<th><a href='javascript:void(0)' onclick='PLUG.countries(this)'>", lang.country, "</a></th>");
+	ar.push("<th><a href='javascript:void(0)' onclick='PLUG.departments(this)'>", lang.departmentAbbr, "</a></th>");
 	ar.push("<th>", lang.validity, "</th>");
 	ar.push("<th class='symbol'>", "&#x2699;", "</th>");
 	ar.push("<th>", lang.author, "</th>");
@@ -37,6 +38,9 @@ var PLUG = (function() {
 	ar.push("<tbody id='maintb'></tbody></table>");
 	ar.push(Dialog.container());
 	ar.push(SlideshowSimple.container());
+	ar.push(BrandsPopup.container());
+	ar.push(CountriesPopup.container());
+	ar.push(DepartmentsPopup.container());
 	return ar;
     }
 
@@ -55,12 +59,31 @@ var PLUG = (function() {
 	return ["<tr class='def'><td colspan='", _getcolumns(perm), "' class='message'>", msg, "</td></tr>"];
     }
 
-    function _shieldingStringArray(ar) {
-	let x = [];
-	for( let i = 0, size = ar == null ? 0 : ar.length; i < size; i++ ) {
-	    x.push(G.shielding(ar[i]));
+    function _shieldingStringArray(arg) {
+	const ar = [];
+	if( typeof __shieldingStringArrayIndex == 'undefined' ) {
+	    __shieldingStringArrayIndex = 0;
 	}
-	return x;
+	if( arg.length >= 3 ) {
+	    ar.push(G.shielding(arg[0]));
+	    ar.push("<div class='gone' id='zx:", __shieldingStringArrayIndex, "'>");
+	    for( let idx = 1; idx < arg.length; idx++ ) {
+		ar.push("<hr/><div class='row remark'>", arg[idx], "</div>");
+	    }
+	    ar.push("</div>");
+	    ar.push("<div class='symbol'><a href='javascript:void(0)' onclick='PLUG.expand(this,_(\"zx:",
+		__shieldingStringArrayIndex, "\"))'>", "&#x21F2;", "</a></div>");
+	    __shieldingStringArrayIndex++;
+	} else {
+	    arg.forEach(function(arg0, arg1) {
+		if( arg1 > 0 ) {
+		    ar.push("<hr/><div class='row remark'>", G.shielding(arg0), "</div>");
+		} else {
+		    ar.push(G.shielding(arg0));
+		}
+	    });
+	}
+	return ar;
     }
 
     function _datatbl(data, page, total, f, checked, perm) {
@@ -91,19 +114,22 @@ var PLUG = (function() {
 			    r.blob_size ? G.getnumeric_l(r.blob_size/1024, 1) : lang.dash, "</a>");
 		    }
 		    ar.push("</td>");
-		    ar.push("<td class='ref Xsw95px", String.isEmpty(r.country_id) ? " incomplete" : "", "'>", G.shielding(r.country), "</td>");
-		    ar.push("<td class='ref Xsw95px'>");
+		    ar.push("<td class='ref sw95px'>");
 		    if( Array.isArray(r.brands) ) {
-			r.brands.forEach(function(arg0, arg1) {
-			    if( arg1 > 0 ) {
-				ar.push("<hr/><div class='row remark'>", G.shielding(arg0), "</div>");
-			    } else {
-				ar.push(G.shielding(arg0));
-			    }
-			});
+			Array.prototype.push.apply(ar, _shieldingStringArray(r.brands));
+		    } else {
+			ar.push("<div class='row watermark'><i>", lang.without_restrictions, "</i></div>");
 		    }
 		    ar.push("</td>");
-		    ar.push("<td class='int' Xclass='date'>");
+		    ar.push("<td class='ref sw95px", String.isEmpty(r.country_id) ? " incomplete" : "", "'>", G.shielding(r.country), "</td>");
+		    ar.push("<td class='ref sw95px'>");
+		    if( Array.isArray(r.departments) ) {
+			Array.prototype.push.apply(ar, _shieldingStringArray(r.departments));
+		    } else {
+			ar.push("<div class='row watermark'><i>", lang.without_restrictions, "</i></div>");
+		    }
+		    ar.push("</td>");
+		    ar.push("<td class='date'>");
 		    if( !String.isEmpty(r.b_date) || !String.isEmpty(r.e_date) ) {
 			ar.push(G.getdate_l(r.b_date), "<hr/><div class='row remark'>", 
 			    G.getdate_l(r.e_date), "</div>");
@@ -169,9 +195,9 @@ var PLUG = (function() {
 	return ar;
     }
 
-    function _checkboxContainer(ar, rows, name) {
-	var x = 0;
-	ar.push("<hr/>");
+    function _checkboxContainer(ar, rows, name, descr) {
+	let x = 0;
+	ar.push("<div class='row'>", "{0}:".format_a(descr));
 	ar.push("<div class='tbl'>");
 	ar.push("<div class='tblbody'>");
 	ar.push("<div class='tblrow'>");
@@ -190,6 +216,10 @@ var PLUG = (function() {
 	    ar.push("</div>");
 	    x++;
 	}
+	if( x == 2 ) { /* align up to 3 columns */
+	    ar.push("<div class='row tblcell'>", "</div>");
+	}
+	ar.push("</div>");
 	ar.push("</div>");
 	ar.push("</div>");
 	ar.push("</div>");
@@ -205,16 +235,6 @@ var PLUG = (function() {
 	ar.push("<input id='param:name' type='text' placeholder='", lang.training_materials.placeholder, "' autocomplete='on'>", "</input>");
 	ar.push("</div>");
 	ar.push("<div class='row'>");
-	ar.push("<select id='param:country'>");
-	ar.push("<option value=''>", "{0}: {1}".format_a(lang.country, lang.without_restrictions), "</option>");
-	if( Array.isArray(mans.countries) ) {
-	    mans.countries.forEach(function(arg) {
-		ar.push("<option value='", G.shielding(arg.country_id), "'>", "{0}: {1}".format_a(lang.country, G.shielding(arg.descr)), "</option>");
-	    });
-	}
-	ar.push("</select>");
-	ar.push("</div>");
-	ar.push("<div class='row'>");
 	ar.push("<select id='param:daterange'>");
 	ar.push("<option value=''>", "{0}: {1}".format_a(lang.validity, lang.without_restrictions), "</option>");
 	ar.push("<option value='end_of_week'>", "{0}: {1}".format_a(lang.validity, lang.daterange.end_of_week), "</option>");
@@ -225,8 +245,23 @@ var PLUG = (function() {
 	ar.push("<option value='next_quarter'>", "{0}: {1}".format_a(lang.validity, lang.daterange.next_quarter), "</option>");
 	ar.push("</select>");
 	ar.push("</div>");
+	ar.push("<div class='row'>");
+	ar.push("<select id='param:country'>");
+	ar.push("<option value=''>", "{0}: {1}".format_a(lang.country, lang.without_restrictions), "</option>");
+	if( Array.isArray(mans.countries) ) {
+	    mans.countries.forEach(function(arg) {
+		ar.push("<option value='", G.shielding(arg.country_id), "'>", 
+		    "{0}: {1}".format_a(lang.country, G.shielding(arg.descr)), 
+		    "</option>");
+	    });
+	}
+	ar.push("</select>");
+	ar.push("</div>");
+	if( !Array.isEmpty(mans.departments) ) {
+	    _checkboxContainer(ar, mans.departments, "dep", lang.department);
+	}
 	if( !Array.isEmpty(mans.brands) ) {
-	    _checkboxContainer(ar, mans.brands, "brand");
+	    _checkboxContainer(ar, mans.brands, "brand", lang.brand);
 	}
 
 	return ar;
@@ -314,6 +349,40 @@ var PLUG = (function() {
 	return option
     }
 
+    function _togglePopup(popup, tag, offset, oncreate) {
+	var x;
+	for( var name in _tags.popups) {
+	    if( typeof popup != 'undefined' && name == popup ) {
+		x = _tags.popups[name];
+	    } else {
+		_tags.popups[name].hide();
+	    }
+	}
+	if( typeof popup != 'undefined' && x == null ) {
+	    x = _tags.popups[popup] = oncreate(popup);
+	}
+	if( x != null ) {
+	    x.toggle(tag, offset);
+	}
+    }
+
+    function _onpopup(tag, arg, keyname, filterkey) {
+	if( _cache.xfilters == null ) {
+	    _cache.xfilters = {};
+	}
+	if( filterkey == null || typeof filterkey == 'undefined' ) {
+	    filterkey = keyname;
+	}
+	if( typeof arg == 'object' ) {
+	    _cache.xfilters[filterkey] = Filter.escape(filterkey, arg[keyname]);
+	    tag.addClass('important');
+	} else {
+	    _cache.xfilters[filterkey] = null;
+	    tag.removeClass('important')
+	}
+	_page(1);
+    }
+
 
 /* public properties & methods */
     return {
@@ -392,8 +461,9 @@ var PLUG = (function() {
 		const data = _cache.data.rows.find(function(e) { return e.tm_id == arg; });
 		const newData = {
 		    descr: data.descr, 
-		    country_id: data.country_id, 
 		    brand_ids: Array.clone(data.brand_ids),
+		    country_id: data.country_id, 
+		    dep_ids: Array.clone(data.dep_ids),
 		    b_date: data.b_date,
 		    e_date: data.e_date
 		};
@@ -422,8 +492,9 @@ var PLUG = (function() {
 			String.isEmpty(newData.country_id) || 
 			(
 			    (data.descr||'') == (newData.descr||'') &&
-			    (data.country_id||'') == (newData.country_id||'') &&
 			    equals(data.brand_ids||[], newData.brand_ids||[]) &&
+			    (data.country_id||'') == (newData.country_id||'') &&
+			    equals(data.dep_ids||[], newData.dep_ids||[]) &&
 			    (data.b_date||'') == (newData.b_date||'') &&
 			    (data.e_date||'') == (newData.e_date||'')
 			);
@@ -446,10 +517,18 @@ var PLUG = (function() {
 		    if( cbar[i].type != 'checkbox' ) {
 			continue;
 		    }
+		    const mn = function(arg) {
+		    if( arg == 'chan' ) {
+			return 'channels';
+		    } else if( arg == 'dep' ) {
+			return 'departments';
+		    }
+		    return arg + 's';
+		    }
 		    const val = cbar[i];
 		    const type = val.getAttribute('data-type');
 		    const ref = val.getAttribute('data-ref');
-		    const ptr = mans[type+'s'][ref];
+		    const ptr = mans[mn(type)][ref];
 		    val.checked = Array.isArray(data[type+'_ids']) && data[type+'_ids'].findIndex(k => k == ptr[type+'_id']) >= 0;
 		    val.onchange = function() {
 			if( !Array.isArray(newData[type+'_ids']) ) {
@@ -525,6 +604,9 @@ var PLUG = (function() {
 			fd.append("name", newData.descr);
 			fd.append("country_id", newData.country_id);
 			
+			if( !String.isEmpty(newData.dep_ids) ) {
+			    fd.append("dep_ids", newData.dep_ids);
+			}
 			if( !Array.isEmpty(newData.brand_ids) ) {
 			    fd.append("brand_ids", newData.brand_ids);
 			}
@@ -580,6 +662,36 @@ var PLUG = (function() {
 		    ProgressDialog.hide();
 		}
 	    }).send(fd);
+	},
+	expand: function(tag, container) {
+	    if( container.hasClass('gone') ) {
+		container.removeClass('gone');
+		tag.html("&#x21F1;");
+	    } else {
+		container.addClass('gone');
+		tag.html("&#x21F2;");
+	    }
+	},
+	brands: function(tag, offset) {
+	    _togglePopup("brands", tag, offset, function(obj) {
+		return BrandsPopup(_cache.data._f[obj], function(arg, i, ar) {
+		    _onpopup(tag, arg, "brand_id", "brand_ids");
+		})
+	    });
+	},
+	departments: function(tag, offset) {
+	    _togglePopup("departments", tag, offset, function(obj) {
+		return DepartmentsPopup(_cache.data._f[obj], function(arg, i, ar) {
+		    _onpopup(tag, arg, "dep_id", "dep_ids");
+		})
+	    });
+	},
+	countries: function(tag, offset) {
+	    _togglePopup("countries", tag, offset, function(obj) {
+		return CountriesPopup(_cache.data._f[obj], function(arg, i, ar) {
+		    _onpopup(tag, arg, "country_id");
+		})
+	    });
 	}
     }
 })();
