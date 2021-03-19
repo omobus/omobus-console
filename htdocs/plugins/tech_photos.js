@@ -4,7 +4,7 @@
 PLUG.registerRef("photo", (function() {
     /* private properties & methods */
     var _cache = {}; // internal cache object for preventing reloading data
-    var _columns = 10;
+    var _columns = 11;
 
     function _gettable() {
 	var ar = [];
@@ -15,6 +15,7 @@ PLUG.registerRef("photo", (function() {
 	ar.push("<th>", lang.a_name, "</th>");
 	ar.push("<th>", lang.address, "</th>");
 	ar.push("<th>", lang.placement, "</th>");
+	ar.push("<th>", lang.asp_type, "</th>");
 	ar.push("<th>", lang.brand, "</th>");
 	ar.push("<th>", lang.photos.type, "</th>");
 	ar.push("<th width='95px'>", lang.photo, "</th>");
@@ -38,6 +39,7 @@ PLUG.registerRef("photo", (function() {
 	    ar.push("<td class='string", xs, "'>", G.shielding(r.a_name), "</td>");
 	    ar.push("<td class='string", xs, "'>", G.shielding(r.address), "</td>");
 	    ar.push("<td class='ref", xs, "'>", G.shielding(r.placement), "</td>");
+	    ar.push("<td class='ref", xs, "'>", G.shielding(r.asp_type), "</td>");
 	    ar.push("<td class='ref", xs, "'>", G.shielding(r.brand), "</td>");
 	    ar.push("<td class='ref", xs, "'>", G.shielding(r.photo_type), "</td>");
 	    ar.push("<td class='ref'>");

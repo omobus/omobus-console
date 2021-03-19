@@ -112,7 +112,7 @@ select rc_id, descr, ka_type, hidden from retail_chains
 	    )
 	end
 	if permtb.photo_type == true and (err == nil or err == false) then
-	    tb.types, err = func_execute(tran,
+	    tb.photo_types, err = func_execute(tran,
 [[
 select photo_type_id, descr, hidden from photo_types
     order by row_no, descr
@@ -127,6 +127,15 @@ select placement_id, descr, hidden from placements
     order by row_no, descr
 ]]
 		, "//photos/placements"
+	    )
+	end
+	if permtb.asp_type == true and (err == nil or err == false) then
+	    tb.asp_types, err = func_execute(tran,
+[[
+select asp_type_id, descr, hidden from asp_types
+    order by row_no, descr
+]]
+		, "//photos/asp_types"
 	    )
 	end
 	if permtb.brand == true and (err == nil or err == false) then
@@ -215,6 +224,7 @@ local function personalize(sestb, data)
     local idx_channels = {}
     local idx_rcs = {}
     local idx_placements = {}
+    local idx_asps = {}
     local idx_brands = {}
     local idx_types = {}
     local idx_heads = {}
@@ -238,6 +248,7 @@ local function personalize(sestb, data)
 		if v.rc_id ~= nil then idx_rcs[v.rc_id] = 1; end
 		if v.placement_id ~= nil then idx_placements[v.placement_id] = 1; end
 		if v.brand_id ~= nil then idx_brands[v.brand_id] = 1; end
+		if v.asp_type_id ~= nil then idx_asps[v.asp_type_id] = 1; end
 		if v.photo_type_id ~= nil then idx_types[v.photo_type_id] = 1; end
 		if v.head_id ~= nil then idx_heads[v.head_id] = 1; end
 		table.insert(tb, v); 
@@ -252,6 +263,7 @@ local function personalize(sestb, data)
 	    if v.rc_id ~= nil then idx_rcs[v.rc_id] = 1; end
 	    if v.placement_id ~= nil then idx_placements[v.placement_id] = 1; end
 	    if v.brand_id ~= nil then idx_brands[v.brand_id] = 1; end
+	    if v.asp_type_id ~= nil then idx_asps[v.asp_type_id] = 1; end
 	    if v.photo_type_id ~= nil then idx_types[v.photo_type_id] = 1; end
 	    if v.head_id ~= nil then idx_heads[v.head_id] = 1; end
 	end
@@ -263,7 +275,8 @@ local function personalize(sestb, data)
     p.retail_chains = core.reduce(data.retail_chains, 'rc_id', idx_rcs)
     p.placements = core.reduce(data.placements, 'placement_id', idx_placements)
     p.brands = core.reduce(data.brands, 'brand_id', idx_brands)
-    p.types = core.reduce(data.types, 'photo_type_id', idx_types)
+    p.asp_types = core.reduce(data.asp_types, 'asp_type_id', idx_asps)
+    p.photo_types = core.reduce(data.photo_types, 'photo_type_id', idx_types)
 
     return json.encode(p)
 end
@@ -276,6 +289,7 @@ function M.scripts(lang, permtb, sestb, params)
     table.insert(ar, '<script src="' .. V.static_prefix .. '/libs/lazyload-12.4.0.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/libs/xlsx-1.21.0.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup_L.monthcal.js"> </script>')
+    table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.asptypes.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.brands.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.channels.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.phototypes.js"> </script>')

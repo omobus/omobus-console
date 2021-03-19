@@ -26,12 +26,16 @@ var PLUG = (function() {
 	    ar.push("&nbsp;(<a href='javascript:void(0);' onclick='PLUG.refresh();'>", lang.refresh, "</a>)<span id='plugTotal'></span>");
 	    ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.placements(this,0.7)' X-everything='",
 		lang.placement_everything, "'>", lang.placement_everything, "</a>");
+	    if( perm.columns != null && perm.columns.asp_type == true ) {
+		ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.asp_types(this,0.7)' X-everything='",
+		    lang.asp_type_everything, "'>", lang.asp_type_everything, "</a>");
+	    }
 	    if( perm.columns != null && perm.columns.brand == true ) {
 		ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.brands(this,0.7)' X-everything='", 
 		    lang.brand_everything, "'>", lang.brand_everything, "</a>");
 	    }
 	    if( perm.columns != null && perm.columns.photo_type == true ) {
-		ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.types(this,0.7)' X-everything='",
+		ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.photo_types(this,0.7)' X-everything='",
 		    lang.photos.everything, "'>", lang.photos.everything, "</a>");
 	    }
 	    ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<input class='search' type='text' maxlength='96' autocomplete='off' placeholder='",
@@ -71,6 +75,7 @@ var PLUG = (function() {
 	}
 	ar.push("</tr>", G.thnums(_getcolumns(perm)), "</thead>");
 	ar.push("<tbody id='maintb'></tbody></table>");
+	ar.push(ASPTypesPopup.container());
 	ar.push(BrandsPopup.container());
 	ar.push(ChannelsPopup.container());
 	ar.push(PhotoTypesPopup.container());
@@ -240,6 +245,9 @@ var PLUG = (function() {
 		    if( Array.isArray(data.objects.placements) ) {
 			data.objects._placements = data.objects.placements.createIndexBy("placement_id");
 		    }
+		    if( Array.isArray(data.objects.asp_types) ) {
+			data.objects._asp_types = data.objects.asp_types.createIndexBy("asp_type_id");
+		    }
 		    if( Array.isArray(data.objects.brands) ) {
 			data.objects._brands = data.objects.brands.createIndexBy("brand_id");
 		    }
@@ -379,7 +387,12 @@ var PLUG = (function() {
 		    }
 		    ar.push("<tr>");
 		    ar.push("<td class='ref' width='30px'>", c, "</td>");
-		    ar.push("<td class='ref", xs, "' width='150px'>", G.shielding(x.placement), "</td>");
+		    ar.push("<td class='ref", xs, "' width='150px'>");
+		    ar.push(G.shielding(x.placement));
+		    if( !String.isEmpty(x.asp_type) ) {
+			ar.push("<div class='row watermark'>", G.shielding(x.asp_type), "</div>");
+		    }
+		    ar.push("</td>");
 		    ar.push("<td class='ref", xs, "' width='100px'>", G.shielding(x.brand), "</td>");
 		    ar.push("<td class='ref", xs, "' width='150px'>", G.shielding(x.photo_type), "</td>");
 		    ar.push("<td class='ref' width='130px'>");
@@ -433,6 +446,9 @@ var PLUG = (function() {
 			    var ptr;
 			    if( x.placement_id != null && hm._placements != null && (ptr = hm._placements[x.placement_id]) != null ) {
 				x.placement = ptr.descr;
+			    }
+			    if( x.asp_type_id != null && hm._asp_types != null && (ptr = hm._asp_types[x.asp_type_id]) != null ) {
+				x.asp_type = ptr.descr;
 			    }
 			    if( x.brand_id != null && hm._brands != null && (ptr = hm._brands[x.brand_id]) != null ) {
 				x.brand = ptr.descr;
@@ -565,6 +581,13 @@ var PLUG = (function() {
 		})
 	    });
 	},
+	asp_types: function(tag, offset) {
+	    _togglePopup("asp_types", tag, offset, function(obj) {
+		return ASPTypesPopup(_getobject(obj), function(arg, i, ar) {
+		    _onpopup2(tag, arg, "asp_type_id");
+		})
+	    });
+	},
 	brands: function(tag, offset) {
 	    _togglePopup("brands", tag, offset, function(obj) {
 		return BrandsPopup(_getobject(obj), function(arg, i, ar) {
@@ -572,7 +595,7 @@ var PLUG = (function() {
 		})
 	    });
 	},
-	types: function(tag, offset) {
+	photo_types: function(tag, offset) {
 	    _togglePopup("photo_types", tag, offset, function(obj) {
 		return PhotoTypesPopup(_getobject(obj), function(arg, i, ar) {
 		    _onpopup2(tag, arg, "photo_type_id");

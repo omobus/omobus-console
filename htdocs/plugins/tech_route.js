@@ -723,7 +723,12 @@ var __route = (function() {
 		r.forEach(function(e, row_no) {
 		    ar.push("<tr>");
 		    ar.push("<td class='autoincrement'>", row_no + 1, "</td>");
-		    ar.push("<td class='ref", xs, "' width='200px'>", G.shielding(e.placement), "</td>");
+		    ar.push("<td class='ref", xs, "' width='200px'>");
+		    ar.push(G.shielding(e.placement));
+		    if( !String.isEmpty(e.asp_type) ) {
+			ar.push("<div class='row watermark'>", G.shielding(e.asp_type), "</div>");
+		    }
+		    ar.push("</td>");
 		    ar.push("<td class='ref", xs, "' width='100px'>", G.shielding(e.brand), "</td>");
 		    ar.push("<td class='ref", xs, "' width='200px'>", G.shielding(e.photo_type), "</td>");
 		    ar.push("<td class='ref' width='130px'>");
@@ -735,7 +740,7 @@ var __route = (function() {
 		    }
 		    ar.push("</td>");
 		    ar.push("<td class='string", xs, "'>");
-		    if( !String.isEmpty(r.doc_note) ) {
+		    if( !String.isEmpty(e.doc_note) ) {
 			ar.push("<div class='row'>", G.shielding(e.doc_note), "</div>");
 		    }
 		    if( !Array.isEmpty(e.photo_params) ) {
@@ -1410,7 +1415,12 @@ var __route = (function() {
 		ar.push("<td class='divider'>", lang.note, "</td>");
 		ar.push("</tr>");
 		ar.push("<tr>");
-		ar.push("<td class='ref", xs, "' width='200px'>", G.shielding(r.placement), "</td>");
+		ar.push("<td class='ref", xs, "' width='200px'>");
+		ar.push(G.shielding(r.placement));
+		if( !String.isEmpty(r.asp_type) ) {
+			ar.push("<div class='row watermark'>", G.shielding(r.asp_type), "</div>");
+		}
+		ar.push("</td>");
 		ar.push("<td class='ref", xs, "' width='100px'>", G.shielding(r.brand), "</td>");
 		ar.push("<td class='ref", xs, "' width='200px'>", G.shielding(r.photo_type), "</td>");
 		ar.push("<td class='ref' width='130px'>");

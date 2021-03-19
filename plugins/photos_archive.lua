@@ -95,6 +95,7 @@ local function personalize(data, f, permtb)
     data.objects.retail_chains = core.reduce(data.objects.retail_chains, 'rc_id', idx_rcs)
     data.objects.channels = permtb.channel and core.reduce(data.objects.channels, 'chan_id', idx_channels) or nil
     data.objects.potentials = permtb.potential and core.reduce(data.objects.potentials, 'poten_id', idx_potentials) or nil
+    if not permtb.asp_type then data.objects.asp_types = nil; end
     if not permtb.brand then data.objects.brands = nil; end
     if not permtb.photo_type then data.objects.photo_types = nil; end
     data.objects.cities = nil
@@ -107,6 +108,7 @@ end
 -- *** plugin interface: begin
 function M.scripts(lang, permtb, sestb, params)
     local ar = {}
+    table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.asptypes.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.brands.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.channels.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.phototypes.js"> </script>')
@@ -155,6 +157,7 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
 
 	    assert(validate.isuid(params.account_id), "invalid [account_id] parameter.")
 	    assert(params.placement_id == nil or validate.isuid(params.placement_id), "invalid [placement_id] parameter.")
+	    assert(params.asp_type_id == nil or validate.isuid(params.asp_type_id), "invalid [asp_type_id] parameter.")
 	    assert(params.brand_id == nil or validate.isuid(params.brand_id), "function %s() invalid [brand_id] parameter.")
 	    assert(params.photo_type_id == nil or validate.isuid(params.photo_type_id), "invalid [photo_type_id] parameter.")
 
@@ -181,8 +184,14 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
 		scgi.writeHeader(res, 400, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
 		scgi.writeBody(res, "Not permitted")
 	    else
-		tb, err = ark.getJSON('photos', {year = params.year, account_id = params.account_id, placement_id = params.placement_id, 
-		    brand_id = params.brand_id, photo_type_id = params.photo_type_id})
+		tb, err = ark.getJSON('photos', {
+			year = params.year, 
+			account_id = params.account_id, 
+			placement_id = params.placement_id, 
+			asp_type_id = params.asp_type_id,
+			brand_id = params.brand_id, 
+			photo_type_id = params.photo_type_id
+		    })
 		if err then
 		    scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
 		    scgi.writeBody(res, "Internal server error")
@@ -198,11 +207,17 @@ function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor
 	    local tb0, tb1, err
 
 	    assert(params.placement_id == nil or validate.isuid(params.placement_id), "invalid [placement_id] parameter.")
+	    assert(params.asp_type_id == nil or validate.isuid(params.asp_type_id), "invalid [asp_type_id] parameter.")
 	    assert(params.brand_id == nil or validate.isuid(params.brand_id), "function %s() invalid [brand_id] parameter.")
 	    assert(params.photo_type_id == nil or validate.isuid(params.photo_type_id), "invalid [photo_type_id] parameter.")
 
-	    tb0, err = ark.getJSON('photos', {year = params.year, placement_id = params.placement_id, brand_id = params.brand_id,
-		photo_type_id = params.photo_type_id})
+	    tb0, err = ark.getJSON('photos', {
+		    year = params.year, 
+		    placement_id = params.placement_id, 
+		    asp_type_id = params.asp_type_id,
+		    brand_id = params.brand_id,
+		    photo_type_id = params.photo_type_id
+		})
 	    if err then
 		scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
 		scgi.writeBody(res, "Internal server error")
