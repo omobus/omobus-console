@@ -75,18 +75,20 @@ select brand_id, descr from brands
     )
 order by row_no, descr
 ]]
-		    , "//pos_materials/brands", { user_id = sestb.erpid}
+		    , "//pos_materials/brands", { 
+			user_id = sestb.erpid 
+		    }
 		)
 	    end
 	    if err == nil or err == false then
 		tb.departments, err = func_execute(tran,
 [[
 select dep_id, descr from departments
-    where hidden = 0 and (%dep_id% is null or dep_id is null or dep_id=any(string_to_array(%dep_id%,',')::uids_t))
+    where hidden = 0 and (select case when NIL(dep_id) is null or dep_id=any(dep_ids) then 1 else 0 end from users where user_id=%user_id%) > 0
 order by descr, dep_id
 ]]
 		    , "//pos_materials/departments", {
-			dep_id = sestb.department == nil and stor.NULL or sestb.department
+			user_id = sestb.erpid
 		    }
 		)
 	    end
@@ -177,6 +179,16 @@ order by row_no, descr
 ]]
 		    , "//pos_materials/brands"
 		)
+	    end
+	    if err == nil or err == false then
+		tb.departments, err = func_execute(tran,
+[[
+select dep_id, descr from departments
+    where hidden = 0
+order by descr, dep_id
+]]
+		    , "//pos_materials/departments"
+	    )
 	    end
 	    if err == nil or err == false then
 		tb.countries, err = func_execute(tran,
