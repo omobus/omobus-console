@@ -75,7 +75,9 @@ select brand_id, descr from brands
     )
 order by row_no, descr
 ]]
-		    , "//planograms/brands", { user_id = sestb.erpid}
+		    , "//planograms/brands", { 
+			user_id = sestb.erpid
+		    }
 		)
 	    end
 	    if err == nil or err == false then
@@ -102,7 +104,9 @@ select dep_id, descr from departments
     where hidden = 0 and (select case when NIL(dep_id) is null or dep_id=any(dep_ids) then 1 else 0 end from users where user_id=%user_id%) > 0
 order by descr, dep_id
 ]]
-		    , "//planograms/departments", { user_id = sestb.erpid}
+		    , "//planograms/departments", { 
+			user_id = sestb.erpid
+		    }
 		)
 	    end
 	    if err == nil or err == false then
