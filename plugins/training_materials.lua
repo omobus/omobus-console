@@ -63,13 +63,10 @@ and (
 		tb.brands, err = func_execute(tran,
 [[
 select brand_id, descr from brands
-    where hidden = 0 and manuf_id in (select manuf_id from manufacturers where competitor is null or competitor = 0) and (
-	dep_id is null 
-	    or 
-	(select dep_ids from users where user_id=%user_id%) is null
-	    or
-	dep_id in (select unnest(dep_ids) from users where user_id=%user_id% and dep_ids is not null)
-    )
+    where hidden = 0 and manuf_id in (select manuf_id from manufacturers where competitor is null or competitor = 0) 
+	and brand_id in (select distinct brand_id from products where dep_ids is null or 
+		dep_ids && coalesce((select dep_ids from users where user_id=%user_id%),dep_ids)
+	    )
 order by row_no, descr
 ]]
 		    , "//training_materials/brands", { 
@@ -113,10 +110,17 @@ and (
     lower(m.author_id)=lower(%my%)
 	or
     (
-	(%country_id% is null or m.country_id = any(string_to_array(%country_id%,',')::uids_t))
-	    and
-	(select count(brand_id) from brands where (%dep_id% is null or dep_id is null or 
-	    dep_id=any(string_to_array(%dep_id%,',')::uids_t)) and brand_id=any(m.brand_ids)) > 0
+	(
+	    %country_id% is null
+		or
+	    m.country_id = any(string_to_array(%country_id%,',')::uids_t)
+	) and (
+	    %dep_id% is null 
+		or
+	    m.dep_ids is null
+		or
+	    m.dep_ids && string_to_array(%dep_id%,',')::uids_t
+	)
     )
 )
 ]]
@@ -131,7 +135,9 @@ and (
 [[
 select brand_id, descr from brands
     where hidden = 0 and manuf_id in (select manuf_id from manufacturers where competitor is null or competitor = 0) 
-	and (%dep_id% is null or dep_id is null or dep_id=any(string_to_array(%dep_id%,',')::uids_t))
+	and brand_id in (select distinct brand_id from products where dep_ids is null or %dep_id% is null or
+		dep_ids && string_to_array(%dep_id%,',')::uids_t
+	    )
 order by row_no, descr
 ]]
 		    , "//training_materials/brands", { 
