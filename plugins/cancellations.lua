@@ -73,9 +73,9 @@ order by descr
 		tb._mans.users, err = func_execute(tran,
 [[
 select user_id, descr, dev_login, area, hidden from users
-    where hidden=0 and 
+    where hidden = 0
 	and (%dep_id% is null or dep_ids is null or dep_ids && string_to_array(%dep_id%,',')::uids_t)
-	and (%country_id% is null or (country_id=any(string_to_array(%country_id%,',')::uids_t)))
+	and (%country_id% is null or country_id=any(string_to_array(%country_id%,',')::uids_t))
 order by descr
 ]]
 		    , "//cancellations/mans/users/", { 
@@ -94,7 +94,7 @@ order by descr
 		tb._mans.users, err = func_execute(tran,
 [[
 select user_id, descr, dev_login, area, hidden from users
-    where hidden=0 and distr_ids && string_to_array(%distr_id%,',')::uids_t
+    where hidden = 0 and distr_ids && string_to_array(%distr_id%,',')::uids_t
 order by descr
 ]]
 		    , "//cancellations/mans/users/", { 
