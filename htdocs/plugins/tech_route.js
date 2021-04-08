@@ -706,7 +706,6 @@ var __route = (function() {
 		    ar.push("</table>");
 		});
 	    } else if( t == "photo" ) {
-		xs = typeof r.revoked != 'undefined' && r.revoked ? ' strikethrough' : '';
 		ar.push("<div>");
 		ar.push("<h2>", "{0}".format_a(lang.doctypes[t]), "</h2>");
 		ar.push("<span class='watermark'>", "{0}: {1}".format_a(lang.time_spent, lang.seconds.format_a(duration(r))), "</span>");
@@ -721,6 +720,7 @@ var __route = (function() {
 		ar.push("<td class='divider'>", lang.note, "</td>");
 		ar.push("</tr>");
 		r.forEach(function(e, row_no) {
+		    xs = typeof e.revoked != 'undefined' && e.revoked ? ' strikethrough' : '';
 		    ar.push("<tr>");
 		    ar.push("<td class='autoincrement'>", row_no + 1, "</td>");
 		    ar.push("<td class='ref", xs, "' width='200px'>");
@@ -757,7 +757,6 @@ var __route = (function() {
 		});
 		ar.push("</table>");
 	    } else if( t == "posm" ) {
-		xs = typeof r.revoked != 'undefined' && r.revoked ? ' strikethrough' : '';
 		ar.push("<div>");
 		ar.push("<h2>", "{0}".format_a(lang.doctypes[t]), "</h2>");
 		ar.push("<span class='watermark'>", "{0}: {1}".format_a(lang.time_spent, lang.seconds.format_a(duration(r))), "</span>");
@@ -771,6 +770,7 @@ var __route = (function() {
 		ar.push("<td class='divider'>", lang.note, "</td>");
 		ar.push("</tr>");
 		r.forEach(function(e, row_no) {
+		    xs = typeof e.revoked != 'undefined' && e.revoked ? ' strikethrough' : '';
 		    ar.push("<tr>");
 		    ar.push("<td class='autoincrement'>", row_no + 1, "</td>");
 		    ar.push("<td class='ref", xs, "' width='200px'>", G.shielding(e.placement), "</td>");
