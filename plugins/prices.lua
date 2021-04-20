@@ -132,6 +132,15 @@ select categ_id, descr, hidden from categories
 	    )
 	end
 	if err == nil or err == false then
+	    tb.products, err = func_execute(tran,
+[[
+select prod_id, code, descr, hidden from products
+    order by descr
+]]
+		, "//presences/products"
+	    )
+	end
+	if err == nil or err == false then
 	    tb.content, err = func_execute(tran,
 [[
 select content_ts, content_type, content_compress, content_blob from content_get('stat_prices', '', 
@@ -171,7 +180,8 @@ local function personalize(sestb, data)
     local idx_channels = {}
     local idx_rcs = {}
     local idx_brands = {}
-    local idx_categories = {}
+    local idx_categs = {}
+    local idx_prods = {}
     local idx_heads = {}
 
     if sestb.erpid ~= nil or sestb.department ~= nil or sestb.country ~= nil or sestb.distributor ~= nil or sestb.agency ~= nil then
@@ -192,7 +202,8 @@ local function personalize(sestb, data)
 		if v.chan_id ~= nil then idx_channels[v.chan_id] = 1; end
 		if v.rc_id ~= nil then idx_rcs[v.rc_id] = 1; end
 		if v.brand_id ~= nil then idx_brands[v.brand_id] = 1; end
-		if v.categ_id ~= nil then idx_categories[v.categ_id] = 1; end
+		if v.categ_id ~= nil then idx_categs[v.categ_id] = 1; end
+		if v.prod_id ~= nil then idx_prods[v.prod_id] = 1; end
 		if v.head_id ~= nil then idx_heads[v.head_id] = 1; end
 		table.insert(tb, v); 
 		v.row_no = #tb
@@ -205,7 +216,8 @@ local function personalize(sestb, data)
 	    if v.chan_id ~= nil then idx_channels[v.chan_id] = 1; end
 	    if v.rc_id ~= nil then idx_rcs[v.rc_id] = 1; end
 	    if v.brand_id ~= nil then idx_brands[v.brand_id] = 1; end
-	    if v.categ_id ~= nil then idx_categories[v.categ_id] = 1; end
+	    if v.categ_id ~= nil then idx_categs[v.categ_id] = 1; end
+	    if v.prod_id ~= nil then idx_prods[v.prod_id] = 1; end
 	    if v.head_id ~= nil then idx_heads[v.head_id] = 1; end
 	end
     end
@@ -215,7 +227,8 @@ local function personalize(sestb, data)
     p.channels = core.reduce(data.channels, 'chan_id', idx_channels)
     p.retail_chains = core.reduce(data.retail_chains, 'rc_id', idx_rcs)
     p.brands = core.reduce(data.brands, 'brand_id', idx_brands)
-    p.categories = core.reduce(data.categories, 'categ_id', idx_categories)
+    p.categories = core.reduce(data.categories, 'categ_id', idx_categs)
+    p.products = core.reduce(data.products, 'prod_id', idx_prods)
 
     return json.encode(p)
 end
@@ -227,10 +240,11 @@ function M.scripts(lang, permtb, sestb, params)
     table.insert(ar, '<script src="' .. V.static_prefix .. '/libs/jszip-3.2.2.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/libs/xlsx-1.21.0.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup_L.monthcal.js"> </script>')
-    table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.channels.js"> </script>')
-    table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.retailchains.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.brands.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.categories.js"> </script>')
+    table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.channels.js"> </script>')
+    table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.products.js"> </script>')
+    table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.retailchains.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.users.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/plugins/prices.js"> </script>')
     return table.concat(ar,"\n")
