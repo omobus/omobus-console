@@ -589,7 +589,7 @@ var PLUG = (function() {
 	G.xhr("GET", G.getajax({plug: _code, year: y, month: m}), "json", function(xhr, data) {
 	    if( xhr.status == 200 && data != null && typeof data == 'object' && data.code == 'time' ) {
 		//console.log(data);
-		(data.rows||[]).forEach(function(ptr) {
+		Array.forEach(data.rows, function(ptr) {
 		    if( !Array.isEmpty(ptr.accounts) ) {
 			ptr._a = ptr.accounts.length;
 			ptr._v = 0;

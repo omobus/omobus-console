@@ -15,6 +15,14 @@
     };
 }(Array));
 
+(function (Array, undefined) {
+    Array.forEach = function(arg, callback, thisArg) {
+	if( !Array.isEmpty(arg) ) {
+	    arg.forEach(callback, thisArg);
+	}
+    };
+}(Array));
+
 /* public functions: */
 
 if( !Array.prototype.isEmpty ) {
