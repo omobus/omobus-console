@@ -14,7 +14,7 @@ PLUG.registerRef("stock", (function() {
 	ar.push("<th>", lang.a_code, "</th>");
 	ar.push("<th>", lang.a_name, "</th>");
 	ar.push("<th>", lang.address, "</th>");
-	ar.push("<th>", lang.product, "</th>");
+	ar.push("<th>", lang.prod_name, "</th>");
 	ar.push("<th width='75px'>", lang.stock, "</th>");
 	ar.push("<th class='bool' width='35px'>", "&#x267A;", "</th>");
 	ar.push("</tr>", G.thnums(_columns), "</thead><tbody id='xztb'></tbody></table>");

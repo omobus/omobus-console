@@ -42,7 +42,7 @@ var PLUG = (function() {
 	if( perm.columns != null && perm.columns.category == true ) {
 	    ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.categories(this)'>", lang.categ_name, "</a></th>");
 	}
-	ar.push("<th>", lang.product, "</th>");
+	ar.push("<th>", lang.prod_name, "</th>");
 	ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.types(this)'>", lang.oos_type, "</a></th>");
 	ar.push("<th>", lang.note, "</th>");
 	ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"head\",0.90)'>", lang.head_name, "</a></th>");

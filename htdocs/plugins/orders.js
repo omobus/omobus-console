@@ -117,7 +117,7 @@ var PLUG = (function() {
 	ar.push("<table width='100%' class='report'>");
 	ar.push("<thead><tr>");
 	ar.push("<th class='autoincrement'>", lang.num, "</th>");
-	ar.push("<th>", lang.product, "</th>");
+	ar.push("<th>", lang.prod_name, "</th>");
 	ar.push("<th>", lang.price, "</th>");
 	ar.push("<th>", lang.qty, "</th>");
 	ar.push("<th>", lang.pack, "</th>");

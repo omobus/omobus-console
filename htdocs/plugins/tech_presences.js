@@ -14,7 +14,7 @@ PLUG.registerRef("presence", (function() {
 	ar.push("<th>", lang.a_code, "</th>");
 	ar.push("<th>", lang.a_name, "</th>");
 	ar.push("<th>", lang.address, "</th>");
-	ar.push("<th>", lang.product, "</th>");
+	ar.push("<th>", lang.prod_name, "</th>");
 	ar.push("<th width='75px'>", lang.facing, "</th>");
 	ar.push("<th width='75px'>", lang.shelf_stock, "</th>");
 	ar.push("<th class='bool' width='35px'>", "&#x267A;", "</th>");

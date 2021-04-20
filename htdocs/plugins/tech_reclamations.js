@@ -15,7 +15,7 @@ PLUG.registerRef("reclamation", (function() {
 	ar.push("<th>", lang.a_name, "</th>");
 	ar.push("<th>", lang.address, "</th>");
 	ar.push("<th>", lang.doc_no, "</th>");
-	ar.push("<th>", lang.product, "</th>");
+	ar.push("<th>", lang.prod_name, "</th>");
 	ar.push("<th>", lang.price, "</th>");
 	ar.push("<th>", lang.qty, "</th>");
 	ar.push("<th>", lang.pack, "</th>");

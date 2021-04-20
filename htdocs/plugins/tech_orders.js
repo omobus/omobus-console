@@ -17,7 +17,7 @@ PLUG.registerRef("order", (function() {
 	ar.push("<th>", lang.doc_no, "</th>");
 	ar.push("<th>", lang.order_type, "</th>");
 	ar.push("<th>", lang.delivery_date, "</th>");
-	ar.push("<th>", lang.product, "</th>");
+	ar.push("<th>", lang.prod_name, "</th>");
 	ar.push("<th>", lang.price, "</th>");
 	ar.push("<th>", lang.qty, "</th>");
 	ar.push("<th>", lang.pack, "</th>");

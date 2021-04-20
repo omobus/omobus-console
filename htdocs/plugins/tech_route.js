@@ -572,7 +572,7 @@ var __route = (function() {
 		ar.push("<tr class='def'>");
 		ar.push("<td class='divider'>", lang.num, "</td>");
 		ar.push("<td class='divider'>", lang.code, "</td>");
-		ar.push("<td class='divider'>", lang.product, "</td>");
+		ar.push("<td class='divider'>", lang.prod_name, "</td>");
 		ar.push("<td class='divider'>", lang.placement, "</td>");
 		ar.push("<td class='divider'>", lang.exist, "</td>");
 		ar.push("</tr>");
@@ -655,7 +655,7 @@ var __route = (function() {
 		ar.push("<tr class='def'>");
 		ar.push("<td class='divider'>", lang.num, "</td>");
 		ar.push("<td class='divider'>", lang.code, "</td>");
-		ar.push("<td class='divider'>", lang.product, "</td>");
+		ar.push("<td class='divider'>", lang.prod_name, "</td>");
 		ar.push("<td class='divider'>", lang.oos_type, "</td>");
 		ar.push("<td class='divider'>", lang.note, "</td>");
 		ar.push("</tr>");
@@ -684,7 +684,7 @@ var __route = (function() {
 		    ar.push("<tr class='def'>");
 		    ar.push("<td class='divider'>", lang.num, "</td>");
 		    ar.push("<td class='divider'>", lang.code, "</td>");
-		    ar.push("<td class='divider'>", lang.product, "</td>");
+		    ar.push("<td class='divider'>", lang.prod_name, "</td>");
 		    ar.push("<td class='divider' width='95px'>", lang.price, "</td>");
 		    ar.push("<td class='divider' width='55px'>", lang.qty, "</td>");
 		    ar.push("<td class='divider'>", lang.pack, "</td>");
@@ -796,7 +796,7 @@ var __route = (function() {
 		ar.push("<tr class='def'>");
 		ar.push("<td class='divider'>", lang.num, "</td>");
 		ar.push("<td class='divider'>", lang.code, "</td>");
-		ar.push("<td class='divider'>", lang.product, "</td>");
+		ar.push("<td class='divider'>", lang.prod_name, "</td>");
 		ar.push("<td class='divider' width='75px'>", lang.facing, "</td>");
 		ar.push("<td class='divider' width='75px'>", lang.shelf_stock, "</td>");
 		ar.push("<td class='divider' width='35px'>", "&nbsp;", "</td>");
@@ -860,7 +860,7 @@ var __route = (function() {
 		ar.push("<tr class='def'>");
 		ar.push("<td class='divider'>", lang.num, "</td>");
 		ar.push("<td class='divider'>", lang.code, "</td>");
-		ar.push("<td class='divider'>", lang.product, "</td>");
+		ar.push("<td class='divider'>", lang.prod_name, "</td>");
 		ar.push("<td class='divider' width='95px'>", lang.price, "</td>");
 		ar.push("<td class='divider' width='35px'>", lang.promo, "</td>");
 		ar.push("<td class='divider' width='95px'>", lang.rrp, "</td>");
@@ -980,7 +980,7 @@ var __route = (function() {
 		    ar.push("<tr class='def'>");
 		    ar.push("<td class='divider'>", lang.num, "</td>");
 		    ar.push("<td class='divider'>", lang.code, "</td>");
-		    ar.push("<td class='divider'>", lang.product, "</td>");
+		    ar.push("<td class='divider'>", lang.prod_name, "</td>");
 		    ar.push("<td class='divider' width='95px'>", lang.price, "</td>");
 		    ar.push("<td class='divider' width='55px'>", lang.qty, "</td>");
 		    ar.push("<td class='divider'>", lang.pack, "</td>");
@@ -1049,7 +1049,7 @@ var __route = (function() {
 		ar.push("<tr class='def'>");
 		ar.push("<td class='divider'>", lang.num, "</td>");
 		ar.push("<td class='divider'>", lang.code, "</td>");
-		ar.push("<td class='divider'>", lang.product, "</td>");
+		ar.push("<td class='divider'>", lang.prod_name, "</td>");
 		ar.push("<td class='divider' width='75px'>", lang.stock, "</td>");
 		ar.push("<td class='divider' width='35px'>", "&nbsp;", "</td>");
 		ar.push("</tr>");
@@ -1252,7 +1252,7 @@ var __route = (function() {
 		ar.push("<tr class='def'>");
 		ar.push("<td class='divider'>", lang.num, "</td>");
 		ar.push("<td class='divider'>", lang.code, "</td>");
-		ar.push("<td class='divider'>", lang.product, "</td>");
+		ar.push("<td class='divider'>", lang.prod_name, "</td>");
 		ar.push("<td class='divider'>", lang.placement, "</td>");
 		ar.push("<td class='divider'>", lang.exist, "</td>");
 		ar.push("</tr>");
@@ -1353,7 +1353,7 @@ var __route = (function() {
 		ar.push("<tr class='def'>");
 		ar.push("<td class='divider'>", lang.num, "</td>");
 		ar.push("<td class='divider'>", lang.code, "</td>");
-		ar.push("<td class='divider'>", lang.product, "</td>");
+		ar.push("<td class='divider'>", lang.prod_name, "</td>");
 		ar.push("<td class='divider'>", lang.oos_type, "</td>");
 		ar.push("<td class='divider'>", lang.note, "</td>");
 		ar.push("</tr>");
@@ -1379,7 +1379,7 @@ var __route = (function() {
 		ar.push("<tr class='def'>");
 		ar.push("<td class='divider'>", lang.num, "</td>");
 		ar.push("<td class='divider'>", lang.code, "</td>");
-		ar.push("<td class='divider'>", lang.product, "</td>");
+		ar.push("<td class='divider'>", lang.prod_name, "</td>");
 		ar.push("<td class='divider' width='95px'>", lang.price, "</td>");
 		ar.push("<td class='divider' width='55px'>", lang.qty, "</td>");
 		ar.push("<td class='divider'>", lang.pack, "</td>");
@@ -1485,7 +1485,7 @@ var __route = (function() {
 		ar.push("<tr class='def'>");
 		ar.push("<td class='divider'>", lang.num, "</td>");
 		ar.push("<td class='divider'>", lang.code, "</td>");
-		ar.push("<td class='divider'>", lang.product, "</td>");
+		ar.push("<td class='divider'>", lang.prod_name, "</td>");
 		ar.push("<td class='divider' width='75px'>", lang.facing, "</td>");
 		ar.push("<td class='divider' width='75px'>", lang.shelf_stock, "</td>");
 		ar.push("<td class='divider' width='35px'>", "&nbsp;", "</td>");
@@ -1547,7 +1547,7 @@ var __route = (function() {
 		ar.push("<tr class='def'>");
 		ar.push("<td class='divider'>", lang.num, "</td>");
 		ar.push("<td class='divider'>", lang.code, "</td>");
-		ar.push("<td class='divider'>", lang.product, "</td>");
+		ar.push("<td class='divider'>", lang.prod_name, "</td>");
 		ar.push("<td class='divider' width='95px'>", lang.price, "</td>");
 		ar.push("<td class='divider' width='35px'>", lang.promo, "</td>");
 		ar.push("<td class='divider' width='95px'>", lang.rrp, "</td>");
@@ -1663,7 +1663,7 @@ var __route = (function() {
 		ar.push("<tr class='def'>");
 		ar.push("<td class='divider'>", lang.num, "</td>");
 		ar.push("<td class='divider'>", lang.code, "</td>");
-		ar.push("<td class='divider'>", lang.product, "</td>");
+		ar.push("<td class='divider'>", lang.prod_name, "</td>");
 		ar.push("<td class='divider' width='95px'>", lang.price, "</td>");
 		ar.push("<td class='divider' width='55px'>", lang.qty, "</td>");
 		ar.push("<td class='divider'>", lang.pack, "</td>");
@@ -1728,7 +1728,7 @@ var __route = (function() {
 		ar.push("<tr class='def'>");
 		ar.push("<td class='divider'>", lang.num, "</td>");
 		ar.push("<td class='divider'>", lang.code, "</td>");
-		ar.push("<td class='divider'>", lang.product, "</td>");
+		ar.push("<td class='divider'>", lang.prod_name, "</td>");
 		ar.push("<td class='divider' width='75px'>", lang.stock, "</td>");
 		ar.push("<td class='divider' width='35px'>", "&nbsp;", "</td>");
 		ar.push("</tr>");

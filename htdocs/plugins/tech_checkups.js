@@ -14,7 +14,7 @@ PLUG.registerRef("checkup", (function() {
 	ar.push("<th>", lang.a_code, "</th>");
 	ar.push("<th>", lang.a_name, "</th>");
 	ar.push("<th>", lang.address, "</th>");
-	ar.push("<th>", lang.product, "</th>");
+	ar.push("<th>", lang.prod_name, "</th>");
 	ar.push("<th>", lang.placement, "</th>");
 	ar.push("<th class='bool'>", lang.exist, "</th>");
 	ar.push("</tr>", G.thnums(_columns), "</thead><tbody id='xztb'></tbody></table>");

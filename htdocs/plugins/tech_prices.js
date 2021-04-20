@@ -14,7 +14,7 @@ PLUG.registerRef("price", (function() {
 	ar.push("<th>", lang.a_code, "</th>");
 	ar.push("<th>", lang.a_name, "</th>");
 	ar.push("<th>", lang.address, "</th>");
-	ar.push("<th>", lang.product, "</th>");
+	ar.push("<th>", lang.prod_name, "</th>");
 	ar.push("<th class='numeric' width='95px'>", lang.price, "</th>");
 	ar.push("<th class='bool'>", lang.promo, "</th>");
 	ar.push("<th class='numeric' width='95px'>", lang.rrp, "</th>");
