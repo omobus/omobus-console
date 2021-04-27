@@ -46,8 +46,11 @@ order by j.route_date desc, u.descr, u.dev_login, u.user_id
 ]]
 	if sestb.erpid ~= nil then
 	    tb.rows, err = func_execute(tran, 
-		qs:replace("$(0)", "where j.user_id in (select * from my_staff(%user_id%, 1::bool_t))"),
-		"//cancellations/get", { 
+		qs:replace("$(0)", 
+[[
+where j.user_id in (select * from my_staff(%user_id%, 1::bool_t))
+]]
+		), "//cancellations/get", { 
 		    user_id = sestb.erpid 
 		})
 	    if err == nil or err == false then
@@ -64,8 +67,12 @@ order by descr
 	    end
 	elseif sestb.department ~= nil or sestb.country ~= nil then
 	    tb.rows, err = func_execute(tran, 
-		qs:replace("$(0)", "where (%dep_id% is null or u.dep_ids is null or u.dep_ids && string_to_array(%dep_id%,',')::uids_t) and (%country_id% is null or (u.country_id=any(string_to_array(%country_id%,',')::uids_t)))"),
-		"//cancellations/get", { 
+		qs:replace("$(0)", 
+[[
+where (%dep_id% is null or u.dep_ids is null or u.dep_ids && string_to_array(%dep_id%,',')::uids_t)
+    and (%country_id% is null or (u.country_id = any(string_to_array(%country_id%,',')::uids_t)))
+]]
+               ), "//cancellations/get", { 
 		    dep_id = sestb.department == nil and stor.NULL or sestb.department,
 		    country_id = sestb.country == nil and stor.NULL or sestb.country
 		})
@@ -86,8 +93,11 @@ order by descr
 	    end
 	elseif sestb.distributor ~= nil then
 	    tb.rows, err = func_execute(tran, 
-		qs:replace("$(0)", "where u.distr_ids && string_to_array(%distr_id%,',')::uids_t"),
-		"//cancellations/get", { 
+		qs:replace("$(0)", 
+[[
+where u.distr_ids && string_to_array(%distr_id%,',')::uids_t
+]]
+		), "//cancellations/get", { 
 		    distr_id = sestb.distributor
 		})
 	    if err == nil or err == false then
@@ -104,8 +114,11 @@ order by descr
 	    end
 	elseif sestb.agency ~= nil then
 	    tb.rows, err = func_execute(tran, 
-		qs:replace("$(0)", "where u.agency_id = any(string_to_array(%agency_id%,','))"),
-		"//cancellations/get", { 
+		qs:replace("$(0)", 
+[[
+where u.agency_id = any(string_to_array(%agency_id%,','))
+]]
+		), "//cancellations/get", { 
 		    agency_id = sestb.agency
 		})
 	    if err == nil or err == false then
