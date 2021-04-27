@@ -325,8 +325,11 @@ function login_page(lang, params, ip, agent, res)
     table.insert(ar, '</form>')
     table.insert(ar, '</body>')
     table.insert(ar, '</html>')
-    scgi.writeHeader(res, 200, {["Content-Type"] = mime.html .. "; charset=utf-8", ["Content-Security-Policy"] = "default-src 'self'",
-	["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"})
+    scgi.writeHeader(res, 200, {
+	["Content-Type"] = mime.html .. "; charset=utf-8", 
+	["Content-Security-Policy"] = "default-src 'self'",
+	["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
+    })
     scgi.writeBody(res, table.concat(ar,"\n"));
     log.i(string.format("[audit] IP:%s requested the login form. %s.", ip, agent))
 end
