@@ -501,7 +501,47 @@ var __route = (function() {
 	    if( index > 0 ) {
 		ar.push("<hr/>");
 	    }
-	    if( t == "advt" ) {
+	    if( t == "#av" ) {
+		ar.push("<div>");
+		ar.push("<h2>", "{0} + {1}".format_a(lang.doctypes.presence, lang.doctypes.stock), "</h2>");
+		ar.push("<span class='watermark'>", "{0}: {1}".format_a(lang.time_spent, lang.seconds.format_a(r.duration)), "</span>");
+		ar.push("</div>");
+		ar.push("<table width='100%' class='report'>");
+		ar.push("<tr class='def'>");
+		ar.push("<td class='divider'>", lang.num, "</td>");
+		ar.push("<td class='divider'>", lang.code, "</td>");
+		ar.push("<td class='divider'>", lang.prod_name, "</td>");
+		ar.push("<td class='divider' width='75px'>", lang.facing, "</td>");
+		ar.push("<td class='divider' width='75px'>", lang.shelf_stock, "</td>");
+		ar.push("<td class='divider' width='25px'>", "&nbsp;", "</td>");
+		ar.push("<td class='divider' width='75px'>", lang.stock, "</td>");
+		ar.push("<td class='divider' width='25px'>", "&nbsp;", "</td>");
+		ar.push("</tr>");
+		r.rows.forEach(function(arg0, row_no) {
+		    ar.push("<tr>");
+		    ar.push("<td class='autoincrement'>", row_no + 1, "</td>");
+		    ar.push("<td class='int'>", G.shielding(arg0.p_code), "</td>");
+		    ar.push("<td class='string'>", G.shielding(arg0.prod), "</td>");
+		    if( arg0.hasOwnProperty("presence") ) {
+			ar.push("<td class='int'>", G.getint_l(arg0.presence.facing), "</td>");
+			ar.push("<td class='int'>", G.getint_l(arg0.presence.stock), "</td>");
+			ar.push("<td class='bool'>", String.isEmpty(arg0.presence.scratch) ? "" : "&#x267A;", "</td>");
+		    } else {
+			ar.push("<td class='int'>", "</td>");
+			ar.push("<td class='int'>", "</td>");
+			ar.push("<td class='bool'>", "</td>");
+		    }
+		    if( arg0.hasOwnProperty("stock") ) {
+			ar.push("<td class='int'>", G.getint_l(arg0.stock.stock), "</td>");
+			ar.push("<td class='bool'>", String.isEmpty(arg0.stock.scratch) ? "" : "&#x267A;", "</td>");
+		    } else {
+			ar.push("<td class='int'>", "</td>");
+			ar.push("<td class='bool'>", "</td>");
+		    }
+		    ar.push("</tr>");
+		});
+		ar.push("</table>");
+	    } else if( t == "advt" ) {
 		ar.push("<div>");
 		ar.push("<h2>", "{0}".format_a(lang.doctypes[t]), "</h2>");
 		ar.push("<span class='watermark'>", "{0}: {1}".format_a(lang.time_spent, lang.seconds.format_a(r.duration)), "</span>");
@@ -2063,17 +2103,34 @@ var __route = (function() {
 		}
 		/* adding ref to the ordering list */
 		for( const k in obj ) {
-		    if( (z = obj[k]) != null ) {
-			if( z.hasOwnProperty(code) ) {
-			    if( !Array.isArray(z._refs) ) {
-				z._refs = [];
-			    }
-			    z._refs.push({_t:code,ref:z[code]});
+		    if( (z = obj[k]) != null && z.hasOwnProperty(code) ) {
+			if( !Array.isArray(z._refs) ) {
+			    z._refs = [];
 			}
+			z._refs.push({_t:code,ref:z[code]});
 		    }
 		}
 	    }
 	}
+	/* aggregate [presences] and [stocks] rows */
+	const agg = function(ar /*result*/, rows /*source*/, name) {
+	    rows.forEach(function(element1, index, array) {
+		let u, j = ar.findIndex(function(element2) {
+		    return element1._pkey == element2._pkey;
+		});
+		if( j < 0 ) {
+		    u = {
+			_pkey: element1._pkey,
+			p_code: element1.p_code, 
+			prod: element1.prod
+		    };
+		    ar.push(u);
+		} else {
+		    u = ar[j];
+		}
+		u[name] = element1;
+	    });
+	};
 
 	/* #1 */
 	fn("order");
@@ -2084,22 +2141,49 @@ var __route = (function() {
 	/* #3 */
 	fn("checkup");
 	fn("presence");
+	fn("stock");
+	/* aggregate presences and stocks rows */
+	for( const k in obj ) {
+	    let z = obj[k], av = {duration:0,rows:[]};
+	    if( z.hasOwnProperty("presence") && z.hasOwnProperty("stock") ) {
+		["presence","stock"].forEach(function(arg) {
+		    if( z.hasOwnProperty(arg) ) {
+			const ptr = z[arg];
+			av.duration += ptr.duration;
+			agg(av.rows, ptr.rows, arg);
+			z._refs.splice(z._refs.findIndex(function(element1) {
+			    return element1._t == arg;
+			}), 1);
+			delete z[arg];
+		    }
+		});
+		av.rows.sort(function(a, b) {
+		    return a.prod == b.prod;
+		});
+		av.rows.forEach(function(element1, index) {
+		    element1.row_no = index;
+		});
+		z._av = av;
+		z._refs.push({_t:"#av",ref:av});
+	    }
+	}
+	fn("price");
+	fn("oos");
 	fn("photo");
 	fn("posm");
 	fn("confirmation");
-	fn("price");
 	fn("advt");
 	fn("shelf");
 	/* #4 */
-	fn("oos");
-	fn("stock");
-	/* #5 */
 	fn("target");
 	fn("training");
 	fn("presentation");
 	fn("promo");
 	fn("comment");
 	fn("quest");
+
+
+
 
 	return obj;
     }
@@ -2129,9 +2213,9 @@ var __route = (function() {
 		G.xhr("GET", G.getajax({plug: "tech", code: "tech_route", user_id: user_id, date: G.getdate(date)}), "json", function(xhr, data) {
 		    if( xhr.status == 200 &&  data != null && typeof data == 'object' ) {
 /* obsolete after 2022.06 BEGIN */
-			for( k in data.audits) { data.audits[k].forEach(function(arg) { if( !Array.isArray(arg.rows) && Array.isArray(arg.criterias) ) arg.rows = arg.criterias; }); }
-			for( k in data.ratings) { data.ratings[k].forEach(function(arg) { if( !Array.isArray(arg.rows) && Array.isArray(arg.criterias) ) arg.rows = arg.criterias; }); }
-			for( k in data.shelfs) { data.shelfs[k].forEach(function(arg) { if( !Array.isArray(arg.rows) && Array.isArray(arg.brands) ) arg.rows = arg.brands; }); }
+for( k in data.audits) { data.audits[k].forEach(function(arg) { if( !Array.isArray(arg.rows) && Array.isArray(arg.criterias) ) arg.rows = arg.criterias; }); }
+for( k in data.ratings) { data.ratings[k].forEach(function(arg) { if( !Array.isArray(arg.rows) && Array.isArray(arg.criterias) ) arg.rows = arg.criterias; }); }
+for( k in data.shelfs) { data.shelfs[k].forEach(function(arg) { if( !Array.isArray(arg.rows) && Array.isArray(arg.brands) ) arg.rows = arg.brands; }); }
 /* END */
 			data._c = _compile_route(data);
 			data._d = _compile_docs(data);
