@@ -151,6 +151,8 @@ where
     (%req_uid% is null or account_id in (
 	select distinct account_id from routes where cycle_id = %cycle_id% and (%req_uid% is null or user_id in (select my_staff(%req_uid%, 1::bool_t)))
 	    union
+	select account_id from my_habitats where user_id in (select my_staff(%req_uid%, 1::bool_t))
+	    union
 	select account_id from my_retail_chains r, accounts a where r.user_id in (select my_staff(%req_uid%, 1::bool_t)) and r.rc_id=a.rc_id and (r.region_id='' or r.region_id=a.region_id)
 	    union
 	select account_id from my_regions r, accounts a where r.user_id in (select my_staff(%req_uid%, 1::bool_t)) and r.region_id=a.region_id and (r.chan_id='' or r.chan_id=a.chan_id)

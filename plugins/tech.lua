@@ -95,6 +95,8 @@ select distinct user_id from (
 ) x where account_id in (
     select account_id from my_accounts where user_id in (select my_staff(%user_id%, 1::bool_t))
 	union
+    select account_id from my_habitats where user_id in (select my_staff(%user_id%, 1::bool_t))
+	union
     select account_id from my_retail_chains r, accounts a where r.user_id in (select my_staff(%user_id%, 1::bool_t)) and r.rc_id=a.rc_id and (r.region_id='' or r.region_id=a.region_id)
 	union
     select account_id from my_regions r, accounts a where r.user_id in (select my_staff(%user_id%, 1::bool_t)) and r.region_id=a.region_id and (r.chan_id='' or r.chan_id=a.chan_id)
@@ -182,6 +184,8 @@ select count(*) exist from my_staff(%user_id%, 1::bool_t)
 select count(*) exist from j_user_activities where fix_date=%fix_date% and user_id = %code% and account_id in (
     select account_id from my_accounts where user_id in (select my_staff(%user_id%, 1::bool_t))
 	union
+    select account_id from my_habitats where user_id in (select my_staff(%user_id%, 1::bool_t))
+	union
     select account_id from my_retail_chains r, accounts a where r.user_id in (select my_staff(%user_id%, 1::bool_t)) and r.rc_id=a.rc_id and (r.region_id='' or r.region_id=a.region_id)
 	union
     select account_id from my_regions r, accounts a where r.user_id in (select my_staff(%user_id%, 1::bool_t)) and r.region_id=a.region_id and (r.chan_id='' or r.chan_id=a.chan_id)
@@ -199,6 +203,8 @@ select count(*) exist from j_user_activities where fix_date=%fix_date% and user_
 		    tb.my_habitat, err = func_execute(tran,
 [[
 select account_id from my_accounts where user_id in (select my_staff(%user_id%, 1::bool_t))
+    union
+select account_id from my_habitats where user_id in (select my_staff(%user_id%, 1::bool_t))
     union
 select account_id from my_retail_chains r, accounts a where r.user_id in (select my_staff(%user_id%, 1::bool_t)) and r.rc_id=a.rc_id and (r.region_id='' or r.region_id=a.region_id)
     union
