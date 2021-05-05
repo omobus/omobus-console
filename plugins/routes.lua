@@ -158,6 +158,8 @@ where
 	select account_id from my_regions r, accounts a where r.user_id in (select my_staff(%req_uid%, 1::bool_t)) and r.region_id=a.region_id and (r.chan_id='' or r.chan_id=a.chan_id)
 	    union
 	select account_id from (select expand_cities(city_id) city_id, chan_id from my_cities where user_id in (select my_staff(%req_uid%, 1::bool_t))) c, accounts a where c.city_id=a.city_id and (c.chan_id='' or c.chan_id=a.chan_id)
+	    union
+	select guid from j_additions where user_id in (select my_staff(%req_uid%, 1::bool_t)) and validated = 1 and hidden = 0 and guid in (select account_id from accounts where approved = 0 and hidden = 0)
 	)
     ) and a.hidden = 0
 order by a.descr, a.address, a.account_id

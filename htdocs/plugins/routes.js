@@ -253,7 +253,7 @@ var PLUG = (function() {
 		//console.log(data);
 		_tags.tbody.html(_datatbl(data, 1, _tags.total, _getfilter(), _cache.checked, _perm).join(""));
 		_tags.cycle.html(lang.routes.cycle.format_a(data.cycle_no, data.year));
-		(Array.isArray(data.users) && data.users.length > 1) ? _tags.users.show() : _tags.users.hide();
+		//(Array.isArray(data.users) && data.users.length > 1) ? _tags.users.show() : _tags.users.hide();
 		_cleanupmap();
 		if( !_tags.map.isHidden() ) {
 		    _compilemap();
