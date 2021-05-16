@@ -19,7 +19,7 @@ cp -auvp $PREFIX/apks.css $APKS/index.css || :
 rm $APKS/*.apk || :
 cp -auvp /var/lib/omobus.d/data/core/omobus-droid-3.5.*.apk $APKS || :
 chmod 0644 $APKS/omobus-droid-3.5.*.apk
-droid=$(ls $APKS | grep 'omobus-droid-3\.5\.[[:digit:]]*\.apk')
+droid=$(ls $APKS | grep 'omobus-droid-3\.5\.[a-z0-9_-]*\.apk')
 sed -i -e 's/omobus-droid.apk/'$droid'/g' $APKS/index.htm
 query="select \"paramText\"('srv:domain')"
 domain=$(echo $query | su omobus -c "/usr/local/libexec/pgsql-9.6/bin/psql -d omobus-proxy-db -At")
