@@ -235,12 +235,21 @@ var PLUG = (function() {
 		    if( !String.isEmpty(r.doc_note) ) {
 			ar.push("<div class='row'>", G.shielding(r.doc_note), "</div>");
 		    }
-		    if( Array.isArray(r.order_params) && r.order_params.length > 0 ) {
+		    if( !Array.isEmpty(r.order_params) ) {
 			if( !String.isEmpty(r.doc_note) ) {
 			    ar.push("<hr/>");
 			}
 			r.order_params.forEach(function(val, index) {
 			    if( index > 0 ) { ar.push("<hr/>"); }
+			    ar.push("<div class='row watermark'>", G.shielding(val), "</div>");
+			});
+		    }
+		    if( !Array.isEmpty(r.mailboxes) ) {
+			if( !String.isEmpty(r.doc_note) || !Array.isEmpty(r.order_params) ) {
+			    ar.push("<hr/>");
+			}
+			r.mailboxes.forEach(function(val, index) {
+			    //if( index > 0 ) { ar.push("<hr/>"); }
 			    ar.push("<div class='row watermark'>", G.shielding(val), "</div>");
 			});
 		    }
