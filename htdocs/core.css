@@ -1435,7 +1435,7 @@ hr {
 .report th {
     text-align: center;
     font-weight: normal;
-    border: 1.4pt solid #adadad;
+    border: 1px solid #a0a0a0;
 }
 
 .report th a:link, 
