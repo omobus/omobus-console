@@ -8,7 +8,7 @@ var PLUG = (function() {
     var _cache = {}, _perm = {}, _tags = {};
 
     function _getcolumns(perm) {
-	return 15 + perm.weeks;
+	return 15 + (perm.weeks > 1 ? perm.weeks : 0);
     }
 
     function _getbody(perm) {
@@ -32,15 +32,19 @@ var PLUG = (function() {
 	ar.push("<th rowspan='2'>", lang.a_code, "</th>");
 	ar.push("<th rowspan='2'>", lang.a_name, "</th>");
 	ar.push("<th width='380px' rowspan='2'>", lang.address, "</th>");
-	ar.push("<th colspan='" + perm.weeks + "'>", lang.routes.weeks, "</th>");
+	if( perm.weeks > 1 ) {
+	    ar.push("<th colspan='" + perm.weeks + "'>", lang.routes.weeks, "</th>");
+	}
 	ar.push("<th colspan='7'>", lang.routes.days, "</th>");
 	ar.push("<th rowspan='2'>", lang.intotal, "</th>");
 	ar.push("<th rowspan='2'>", lang.chan_name, "</th>");
 	ar.push("<th rowspan='2'>", lang.poten, "</th>");
 	ar.push("<th width='95px' rowspan='2'>", lang.taskboard, "</th>");
 	ar.push("</tr><tr>");
-	for( var i = 1; i <= perm.weeks; i++ ) {
-	    ar.push("<th width='20px'>", i,"</th>");
+	if( perm.weeks > 1 ) {
+	    for( var i = 1; i <= perm.weeks; i++ ) {
+		ar.push("<th width='20px'>", i,"</th>");
+	    }
 	}
 	for( var i = 0, a = lang.calendar.firstDay; i < 7; i++, a++ ) {
 	    ar.push("<th width='20px'>", lang.calendar.days.namesAbbr[a==7?0:a], "</th>");
@@ -114,19 +118,23 @@ var PLUG = (function() {
 	});
     }
 
-    function _a(r, def) {
-	var days = 0, weeks = 0, rv;
+    function _a(r, perm) {
+	var days = 0, weeks = 0;
 	if( r.days ) {
 	    r.days.forEach(function(arg, i, ar) {
 		if( arg ) days++;
 	    });
 	}
 	if( r.weeks ) {
-	    r.weeks.forEach(function(arg, i, ar) {
-		if( arg ) weeks++;
-	    });
+	    if( perm.weeks > 1 ) {
+		r.weeks.forEach(function(arg, i, ar) {
+		    if( arg ) weeks++;
+		});
+	    } else {
+		weeks = 1;
+	    }
 	}
-	return (rv = days*weeks) ? rv : (typeof def == 'undefined' ? lang.dash : def);
+	return days*weeks;
     }
 
     function _getlalo(r) {
@@ -152,6 +160,10 @@ var PLUG = (function() {
 	return ["<tr class='def'><td colspan='" + _getcolumns(perm) + "' class='message'>", msg, "</td></tr>"];
     }
 
+    function _suppressZero(arg) {
+	return (typeof arg == 'undefined' || arg == 0) ? lang.dash : arg;
+    }
+
     function _datatbl(data, page, total, f, checked, perm) {
 	var ar = [], x = 0, z;
 	for( var i = 0, k = 0, r = null, size = Array.isArray(data.rows) ? data.rows.length : 0; i < size; i++ ) {
@@ -166,11 +178,13 @@ var PLUG = (function() {
 			r.a_code, "</a></td>");
 		    ar.push("<td class='string" + style + "'>", G.shielding(r.a_name), "</td>");
 		    ar.push("<td class='string delim2" + style + "'>", G.shielding(r.address), "</td>");
-		    for( var a = 1; a <= perm.weeks; a++ ) {
-			ar.push("<td class='bool" + (data.closed || r.hidden || a > data.weeks ? "" : " clickable") + 
-			    (a == perm.weeks ? " delim2" : "") + "'" + (data.closed || r.hidden || a > data.weeks ? "" : 
-			    " onclick='PLUG.setdrop(this,\"week\"," + i + "," + a + ")'") + ">", 
-			    (r.weeks && r.weeks[a-1] ? _mark : ""), "</td>");
+		    if( perm.weeks > 1 ) {
+			for( var a = 1; a <= perm.weeks; a++ ) {
+			    ar.push("<td class='bool" + (data.closed || r.hidden || a > data.weeks ? "" : " clickable") + 
+				(a == perm.weeks ? " delim2" : "") + "'" + (data.closed || r.hidden || a > data.weeks ? "" : 
+				" onclick='PLUG.setdrop(this,\"week\"," + i + "," + a + ")'") + ">", 
+				(r.weeks && r.weeks[a-1] ? _mark : ""), "</td>");
+			}
 		    }
 		    for( var a = 1, b; a <= 7; a++ ) {
 			ar.push("<td class='bool footnote" + (data.closed || r.hidden ? "" : " clickable") + (a == 7 ? " delim2" : "") + 
@@ -178,7 +192,7 @@ var PLUG = (function() {
 			    " data-title='" + lang.calendar.days.names[a==7?0:a] + "'>", 
 			    (r.days && r.days[a-1] ? _mark : ""), "</td>");
 		    }
-		    ar.push("<td class='int delim2' id='X-" + r._row_no + "'>", _a(r), "</td>");
+		    ar.push("<td class='int delim2' id='X-" + r._row_no + "'>", _suppressZero(_a(r, perm)), "</td>");
 		    ar.push("<td class='ref'>", G.shielding(r.chan), "</td>");
 		    ar.push("<td class='ref'>", G.shielding(r.poten), "</td>");
 		    if( !data.closed && r._code == 'route' ) {
@@ -277,7 +291,7 @@ var PLUG = (function() {
 	}
     }
 
-    function _datamap(data, f) {
+    function _datamap(data, f, perm) {
 	var a = new ymaps.GeoObjectCollection(), r, l;
 	for( var i = 0, size = Array.isArray(data.rows) ? data.rows.length : 0; i < size; i++ ) {
 	    if( (r = data.rows[i]) != null && f.is(r) && (l = _getlalo(r)) != null ) {
@@ -285,7 +299,7 @@ var PLUG = (function() {
 		    { hintContent: "<b>{0}:&nbsp;{1}</b>&nbsp;{2}".format_a(r.a_code, G.shielding(r.a_name), G.shielding(r.address)), 
 		    balloonContent: _detailsbody(data.b_date, r).join('') }, 
 		    { iconLayout: 'default#image', iconImageHref: _getimage(r._code == 'route' ? 
-			(_a(r,0) > 0 ? 'point-green' : 'point-gray') : 'point-white'), 
+			(_a(r,perm) > 0 ? 'point-green' : 'point-gray') : 'point-white'), 
 		    iconImageSize: [14, 14], iconImageOffset: [-7, -7] }
 		));
 	    }
@@ -305,7 +319,7 @@ var PLUG = (function() {
 	    if( Array.isArray(center) ) {
 		_cache.map.panTo(center);
 	    }
-	    _cache.map.geoObjects.add(_datamap(_cache.data, _getfilter()));
+	    _cache.map.geoObjects.add(_datamap(_cache.data, _getfilter(), _perm));
 	    _cache.reloadingMap = null;
 	}
     }
@@ -570,7 +584,7 @@ var PLUG = (function() {
 		var ref = row["{0}s".format_a(name)];
 		tag.html(ref[arg-1] ? '' : _mark);
 		ref[arg-1] = ref[arg-1] ? 0 : 1;
-		x.html(_a(row));
+		x.html(_suppressZero(_a(row, _perm)));
 		_cleanupmap();
 	    });
 	},
