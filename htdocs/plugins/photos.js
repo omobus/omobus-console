@@ -29,6 +29,7 @@ var PLUG = (function() {
 		lang.export.photo, "</a><span id='L' style='display: none;'><span id='progress'></span>&nbsp;(<a href='javascript:void(0)' " + 
 		"onclick='PLUG.abort();'>", lang.abort, "</a>)</span>");
 	}
+	ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.latest(this)'>", lang.latest, "</a>");
 	ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<input class='search' type='text' maxlength='96' autocomplete='off' placeholder='",
 	    lang.search, "' id='plugFilter' onkeyup='return PLUG.filter(this, event);' onpaste='PLUG.filter(this, event); return true;' />");
 	ar.push("</td></tr></table>");
@@ -92,7 +93,9 @@ var PLUG = (function() {
 	    brand_id:true, brand:true,
 	    photo_type_id:true, 
 	    head_id:true, 
-	    doc_note:true});
+	    doc_note:true,
+	    _isLatest:true
+	});
     }
 
     function _getexplain(r, perm) {
@@ -291,12 +294,35 @@ var PLUG = (function() {
 	return ar;
     }
 
+    function _markLatestRows(rows) {
+	var idx = {};
+	if( !Array.isEmpty(rows) ) {
+	    rows.forEach(function(arg) {
+		const t = G.getdate(arg.fix_dt);
+		if( arg.account_id in idx ) {
+		    if( t > idx[ arg.account_id ] ) {
+			idx[ arg.account_id ] = t;
+		    }
+		} else {
+		    idx[ arg.account_id ] = t;
+		}
+	    });
+	    rows.forEach(function(arg) {
+		if( idx[ arg.account_id ] == G.getdate(arg.fix_dt) ) {
+		    arg._isLatest = 1;
+		}
+	    });
+	}
+    }
+
     function _datareq(y, m) {
 	ProgressDialog.show();
 	_cache.data = null; // drop the internal cache
 	G.xhr("GET", G.getajax({plug: _code, year: y, month: m}), "json-js", function(xhr, data) {
 	    if( xhr.status == 200 && data != null && typeof data == 'object' ) {
 		_cache.data = data;
+		_markLatestRows(data.rows);
+		//console.log(data);
 		_tags.tbody.html(_datatbl(data, 1, _tags.total, _getfilter(), _cache.checked, _perm).join(""));
 		new LazyLoad();
 	    } else {
@@ -351,6 +377,20 @@ var PLUG = (function() {
 	} else {
 	    _cache.xfilters[filterkey] = null;
 	    tag.removeClass('important')
+	}
+	_page(1);
+    }
+
+    function _latest(tag) {
+	if( _cache.xfilters == null ) {
+	    _cache.xfilters = {};
+	}
+	if( tag.hasClass("important") ) {
+	    _cache.xfilters["_isLatest"] = null;
+	    tag.removeClass('important');
+	} else {
+	    _cache.xfilters["_isLatest"] = "_isLatest=1$";
+	    tag.addClass('important');
 	}
 	_page(1);
     }
@@ -599,6 +639,10 @@ var PLUG = (function() {
 		    _onpopup(tag, arg, "photo_type_id");
 		})
 	    });
+	},
+	latest: function(tag) {
+	    _togglePopup();
+	    _latest(tag);
 	},
 	slideshow_a: function(arg) {
 	    _slideshow(_getslides(_cache.data.rows[arg], _cache.data._rowsVisible, function(arg0, arg1) {
