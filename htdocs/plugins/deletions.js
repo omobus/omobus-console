@@ -8,7 +8,7 @@ var PLUG = (function() {
     var _statusColumn = 2;
 
     function _getcolumns(perm) {
-	let x = 8, c = perm.columns || {};
+	let x = 10, c = perm.columns || {};
 	if( perm.validate == true ) x++;
 	if( perm.reject == true ) x++;
 	if( c.channel == true ) x++;
@@ -41,10 +41,10 @@ var PLUG = (function() {
 	    ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.potens(this)'>", lang.poten, "</a></th>");
 	}
 	if( perm.validate ) {
-	    ar.push("<th width='27px' rowspan='2' class='symbol'>", "&#x2713;", "</th>");
+	    ar.push("<th width='27px' class='symbol'>", "&#x2713;", "</th>");
 	}
 	if( perm.reject ) {
-	    ar.push("<th width='27px' rowspan='2' class='symbol'>", "&#x2421;", "</th>");
+	    ar.push("<th width='27px' class='symbol'>", "&#x2421;", "</th>");
 	}
 	ar.push("<th>", lang.photo, "</th>");
 	ar.push("<th>", lang.note, "</th>");
