@@ -11,6 +11,10 @@ local ldap = require 'bind_ldap'
 function M.list(config, username)
     local ldfd, ftpfd, s, passwd, data, err, tb
 
+    if config.ftp == nil then
+	return nil
+    end
+
     err = false
     s = config.ldap.search.user_credits
     if s.filter ~= nil then
