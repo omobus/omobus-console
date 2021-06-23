@@ -45,6 +45,7 @@ local modules = {
 	time 			= require 'plugins.time',
 	training_materials 	= require 'plugins.training_materials',
 	trainings 		= require 'plugins.trainings',
+	unsched 		= require 'plugins.unsched',
 	wishes 			= require 'plugins.wishes'
     }
 

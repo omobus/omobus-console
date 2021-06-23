@@ -10,6 +10,7 @@ M.daily_reports = {
 
 M.monthly_reports = {
     "joint_routes", 
+    "unsched",
     "orders", 
     "reclamations", 
     "comments", 
@@ -27,7 +28,7 @@ M.monthly_reports = {
     "presentations", 
     "audits", 
     "shelfs", 
-    "quests" 
+    "quests"
 }
 
 M.analitics = {

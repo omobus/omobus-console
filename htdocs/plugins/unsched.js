@@ -3,29 +3,22 @@
 
 var PLUG = (function() {
     /* private properties & methods */
-    var _code = "comments";
+    var _code = "unsched";
     var _cache = {}, _perm = {}, _tags = {}, _F = false /* abort export photos */;
 
     function _getcolumns(perm) {
-	let x = 10, c = perm.columns || {};
-	if( c.channel == true ) x++;
-	return x;
+	return 7;
     }
 
     function _getbody(perm) {
 	var ar = [];
 	ar.push("<table class='headerbar' width='100%'><tr><td><h1>");
-	ar.push("<span>", lang.comments.title1, "</span>&nbsp;");
+	ar.push("<span>", lang.unsched.title1, "</span>&nbsp;");
 	ar.push("<a id='plugCal' href='javascript:void(0);' onclick='PLUG.calendar(this)'>[&nbsp;-&nbsp;]</a>");
 	ar.push("</h1></td><td class='r'>");
 	ar.push("<span>", lang.received_ts, "</span>&nbsp;<span id='timestamp'>&nbsp;-&nbsp;</span>");
 	ar.push("&nbsp;(<a href='javascript:void(0);' onclick='PLUG.refresh();'>", lang.refresh, "</a>)<span id='plugTotal'></span>");
 	ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.xlsx(this)'>", lang.export.xlsx, "</a>");
-	if( perm.zip ) {
-	    ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.zip(this,_(\"L\"),_(\"progress\"))'>", 
-		lang.export.photo, "</a><span id='L' style='display: none;'><span id='progress'></span>&nbsp;(<a href='javascript:void(0)' " + 
-		"onclick='PLUG.abort();'>", lang.abort, "</a>)</span>");
-	}
 	ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<input class='search' type='text' maxlength='96' autocomplete='off' placeholder='",
 	    lang.search, "' id='plugFilter' onkeyup='return PLUG.filter(this, event);' onpaste='PLUG.filter(this, event); return true;' />");
 	ar.push("</td></tr></table>");
@@ -33,25 +26,16 @@ var PLUG = (function() {
 	ar.push("<th class='autoincrement'>", lang.num, "</th>");
 	ar.push("<th class='date'>", lang.created_date, "</th>");
 	ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"user\",0.2)'>", lang.u_name, "</a></th>");
-	ar.push("<th>", lang.a_code, "</th>");
-	ar.push("<th><a href='javascript:void(0)' onclick='PLUG.retail_chains(this)'>", lang.a_name, "</a></th>");
-	ar.push("<th>", lang.address, "</th>");
-	if( perm.columns != null && perm.columns.channel == true ) {
-	    ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.channels(this)'>", lang.chan_name, "</a></th>");
-	}
-	ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.types(this, 0.6)'>", lang.comments.type, "</a></th>");
-	ar.push("<th>", lang.photo, "</th>");
+	ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.types(this, 0.6)'>", lang.unsched.type, "</a></th>");
+	ar.push("<th>", lang.tech.route.duration, "</th>");
 	ar.push("<th>", lang.note, "</th>");
 	ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"head\",0.90)'>", lang.head_name, "</a></th>");
 	ar.push("</tr>", G.thnums(_getcolumns(perm)), "</thead>");
 	ar.push("<tbody id='maintb'></tbody></table>");
 	ar.push(MonthsPopup.container());
-	ar.push(CommentTypesPopup.container());
-	ar.push(ChannelsPopup.container());
-	ar.push(RetailChainsPopup.container());
+	ar.push(UnschedTypesPopup.container());
 	ar.push(UsersPopup.container());
 	ar.push(UsersPopup.container("headsPopup"));
-	ar.push(SlideshowSimple.container());
 	return ar;
     }
 
@@ -67,13 +51,7 @@ var PLUG = (function() {
 	    doc_id:true,
 	    fix_dt:true,
 	    user_id:true, dev_login:true, u_name:true, 
-	    account_id:true, a_code:true, a_name:true, address:true, 
-	    chan_id: true, chan:true, 
-	    poten:true, 
-	    rc_id:true, rc:true, ka_type:true, 
-	    region:true, 
-	    city:true, 
-	    comment_type_id:true, comment_type:true, 
+	    unsched_type_id:true, unsched_type:true, 
 	    doc_note:true, 
 	    head_id:true
 	});
@@ -92,24 +70,10 @@ var PLUG = (function() {
 		    ar.push("<tr" + (typeof checked != 'undefined' && checked[r.doc_id] ? " class='selected'" : "") + ">");
 		    ar.push("<td class='autoincrement clickable' onclick=\"PLUG.checkrow(this.parentNode,'" +
 			r.doc_id + "');event.stopPropagation();\">", r.row_no, "</td>");
-		    ar.push("<td class='date delim'>", G.getdatetime_l(Date.parseISO8601(r.fix_dt)), "</td>");
+		    ar.push("<td class='datetime delim'>", G.getdatetime_l(Date.parseISO8601(r.fix_dt)), "</td>");
 		    ar.push("<td class='string sw95px delim'>", G.shielding(r.u_name), "</td>");
-		    ar.push("<td class='int'>", G.shielding(r.a_code), "</td>");
-		    ar.push("<td class='string a_name'>", G.shielding(r.a_name), "</td>");
-		    ar.push("<td class='string a_address" + (perm.columns != null && perm.columns.channel == true ? "" : " delim") + 
-			"'>", G.shielding(r.address), "</td>");
-		    if( perm.columns != null && perm.columns.channel == true ) {
-			ar.push("<td class='ref sw95px delim'>", G.shielding(r.chan), "</td>");
-		    }
-		    ar.push("<td class='ref sw95px'>", G.shielding(r.comment_type), "</td>");
-		    ar.push("<td class='ref'>");
-		    if( r.blob_id == null || r.blob_id == "" ) {
-			ar.push("&nbsp;");
-		    } else {
-			ar.push("<img class='clickable' onclick='PLUG.slideshow(" + r.blob_id + ")' height='90px' " + (k>=20?"data-src='":"src='") + 
-			    G.getajax({plug: _code, blob: "yes", thumb: "yes", blob_id: r.blob_id}) + "' />");
-		    }
-		    ar.push("</td>");
+		    ar.push("<td class='ref sw95px'>", G.shielding(r.unsched_type), "</td>");
+		    ar.push("<td class='int'>", lang.minutes.format_a(r.duration), "</td>");
 		    ar.push("<td class='delim string note'>", G.shielding(r.doc_note), "</td>");
 		    ar.push("<td class='string sw95px'>", G.shielding(r.head_name), "</td>");
 		    ar.push("</tr>");
@@ -172,7 +136,6 @@ var PLUG = (function() {
 	    if( xhr.status == 200 && data != null && typeof data == 'object' ) {
 		_cache.data = data;
 		_tags.tbody.html(_datatbl(data, 1, _tags.total, _getfilter(), _cache.checked, _perm).join(""));
-		new LazyLoad();
 	    } else {
 		_tags.tbody.html(_datamsg(lang.failure, _perm).join(""));
 		_tags.total.html("");
@@ -189,7 +152,6 @@ var PLUG = (function() {
 	    ProgressDialog.show();
 	    setTimeout(function() {
 		_tags.tbody.html(_datatbl(_cache.data, page, _tags.total, _getfilter(), _cache.checked, _perm).join(""));
-		new LazyLoad();
 		ProgressDialog.hide();
 	    }, 0);
 	}
@@ -247,23 +209,10 @@ var PLUG = (function() {
 			ws.cell("B{0}".format_a(i + offset)).value(Date.parseISO8601(r.fix_dt));
 			ws.cell("C{0}".format_a(i + offset)).value(r.dev_login);
 			ws.cell("D{0}".format_a(i + offset)).value(r.u_name);
-			ws.cell("E{0}".format_a(i + offset)).value(r.a_code);
-			ws.cell("F{0}".format_a(i + offset)).value(r.a_name);
-			ws.cell("G{0}".format_a(i + offset)).value(r.address);
-			ws.cell("H{0}".format_a(i + offset)).value(r.chan);
-			ws.cell("I{0}".format_a(i + offset)).value(r.poten);
-			ws.cell("J{0}".format_a(i + offset)).value(r.region);
-			ws.cell("K{0}".format_a(i + offset)).value(r.city);
-			ws.cell("L{0}".format_a(i + offset)).value(r.rc);
-			ws.cell("M{0}".format_a(i + offset)).value(r.ka_type);
-			ws.cell("N{0}".format_a(i + offset)).value(r.comment_type);
-			if( typeof r.ref != 'undefined' ) {
-			    ws.cell("O{0}".format_a(i + offset)).value("[ 1 ]")
-				.style({ fontColor: "0563c1", underline: true })
-				.hyperlink({ hyperlink: G.getphotoref(r.ref,true) });
-			}
-			ws.cell("P{0}".format_a(i + offset)).value(r.doc_note);
-			ws.cell("Q{0}".format_a(i + offset)).value(r.head_name);
+			ws.cell("E{0}".format_a(i + offset)).value(r.unsched_type);
+			ws.cell("F{0}".format_a(i + offset)).value(r.duration);
+			ws.cell("G{0}".format_a(i + offset)).value(r.doc_note);
+			ws.cell("H{0}".format_a(i + offset)).value(r.head_name);
 		    }
 		    wb.outputAsync()
 			.then(function(blob) {
@@ -355,45 +304,15 @@ var PLUG = (function() {
 		}, {container:type+"sPopup", everyone:true})
 	    });
 	},
-	channels: function(tag, offset) {
-	    _togglePopup("channels", tag, offset, function(obj) {
-		return ChannelsPopup(_cache.data[obj], function(arg, i, ar) {
-		    _onpopup(tag, arg, "chan_id");
-		})
-	    });
-	},
-	retail_chains: function(tag, offset) {
-	    _togglePopup("retail_chains", tag, offset, function(obj) {
-		return RetailChainsPopup(_cache.data[obj], function(arg, i, ar) {
-		    _onpopup(tag, arg, "rc_id");
-		})
-	    });
-	},
 	types: function(tag, offset) {
 	    _togglePopup("types", tag, offset, function(obj) {
-		return CommentTypesPopup(_cache.data[obj], function(arg, i, ar) {
-		    _onpopup(tag, arg, "comment_type_id");
+		return UnschedTypesPopup(_cache.data[obj], function(arg, i, ar) {
+		    _onpopup(tag, arg, "unsched_type_id");
 		})
 	    });
-	},
-	slideshow: function(blob_id) {
-	    SlideshowSimple([G.getajax({plug: _code, blob: "yes", blob_id: blob_id})]).show();
 	},
 	xlsx: function() {
 	    _toxlsx();
-	},
-	zip: function(tag0, tag1, span) {
-	    var ar = [];
-	    if( _cache.data != null && Array.isArray(_cache.data._rows) ) {
-		_cache.data._rows.forEach(function(r, i) {
-		    if( r.blob_id != null ) {
-			ar.push({params: r, blob_id: r.blob_id});
-		    }
-		});
-	    }
-	    _F = false;
-	    G.tozip(_code, ar, _perm.zip != null ? _perm.zip.photo : null, _perm.zip != null ? _perm.zip.max : null, 
-		function() {return _F;}, tag0, tag1, span);
 	},
 	abort: function() {
 	    _F = true;

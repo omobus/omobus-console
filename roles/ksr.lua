@@ -32,7 +32,8 @@ M.permissions = {
     tech 		= require 'roles.defs.tech',
     tickets 		= require 'roles.defs._ro',
     time 		= require 'roles.defs.time',
-    trainings 		= require 'roles.defs.trainings'
+    trainings 		= require 'roles.defs.trainings',
+    unsched 		= require 'roles.defs.unsched'
 }
 
 return M
