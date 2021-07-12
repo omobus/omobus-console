@@ -8,10 +8,11 @@ var PLUG = (function() {
     var _statusColumn = 2;
 
     function _getcolumns(perm) {
-	let x = 11, c = perm.columns || {};
+	let x = 10, c = perm.columns || {};
 	if( perm.validate == true ) x++;
 	if( perm.reject == true ) x++;
 	if( c.channel == true ) x++;
+	if( c.addition_type == true ) x++;
 	return x;
     }
 
@@ -32,11 +33,13 @@ var PLUG = (function() {
 	ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"user\",0.2)'>", lang.u_name, "</a></th>");
 	ar.push("<th>", lang.a_code, "</th>");
 	ar.push("<th>", lang.a_name, "</th>");
-	ar.push("<th>", "{0} / {1}".format_a(lang.address,lang.legal_address), "</th>");
+	ar.push("<th>", lang.address, "</th>");
 	if( perm.columns != null && perm.columns.channel == true ) {
 	    ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.channels(this)'>", lang.chan_name, "</a></th>");
 	}
-	ar.push("<th width='190px'><a href='javascript:void(0)' onclick='PLUG.types(this,0.75)'>", lang.additions.types, "</th>");
+	if( perm.columns != null && perm.columns.addition_type == true ) {
+	    ar.push("<th width='190px'><a href='javascript:void(0)' onclick='PLUG.types(this,0.75)'>", lang.additions.types, "</th>");
+	}
 	if( perm.validate ) {
 	    ar.push("<th width='27px' class='symbol'>", "&#x2713;", "</th>");
 	}
@@ -48,8 +51,8 @@ var PLUG = (function() {
 	ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"head\",0.90)'>", lang.head_name, "</a></th>");
 	ar.push("</tr>", G.thnums(_getcolumns(perm)), "</thead>");
 	ar.push("<tbody id='maintb'></tbody></table>");
-	ar.push(ChannelsPopup.container());
 	ar.push(AdditionTypesPopup.container());
+	ar.push(ChannelsPopup.container());
 	ar.push(UsersPopup.container());
 	ar.push(UsersPopup.container("headsPopup"));
 	ar.push(SlideshowSimple.container());
@@ -68,7 +71,7 @@ var PLUG = (function() {
 	    doc_id:true,
 	    fix_dt:true, 
 	    user_id:true, dev_login:true, u_name:true,
-	    a_code:true, a_name:true, address:true, legal_address:true,
+	    a_code:true, a_name:true, address:true, geo_address:true,
 	    chan_id:true, chan:true, 
 	    addition_type_id:true, addition_type:true, 
 	    head_id:true
@@ -111,14 +114,16 @@ var PLUG = (function() {
 		    if( !String.isEmpty(r.address) ) {
 			ar.push("<div class='row'>", G.shielding(r.address), "</div>");
 		    }
-		    if( !String.isEmpty(r.legal_address) ) {
-			ar.push("<hr/><div class='row remark'><i>", G.shielding(r.legal_address), "</i></div>");
+		    if( !String.isEmpty(r.geo_address) ) {
+			ar.push("<hr/><div class='row remark'><i>", G.shielding(r.geo_address), "</i></div>");
 		    }
 		    ar.push("</td>");
 		    if( perm.columns != null && perm.columns.channel == true ) {
 			ar.push("<td class='ref sw95px", r.rejected ? " disabled" : "", "'>", G.shielding(r.chan), "</td>");
 		    }
-		    ar.push("<td class='ref sw95px", r.rejected ? " disabled" : "","'>", G.shielding(r.addition_type), "</td>");
+		    if( perm.columns != null && perm.columns.addition_type == true ) {
+			ar.push("<td class='ref sw95px", r.rejected ? " disabled" : "","'>", G.shielding(r.addition_type), "</td>");
+		    }
 		    if( perm.validate ) {
 			if( !r.validated && !r.rejected ) {
 			    ar.push("<td class='ref footnote' data-title='{0}'>".format_a(lang.additions.accept),

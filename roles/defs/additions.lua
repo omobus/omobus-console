@@ -3,7 +3,7 @@
 
 local M = {} -- public interface
 
-M.columns = {channel=true}
+M.columns = {channel=true, addition_type=true}
 M.rows = 500
 M.data = {registered=true, validated=true, rejected=false}
 M.reject = false

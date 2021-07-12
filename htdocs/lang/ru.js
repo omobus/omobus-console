@@ -331,7 +331,7 @@ var lang = {
     num: "№",
     num_of_days: "{0} д.",
     latest: "Только последние",
-    legal_address: "Юридический адрес",
+    /*legal_address: "Юридический адрес",*/
     less_min: "<{0} мин.",
     login: "Вход в систему",
     oos_type: "Причина Out-of-Stock",
@@ -409,8 +409,8 @@ var lang = {
 	title1: "Представленность на полке за"
     },
     presentations: {
-	title: "Перзентации продукции",
-	title1: "Перзентации продукции за"
+	title: "Презентации продукции",
+	title1: "Презентации продукции за"
     },
     price: "Цена",
     prices: {

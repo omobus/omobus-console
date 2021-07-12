@@ -19,19 +19,33 @@ local function data(permtb, stor, sestb)
 [[
 select
     j.doc_id,
-    j.validated, j.hidden rejected,
-    a.code a_code, j.account a_name, j.address, j.legal_address, j.number,
-    j.addition_type_id, t.descr addition_type,
-    j.chan_id, ch.descr chan,
+    j.validated, 
+    j.hidden rejected,
+    a.code a_code, 
+    j.account a_name, 
+    j.address, 
+    coalesce(g1."x-address",g0."x-address") geo_address,
+    j.number,
+    j.addition_type_id, 
+    t.descr addition_type,
+    j.chan_id, 
+    ch.descr chan,
     j.note,
     (select array_to_string(array_agg(descr::text),'|') from attributes where attr_id = any(j.attr_ids)) attrs,
     array_to_string(j.photos,'|') photos,
     j.guid,
     j.fix_dt,
-    j.user_id, u.descr u_name, u.dev_login, u.area,
-    j.validator_id v_code, v.descr v_name,
-    u.executivehead_id head_id, ex.descr head_name
+    j.user_id, 
+    u.descr u_name, 
+    u.dev_login, 
+    u.area,
+    j.validator_id v_code, 
+    v.descr v_name,
+    u.executivehead_id head_id, 
+    ex.descr head_name
 from j_additions j
+    left join geocode_stream g0 on g0.account_id = j.guid and g0.reverse = 0
+    left join geocode_stream g1 on g1.account_id = j.guid and g1.reverse = 1
     left join accounts a on a.account_id = j.guid
     left join addition_types t on t.addition_type_id = j.addition_type_id
     left join channels ch on j.chan_id = ch.chan_id
@@ -94,7 +108,7 @@ select user_id, descr, dev_login, area, hidden from users
 		, "//additions/users"
 	    )
 	end
-	if err == nil or err == false then
+	if (permtb.columns or {}).addition_type == true and (err == nil or err == false) then
 	    tb.types, err = func_execute(tran,
 [[
 select addition_type_id, descr, hidden from addition_types
@@ -184,8 +198,8 @@ end
 -- *** plugin interface: begin
 function M.scripts(lang, permtb, sestb, params)
     local ar = {}
-    table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.channels.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.additiontypes.js"> </script>')
+    table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.channels.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.users.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/slideshow.simple.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/plugins/additions.js"> </script>')
