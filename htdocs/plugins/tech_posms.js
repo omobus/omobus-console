@@ -78,7 +78,7 @@ PLUG.registerRef("posm", (function() {
 	    ar.push("<div>", G.shielding(r.doc_note), "</div>");
 	}
 	ar.push("<hr/>");
-        ar.push("<div>", lang.fix_dt, ":&nbsp;", G.getdatetime_l(Date.parseISO8601(r.fix_dt)), "</div>");
+        ar.push("<div>", lang.fix_date, ":&nbsp;", G.getdatetime_l(Date.parseISO8601(r.fix_dt)), "</div>");
 	if( typeof __allowTargetCreation != 'undefined' && __allowTargetCreation && (typeof r.revoked == 'undefined' || !r.revoked) ) {
 	    ar.push("<br/><br/>");
 	    ar.push("<div id='spin:", r.blob_id, "' class='spinner'></div>");

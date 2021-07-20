@@ -113,7 +113,7 @@ var PLUG = (function() {
 	}
 	ar.push("</tbody>");
 	ar.push("<tfoot><tr class='def'><td colspan='4' class='watermark'>", 
-	    "{0}: {1}".format_a(lang.fix_dt, G.getdatetime_l(Date.parseISO8601(r.fix_dt))), 
+	    "{0}: {1}".format_a(lang.fix_date, G.getdatetime_l(Date.parseISO8601(r.fix_dt))), 
 	    "</td></tr></tfoot>");
 	ar.push("</table>");
 	ar.push("<br/>");

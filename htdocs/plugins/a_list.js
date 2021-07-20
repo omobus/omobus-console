@@ -10,7 +10,7 @@ var __a_list = (function() {
 	var ar = [];
 	ar.push("<table width='100%' class='report'><thead><tr>");
 	ar.push("<th class='autoincrement'>", lang.num, "</th>");
-	ar.push("<th class='datetime'>", lang.fix_dt, "</th>");
+	ar.push("<th class='datetime'>", lang.fix_date, "</th>");
 	ar.push("<th class='datetime'>", lang.satellite_dt, "</th>");
 	ar.push("<th class='datetime'>", lang.inserted_ts, "</th>");
 	ar.push("<th width='120px'>", lang.code, "</th>");

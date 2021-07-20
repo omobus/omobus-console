@@ -115,7 +115,7 @@ var PLUG = (function() {
 	ar.push("<hr/>");
 	ar.push("<div>", lang.u_name, ":&nbsp;", G.shielding(r.u_name), "</div>");
 	ar.push("<div>", lang.head_name, ":&nbsp;", G.shielding(r.head_name, lang.dash), "</div>");
-	ar.push("<div>", lang.fix_dt, ":&nbsp;", G.getdatetime_l(Date.parseISO8601(r.fix_dt)), "</div>");
+	ar.push("<div>", lang.fix_date, ":&nbsp;", G.getdatetime_l(Date.parseISO8601(r.fix_dt)), "</div>");
 	if( perm.target == true && (typeof r.revoked == 'undefined' || !r.revoked) ) {
 	    ar.push("<br/><br/>");
 	    ar.push("<div id='spin:", r.blob_id, "' class='spinner'></div>");
