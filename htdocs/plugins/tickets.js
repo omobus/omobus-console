@@ -101,7 +101,7 @@ var PLUG = (function() {
 	//_elem.spin.show(); tbody.hide();
 ProgressDialog.show();
 	_cache = null; // drop the internal cache
-	G.xhr("GET", G.getajax({plug: _code}), "json", function(xhr, data) {
+	G.xhr("GET", G.getdataref({plug: _code}), "json", function(xhr, data) {
 	    if( xhr.status == 200 && data != null && typeof data == 'object' ) {
 		tbody.html(_success(data, f, _getobjcache(), _perm).join(""));
 		_cache = data;
@@ -261,7 +261,7 @@ a.push("</div>");
 	} else {
 ProgressDialog.show();
 	    //var sp = new Spinner(_opt.D).spin(_context._spin.get(0));
-	    var xhr = G.xhr("POST", G.getajax({plug: _code, user_id: context.u.user_id}), "", function(xhr) {
+	    var xhr = G.xhr("POST", G.getdataref({plug: _code, user_id: context.u.user_id}), "", function(xhr) {
 		_disable(context._commit, false);
 		if( xhr.status == 200 ) {
 		    onsuccess();
@@ -285,7 +285,7 @@ ProgressDialog.hide();
 	} else {
 ProgressDialog.show();
 	    //var sp = new Spinner(_opt.D).spin(_context._spin.get(0));
-	    var xhr = G.xhr("PUT", G.getajax({plug: _code, ticket_id: context.ticket_id}), "", function(xhr) {
+	    var xhr = G.xhr("PUT", G.getdataref({plug: _code, ticket_id: context.ticket_id}), "", function(xhr) {
 		_disable(context._commit, false);
 		if( xhr.status == 200 ) {
 		    onsuccess();

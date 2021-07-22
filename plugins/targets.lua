@@ -44,48 +44,48 @@ where x.hidden=0
 order by x.b_date desc, x.e_date, x.subject
 ]]
 -- *** sql query: end
-	    , "//targets/targets/", 
+	    , "/plugins/targets/targets/", 
 	    {user_id = erpid == nil and stor.NULL or erpid, flag = erpid == nil and 0 or 1}
 	)
 	if err == nil or err == false then
 	    tb.departments, err = func_execute(tran, 
 		"select dep_id, descr from departments where hidden=0 order by descr", 
-		"//targets/departments/")
+		"/plugins/targets/departments/")
 	end
 	if err == nil or err == false then
 	    tb.types, err = func_execute(tran, 
 		"select target_type_id, descr from target_types where hidden=0 order by descr", 
-		"//targets/target_types/")
+		"/plugins/targets/target_types/")
 	end
 	if err == nil or err == false then
 	    tb.regions, err = func_execute(tran, 
 		"select region_id, descr from regions where hidden=0 order by descr", 
-		"//targets/regions/")
+		"/plugins/targets/regions/")
 	end
 	if err == nil or err == false then
 	    tb.cities, err = func_execute(tran, 
 		"select city_id, descr from cities where hidden=0 order by descr", 
-		"//targets/cities/")
+		"/plugins/targets/cities/")
 	end
 	if err == nil or err == false then
 	    tb.retail_chains, err = func_execute(tran, 
 		"select rc_id, descr, ka_type from retail_chains where hidden=0 order by descr", 
-		"//targets/retail_chains/")
+		"/plugins/targets/retail_chains/")
 	end
 	if err == nil or err == false then
 	    tb.channels, err = func_execute(tran, 
 		"select chan_id, descr from channels where hidden=0 order by descr", 
-		"//targets/channels/")
+		"/plugins/targets/channels/")
 	end
 	if err == nil or err == false then
 	    tb.potentials, err = func_execute(tran, 
 		"select poten_id, descr from potentials where hidden=0 order by descr", 
-		"//targets/potentials/")
+		"/plugins/targets/potentials/")
 	end
 	if err == nil or err == false then
 	    tb.accounts, err = func_execute(tran, 
 		"select account_id, code, descr, address, rc_id, chan_id, poten_id, region_id, city_id from accounts where hidden=0 and ftype=0 order by descr", 
-		"//targets/accounts/")
+		"/plugins/targets/accounts/")
 	end
 	return tb, err
     end
@@ -99,7 +99,7 @@ local function get_author(stor, target_id)
 select author_id from targets where target_id=%target_id%
 ]]
 -- *** sql query: end
-    , "//targets/author/"
+    , "/plugins/targets/author/"
     , {target_id = target_id}
     )
     end
@@ -116,7 +116,7 @@ select console.req_target(%req_uid%, %_datetime%, (%type_id%, %subject%, %body%,
     string_to_array(%region_ids%,','), string_to_array(%city_ids%,','), string_to_array(%rc_ids%,','), string_to_array(%chan_ids%,','), string_to_array(%poten_ids%,','))::console.target_t)
 ]]
 -- *** sql query: end
-	, "//targets/new/"
+	, "/plugins/targets/new/"
 	, tb
 	)
     end
@@ -134,7 +134,7 @@ select console.req_target(%req_uid%, %_datetime%, %target_id%, (%type_id%, %subj
     string_to_array(%region_ids%,','), string_to_array(%city_ids%,','), string_to_array(%rc_ids%,','), string_to_array(%chan_ids%,','), string_to_array(%poten_ids%,','))::console.target_t)
 ]]
 -- *** sql query: end
-	, "//targets/edit/"
+	, "/plugins/targets/edit/"
 	, tb
 	)
     end
@@ -148,7 +148,7 @@ local function remove(stor, uid, target_id)
 select console.req_target(%req_uid%, null, %target_id%)
 ]]
 -- *** sql query: end
-	, "//targets/remove/"
+	, "/plugins/targets/remove/"
 --TODO: datetime 
 	, {req_uid = uid, target_id = target_id})
     end
@@ -293,7 +293,7 @@ function M.startup(lang, permtb, sestb, params, stor)
     return "startup($('#pluginContainer')," .. json.encode(permtb) .. ");"
 end
 
-function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor, res)
+function M.data(lang, method, permtb, sestb, params, content, content_type, stor, res)
     if method == "GET" then
 	ajax_data(sestb, params, stor, res)
     elseif method == "DELETE" then

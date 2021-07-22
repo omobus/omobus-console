@@ -258,7 +258,7 @@ var PLUG = (function() {
 	}
 	ProgressDialog.show();
 	_cache.data = null; // drop the internal cache
-	G.xhr("GET", G.getajax(uri), "json", function(xhr, data) {
+	G.xhr("GET", G.getdataref(uri), "json", function(xhr, data) {
 	    if( xhr.status == 200 && data != null && typeof data == 'object' ) {
 		data.rows = _cache.expanded ? _compilerows(data.routes, data.accounts,
 		    (Array.isArray(data.users) && data.users.length == 1) ? data.users[0].user_id : _cache.userFilter) 
@@ -337,7 +337,7 @@ var PLUG = (function() {
 	    Toast.show(lang.routes.msg3);
 	} else {
 	    ProgressDialog.show();
-	    G.xhr("PUT", G.getajax({
+	    G.xhr("PUT", G.getdataref({
 		    plug: _code, 
 		    _datetime: G.getdatetime(new Date()), 
 		    cmd: f ? ("drop/"+name) : ("set/"+name), 
@@ -358,7 +358,7 @@ var PLUG = (function() {
 
     function _remove(row, onsuccess) {
 	ProgressDialog.show();
-	G.xhr("DELETE", G.getajax({
+	G.xhr("DELETE", G.getdataref({
 		plug: _code, 
 		_datetime: G.getdatetime(new Date()), 
 		cmd: row._deleted ? "restore" : "remove", 
@@ -381,7 +381,7 @@ var PLUG = (function() {
 	    return;
 	}
 	ProgressDialog.show();
-	G.xhr("POST", G.getajax({
+	G.xhr("POST", G.getdataref({
 		plug: _code, 
 		_datetime: G.getdatetime(new Date()), 
 		cmd: "add", 
@@ -498,8 +498,8 @@ var PLUG = (function() {
 	    if( _cache.cyclesPopup == null ) {
 		_cache.cyclesPopup = CyclesPopup(function(cycle_id) {
 		    _datareq(cycle_id);
-		    history.pushState({cycle_id: cycle_id}, "", G.getref({plug: _code, cycle_id: cycle_id}));
-		}, {cycle_id: _cache.data.cycle_id, uri: G.getajax({plug: _code, cycles: true})});
+		    history.pushState({cycle_id: cycle_id}, "", G.getdefref({plug: _code, cycle_id: cycle_id}));
+		}, {cycle_id: _cache.data.cycle_id, uri: G.getdataref({plug: _code, cycles: true})});
 	    }
 	    _cache.cyclesPopup.toggle(tag);
 	},

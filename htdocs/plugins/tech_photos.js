@@ -47,7 +47,7 @@ PLUG.registerRef("photo", (function() {
 		ar.push("&nbsp;");
 	    } else {
 		ar.push("<img class='clickable' onclick='PLUG.getRef(\"photo\").slideshow(", i, ")' height='90px' src='",
-		    G.getajax({plug: "tech", blob: "yes", thumb: "yes", blob_id: r.blob_id}), "' />");
+		    G.getdataref({plug: "tech", blob: "yes", thumb: "yes", blob_id: r.blob_id}), "' />");
 	    }
 	    ar.push("</td>");
 	    ar.push("<td class='string", xs, "'>");
@@ -164,7 +164,7 @@ PLUG.registerRef("photo", (function() {
 	    tags.alarm.html(lang.errors.target.body);
 	    tags.alarm.show();
 	} else {
-	    var xhr = G.xhr("POST", G.getajax({plug: "tech", doc_id: doc_id}), "", function(xhr) {
+	    var xhr = G.xhr("POST", G.getdataref({plug: "tech", doc_id: doc_id}), "", function(xhr) {
 		if( xhr.status == 200 ) {
 		    params.sub = null;
 		    params.msg = null;
@@ -208,7 +208,7 @@ PLUG.registerRef("photo", (function() {
 	    } else {
 		ProgressDialog.show();
 		_cache.data[user_id] = _cache.ptr = null; // drops the internal cache
-		G.xhr("GET", G.getajax({plug: "tech", code: "tech_photos", user_id: user_id, date: G.getdate(date)}), "json", function(xhr, data) {
+		G.xhr("GET", G.getdataref({plug: "tech", code: "tech_photos", user_id: user_id, date: G.getdate(date)}), "json", function(xhr, data) {
 		    if( xhr.status == 200 &&  data != null && typeof data == 'object' ) {
 			tbody.html(_datatbl(data, user_id, date, _cache.checked).join(""));
 			_cache.data[user_id] = data;
@@ -241,7 +241,7 @@ PLUG.registerRef("photo", (function() {
 	    if( Array.isArray(_cache.ptr) ) {
 		_cache.ptr.forEach(function(arg) {
 		    ar.push({
-			ref: G.getajax({plug: "tech", blob: "yes", blob_id: arg.blob_id}), 
+			ref: G.getdataref({plug: "tech", blob: "yes", blob_id: arg.blob_id}), 
 			explain: _getexplain(arg).join("")
 		    });
 		});

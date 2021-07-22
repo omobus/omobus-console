@@ -19,7 +19,7 @@ select left(b_date, 4) y, substring(b_date, 6, 2) m, rows from content_stream
     where content_ts is not null and content_code='stat_shelfs'
 order by 1 desc, 2 desc
 ]]
-	, "//shelfs/calendar"
+	, "/plugins/shelfs/calendar"
 	)
     end
     )
@@ -34,7 +34,7 @@ local function data(stor, permtb, sestb, year, month)
 [[
 select my_staff user_id from my_staff(%user_id%, 1::bool_t)
 ]]
-		, "//shelfs/F.users"
+		, "/plugins/shelfs/F.users"
 		, {user_id = sestb.erpid}
 	    )
 	    if err == nil or err == false then
@@ -50,7 +50,7 @@ select account_id from my_regions r, accounts a where r.user_id in (select my_st
     union
 select account_id from (select expand_cities(city_id) city_id, chan_id from my_cities where user_id in (select my_staff(%user_id%, 1::bool_t))) c, accounts a where c.city_id=a.city_id and (c.chan_id='' or c.chan_id=a.chan_id)
 ]]
-		    , "//shelfs/F.accounts"
+		    , "/plugins/shelfs/F.accounts"
 		    , {user_id = sestb.erpid}
 		)
 	    end
@@ -61,7 +61,7 @@ select user_id from users
     where (%dep_id% is null or dep_ids is null or dep_ids && string_to_array(%dep_id%,',')::uids_t)
 	and (%country_id% is null or (country_id=any(string_to_array(%country_id%,',')::uids_t)))
 ]]
-		, "//shelfs/F.users"
+		, "/plugins/shelfs/F.users"
 		, {
 		    dep_id = sestb.department == nil and stor.NULL or sestb.department,
 		    country_id = sestb.country == nil and stor.NULL or sestb.country
@@ -73,7 +73,7 @@ select user_id from users
 select user_id from users
     where distr_ids && string_to_array(%distr_id%,',')::uids_t
 ]]
-		, "//shelfs/F.users"
+		, "/plugins/shelfs/F.users"
 		, {distr_id = sestb.distributor}
 	    )
         elseif sestb.agency ~= nil then
@@ -82,7 +82,7 @@ select user_id from users
 select user_id from users
     where agency_id=any(string_to_array(%agency_id%,','))
 ]]
-		, "//shelfs/F.users"
+		, "/plugins/shelfs/F.users"
 		, {agency_id = sestb.agency})
 	end
 	if err == nil or err == false then
@@ -91,7 +91,7 @@ select user_id from users
 select user_id, descr, dev_login, area, hidden from users
     order by descr
 ]]
-		, "//shelfs/users"
+		, "/plugins/shelfs/users"
 	    )
 	end
 	if permtb.channel == true and (err == nil or err == false) then
@@ -100,7 +100,7 @@ select user_id, descr, dev_login, area, hidden from users
 select chan_id, descr, hidden from channels
     order by descr
 ]]
-		, "//shelfs/channels"
+		, "/plugins/shelfs/channels"
 	    )
 	end
 	if err == nil or err == false then
@@ -109,7 +109,7 @@ select chan_id, descr, hidden from channels
 select rc_id, descr, ka_type, hidden from retail_chains
     order by descr
 ]]
-		, "//shelfs/retail_chains"
+		, "/plugins/shelfs/retail_chains"
 	    )
 	end
 	if err == nil or err == false then
@@ -118,7 +118,7 @@ select rc_id, descr, ka_type, hidden from retail_chains
 select categ_id, descr, hidden from categories
     order by row_no, descr
 ]]
-		, "//shelfs/categories"
+		, "/plugins/shelfs/categories"
 	    )
 	end
 	if err == nil or err == false then
@@ -127,7 +127,7 @@ select categ_id, descr, hidden from categories
 select content_ts, content_type, content_compress, content_blob from content_get('stat_shelfs', '', 
     "monthDate_First"('%y%-%m%-01')::date_t, "monthDate_Last"('%y%-%m%-01')::date_t)
 ]]
-		, "//shelfs/content"
+		, "/plugins/shelfs/content"
 		, {y = year, m = month}
 	    )
 	end
@@ -141,7 +141,7 @@ local function photo(stor, blob_id)
 [[
 select photo_get(%blob_id%::blob_t) photo
 ]]
-	, "//shelfs/photo"
+	, "/plugins/shelfs/photo"
 	, {blob_id = blob_id})
     end
     )
@@ -247,7 +247,7 @@ function M.startup(lang, permtb, sestb, params, stor)
     end
 end
 
-function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor, res)
+function M.data(lang, method, permtb, sestb, params, content, content_type, stor, res)
     local tb, err
     if method == "GET" then
 	if params.blob ~= nil then 

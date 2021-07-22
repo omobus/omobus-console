@@ -18,7 +18,7 @@ select distinct b_date as fix_date from content_stream
     where content_ts is not null and content_code='route_compliance'
 order by b_date
 ]]
-	, "//route_compliance/calendar"
+	, "/plugins/route_compliance/calendar"
 	)
     end
     )
@@ -33,7 +33,7 @@ local function data(stor, sestb, date)
 [[
 select my_staff user_id from my_staff(%user_id%, 1::bool_t)
 ]]
-		, "//route_compliance/F.users"
+		, "/plugins/route_compliance/F.users"
 		, {user_id = sestb.erpid}
 	    )
 	elseif sestb.department ~= nil or sestb.country ~= nil then
@@ -43,7 +43,7 @@ select user_id from users
     where (%dep_id% is null or dep_ids is null or dep_ids && string_to_array(%dep_id%,',')::uids_t)
 	and (%country_id% is null or (country_id=any(string_to_array(%country_id%,',')::uids_t)))
 ]]
-		, "//route_compliance/F.users"
+		, "/plugins/route_compliance/F.users"
 		, {
 		    dep_id = sestb.department == nil and stor.NULL or sestb.department,
 		    country_id = sestb.country == nil and stor.NULL or sestb.country
@@ -55,7 +55,7 @@ select user_id from users
 select user_id from users
     where distr_ids && string_to_array(%distr_id%,',')::uids_t
 ]]
-		, "//route_compliance/F.users"
+		, "/plugins/route_compliance/F.users"
 		, {distr_id = sestb.distributor}
 	    )
 	elseif sestb.agency ~= nil then
@@ -64,7 +64,7 @@ select user_id from users
 select user_id from users
     where agency_id=any(string_to_array(%agency_id%,','))
 ]]
-		, "//route_compliance/F.users"
+		, "/plugins/route_compliance/F.users"
 		, {agency_id = sestb.agency})
 	end
 	if err == nil or err == false then
@@ -72,7 +72,7 @@ select user_id from users
 [[
 select content_ts, content_type, content_compress, content_blob from content_get('route_compliance', '', %b_date%, %e_date%)
 ]]
-		, "//route_compliance/content"
+		, "/plugins/route_compliance/content"
 		, {b_date = date, e_date = date }
 	    )
 	end
@@ -144,7 +144,7 @@ function M.startup(lang, permtb, sestb, params, stor)
 	json.encode(permtb) .. ");"
 end
 
-function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor, res)
+function M.data(lang, method, permtb, sestb, params, content, content_type, stor, res)
     local tb, err
     assert(method == "GET", "%s request is not supported.", method)
     if params.calendar ~= nil then 

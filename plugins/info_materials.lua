@@ -56,7 +56,7 @@ and (
     )
 )
 ]]
-		), "//info_materials/get", { 
+		), "/plugins/info_materials/get", { 
 		    user_id = sestb.erpid,
 		    country_id = sestb.country == nil and stor.NULL or sestb.country 
 		}
@@ -72,7 +72,7 @@ select rc_id, descr, ka_type, country_id from retail_chains
 	)
 order by descr, ka_type, rc_id
 ]]
-		    , "//info_materials/retail_chains", { 
+		    , "/plugins/info_materials/retail_chains", { 
 			user_id = sestb.erpid,
 			country_id = sestb.country == nil and stor.NULL or sestb.country 
 		    }
@@ -85,7 +85,7 @@ select dep_id, descr from departments
     where hidden = 0 and (select case when NIL(dep_id) is null or dep_id=any(dep_ids) then 1 else 0 end from users where user_id=%user_id%) > 0
 order by descr, dep_id
 ]]
-		    , "//info_materials/departments", { user_id = sestb.erpid}
+		    , "/plugins/info_materials/departments", { user_id = sestb.erpid}
 		)
 	    end
 	    if err == nil or err == false then
@@ -99,7 +99,7 @@ select country_id, descr from countries
 	)
 order by row_no, descr
 ]]
-		    , "//info_materials/countries", { 
+		    , "/plugins/info_materials/countries", { 
 			user_id = sestb.erpid,
 			country_id = sestb.country == nil and stor.NULL or sestb.country 
 		    }
@@ -118,7 +118,7 @@ and (
     )
 )
 ]]
-		) ,"//info_materials/get", { 
+		) ,"/plugins/info_materials/get", { 
 		    dep_id = sestb.department == nil and stor.NULL or sestb.department,
 		    country_id = sestb.country == nil and stor.NULL or sestb.country,
 		    my = sestb.username
@@ -131,7 +131,7 @@ select rc_id, descr, ka_type, country_id from retail_chains
     where hidden = 0 and (%country_id% is null or country_id = any(string_to_array(%country_id%,',')::uids_t))
 order by descr, ka_type, rc_id
 ]]
-		    , "//info_materials/retail_chains", {
+		    , "/plugins/info_materials/retail_chains", {
 			country_id = sestb.country == nil and stor.NULL or sestb.country
 		    }
 		)
@@ -143,7 +143,7 @@ select dep_id, descr from departments
     where hidden = 0 and (%dep_id% is null or dep_id is null or dep_id=any(string_to_array(%dep_id%,',')::uids_t))
 order by descr, dep_id
 ]]
-		    , "//info_materials/departments", { 
+		    , "/plugins/info_materials/departments", { 
 			dep_id = sestb.department == nil and stor.NULL or sestb.department
 		    }
 		)
@@ -155,14 +155,14 @@ select country_id, descr from countries
     where hidden = 0 and (%country_id% is null or country_id = any(string_to_array(%country_id%,',')::uids_t))
 order by row_no, descr
 ]]
-		    , "//info_materials/countries", { 
+		    , "/plugins/info_materials/countries", { 
 			country_id = sestb.country == nil and stor.NULL or sestb.country 
 		    }
 		)
 	    end
 	else
 	    tb.rows, err = func_execute(tran, qs:replace("$(0)", ""),
-		"//info_materials/get"
+		"/plugins/info_materials/get"
 	    )
 	    if err == nil or err == false then
 		tb.retail_chains, err = func_execute(tran,
@@ -171,7 +171,7 @@ select rc_id, descr, ka_type, country_id from retail_chains
     where hidden = 0
 order by descr, ka_type, rc_id
 ]]
-		    , "//info_materials/retail_chains"
+		    , "/plugins/info_materials/retail_chains"
 		)
 	    end
 	    if err == nil or err == false then
@@ -181,7 +181,7 @@ select dep_id, descr from departments
     where hidden = 0
 order by descr, dep_id
 ]]
-		    , "//info_materials/departments"
+		    , "/plugins/info_materials/departments"
 		)
 	    end
 	    if err == nil or err == false then
@@ -191,7 +191,7 @@ select country_id, descr from countries
     where hidden = 0
 order by row_no, descr
 ]]
-		    , "//info_materials/countries"
+		    , "/plugins/info_materials/countries"
 		)
 	    end
 	end
@@ -203,7 +203,7 @@ select chan_id, descr from channels
     where hidden = 0
 order by descr
 ]]
-		, "//info_materials/channels"
+		, "/plugins/info_materials/channels"
 	    )
 	end
 
@@ -215,7 +215,7 @@ order by descr
 select rc_id, descr, ka_type, country_id, hidden from retail_chains
     order by descr, ka_type, rc_id
 ]]
-		, "//info_materials/_f/retail_chains"
+		, "/plugins/info_materials/_f/retail_chains"
 	    )
 	end
 	if err == nil or err == false then
@@ -224,7 +224,7 @@ select rc_id, descr, ka_type, country_id, hidden from retail_chains
 select chan_id, descr, hidden from channels
     order by descr
 ]]
-		, "//info_materials/_f/channels"
+		, "/plugins/info_materials/_f/channels"
 	    )
 	end
 	if err == nil or err == false then
@@ -233,7 +233,7 @@ select chan_id, descr, hidden from channels
 select dep_id, descr, hidden from departments
     order by descr, dep_id
 ]]
-		, "//info_materials/_f/departments"
+		, "/plugins/info_materials/_f/departments"
 	    )
 	end
 	if err == nil or err == false then
@@ -242,7 +242,7 @@ select dep_id, descr, hidden from departments
 select country_id, descr, hidden from countries
     order by row_no, descr
 ]]
-		, "//info_materials/_f/countries"
+		, "/plugins/info_materials/_f/countries"
 	    )
 	end
 
@@ -256,7 +256,7 @@ local function blob(stor, infom_id)
 [[
 select infom_id, blob, content_type from info_materials where infom_id = %infom_id%
 ]]
-	, "//info_materials/blob/", {infom_id = infom_id})
+	, "/plugins/info_materials/blob/", {infom_id = infom_id})
     end
     )
 end
@@ -266,7 +266,7 @@ local function author(stor, infom_id)
 [[
 select author_id from info_materials where infom_id=%infom_id%
 ]]
-	, "//info_materials/author/"
+	, "/plugins/info_materials/author/"
 	, {infom_id = infom_id})
     end
     )
@@ -277,7 +277,7 @@ local function unlink(stor, uid, reqdt, infom_id)
 [[
 select console.req_info_material(%req_uid%, %req_dt%, 'unlink', %infom_id%, null::console.info_material_t) rv
 ]]
-        , "//info_materials/unlink/"
+        , "/plugins/info_materials/unlink/"
         , {req_uid = uid, req_dt = reqdt, infom_id = infom_id})
     end
     )
@@ -298,7 +298,7 @@ select console.req_info_material(%req_uid%, %_datetime%, 'edit', %infom_id%, (
     )
 ) rv
 ]]
-	, "//info_materials/edit/"
+	, "/plugins/info_materials/edit/"
 	, params)
     end
     )
@@ -309,7 +309,7 @@ local function post(stor, uid, reqdt, blob, content_type)
 [[
 select console.req_info_material(%req_uid%, %req_dt%/*, 'add'*/, %name%, %1:blob%, %content_type%) rv
 ]]
-	, "//info_materials/add/"
+	, "/plugins/info_materials/add/"
 	, {req_uid = uid, req_dt = reqdt, name = blob.name, content_type = content_type}
 	, blob.contents)
     end
@@ -375,7 +375,7 @@ function M.startup(lang, permtb, sestb, params, stor)
     return string.format("startup(%s);", json.encode(permtb));
 end
 
-function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor, res)
+function M.data(lang, method, permtb, sestb, params, content, content_type, stor, res)
     local tb, err
     if method == "GET" then
 	if params.blob ~= nil then

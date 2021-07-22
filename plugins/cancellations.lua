@@ -50,7 +50,7 @@ order by j.route_date desc, u.descr, u.dev_login, u.user_id
 [[
 where j.user_id in (select * from my_staff(%user_id%, 1::bool_t))
 ]]
-		), "//cancellations/get", { 
+		), "/plugins/cancellations/get", { 
 		    user_id = sestb.erpid 
 		})
 	    if err == nil or err == false then
@@ -60,7 +60,7 @@ select user_id, descr, dev_login, area, hidden from users
     where hidden=0 and user_id in (select * from my_staff(%user_id%, 1::bool_t))
 order by descr
 ]]
-		    , "//cancellations/mans/users/", { 
+		    , "/plugins/cancellations/mans/users/", { 
 			user_id = sestb.erpid 
 		    }
 		)
@@ -72,7 +72,7 @@ order by descr
 where (%dep_id% is null or u.dep_ids is null or u.dep_ids && string_to_array(%dep_id%,',')::uids_t)
     and (%country_id% is null or (u.country_id = any(string_to_array(%country_id%,',')::uids_t)))
 ]]
-               ), "//cancellations/get", { 
+               ), "/plugins/cancellations/get", { 
 		    dep_id = sestb.department == nil and stor.NULL or sestb.department,
 		    country_id = sestb.country == nil and stor.NULL or sestb.country
 		})
@@ -85,7 +85,7 @@ select user_id, descr, dev_login, area, hidden from users
 	and (%country_id% is null or country_id=any(string_to_array(%country_id%,',')::uids_t))
 order by descr
 ]]
-		    , "//cancellations/mans/users/", { 
+		    , "/plugins/cancellations/mans/users/", { 
 			dep_id = sestb.department == nil and stor.NULL or sestb.department,
 			country_id = sestb.country == nil and stor.NULL or sestb.country
 		    }
@@ -97,7 +97,7 @@ order by descr
 [[
 where u.distr_ids && string_to_array(%distr_id%,',')::uids_t
 ]]
-		), "//cancellations/get", { 
+		), "/plugins/cancellations/get", { 
 		    distr_id = sestb.distributor
 		})
 	    if err == nil or err == false then
@@ -107,7 +107,7 @@ select user_id, descr, dev_login, area, hidden from users
     where hidden = 0 and distr_ids && string_to_array(%distr_id%,',')::uids_t
 order by descr
 ]]
-		    , "//cancellations/mans/users/", { 
+		    , "/plugins/cancellations/mans/users/", { 
 			distr_id = sestb.distributor
 		    }
 		)
@@ -118,7 +118,7 @@ order by descr
 [[
 where u.agency_id = any(string_to_array(%agency_id%,','))
 ]]
-		), "//cancellations/get", { 
+		), "/plugins/cancellations/get", { 
 		    agency_id = sestb.agency
 		})
 	    if err == nil or err == false then
@@ -128,13 +128,13 @@ select user_id, descr, dev_login, area, hidden from users
     where hidden=0 and agency_id = any(string_to_array(%agency_id%,','))
 order by descr
 ]]
-		    , "//cancellations/mans/users/", { 
+		    , "/plugins/cancellations/mans/users/", { 
 			agency_id = sestb.agency
 		    }
 		)
 	    end
 	else
-	    tb.rows, err = func_execute(tran, qs:replace("$(0)", ""), "//cancellations/get")
+	    tb.rows, err = func_execute(tran, qs:replace("$(0)", ""), "/plugins/cancellations/get")
 
 	    if err == nil or err == false then
 		tb._mans.users, err = func_execute(tran,
@@ -143,7 +143,7 @@ select user_id, descr, dev_login, area, hidden from users
     where hidden=0 
 order by descr
 ]]
-		    , "//cancellations/mans/users/"
+		    , "/plugins/cancellations/mans/users/"
 		)
 	    end
 	end
@@ -154,7 +154,7 @@ order by descr
 select user_id, descr, dev_login, area, hidden from users
     order by descr
 ]]
-		, "//cancellations/users/"
+		, "/plugins/cancellations/users/"
 	    )
 	end
 
@@ -165,7 +165,7 @@ select canceling_type_id, descr from canceling_types
     where hidden=0 
 order by descr
 ]]
-		, "//cancellations/mans/canceling_types/"
+		, "/plugins/cancellations/mans/canceling_types/"
 	    )
 	end
 
@@ -179,7 +179,7 @@ local function restore(stor, uid, reqdt, route_date, user_id)
 [[
 select console.req_canceling(%req_uid%, %req_dt%, 'restore', %user_id%, %route_date%)
 ]]
-	, "//cancellations/restore/"
+	, "/plugins/cancellations/restore/"
 	, {req_uid = uid, req_dt = reqdt, route_date = route_date, user_id = user_id})
     end
     )
@@ -190,7 +190,7 @@ local function revoke(stor, uid, reqdt, route_date, user_id)
 [[
 select console.req_canceling(%req_uid%, %req_dt%, 'revoke', %user_id%, %route_date%)
 ]]
-	, "//cancellations/reject/"
+	, "/plugins/cancellations/reject/"
 	, {req_uid = uid, req_dt = reqdt, route_date = route_date, user_id = user_id})
     end
     )
@@ -201,7 +201,7 @@ local function post(stor, uid, reqdt, user_id, b_date, e_date, type_id, note)
 [[
 select console.req_canceling(%req_uid%, %req_dt%, %user_id%, %type_id%, %b_date%, %e_date%, %note%)
 ]]
-	, "//cancellations/new/"
+	, "/plugins/cancellations/new/"
 	, {req_uid = uid, req_dt = reqdt, user_id = user_id, b_date = b_date, e_date = e_date, type_id = type_id, note = note})
     end
     )
@@ -216,7 +216,7 @@ local function staff(stor, sestb, user_id)
 select user_id from users 
     where user_id in (select * from my_staff(%head_id%, 1::bool_t)) and user_id = %user_id%
 ]]
-		, "//cancellations/staff/", { 
+		, "/plugins/cancellations/staff/", { 
 		    user_id = user_id,
 		    head_id = sestb.erpid 
 		}
@@ -229,7 +229,7 @@ select user_id from users
 	and (%dep_id% is null or dep_ids is null or dep_ids && string_to_array(%dep_id%,',')::uids_t)
 	and (%country_id% is null or (country_id=any(string_to_array(%country_id%,',')::uids_t)))
 ]]
-		, "//cancellations/staff/", { 
+		, "/plugins/cancellations/staff/", { 
 		    user_id = user_id,
 		    dep_id = sestb.department == nil and stor.NULL or sestb.department,
 		    country_id = sestb.country == nil and stor.NULL or sestb.country
@@ -241,7 +241,7 @@ select user_id from users
 select user_id from users 
     where distr_ids && string_to_array(%distr_id%,',')::uids_t and user_id = %user_id%
 ]]
-		, "//cancellations/staff/", { 
+		, "/plugins/cancellations/staff/", { 
 		    user_id = user_id,
 		    distr_id = sestb.distributor
 		}
@@ -252,7 +252,7 @@ select user_id from users
 select user_id from users 
     where agency_id = any(string_to_array(%agency_id%,',')) and user_id = %user_id%
 ]]
-		, "//cancellations/staff/", { 
+		, "/plugins/cancellations/staff/", { 
 		    user_id = user_id,
 		    agency_id = sestb.agency
 		}
@@ -263,7 +263,7 @@ select user_id from users
 select user_id from users 
     where user_id = %user_id%
 ]]
-		, "//cancellations/staff/", { 
+		, "/plugins/cancellations/staff/", { 
 		    user_id = user_id
 		}
 	    )
@@ -320,7 +320,7 @@ function M.startup(lang, permtb, sestb, params, stor)
     return string.format("startup(%s);", json.encode(permtb));
 end
 
-function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor, res)
+function M.data(lang, method, permtb, sestb, params, content, content_type, stor, res)
     local tb, err
     if method == "GET" then
 	tb, err = data(permtb, stor, sestb)

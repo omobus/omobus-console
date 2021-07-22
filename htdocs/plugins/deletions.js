@@ -142,7 +142,7 @@ var PLUG = (function() {
 			ar.push("&nbsp;");
 		    } else {
 			ar.push("<img class='clickable' onclick='PLUG.slideshow(" + r.photo + ")' height='90px' " + (k>=20?"data-src='":"src='") +
-			    G.getajax({plug: _code, blob: "yes", thumb: "yes", blob_id: r.photo}) + "' />");
+			    G.getdataref({plug: _code, blob: "yes", thumb: "yes", blob_id: r.photo}) + "' />");
 		    }
 		    ar.push("</td>");
 		    ar.push("<td class='string note'>", G.shielding(r.note), "</td>");
@@ -202,7 +202,7 @@ var PLUG = (function() {
     function _datareq() {
 	ProgressDialog.show();
 	_cache.data = null; // drop the internal cache
-	G.xhr("GET", G.getajax({plug: _code}), "json", function(xhr, data) {
+	G.xhr("GET", G.getdataref({plug: _code}), "json", function(xhr, data) {
 	    if( xhr.status == 200 && data != null && typeof data == 'object' ) {
 		_cache.data = data;
 		_tags.tbody.html(_datatbl(data, 1, _tags.total, _getfilter(), _cache.checked, _perm).join(""));
@@ -264,7 +264,7 @@ var PLUG = (function() {
     function _changeStatus(self, method, row_no, account_id) {
 	ProgressDialog.show();
 	self.style.visibility = 'hidden';
-	G.xhr(method, G.getajax({plug: _code, account_id: account_id, _datetime: G.getdatetime(new Date())}), "", function(xhr) {
+	G.xhr(method, G.getdataref({plug: _code, account_id: account_id, _datetime: G.getdatetime(new Date())}), "", function(xhr) {
 	    if( xhr.status == 200 ) {
 		_cache.data.rows[row_no-1][method == 'PUT' ? 'validated' : 'rejected'] = true;
 		for(var i = 0, cells = self.parentNode.parentNode.cells, size = cells.length; i < size; i++ ) {
@@ -358,7 +358,7 @@ var PLUG = (function() {
 	    });
 	},
 	slideshow: function(blob_id) {
-	    SlideshowSimple([G.getajax({plug: _code, blob: "yes", blob_id: blob_id})]).show();
+	    SlideshowSimple([G.getdataref({plug: _code, blob: "yes", blob_id: blob_id})]).show();
 	},
 	validate: function(tag, row_no, account_id) {
 	    _changeStatus(tag, "PUT", row_no, account_id);

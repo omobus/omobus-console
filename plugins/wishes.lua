@@ -54,7 +54,7 @@ order by j.inserted_ts desc, j.fix_dt desc
 ]]
 	if sestb.erpid ~= nil then
 	    tb.rows, err = func_execute(tran, qs:replace("$(0)", "j.user_id in (select * from my_staff(%user_id%, 0::bool_t)) and "),
-		"//wishes/get", { user_id = sestb.erpid,
+		"/plugins/wishes/get", { user_id = sestb.erpid,
 		    registered = (permtb.data ~= nil and permtb.data.registered == true) and 1 or 0,
 		    validated = (permtb.data ~= nil and permtb.data.validated == true) and 1 or 0,
 		    rejected = (permtb.data ~= nil and permtb.data.rejected == true) and 1 or 0,
@@ -62,7 +62,7 @@ order by j.inserted_ts desc, j.fix_dt desc
 		})
 	elseif sestb.department ~= nil or sestb.country ~= nil then
 	    tb.rows, err = func_execute(tran, qs:replace("$(0)", "(%dep_id% is null or u.dep_ids is null or u.dep_ids && string_to_array(%dep_id%,',')::uids_t) and (%country_id% is null or (u.country_id=any(string_to_array(%country_id%,',')::uids_t))) and "),
-		"//wishes/get", { 
+		"/plugins/wishes/get", { 
 		    dep_id = sestb.department == nil and stor.NULL or sestb.department,
 		    country_id = sestb.country == nil and stor.NULL or sestb.country,
 		    registered = (permtb.data ~= nil and permtb.data.registered == true) and 1 or 0,
@@ -72,7 +72,7 @@ order by j.inserted_ts desc, j.fix_dt desc
 		})
 	elseif sestb.distributor ~= nil then
 	    tb.rows, err = func_execute(tran, qs:replace("$(0)", "u.distr_ids && string_to_array(%distr_id%,',')::uids_t and "),
-		"//wishes/get", { distr_id = sestb.distributor,
+		"/plugins/wishes/get", { distr_id = sestb.distributor,
 		    registered = (permtb.data ~= nil and permtb.data.registered == true) and 1 or 0,
 		    validated = (permtb.data ~= nil and permtb.data.validated == true) and 1 or 0,
 		    rejected = (permtb.data ~= nil and permtb.data.rejected == true) and 1 or 0,
@@ -80,7 +80,7 @@ order by j.inserted_ts desc, j.fix_dt desc
 		})
 	elseif sestb.agency ~= nil then
 	    tb.rows, err = func_execute(tran, qs:replace("$(0)", "u.agency_id = any(string_to_array(%agency_id%,',')) and "),
-		"//wishes/get", { agency_id = sestb.agency,
+		"/plugins/wishes/get", { agency_id = sestb.agency,
 		    registered = (permtb.data ~= nil and permtb.data.registered == true) and 1 or 0,
 		    validated = (permtb.data ~= nil and permtb.data.validated == true) and 1 or 0,
 		    rejected = (permtb.data ~= nil and permtb.data.rejected == true) and 1 or 0,
@@ -88,7 +88,7 @@ order by j.inserted_ts desc, j.fix_dt desc
 		})
 	else
 	    tb.rows, err = func_execute(tran, qs:replace("$(0)", ""),
-		"//wishes/get", {
+		"/plugins/wishes/get", {
 		    registered = (permtb.data ~= nil and permtb.data.registered == true) and 1 or 0,
 		    validated = (permtb.data ~= nil and permtb.data.validated == true) and 1 or 0,
 		    rejected = (permtb.data ~= nil and permtb.data.rejected == true) and 1 or 0,
@@ -101,7 +101,7 @@ order by j.inserted_ts desc, j.fix_dt desc
 select user_id, descr, dev_login, area, hidden from users
     order by descr
 ]]
-		, "//wishes/users/"
+		, "/plugins/wishes/users/"
 	    )
 	end
 	if (permtb.columns or {}).channel == true and (err == nil or err == false) then
@@ -110,7 +110,7 @@ select user_id, descr, dev_login, area, hidden from users
 select chan_id, descr, hidden from channels
     order by descr
 ]]
-		, "//wishes/channels/"
+		, "/plugins/wishes/channels/"
 	    )
 	end
 	if err == nil or err == false then
@@ -119,7 +119,7 @@ select chan_id, descr, hidden from channels
 select rc_id, descr, ka_type, hidden from retail_chains
     order by descr
 ]]
-		, "//wishes/retail_chains/"
+		, "/plugins/wishes/retail_chains/"
 	    )
 	end
 	return tb, err
@@ -132,7 +132,7 @@ local function accept(stor, uid, reqdt, account_id, user_id)
 [[
 select console.req_wish(%req_uid%, %req_dt%, 'validate', %account_id%, %user_id%)
 ]]
-        , "//wishes/validate/"
+        , "/plugins/wishes/validate/"
         , {req_uid = uid, req_dt = reqdt, account_id = account_id, user_id = user_id})
     end
     )
@@ -143,7 +143,7 @@ local function reject(stor, uid, reqdt, account_id, user_id)
 [[
 select console.req_wish(%req_uid%, %req_dt%, 'reject', %account_id%, %user_id%)
 ]]
-        , "//wishes/reject/"
+        , "/plugins/wishes/reject/"
         , {req_uid = uid, req_dt = reqdt, account_id = account_id, user_id = user_id})
     end
     )
@@ -190,7 +190,7 @@ function M.startup(lang, permtb, sestb, params, stor)
     return string.format("startup(%s);", json.encode(permtb));
 end
 
-function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor, res)
+function M.data(lang, method, permtb, sestb, params, content, content_type, stor, res)
     local tb, err
     if method == "GET" then
 	tb, err = data(permtb, stor, sestb)

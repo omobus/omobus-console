@@ -105,7 +105,7 @@ var PLUG = (function() {
 		ar.push("<td class='string u_name", disabled, "'>", G.shielding(r.u_name), "</td>");
 		ar.push("<td class='int delim", disabled, "'>");
 		if( r.alive != null && r.alive ) {
-		    ar.push("<a target='_blank' href='", G.getref({plug:'tech',user_id:r.user_id,date:G.getdate(_cache.date)}), 
+		    ar.push("<a target='_blank' href='", G.getdefref({plug:'tech',user_id:r.user_id,date:G.getdate(_cache.date)}), 
 			"'>", G.shielding(r.dev_login), "</a>");
 		} else {
 		    ar.push(G.shielding(r.dev_login));
@@ -218,7 +218,7 @@ var PLUG = (function() {
     function _datareq() {
 	ProgressDialog.show();
 	_cache.data = null; // drops the internal cache
-	G.xhr("GET", G.getajax({plug: _code, code: "tech", date: G.getdate(_cache.date)}), "json", function(xhr, data) {
+	G.xhr("GET", G.getdataref({plug: _code, code: "tech", date: G.getdate(_cache.date)}), "json", function(xhr, data) {
 	    if( xhr.status == 200 && data != null && typeof data == 'object' ) {
 		_cache.data = data;
 		_tags.tbody.html(_datatbl(data, _tags.total, _cache.date, _getfilter(), _cache.checked, _perm).join(""));
@@ -269,8 +269,8 @@ var PLUG = (function() {
 	    _tags.rule2 = _("rule2");
 	    _tags.popup = DaysPopup(function(date) {
 		    _setcaldate(date); _dropcache(); _datareq();
-		    history.replaceState({date: _cache.date}, "", G.getref({plug: _code, date: G.getdate(_cache.date)}));
-		}, {date: date, uri: G.getajax({plug: _code, calendar: true})});
+		    history.replaceState({date: _cache.date}, "", G.getdefref({plug: _code, date: G.getdate(_cache.date)}));
+		}, {date: date, uri: G.getdataref({plug: _code, calendar: true})});
 	    _perm = perm;
 	    _setcaldate(date);
 	    _datareq();

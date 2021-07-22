@@ -210,7 +210,7 @@ var PLUG = (function() {
 	} else {
 	    ProgressDialog.show();
 	    _cache.data = null; // drops the internal cache
-	    G.xhr("GET", G.getajax({plug: _code, code: "tech", date: G.getdate(_cache.date)}), "json", function(xhr, data) {
+	    G.xhr("GET", G.getdataref({plug: _code, code: "tech", date: G.getdate(_cache.date)}), "json", function(xhr, data) {
 		if( xhr.status == 200 && data != null && typeof data == 'object' ) {
 		    _cache.data = data;
 		    _tags.tbody.html(_datatbl(data, _tags.total, _cache.date, _getfilter(), _cache.checked).join(""));
@@ -461,8 +461,8 @@ var PLUG = (function() {
 		    _setcaldate(date);
 		    _dropcache();
 		    _setdataordet();
-		    history.replaceState({date: _cache.date}, "", G.getref({plug: _code, date: G.getdate(_cache.date)}));
-		}, {date: _cache.date, uri: G.getajax({plug: _code, calendar: true})})
+		    history.replaceState({date: _cache.date}, "", G.getdefref({plug: _code, date: G.getdate(_cache.date)}));
+		}, {date: _cache.date, uri: G.getdataref({plug: _code, calendar: true})})
 	    });
 	},
 	copy: function(text) {
@@ -472,7 +472,7 @@ var PLUG = (function() {
 	},
 	slideshow: function(blobs, position) {
 	    var ar = [];
-	    blobs.forEach(function(arg) { ar.push(G.getajax({plug: "tech", blob: "yes", blob_id: arg})); });
+	    blobs.forEach(function(arg) { ar.push(G.getdataref({plug: "tech", blob: "yes", blob_id: arg})); });
 	    SlideshowSimple(ar, {idx: position}).show();
 	}
     }

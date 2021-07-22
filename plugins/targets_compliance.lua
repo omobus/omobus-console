@@ -22,7 +22,7 @@ local function data(stor, permtb, sestb)
 [[
 select array_to_string(dep_ids,',') dep_ids from users where user_id = %user_id%
 ]]
-		, "//targets_compliance/u_params"
+		, "/plugins/targets_compliance/u_params"
 		, {user_id = sestb.erpid}
 	    )
 	    if tmp ~= nil and #tmp == 1 and tmp[1].dep_ids ~= nil then
@@ -33,7 +33,7 @@ select array_to_string(dep_ids,',') dep_ids from users where user_id = %user_id%
 [[
 select my_staff user_id from my_staff(%user_id%, 1::bool_t)
 ]]
-		    , "//targets_compliance/F.users"
+		    , "/plugins/targets_compliance/F.users"
 		    , {user_id = sestb.erpid}
 		)
 	    end
@@ -50,7 +50,7 @@ select account_id from my_regions r, accounts a where r.user_id in (select my_st
     union
 select account_id from (select expand_cities(city_id) city_id, chan_id from my_cities where user_id in (select my_staff(%user_id%, 1::bool_t))) c, accounts a where c.city_id=a.city_id and (c.chan_id='' or c.chan_id=a.chan_id)
 ]]
-		    , "//targets_compliance/F.accounts"
+		    , "/plugins/targets_compliance/F.accounts"
 		    , {user_id = sestb.erpid}
 		)
 	    end
@@ -61,7 +61,7 @@ select user_id from users
     where (%dep_id% is null or dep_ids is null or dep_ids && string_to_array(%dep_id%,',')::uids_t)
 	and (%country_id% is null or (country_id=any(string_to_array(%country_id%,',')::uids_t)))
 ]]
-		, "//targets_compliance/F.users"
+		, "/plugins/targets_compliance/F.users"
 		, {
 		    dep_id = sestb.department == nil and stor.NULL or sestb.department,
 		    country_id = sestb.country == nil and stor.NULL or sestb.country
@@ -76,7 +76,7 @@ select user_id from users
 select user_id from users
     where distr_ids && string_to_array(%distr_id%,',')::uids_t
 ]]
-		, "//targets_compliance/F.users"
+		, "/plugins/targets_compliance/F.users"
 		, {distr_id = sestb.distributor}
 	    )
         elseif sestb.agency ~= nil then
@@ -85,7 +85,7 @@ select user_id from users
 select user_id from users
     where agency_id=any(string_to_array(%agency_id%,','))
 ]]
-		, "//targets_compliance/F.users"
+		, "/plugins/targets_compliance/F.users"
 		, {agency_id = sestb.agency})
 	end
 	if (err == nil or err == false) then
@@ -94,7 +94,7 @@ select user_id from users
 select user_id, descr, dev_login, area, hidden from users
     order by descr
 ]]
-		, "//targets_compliance/users"
+		, "/plugins/targets_compliance/users"
 	    )
 	end
 	if permtb.columns ~= nil and permtb.columns.channel == true and (err == nil or err == false) then
@@ -103,7 +103,7 @@ select user_id, descr, dev_login, area, hidden from users
 select chan_id, descr, hidden from channels
     order by descr
 ]]
-		, "//targets_compliance/channels"
+		, "/plugins/targets_compliance/channels"
 	    )
 	end
 	if err == nil or err == false then
@@ -112,7 +112,7 @@ select chan_id, descr, hidden from channels
 select rc_id, descr, ka_type, hidden from retail_chains
     order by descr
 ]]
-		, "//targets_compliance/retail_chains"
+		, "/plugins/targets_compliance/retail_chains"
 	    )
 	end
 	if err == nil or err == false then
@@ -121,7 +121,7 @@ select rc_id, descr, ka_type, hidden from retail_chains
 select target_type_id, descr, hidden from target_types
     order by row_no, descr
 ]]
-		, "//targets_compliance/target_types"
+		, "/plugins/targets_compliance/target_types"
 	    )
 	end
 	if err == nil or err == false then
@@ -130,7 +130,7 @@ select target_type_id, descr, hidden from target_types
 select confirmation_type_id, descr, hidden from confirmation_types
     order by descr
 ]]
-		, "//targets_compliance/confirmation_types"
+		, "/plugins/targets_compliance/confirmation_types"
 	    )
 	end
 	if err == nil or err == false then
@@ -138,7 +138,7 @@ select confirmation_type_id, descr, hidden from confirmation_types
 [[
 select content_ts, content_type, content_compress, content_blob from content_get('targets_compliance', '', '', '')
 ]]
-		, "//targets_compliance/content"
+		, "/plugins/targets_compliance/content"
 	    )
 	end
 	if permtb.remark == true and (err == nil or err == false) then
@@ -149,7 +149,7 @@ select
 from j_remarks j
     left join remark_types t on t.remark_type_id = j.remark_type_id
 ]]
-		, "//targets_compliance/remarks"
+		, "/plugins/targets_compliance/remarks"
 		, {y = year, m = month}
 	    )
 	    if err == nil or err == false then
@@ -159,7 +159,7 @@ select remark_type_id, descr from remark_types
     where hidden = 0
 order by row_no, descr
 ]]
-		    , "//confirmations/remark_types"
+		    , "/plugins/confirmations/remark_types"
 		)
 	    end
 	end
@@ -173,7 +173,7 @@ local function photo(stor, blob_id)
 [[
 select photo_get(%blob_id%::blob_t) photo
 ]]
-	, "//targets_compliance/photo"
+	, "/plugins/targets_compliance/photo"
 	, {blob_id = blob_id})
     end
     )
@@ -184,7 +184,7 @@ local function thumb(stor, blob_id)
 [[
 select thumb_get(%blob_id%::blob_t) photo
 ]]
-	, "//targets_compliance/thumb"
+	, "/plugins/targets_compliance/thumb"
 	, {blob_id = blob_id})
     end
     )
@@ -195,7 +195,7 @@ local function remark(stor, uid, reqdt, cmd, doc_id, remark_type_id, note)
 [[
 select console.req_remark(%req_uid%, %req_dt%, %cmd%, %doc_id%, %remark_type_id%, %msg%) "rows"
 ]]
-	, "//targets_compliance/remark"
+	, "/plugins/targets_compliance/remark"
 	, {req_uid = uid, req_dt = reqdt, cmd = cmd, doc_id = doc_id, remark_type_id = remark_type_id or stor.NULL, msg = note or stor.NULL})
     end, false
     )
@@ -341,7 +341,7 @@ function M.startup(lang, permtb, sestb, params, stor)
     return "startup(" .. json.encode(permtb) .. ");"
 end
 
-function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor, res)
+function M.data(lang, method, permtb, sestb, params, content, content_type, stor, res)
     local p, tb, err
     if method == "GET" then
 	if params.blob ~= nil then 

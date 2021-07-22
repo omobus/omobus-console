@@ -238,7 +238,7 @@ var PLUG = (function() {
     function _datareq() {
 	ProgressDialog.show();
 	_cache.data = null; // drop the internal cache
-	G.xhr("GET", G.getajax({plug: _code}), "json", function(xhr, data) {
+	G.xhr("GET", G.getdataref({plug: _code}), "json", function(xhr, data) {
 	    if( xhr.status == 200 && data != null && typeof data == 'object' ) {
 		_cache.data = data;
 		//console.log(data);
@@ -298,7 +298,7 @@ var PLUG = (function() {
 
     function _revoke(tags, data, perm) {
 	ProgressDialog.show();
-	G.xhr("DELETE", G.getajax({
+	G.xhr("DELETE", G.getdataref({
 		    plug: _code, 
 		    route_date: data.route_date, 
 		    user_id: data.user_id, 
@@ -324,7 +324,7 @@ var PLUG = (function() {
 
     function _restore(tags, data, perm) {
 	ProgressDialog.show();
-	G.xhr("PUT", G.getajax({
+	G.xhr("PUT", G.getdataref({
 		    plug: _code, 
 		    route_date: data.route_date, 
 		    user_id: data.user_id, 
@@ -545,7 +545,7 @@ var PLUG = (function() {
 			dialogObject.startSpinner();
 			alertView.hide();
 
-			G.xhr("POST", G.getajax({plug: _code}), "json", function(xhr, resp) {
+			G.xhr("POST", G.getdataref({plug: _code}), "json", function(xhr, resp) {
 			    if( xhr.status == 200 ) {
 				PLUG.refresh();
 				dialogObject.hide();

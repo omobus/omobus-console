@@ -326,7 +326,7 @@ var __gmap = (function() {
 	    } else {
 		ProgressDialog.show();
 		_cache[user_id] = null; // drop the internal cache
-		G.xhr("GET", G.getajax({plug: "tech", code: "tech_route", user_id: user_id, date: G.getdate(date)}), "json", function(xhr, data) {
+		G.xhr("GET", G.getdataref({plug: "tech", code: "tech_route", user_id: user_id, date: G.getdate(date)}), "json", function(xhr, data) {
 		    if( xhr.status == 200 &&  data != null && typeof data == 'object' ) {
 			if( _createInstance(canvas, sb, cb, data) ) {
 			    _cache[user_id] = data;

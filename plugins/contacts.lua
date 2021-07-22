@@ -69,7 +69,7 @@ and x.account_id in (
     select account_id from (select expand_cities(city_id) city_id, chan_id from my_cities where user_id in (select my_staff(%user_id%, 1::bool_t))) c, accounts a where c.city_id=a.city_id and (c.chan_id='' or c.chan_id=a.chan_id)
 )
 ]]
-		) , "//contacts/get", { user_id = sestb.erpid }
+		) , "/plugins/contacts/get", { user_id = sestb.erpid }
 	    )
 	elseif sestb.department ~= nil or sestb.country ~= nil then
 	    tb.rows, err = func_execute(tran, qs:replace("$(0)",
@@ -82,7 +82,7 @@ and x.account_id in (
     )
 )
 ]]
-		) ,"//contacts/get", {
+		) ,"/plugins/contacts/get", {
 		    dep_id = sestb.department == nil and stor.NULL or sestb.department,
 		    country_id = sestb.country == nil and stor.NULL or sestb.country
 		}
@@ -97,7 +97,7 @@ and x.account_id in (
     )
 )
 ]]
-		) ,"//contacts/get", { distr_id = sestb.distributor }
+		) ,"/plugins/contacts/get", { distr_id = sestb.distributor }
 	    )
 	elseif sestb.agency ~= nil then
 	    tb.rows, err = func_execute(tran, qs:replace("$(0)",
@@ -109,11 +109,11 @@ and x.account_id in (
     )
 )
 ]]
-		) ,"//contacts/get", { agency_id = sestb.agency }
+		) ,"/plugins/contacts/get", { agency_id = sestb.agency }
 	    )
 	else
 	    tb.rows, err = func_execute(tran, qs:replace("$(0)", ""),
-		"//contacts/get"
+		"/plugins/contacts/get"
 	    )
         end
 	if err == nil or err == false then
@@ -122,7 +122,7 @@ and x.account_id in (
 select user_id, descr, dev_login, area, hidden from users
     order by descr
 ]]
-		, "//contacts/users"
+		, "/plugins/contacts/users"
 	    )
 	end
 	if permtb.channel == true and (err == nil or err == false) then
@@ -131,7 +131,7 @@ select user_id, descr, dev_login, area, hidden from users
 select chan_id, descr, hidden from channels
     order by descr
 ]]
-		, "//contacts/channels"
+		, "/plugins/contacts/channels"
 	    )
 	end
 	if err == nil or err == false then
@@ -140,7 +140,7 @@ select chan_id, descr, hidden from channels
 select rc_id, descr, ka_type, hidden from retail_chains
     order by descr
 ]]
-		, "//contacts/retail_chains"
+		, "/plugins/contacts/retail_chains"
 	    )
 	end
 	if err == nil or err == false then
@@ -149,7 +149,7 @@ select rc_id, descr, ka_type, hidden from retail_chains
 select job_title_id, descr, hidden from job_titles
     order by descr
 ]]
-		, "//contacts/job_titles"
+		, "/plugins/contacts/job_titles"
 	    )
 	end
 	if err == nil or err == false then
@@ -158,7 +158,7 @@ select job_title_id, descr, hidden from job_titles
 select loyalty_level_id, descr, hidden from loyalty_levels
     order by descr, row_no
 ]]
-		, "//contacts/loyalty_levels"
+		, "/plugins/contacts/loyalty_levels"
 	    )
 	end
 
@@ -172,7 +172,7 @@ local function consent(stor, contact_id)
 [[
 select consent from contacts where contact_id = %contact_id%
 ]]
-	, "//contacts/consent"
+	, "/plugins/contacts/consent"
 	, {contact_id = contact_id})
     end
     )
@@ -226,7 +226,7 @@ function M.startup(lang, permtb, sestb, params, stor)
     return string.format("startup(%s);", json.encode(permtb))
 end
 
-function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor, res)
+function M.data(lang, method, permtb, sestb, params, content, content_type, stor, res)
     local tb, err
     if method == "GET" then
 	if params.consent ~= nil and params.contact_id ~= nil then

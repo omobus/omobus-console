@@ -41,7 +41,7 @@ from route_cycles
     where hidden = 0
 order by b_date desc
 ]]
-	, "//routes/cycles/"
+	, "/plugins/routes/cycles/"
 	, { f = a and '' or 'inprogress' } )
     end
     )
@@ -65,7 +65,7 @@ from route_cycles
     where hidden = 0 and (%cid% is null or cycle_id = %cid%) 
 order by b_date desc limit 1
 ]]
-	    , "//routes/cycle/"
+	    , "/plugins/routes/cycle/"
 	    , { cid = cycle_id == nil and stor.NULL or cycle_id, f = a and '' or 'inprogress' }
 	)
 	if (err == nil or err == false) and tmp ~= nil and #tmp >= 1 then
@@ -84,7 +84,7 @@ select s.s user_id, u.descr, u.dev_login from my_staff(%user_id%, 1::bool_t) s
     left join users u on u.user_id=s.s 
 where u.hidden=0
 ]]
-		, "//routes/users/"
+		, "/plugins/routes/users/"
 		, {user_id = sestb.erpid}
 	    )
         elseif sestb.department ~= nil or sestb.country ~= nil then
@@ -96,7 +96,7 @@ select user_id, descr, dev_login from users
 	and (%country_id% is null or (country_id=any(string_to_array(%country_id%,',')::uids_t)))
 order by descr
 ]]
-		, "//routes/users/"
+		, "/plugins/routes/users/"
 		, {
 		    dep_id = sestb.department == nil and stor.NULL or sestb.department,
 		    country_id = sestb.country == nil and stor.NULL or sestb.country
@@ -109,7 +109,7 @@ select user_id, descr, dev_login from users
     where hidden=0 and distr_ids && string_to_array(%distr_id%,',')::uids_t 
 order by descr
 ]]
-		, "//routes/users/"
+		, "/plugins/routes/users/"
 		, {distr_id = sestb.distributor}
 	    )
         elseif sestb.agency ~= nil then
@@ -119,7 +119,7 @@ select user_id, descr, dev_login from users
     where hidden=0 and agency_id=any(string_to_array(%agency_id%,',')) 
 order by descr
 ]]
-		, "//routes/users/"
+		, "/plugins/routes/users/"
 		, {agency_id = sestb.agency})
         else
 	    tb.users, err = func_execute(tran,
@@ -128,7 +128,7 @@ select user_id, descr, dev_login from users
     where hidden=0 
 order by descr
 ]]
-		, "//routes/users/"
+		, "/plugins/routes/users/"
 	    )
         end
 	if not ((err == nil or err == false) and tb.users ~= nil and #tb.users >= 1) then
@@ -164,7 +164,7 @@ where
     ) and a.hidden = 0
 order by a.descr, a.address, a.account_id
 ]]
-		, "//routes/habitat/"
+		, "/plugins/routes/habitat/"
 		, {req_uid = sestb.erpid == nil and stor.NULL or sestb.erpid, cycle_id = cycle_id}
 	    )
 	    if err then
@@ -189,7 +189,7 @@ where
     and (%req_uid% is null or r.user_id in (select my_staff(%req_uid%, 1::bool_t)))
 order by a.descr, a.address, a.account_id
 ]]
-	    , "//routes/routes/"
+	    , "/plugins/routes/routes/"
 	    , {req_uid = sestb.erpid == nil and stor.NULL or sestb.erpid, cycle_id = cycle_id}
 	)
 
@@ -207,7 +207,7 @@ select
 from route_cycles 
     where hidden = 0 and cycle_id = %cid%
 ]]
-	    , "//routes/cycle/"
+	    , "/plugins/routes/cycle/"
 	    , { cid = cycle_id == nil and stor.NULL or cycle_id, f = a and '' or 'inprogress' }
 	)
 	if (err == nil or err == false) and tb ~= nil and #tb >= 1 then
@@ -218,7 +218,7 @@ from route_cycles
 [[
 select * from console.req_route(%req_uid%, %req_dt%, %cmd%, (%user_id%, %cycle_id%, %account_id%), %arg%)
 ]]
-		    , "//routes/set/"
+		    , "/plugins/routes/set/"
 		    , {
 			req_uid = uid, 
 			req_dt = reqdt, 
@@ -248,7 +248,7 @@ from routes r
 where
     r.cycle_id = %cycle_id% and r.user_id = %user_id% and r.account_id = %account_id%
 ]]
-			    , "//routes/dump/"
+			    , "/plugins/routes/dump/"
 			    , {user_id = user_id, cycle_id = cycle_id, account_id = account_id}
 			)
 			if (err == nil or err == false) and tb ~= nil and #tb == 1 then
@@ -304,7 +304,7 @@ function M.startup(lang, permtb, sestb, params, stor)
 	.. "," .. json.encode(permtb) .. ");"
 end
 
-function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor, res)
+function M.data(lang, method, permtb, sestb, params, content, content_type, stor, res)
     if method == "GET" and params.cycles ~= nil then
 	local tb, err = cycles(stor, sestb, permtb.inprogress)
 	if err then

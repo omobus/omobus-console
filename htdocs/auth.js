@@ -35,7 +35,7 @@ window.onload = function() {
 		auth.disabled = false;
 	    } else {
 		msg.html('');
-		G.xhr("POST", G.getauth(), "text", function(xhr) {
+		G.xhr("POST", G.getauthref(), "text", function(xhr) {
 		    if( xhr.status == 400 ) {
 			msg.html(lang.errors.auth.msg2);
 			auth.value = lang.login;

@@ -112,9 +112,9 @@ var G = (function() {
 
 	fileSize: function(arg) { return arg == null ? null : _fileSizeIEC(arg); },
 
-	getauth: function(params) { return _fmturi("auth", params); },
-	getref: function(params) { return _fmturi("default", params, {sid:__SID__,lang:lang.__code}); },
-	getajax: function(params) { return _fmturi("ajax", params, {sid:__SID__}); },
+	getauthref: function(params) { return _fmturi("auth", params); },
+	getdefref: function(params) { return _fmturi("default", params, {sid:__SID__,lang:lang.__code}); },
+	getdataref: function(params) { return _fmturi("data", params, {sid:__SID__}); },
 	getloginref: function(params) { return _fmturi("login", params, {lang:lang.__code}); },
 	getlogoutref: function() { return _fmturi("logout", null, {sid:__SID__}); },
 	getdumpref: function(params) { return _fmturi("dump", params, {sid:__SID__}); },
@@ -220,7 +220,7 @@ var G = (function() {
 			zip = new JSZip();
 			x = 0; z++;
 		    }
-		    G.xhr("GET", G.getajax({plug: code, blob_id: r.blob_id, blob: "yes"}), "arraybuffer", function(xhr) {
+		    G.xhr("GET", G.getdataref({plug: code, blob_id: r.blob_id, blob: "yes"}), "arraybuffer", function(xhr) {
 			if( xhr.status != 200 ) {
 			    zip.file(__getphotofname(r) + ".txt", "Unable to download photo!");
 			} else {

@@ -23,7 +23,7 @@ select distinct extract(year from p_date::date) "year", extract(month from p_dat
     where hidden=0
 order by "year" desc, "month" desc
 ]]
-	    , "//scheduler/months/"
+	    , "/plugins/scheduler/months/"
 	)
 	if not (err == nil or err == false) then
 	    return nil, err
@@ -36,7 +36,7 @@ select s user_id, u.descr, u.dev_login from my_staff(%user_id%, 1::bool_t) s
     left join users u on u.user_id=s
 where u.hidden=0 and s in (select distinct user_id from schedules where hidden=0)
 ]]
-		, "//scheduler/users/"
+		, "/plugins/scheduler/users/"
 		, {user_id = sestb.erpid}
 	    )
         elseif sestb.department ~= nil or sestb.country ~= nil then
@@ -48,7 +48,7 @@ select user_id, descr, dev_login from users
 	and (%country_id% is null or (country_id=any(string_to_array(%country_id%,',')::uids_t)))
 order by descr
 ]]
-		, "//scheduler/users/"
+		, "/plugins/scheduler/users/"
 		, {
 		    dep_id = sestb.department == nil and stor.NULL or sestb.department,
 		    country_id = sestb.country == nil and stor.NULL or sestb.country
@@ -61,7 +61,7 @@ select user_id, descr, dev_login from users
     where hidden=0 and distr_ids && string_to_array(%distr_id%,',')::uids_t and user_id in (select distinct user_id from schedules where hidden=0)
 order by descr
 ]]
-		, "//scheduler/users/"
+		, "/plugins/scheduler/users/"
 		, {distr_id = sestb.distributor}
 	    )
         elseif sestb.agency ~= nil then
@@ -71,7 +71,7 @@ select user_id, descr, dev_login from users
     where hidden=0 and agency_id=any(string_to_array(%agency_id%,',')) and user_id in (select distinct user_id from schedules where hidden=0)
 order by descr
 ]]
-		, "//scheduler/users/"
+		, "/plugins/scheduler/users/"
 		, {agency_id = sestb.agency})
         else
 	    tb.users, err = func_execute(tran,
@@ -80,7 +80,7 @@ select user_id, descr, dev_login from users
     where hidden=0 and user_id in (select distinct user_id from schedules where hidden=0)
 order by descr
 ]]
-		, "//scheduler/users/"
+		, "/plugins/scheduler/users/"
 	    )
         end
 	if not (err == nil or err == false) then
@@ -122,7 +122,7 @@ select s user_id, u.descr, u.dev_login from my_staff(%user_id%, 0::bool_t) s
     left join users u on u.user_id=s
 where u.hidden=0
 ]]
-		, "//scheduler/employees/"
+		, "/plugins/scheduler/employees/"
 		, {user_id = uid}
 	    )
 	end
@@ -149,7 +149,7 @@ from schedules x
 where x.user_id = %user_id% and '%y%-%m%-01'::date::date_t <= x.p_date and x.p_date <= "monthDate_Last"('%y%-%m%-01')::date_t and x.hidden = 0
 order by mday
 ]]
-	    , "//scheduler/data/"
+	    , "/plugins/scheduler/data/"
 	    , {user_id = uid, y = year, m = month}
 	)
 	if not (err == nil or err == false) then
@@ -171,7 +171,7 @@ where x.user_id = %user_id% and '%y%-%m%-01'::date::date_t <= x.p_date and x.p_d
     and j.key = 'employee_id' and u.user_id = j.value
 order by p_date, key
 ]]
-		, string.format("//scheduler/jobs_%d/", i)
+		, string.format("/plugins/scheduler/jobs_%d/", i)
 		, {user_id = uid, y = year, m = month, num = i}
 	    )
 	    if not (err == nil or err == false) then
@@ -192,7 +192,7 @@ local function set(stor, uid, reqdt, user_id, p_date, num, type, employee_id, a_
 [[
 select * from console.req_schedule(%req_uid%, %req_dt%, %user_id%, %p_date%, %num%, array['type',%type%::text,'employee_id',%employee_id%::text,'a_name',%a_name%::text]) rows
 ]]
-	    , "//scheduler/set/"
+	    , "/plugins/scheduler/set/"
 	    , {
 		req_uid = uid, 
 		req_dt = reqdt,
@@ -213,7 +213,7 @@ local function drop(stor, uid, reqdt, user_id, p_date, num)
 [[
 select * from console.req_schedule(%req_uid%, %req_dt%, %user_id%, %p_date%, %num%) rows
 ]]
-	    , "//scheduler/drop/"
+	    , "/plugins/scheduler/drop/"
 	    , {
 		req_uid = uid, 
 		req_dt = reqdt,
@@ -250,7 +250,7 @@ function M.startup(lang, permtb, sestb, params, stor)
     end
 end
 
-function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor, res)
+function M.data(lang, method, permtb, sestb, params, content, content_type, stor, res)
     if method == "GET" then
 	-- validate input data
         params.year = tonumber(params.year)

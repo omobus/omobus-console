@@ -215,7 +215,7 @@ var PLUG = (function() {
     function _datareq() {
 	ProgressDialog.show();
 	_cache.data = null; // drop the internal cache
-	G.xhr("GET", G.getajax({plug: _code}), "json", function(xhr, data) {
+	G.xhr("GET", G.getdataref({plug: _code}), "json", function(xhr, data) {
 	    if( xhr.status == 200 && data != null && typeof data == 'object' ) {
 		_cache.data = data;
 		_tags.tbody.html(_datatbl(data, 1, _tags.total, _getfilter(), _cache.checked, _perm).join(""));
@@ -275,7 +275,7 @@ var PLUG = (function() {
     function _changeStatus(self, method, row_no, doc_id) {
 	ProgressDialog.show();
 	self.style.visibility = 'hidden';
-	G.xhr(method, G.getajax({plug: _code, doc_id: doc_id, _datetime: G.getdatetime(new Date())}), "", function(xhr) {
+	G.xhr(method, G.getdataref({plug: _code, doc_id: doc_id, _datetime: G.getdatetime(new Date())}), "", function(xhr) {
 	    if( xhr.status == 200 ) {
 		_cache.data.rows[row_no-1][method == 'PUT' ? 'validated' : 'rejected'] = true;
 		for(var i = 0, cells = self.parentNode.parentNode.cells, size = cells.length; i < size; i++ ) {
@@ -363,7 +363,7 @@ var PLUG = (function() {
 	},
 	slideshow: function(blobs, position) {
 	    var ar = [];
-	    blobs.forEach(function(arg) { ar.push(G.getajax({plug: _code, blob: "yes", blob_id: arg})); });
+	    blobs.forEach(function(arg) { ar.push(G.getdataref({plug: _code, blob: "yes", blob_id: arg})); });
 	    SlideshowSimple(ar, {idx: position}).show();
 	},
 	validate: function(tag, row_no, doc_id) {

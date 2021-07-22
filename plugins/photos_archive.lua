@@ -29,7 +29,7 @@ select account_id from my_regions r, accounts a where r.user_id in (select my_st
     union
 select account_id from (select expand_cities(city_id) city_id, chan_id from my_cities where user_id in (select my_staff(%user_id%, 1::bool_t))) c, accounts a where c.city_id=a.city_id and (c.chan_id='' or c.chan_id=a.chan_id)
 ]]
-		, "//photos_archive/F.accounts", {user_id = sestb.erpid})
+		, "/plugins/photos_archive/F.accounts", {user_id = sestb.erpid})
 	elseif sestb.department ~= nil or sestb.country ~= nil then
 	    tb, err = func_execute(tran,
 [[
@@ -39,7 +39,7 @@ select account_id from my_accounts where user_id in (
 	    and (%country_id% is null or (country_id=any(string_to_array(%country_id%,',')::uids_t)))
     )
 ]]
-		, "//photos_archive/F.accounts", {
+		, "/plugins/photos_archive/F.accounts", {
 		    dep_id = sestb.department == nil and stor.NULL or sestb.department,
 		    country_id = sestb.country == nil and stor.NULL or sestb.country
 		})
@@ -48,13 +48,13 @@ select account_id from my_accounts where user_id in (
 [[
 select account_id from my_accounts where user_id in (select user_id from users where distr_ids && string_to_array(%distr_id%,',')::uids_t)
 ]]
-		, "//photos_archive/F.accounts", {distr_id = sestb.distributor})
+		, "/plugins/photos_archive/F.accounts", {distr_id = sestb.distributor})
         elseif sestb.agency ~= nil then
 	    tb, err = func_execute(tran,
 [[
 select account_id from my_accounts where user_id in (select user_id from users where agency_id=any(string_to_array(%agency_id%,',')))
 ]]
-		, "//photos_archive/F.accounts", {agency_id = sestb.agency})
+		, "/plugins/photos_archive/F.accounts", {agency_id = sestb.agency})
 	end
 	return tb, err
     end
@@ -74,7 +74,7 @@ local function personalize(data, f, permtb)
     local idx_potentials = {}
     local tmp = {}
 
-    log.i(string.format("original //photos_archive size is %d rows.", #data.rows))
+    log.i(string.format("[/plugins/photos_archive] original size is %d rows.", #data.rows))
     for _, v in ipairs(f) do
 	idx_accounts[v.account_id] = 1
     end
@@ -101,7 +101,7 @@ local function personalize(data, f, permtb)
     if not permtb.brand then data.objects.brands = nil; end
     if not permtb.photo_type then data.objects.photo_types = nil; end
     data.objects.cities = nil
-    log.i(string.format("reduced //photos_archive size is %d rows.", #data.rows))
+    log.i(string.format("[/plugins/photos_archive] reduced size is %d rows.", #data.rows))
 
     return data
 end
@@ -136,7 +136,7 @@ function M.startup(lang, permtb, sestb, params, stor)
     );
 end
 
-function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor, res)
+function M.data(lang, method, permtb, sestb, params, content, content_type, stor, res)
     if method == "GET" then
 	if params.year ~= nil and type(params.year) ~= 'number' then
 	    params.year = tonumber(params.year)

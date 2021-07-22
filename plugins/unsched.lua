@@ -19,7 +19,7 @@ select left(b_date, 4) y, substring(b_date, 6, 2) m, rows from content_stream
     where content_ts is not null and content_code='stat_unsched'
 order by 1 desc, 2 desc
 ]]
-	, "//unsched/calendar"
+	, "/plugins/unsched/calendar"
 	)
     end
     )
@@ -34,7 +34,7 @@ local function data(stor, permtb, sestb, year, month)
 [[
 select my_staff user_id from my_staff(%user_id%, 1::bool_t)
 ]]
-		, "//unsched/F.users"
+		, "/plugins/unsched/F.users"
 		, {user_id = sestb.erpid}
 	    )
 	elseif sestb.department ~= nil or sestb.country ~= nil then
@@ -44,7 +44,7 @@ select user_id from users
     where (%dep_id% is null or dep_ids is null or dep_ids && string_to_array(%dep_id%,',')::uids_t)
 	and (%country_id% is null or (country_id=any(string_to_array(%country_id%,',')::uids_t)))
 ]]
-		, "//unsched/F.users"
+		, "/plugins/unsched/F.users"
 		, {
 		    dep_id = sestb.department == nil and stor.NULL or sestb.department,
 		    country_id = sestb.country == nil and stor.NULL or sestb.country
@@ -56,7 +56,7 @@ select user_id from users
 select user_id from users
     where distr_ids && string_to_array(%distr_id%,',')::uids_t
 ]]
-		, "//unsched/F.users"
+		, "/plugins/unsched/F.users"
 		, {distr_id = sestb.distributor}
 	    )
         elseif sestb.agency ~= nil then
@@ -65,7 +65,7 @@ select user_id from users
 select user_id from users
     where agency_id=any(string_to_array(%agency_id%,','))
 ]]
-		, "//unsched/F.users"
+		, "/plugins/unsched/F.users"
 		, {agency_id = sestb.agency})
 	end
 	if err == nil or err == false then
@@ -74,7 +74,7 @@ select user_id from users
 select user_id, descr, dev_login, area, hidden from users
     order by descr
 ]]
-		, "//unsched/users"
+		, "/plugins/unsched/users"
 	    )
 	end
 	if err == nil or err == false then
@@ -83,7 +83,7 @@ select user_id, descr, dev_login, area, hidden from users
 select unsched_type_id, descr, hidden from unsched_types
     order by row_no, descr
 ]]
-		, "//unsched/unsched_types"
+		, "/plugins/unsched/unsched_types"
 	    )
 	end
 	if err == nil or err == false then
@@ -92,7 +92,7 @@ select unsched_type_id, descr, hidden from unsched_types
 select content_ts, content_type, content_compress, content_blob from content_get('stat_unsched', '', 
     "monthDate_First"('%y%-%m%-01')::date_t, "monthDate_Last"('%y%-%m%-01')::date_t)
 ]]
-		, "//unsched/content"
+		, "/plugins/unsched/content"
 		, {y = year, m = month}
 	    )
 	end
@@ -185,7 +185,7 @@ function M.startup(lang, permtb, sestb, params, stor)
     end
 end
 
-function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor, res)
+function M.data(lang, method, permtb, sestb, params, content, content_type, stor, res)
     local tb, err
     if method == "GET" then
 	if params.calendar ~= nil then 

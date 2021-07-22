@@ -207,7 +207,7 @@ var PLUG = (function() {
     function _datareq() {
 	ProgressDialog.show();
 	_cache.data = null; // drop the internal cache
-	G.xhr("GET", G.getajax({plug: _code}), "json", function(xhr, data) {
+	G.xhr("GET", G.getdataref({plug: _code}), "json", function(xhr, data) {
 	    if( xhr.status == 200 && data != null && typeof data == 'object' ) {
 		_cache.data = data;
 		_tags.tbody.html(_datatbl(data, 1, _tags.total, _getfilter(), _cache.checked, _perm).join(""));
@@ -267,7 +267,7 @@ var PLUG = (function() {
     function _changeStatus(self, method, row_no, user_id, account_id, activity_type_id, route_date) {
 	ProgressDialog.show();
 	self.style.visibility = 'hidden';
-	G.xhr(method, G.getajax({
+	G.xhr(method, G.getdataref({
 		plug: _code, 
 		account_id: account_id, 
 		user_id: user_id, 

@@ -28,7 +28,7 @@ where (%user_id% is null or j.user_id in (select * from my_staff(%user_id%, 1::b
 order by j.closed, j.ticket_id::int desc
 ]]
 -- *** sql query: end
-	    , "//tickets/tickets/"
+	    , "/plugins/tickets/tickets/"
 	    , {user_id = sestb.erpid == nil and stor.NULL or sestb.erpid,
 	       dep_id = sestb.department == null and stor.NULL or sestb.department,
 	       distr_id = sestb.distributor == null and stor.NULL or sestb.distributor,
@@ -39,33 +39,33 @@ order by j.closed, j.ticket_id::int desc
 		tb.users, err = func_execute(tran,
 		    "select s.s user_id, u.descr, u.dev_login, u.hidden from my_staff(%user_id%, 1::bool_t) s "..
 			"left join users u on u.user_id=s.s",
-		    "//tickets/users/", {user_id = sestb.erpid})
+		    "/plugins/tickets/users/", {user_id = sestb.erpid})
 	    elseif sestb.department ~= nil then
 		tb.users, err = func_execute(tran,
 		    "select user_id, descr, dev_login, hidden from users " ..
 			"where dep_ids && string_to_array(%dep_id%,',')::uids_t order by hidden, descr",
-		    "//tickets/users/", {dep_id = sestb.department})
+		    "/plugins/tickets/users/", {dep_id = sestb.department})
 	    elseif sestb.distributor ~= nil then
 		tb.users, err = func_execute(tran,
 		    "select user_id, descr, dev_login, hidden from users " ..
 			"where distr_ids && string_to_array(%distr_id%,',')::uids_t order by hidden, descr",
-		    "//tickets/users/", {distr_id = sestb.distributor})
+		    "/plugins/tickets/users/", {distr_id = sestb.distributor})
 	    elseif sestb.agency ~= nil then
 		tb.users, err = func_execute(tran,
 		    "select user_id, descr, dev_login, hidden from users " ..
 			"where agency_id=any(string_to_array(%agency_id%,',')) order by hidden, descr",
-		    "//tickets/users/", {agency_id = sestb.agency})
+		    "/plugins/tickets/users/", {agency_id = sestb.agency})
 	    else
 		tb.users, err = func_execute(tran,
 		    "select user_id, descr, dev_login, hidden from users " ..
 			"order by hidden, descr",
-		    "//tickets/users/")
+		    "/plugins/tickets/users/")
 	    end
 	end
 	if err == nil or err == false then
 	    tb.issues, err = func_execute(tran, 
 		"select issue_id, descr, extra_info hint from issues where hidden=0 order by row_no, descr", 
-		"//tickets/issues/")
+		"/plugins/tickets/issues/")
 	end
 	return tb, err
     end
@@ -79,7 +79,7 @@ local function resolution(stor, uid, ticket_id, note)
 select console.req_resolution(%req_uid%, %ticket_id%, %note%)
 ]]
 -- *** sql query: end
-        , "//tickets/resolution/"
+        , "/plugins/tickets/resolution/"
         , {req_uid = uid, ticket_id = ticket_id, note = note})
     end
     )
@@ -92,7 +92,7 @@ local function post(stor, uid, user_id, issue_id, note, closed)
 select console.req_ticket(%req_uid%, %user_id%, %issue_id%, %note%, %closed%)
 ]]
 -- *** sql query: end
-        , "//tickets/new/"
+        , "/plugins/tickets/new/"
         , {req_uid = uid, user_id = user_id, issue_id = issue_id, closed = closed, note = note})
     end
     )
@@ -178,7 +178,7 @@ function M.startup(lang, permtb, sestb, params, stor)
     return "startup($('#pluginContainer')," .. json.encode(permtb) .. ");"
 end
 
-function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor, res)
+function M.data(lang, method, permtb, sestb, params, content, content_type, stor, res)
     if method == "GET" then
 	ajax_data(sestb, params, stor, res)
     elseif method == "POST" then

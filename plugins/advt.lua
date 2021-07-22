@@ -19,7 +19,7 @@ select left(b_date, 4) y, substring(b_date, 6, 2) m, rows from content_stream
     where content_ts is not null and content_code='stat_advt'
 order by 1 desc, 2 desc
 ]]
-	, "//advt/calendar"
+	, "/plugins/advt/calendar"
 	)
     end
     )
@@ -34,7 +34,7 @@ local function data(stor, permtb, sestb, year, month)
 [[
 select my_staff user_id from my_staff(%user_id%, 1::bool_t)
 ]]
-		, "//advt/F.users"
+		, "/plugins/advt/F.users"
 		, {user_id = sestb.erpid}
 	    )
 	    if err == nil or err == false then
@@ -50,7 +50,7 @@ select account_id from my_regions r, accounts a where r.user_id in (select my_st
     union
 select account_id from (select expand_cities(city_id) city_id, chan_id from my_cities where user_id in (select my_staff(%user_id%, 1::bool_t))) c, accounts a where c.city_id=a.city_id and (c.chan_id='' or c.chan_id=a.chan_id)
 ]]
-		    , "//advt/F.accounts"
+		    , "/plugins/advt/F.accounts"
 		    , {user_id = sestb.erpid}
 		)
 	    end
@@ -61,7 +61,7 @@ select user_id from users
     where (%dep_id% is null or dep_ids is null or dep_ids && string_to_array(%dep_id%,',')::uids_t)
 	and (%country_id% is null or (country_id=any(string_to_array(%country_id%,',')::uids_t)))
 ]]
-		, "//advt/F.users"
+		, "/plugins/advt/F.users"
 		, {
 		    dep_id = sestb.department == nil and stor.NULL or sestb.department,
 		    country_id = sestb.country == nil and stor.NULL or sestb.country
@@ -73,7 +73,7 @@ select user_id from users
 select user_id from users
     where distr_ids && string_to_array(%distr_id%,',')::uids_t
 ]]
-		, "//advt/F.users"
+		, "/plugins/advt/F.users"
 		, {distr_id = sestb.distributor}
 	    )
         elseif sestb.agency ~= nil then
@@ -82,7 +82,7 @@ select user_id from users
 select user_id from users
     where agency_id=any(string_to_array(%agency_id%,','))
 ]]
-		, "//advt/F.users"
+		, "/plugins/advt/F.users"
 		, {agency_id = sestb.agency})
 	end
 	if err == nil or err == false then
@@ -91,7 +91,7 @@ select user_id from users
 select user_id, descr, dev_login, area, hidden from users
     order by descr
 ]]
-		, "//advt/users"
+		, "/plugins/advt/users"
 	    )
 	end
 	if permtb.channel == true and (err == nil or err == false) then
@@ -100,7 +100,7 @@ select user_id, descr, dev_login, area, hidden from users
 select chan_id, descr, hidden from channels
     order by descr
 ]]
-		, "//advt/channels"
+		, "/plugins/advt/channels"
 	    )
 	end
 	if err == nil or err == false then
@@ -109,7 +109,7 @@ select chan_id, descr, hidden from channels
 select rc_id, descr, ka_type, hidden from retail_chains
     order by descr
 ]]
-		, "//advt/retail_chains"
+		, "/plugins/advt/retail_chains"
 	    )
 	end
 	if err == nil or err == false then
@@ -118,7 +118,7 @@ select rc_id, descr, ka_type, hidden from retail_chains
 select placement_id, descr, hidden from placements
     order by descr
 ]]
-		, "//advt/placements"
+		, "/plugins/advt/placements"
 	    )
 	end
 	if err == nil or err == false then
@@ -127,7 +127,7 @@ select placement_id, descr, hidden from placements
 select posm_id, descr, hidden from pos_materials
     order by descr
 ]]
-		, "//advt/pos_materials"
+		, "/plugins/advt/pos_materials"
 	    )
 	end
 	if err == nil or err == false then
@@ -146,7 +146,7 @@ from pos_materials m
 where cardinality(m.brand_ids) > 1
     order by 4 nulls first, 6, 2
 ]]
-		, "//advt/brands"
+		, "/plugins/advt/brands"
 	    )
 	end
 	if err == nil or err == false then
@@ -155,7 +155,7 @@ where cardinality(m.brand_ids) > 1
 select content_ts, content_type, content_compress, content_blob from content_get('stat_advt', '', 
     "monthDate_First"('%y%-%m%-01')::date_t, "monthDate_Last"('%y%-%m%-01')::date_t)
 ]]
-		, "//advt/content"
+		, "/plugins/advt/content"
 		, {y = year, m = month}
 	    )
 	end
@@ -273,7 +273,7 @@ function M.startup(lang, permtb, sestb, params, stor)
     end
 end
 
-function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor, res)
+function M.data(lang, method, permtb, sestb, params, content, content_type, stor, res)
     local tb, err
     if method == "GET" then
 	if params.calendar ~= nil then 

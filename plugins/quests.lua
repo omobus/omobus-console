@@ -19,7 +19,7 @@ select left(b_date, 4) y, substring(b_date, 6, 2) m, rows from content_stream
     where content_ts is not null and content_code='stat_quests'
 order by 1 desc, 2 desc
 ]]
-	, "//quests/calendar"
+	, "/plugins/quests/calendar"
 	)
     end
     )
@@ -34,7 +34,7 @@ local function data(stor, permtb, sestb, year, month)
 [[
 select my_staff user_id from my_staff(%user_id%, 1::bool_t)
 ]]
-		, "//quests/F.users"
+		, "/plugins/quests/F.users"
 		, {user_id = sestb.erpid}
 	    )
 	    if err == nil or err == false then
@@ -50,7 +50,7 @@ select account_id from my_regions r, accounts a where r.user_id in (select my_st
     union
 select account_id from (select expand_cities(city_id) city_id, chan_id from my_cities where user_id in (select my_staff(%user_id%, 1::bool_t))) c, accounts a where c.city_id=a.city_id and (c.chan_id='' or c.chan_id=a.chan_id)
 ]]
-		    , "//quests/F.accounts"
+		    , "/plugins/quests/F.accounts"
 		    , {user_id = sestb.erpid}
 		)
 	    end
@@ -61,7 +61,7 @@ select user_id from users
     where (%dep_id% is null or dep_ids is null or dep_ids && string_to_array(%dep_id%,',')::uids_t)
 	and (%country_id% is null or (country_id=any(string_to_array(%country_id%,',')::uids_t)))
 ]]
-		, "//quests/F.users/"
+		, "/plugins/quests/F.users/"
 		, {
 		    dep_id = sestb.department == nil and stor.NULL or sestb.department,
 		    country_id = sestb.country == nil and stor.NULL or sestb.country
@@ -73,7 +73,7 @@ select user_id from users
 select user_id from users
     where distr_ids && string_to_array(%distr_id%,',')::uids_t
 ]]
-		, "//quests/F.users/"
+		, "/plugins/quests/F.users/"
 		, {distr_id = sestb.distributor}
 	    )
         elseif sestb.agency ~= nil then
@@ -82,14 +82,14 @@ select user_id from users
 select user_id from users
     where agency_id=any(string_to_array(%agency_id%,','))
 ]]
-		, "//quests/F.users"
+		, "/plugins/quests/F.users"
 		, {agency_id = sestb.agency})
         else
 	    tb._users, err = func_execute(tran,
 [[
 select user_id from users
 ]]
-		, "//quests/F.users"
+		, "/plugins/quests/F.users"
 	    )
 	end
 	if err == nil or err == false then
@@ -98,7 +98,7 @@ select user_id from users
 select user_id, descr, dev_login, area, hidden from users
     order by descr
 ]]
-		, "//quests/users"
+		, "/plugins/quests/users"
 	    )
 	end
 	if permtb.channel == true and (err == nil or err == false) then
@@ -107,7 +107,7 @@ select user_id, descr, dev_login, area, hidden from users
 select chan_id, descr, hidden from channels
     order by descr
 ]]
-		, "//quests/channels"
+		, "/plugins/quests/channels"
 	    )
 	end
 	if err == nil or err == false then
@@ -116,7 +116,7 @@ select chan_id, descr, hidden from channels
 select rc_id, descr, ka_type, hidden from retail_chains
     order by descr
 ]]
-		, "//quests/retail_chains"
+		, "/plugins/quests/retail_chains"
 	    )
 	end
 	if err == nil or err == false then
@@ -125,7 +125,7 @@ select rc_id, descr, ka_type, hidden from retail_chains
 select qname_id, descr, hidden from quest_names
     order by descr
 ]]
-		, "//quests/quest_names"
+		, "/plugins/quests/quest_names"
 	    )
 	end
 	if err == nil or err == false then
@@ -137,7 +137,7 @@ from quest_rows r
     left join quest_names n on r.qname_id = n.qname_id
 order by r.descr, n.descr, r.qrow_id
 ]]
-		, "//quests/quest_rows"
+		, "/plugins/quests/quest_rows"
 	    )
 	end
 	if err == nil or err == false then
@@ -146,7 +146,7 @@ order by r.descr, n.descr, r.qrow_id
 select content_ts, content_type, content_compress, content_blob from content_get('stat_quests', '', 
     "monthDate_First"('%y%-%m%-01')::date_t, "monthDate_Last"('%y%-%m%-01')::date_t)
 ]]
-		, "//quests/content"
+		, "/plugins/quests/content"
 		, {y = year, m = month}
 	    )
 	end
@@ -259,7 +259,7 @@ function M.startup(lang, permtb, sestb, params, stor)
     end
 end
 
-function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor, res)
+function M.data(lang, method, permtb, sestb, params, content, content_type, stor, res)
     local tb, err
     if method == "GET" then
 	if params.calendar ~= nil then 

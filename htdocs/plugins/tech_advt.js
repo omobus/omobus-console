@@ -65,7 +65,7 @@ PLUG.registerRef("advt", (function() {
 	    } else {
 		ProgressDialog.show();
 		_cache.data[user_id] = null; // drops the internal cache
-		G.xhr("GET", G.getajax({plug: "tech", code: "tech_advt", user_id: user_id, date: G.getdate(date)}), "json", function(xhr, data) {
+		G.xhr("GET", G.getdataref({plug: "tech", code: "tech_advt", user_id: user_id, date: G.getdate(date)}), "json", function(xhr, data) {
 		    if( xhr.status == 200 &&  data != null && typeof data == 'object' ) {
 			_cache.data[user_id] = data;
 			tbody.html(_datatbl(data, user_id, date, _cache.checked).join(""));

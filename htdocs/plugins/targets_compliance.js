@@ -207,7 +207,7 @@ var PLUG = (function() {
 			ar.push("&nbsp;");
 		    } else {
 			ar.push("<img class='clickable' onclick='PLUG.slideshow([" + blobs.join(',') + "]," + b + ")' height='90px' " + 
-			    (k>=20?"data-src='":"src='") + G.getajax({plug: _code, blob: "yes", thumb: "yes", blob_id: r.blob_id}) + "'/>");
+			    (k>=20?"data-src='":"src='") + G.getdataref({plug: _code, blob: "yes", thumb: "yes", blob_id: r.blob_id}) + "'/>");
 			b++;
 		    }
 		    ar.push("</td>");
@@ -337,7 +337,7 @@ var PLUG = (function() {
     function _datareq() {
 	ProgressDialog.show();
 	_cache.data = null; // drop the internal cache
-	G.xhr("GET", G.getajax({plug: _code}), "json-js", function(xhr, data) {
+	G.xhr("GET", G.getdataref({plug: _code}), "json-js", function(xhr, data) {
 	    if( xhr.status == 200 && data != null && typeof data == 'object' ) {
 		if( Array.isArray(data.rows) ) {
 		    data.rows.forEach(function(arg, index, ar) {
@@ -597,7 +597,7 @@ var PLUG = (function() {
 	    var r = _cache.data.rows[row_no-1].L;
 	    var ptr = _cache.remarks[r.doc_id] || {status:(r.remark||{}).status,remark_type_id:null,type:null,note:null};
 	    var commit = function(self, method) {
-		var xhr = G.xhr(method, G.getajax({plug: _code}), "", function(xhr) {
+		var xhr = G.xhr(method, G.getdataref({plug: _code}), "", function(xhr) {
 		    if( xhr.status == 200 ) {
 			ptr.status = method == 'PUT' ? 'accepted' : /*method == 'DELETE'*/'rejected';
 			var n, div = tag.parentNode;
@@ -707,7 +707,7 @@ var PLUG = (function() {
 	},
 	slideshow: function(blobs, position) {
 	    var ar = [];
-	    blobs.forEach(function(arg) { ar.push(G.getajax({plug: _code, blob: "yes", blob_id: arg})); });
+	    blobs.forEach(function(arg) { ar.push(G.getdataref({plug: _code, blob: "yes", blob_id: arg})); });
 	    SlideshowSimple(ar, {idx: position}).show();
 	},
 	xlsx: function() {

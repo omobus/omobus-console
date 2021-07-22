@@ -20,7 +20,7 @@ select left(b_date, 4) y, substring(b_date, 6, 2) m, rows from content_stream
     where content_ts is not null and content_code='stat_photos'
 order by 1 desc, 2 desc
 ]]
-	, "//photos/calendar"
+	, "/plugins/photos/calendar"
 	)
     end
     )
@@ -35,7 +35,7 @@ local function data(stor, permtb, sestb, year, month)
 [[
 select my_staff user_id from my_staff(%user_id%, 1::bool_t)
 ]]
-		, "//photos/F.users"
+		, "/plugins/photos/F.users"
 		, {user_id = sestb.erpid}
 	    )
 	    if err == nil or err == false then
@@ -51,7 +51,7 @@ select account_id from my_regions r, accounts a where r.user_id in (select my_st
     union
 select account_id from (select expand_cities(city_id) city_id, chan_id from my_cities where user_id in (select my_staff(%user_id%, 1::bool_t))) c, accounts a where c.city_id=a.city_id and (c.chan_id='' or c.chan_id=a.chan_id)
 ]]
-		    , "//photos/F.accounts"
+		    , "/plugins/photos/F.accounts"
 		    , {user_id = sestb.erpid}
 		)
 	    end
@@ -62,7 +62,7 @@ select user_id from users
     where (%dep_id% is null or dep_ids is null or dep_ids && string_to_array(%dep_id%,',')::uids_t)
 	and (%country_id% is null or (country_id=any(string_to_array(%country_id%,',')::uids_t)))
 ]]
-		, "//photos/F.users"
+		, "/plugins/photos/F.users"
 		, {
 		    dep_id = sestb.department == nil and stor.NULL or sestb.department,
 		    country_id = sestb.country == nil and stor.NULL or sestb.country
@@ -74,7 +74,7 @@ select user_id from users
 select user_id from users
     where distr_ids && string_to_array(%distr_id%,',')::uids_t
 ]]
-		, "//photos/F.users"
+		, "/plugins/photos/F.users"
 		, {distr_id = sestb.distributor}
 	    )
         elseif sestb.agency ~= nil then
@@ -83,7 +83,7 @@ select user_id from users
 select user_id from users
     where agency_id=any(string_to_array(%agency_id%,','))
 ]]
-		, "//photos/F.users"
+		, "/plugins/photos/F.users"
 		, {agency_id = sestb.agency})
 	end
 	if err == nil or err == false then
@@ -92,7 +92,7 @@ select user_id from users
 select user_id, descr, dev_login, area, hidden from users
     order by descr
 ]]
-		, "//photos/users"
+		, "/plugins/photos/users"
 	    )
 	end
 	if permtb.channel == true and (err == nil or err == false) then
@@ -101,7 +101,7 @@ select user_id, descr, dev_login, area, hidden from users
 select chan_id, descr, hidden from channels
     order by descr
 ]]
-		, "//photos/channels"
+		, "/plugins/photos/channels"
 	    )
 	end
 	if err == nil or err == false then
@@ -110,7 +110,7 @@ select chan_id, descr, hidden from channels
 select rc_id, descr, ka_type, hidden from retail_chains
     order by descr
 ]]
-		, "//photos/retail_chains"
+		, "/plugins/photos/retail_chains"
 	    )
 	end
 	if permtb.photo_type == true and (err == nil or err == false) then
@@ -119,7 +119,7 @@ select rc_id, descr, ka_type, hidden from retail_chains
 select photo_type_id, descr, hidden from photo_types
     order by row_no, descr
 ]]
-		, "//photos/photo_types"
+		, "/plugins/photos/photo_types"
 	    )
 	end
 	if err == nil or err == false then
@@ -128,7 +128,7 @@ select photo_type_id, descr, hidden from photo_types
 select placement_id, descr, hidden from placements
     order by row_no, descr
 ]]
-		, "//photos/placements"
+		, "/plugins/photos/placements"
 	    )
 	end
 	if permtb.asp_type == true and (err == nil or err == false) then
@@ -137,7 +137,7 @@ select placement_id, descr, hidden from placements
 select asp_type_id, descr, hidden from asp_types
     order by row_no, descr
 ]]
-		, "//photos/asp_types"
+		, "/plugins/photos/asp_types"
 	    )
 	end
 	if permtb.brand == true and (err == nil or err == false) then
@@ -149,7 +149,7 @@ from brands b
     left join manufacturers m on m.manuf_id = b.manuf_id
 order by m.competitor nulls first, b.row_no, b.descr
 ]]
-		, "//photos/brands"
+		, "/plugins/photos/brands"
 	    )
 	end
 	if err == nil or err == false then
@@ -158,7 +158,7 @@ order by m.competitor nulls first, b.row_no, b.descr
 select content_ts, content_type, content_compress, content_blob from content_get('stat_photos', '', 
     "monthDate_First"('%y%-%m%-01')::date_t, "monthDate_Last"('%y%-%m%-01')::date_t)
 ]]
-		, "//photos/content"
+		, "/plugins/photos/content"
 		, {y = year, m = month}
 	    )
 	end
@@ -172,7 +172,7 @@ local function photo(stor, blob_id)
 [[
 select photo_get(%blob_id%::blob_t) photo
 ]]
-	, "//photos/photo"
+	, "/plugins/photos/photo"
 	, {blob_id = blob_id})
     end
     )
@@ -183,7 +183,7 @@ local function thumb(stor, blob_id)
 [[
 select thumb_get(%blob_id%::blob_t) photo
 ]]
-	, "//photos/thumb"
+	, "/plugins/photos/thumb"
 	, {blob_id = blob_id})
     end
     )
@@ -195,7 +195,7 @@ local function post(stor, uid, params)
 [[
 select console.req_target(%req_uid%, %_datetime%, (%doc_id%, %sub%, %msg%, %strict%::bool_t, %urgent%::bool_t)::console.target_at_t) target_id
 ]]
-	, "//photos/new_target"
+	, "/plugins/photos/new_target"
 	, params)
     end, false
     )
@@ -317,7 +317,7 @@ function M.startup(lang, permtb, sestb, params, stor)
     end
 end
 
-function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor, res)
+function M.data(lang, method, permtb, sestb, params, content, content_type, stor, res)
     local p, tb, err
     if method == "GET" then
 	if params.blob ~= nil then 

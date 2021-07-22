@@ -16,7 +16,7 @@ function M.startup(lang, permtb, sestb, params, stor)
     return nil
 end
 
-function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor, res)
+function M.data(lang, method, permtb, sestb, params, content, content_type, stor, res)
     scgi.writeHeader(res, 200, {["Content-Type"] = mime.json .. "; charset=utf-8"})
     scgi.writeBody(res, "{}")
 end

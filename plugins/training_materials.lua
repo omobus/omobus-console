@@ -54,7 +54,7 @@ and (
     )
 )
 ]]
-		) , "//training_materials/get", {
+		) , "/plugins/training_materials/get", {
 		    user_id = sestb.erpid,
 		    country_id = sestb.country == nil and stor.NULL or sestb.country
 		}
@@ -69,7 +69,7 @@ select brand_id, descr from brands
 	    )
 order by row_no, descr
 ]]
-		    , "//training_materials/brands", { 
+		    , "/plugins/training_materials/brands", { 
 			user_id = sestb.erpid
 		    }
 		)
@@ -81,7 +81,7 @@ select dep_id, descr from departments
     where hidden = 0 and (select case when NIL(dep_id) is null or dep_id=any(dep_ids) then 1 else 0 end from users where user_id=%user_id%) > 0
 order by descr, dep_id
 ]]
-		    , "//training_materials/departments", { 
+		    , "/plugins/training_materials/departments", { 
 			user_id = sestb.erpid 
 		    }
 		)
@@ -97,7 +97,7 @@ select country_id, descr from countries
     )
 order by row_no, descr
 ]]
-		    , "//training_materials/countries", {
+		    , "/plugins/training_materials/countries", {
 			user_id = sestb.erpid,
 			country_id = sestb.country == nil and stor.NULL or sestb.country
 		    }
@@ -124,7 +124,7 @@ and (
     )
 )
 ]]
-		) ,"//training_materials/get", { 
+		) ,"/plugins/training_materials/get", { 
 		    dep_id = sestb.department == nil and stor.NULL or sestb.department,
 		    country_id = sestb.country == nil and stor.NULL or sestb.country,
 		    my = sestb.username
@@ -140,7 +140,7 @@ select brand_id, descr from brands
 	    )
 order by row_no, descr
 ]]
-		    , "//training_materials/brands", { 
+		    , "/plugins/training_materials/brands", { 
 			dep_id = sestb.department == nil and stor.NULL or sestb.department
 		    }
 		)
@@ -152,7 +152,7 @@ select dep_id, descr from departments
     where hidden = 0 and (%dep_id% is null or dep_id is null or dep_id=any(string_to_array(%dep_id%,',')::uids_t))
 order by descr, dep_id
 ]]
-		    , "//training_materials/departments", {
+		    , "/plugins/training_materials/departments", {
 			dep_id = sestb.department == nil and stor.NULL or sestb.department
 		    }
 		)
@@ -164,14 +164,14 @@ select country_id, descr from countries
     where hidden = 0 and (%country_id% is null or country_id = any(string_to_array(%country_id%,',')::uids_t))
 order by row_no, descr
 ]]
-		    , "//training_materials/countries", {
+		    , "/plugins/training_materials/countries", {
 			country_id = sestb.country == nil and stor.NULL or sestb.country
 		    }
 		)
 	    end
 	else
 	    tb.rows, err = func_execute(tran, qs:replace("$(0)", ""),
-		"//training_materials/get"
+		"/plugins/training_materials/get"
 	    )
 	    if err == nil or err == false then
 		tb.brands, err = func_execute(tran,
@@ -180,7 +180,7 @@ select brand_id, descr from brands
     where hidden = 0 and manuf_id in (select manuf_id from manufacturers where competitor is null or competitor = 0)
 order by row_no, descr
 ]]
-		    , "//training_materials/brands"
+		    , "/plugins/training_materials/brands"
 		)
 	    end
 	    if err == nil or err == false then
@@ -190,7 +190,7 @@ select dep_id, descr from departments
     where hidden = 0
 order by descr, dep_id
 ]]
-		    , "//training_materials/departments"
+		    , "/plugins/training_materials/departments"
 		)
 	    end
 	    if err == nil or err == false then
@@ -200,7 +200,7 @@ select country_id, descr from countries
     where hidden = 0
 order by row_no, descr
 ]]
-		    , "//training_materials/countries"
+		    , "/plugins/training_materials/countries"
 		)
 	    end
 	end
@@ -213,7 +213,7 @@ order by row_no, descr
 select brand_id, descr, hidden from brands
     order by descr, row_no
 ]]
-		, "//training_materials/_f/brands"
+		, "/plugins/training_materials/_f/brands"
 	    )
 	end
 	if err == nil or err == false then
@@ -222,7 +222,7 @@ select brand_id, descr, hidden from brands
 select dep_id, descr, hidden from departments
     order by descr, dep_id
 ]]
-		, "//training_materials/_f/departments"
+		, "/plugins/training_materials/_f/departments"
 	    )
 	end
 	if err == nil or err == false then
@@ -231,7 +231,7 @@ select dep_id, descr, hidden from departments
 select country_id, descr, hidden from countries
     order by row_no, descr
 ]]
-		, "//training_materials/_f/countries"
+		, "/plugins/training_materials/_f/countries"
 	    )
 	end
 
@@ -245,7 +245,7 @@ local function blob(stor, tm_id)
 [[
 select tm_id, blob, content_type from training_materials where tm_id = %tm_id%
 ]]
-	, "//training_materials/blob/", {tm_id = tm_id})
+	, "/plugins/training_materials/blob/", {tm_id = tm_id})
     end
     )
 end
@@ -255,7 +255,7 @@ local function author(stor, tm_id)
 [[
 select author_id from training_materials where tm_id=%tm_id%
 ]]
-	, "//training_materials/author/"
+	, "/plugins/training_materials/author/"
 	, {tm_id = tm_id})
     end
     )
@@ -266,7 +266,7 @@ local function unlink(stor, uid, reqdt, tm_id)
 [[
 select console.req_training_material(%req_uid%, %req_dt%, 'unlink', %tm_id%, null::console.training_material_t) rv
 ]]
-        , "//training_materials/unlink/"
+        , "/plugins/training_materials/unlink/"
         , {req_uid = uid, req_dt = reqdt, tm_id = tm_id})
     end
     )
@@ -286,7 +286,7 @@ select console.req_training_material(%req_uid%, %_datetime%, 'edit', %tm_id%, (
     )
 ) rv
 ]]
-	, "//training_materials/edit/"
+	, "/plugins/training_materials/edit/"
 	, params)
     end
     )
@@ -297,7 +297,7 @@ local function post(stor, uid, reqdt, blob, content_type)
 [[
 select console.req_training_material(%req_uid%, %req_dt%/*, 'add'*/, %name%, %1:blob%, %content_type%) rv
 ]]
-	, "//training_materials/add/"
+	, "/plugins/training_materials/add/"
 	, {req_uid = uid, req_dt = reqdt, name = blob.name, content_type = content_type}
 	, blob.contents)
     end
@@ -358,7 +358,7 @@ function M.startup(lang, permtb, sestb, params, stor)
     return string.format("startup(%s);", json.encode(permtb));
 end
 
-function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor, res)
+function M.data(lang, method, permtb, sestb, params, content, content_type, stor, res)
     local tb, err
     if method == "GET" then
 	if params.blob ~= nil then

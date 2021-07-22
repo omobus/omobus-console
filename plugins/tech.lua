@@ -38,7 +38,7 @@ local function calendar(stor)
 select distinct b_date as fix_date from content_stream where content_ts is not null and content_code='tech'
     order by b_date
 ]]
-        , "//tech/calendar"
+        , "/plugins/tech/calendar"
         )
     end
     )
@@ -49,7 +49,7 @@ local function uname(stor, user_id, date)
 [[
 select content_ts, content_type, content_compress, content_blob from content_get('tech', '', %fix_date%, %fix_date%)
 ]]
-        , "//tech/content"
+        , "/plugins/tech/content"
 	, {fix_date=date}
         )
     end
@@ -73,7 +73,7 @@ local function dataL0(stor, permtb, sestb, date)
 [[
 select content_ts, content_type, content_compress, content_blob from content_get('tech', '', %fix_date%, %fix_date%)
 ]]
-	    , "//tech/content"
+	    , "/plugins/tech/content"
 	    , {fix_date=date}
 	)
 	if (err == nil or err == false) and tb ~= nil and #tb == 1 then
@@ -83,7 +83,7 @@ select content_ts, content_type, content_compress, content_blob from content_get
 [[
 select my_staff user_id from my_staff(%user_id%, 1::bool_t)
 ]]
-		    , "//tech/F.my_staff"
+		    , "/plugins/tech/F.my_staff"
 		    , {user_id = sestb.erpid}
 		)
 		tb.indirect_staff, err = func_execute(tran,
@@ -104,7 +104,7 @@ select distinct user_id from (
     select account_id from (select expand_cities(city_id) city_id, chan_id from my_cities where user_id in (select my_staff(%user_id%, 1::bool_t))) c, accounts a where c.city_id=a.city_id and (c.chan_id='' or c.chan_id=a.chan_id)
 ) and user_id not in (select my_staff(%user_id%, 1::bool_t))
 ]]
-		    , "//tech/F.indirect_staff"
+		    , "/plugins/tech/F.indirect_staff"
 		    , {user_id = sestb.erpid, fix_date = date}
 		)
 	    elseif sestb.department ~= nil or sestb.country ~= nil then
@@ -115,7 +115,7 @@ select user_id from users
 	and (%country_id% is null or (country_id=any(string_to_array(%country_id%,',')::uids_t)))
 order by descr, user_id
 ]]
-		    , "//tech/F.my_staff"
+		    , "/plugins/tech/F.my_staff"
 		    , {
 			dep_id = sestb.department == nil and stor.NULL or sestb.department,
 			country_id = sestb.country == nil and stor.NULL or sestb.country
@@ -128,7 +128,7 @@ select user_id from users
     where distr_ids && string_to_array(%distr_id%,',')::uids_t
 order by descr, user_id
 ]]
-		    , "//tech/F.my_staff"
+		    , "/plugins/tech/F.my_staff"
 		    , {distr_id = sestb.distributor}
 		)
 	    elseif sestb.agency ~= nil then
@@ -138,7 +138,7 @@ select user_id from users
     where agency_id=any(string_to_array(%agency_id%,','))
 order by descr, user_id
 ]]
-		    , "//tech/F.my_staff"
+		    , "/plugins/tech/F.my_staff"
 		    , {agency_id = sestb.agency}
 		)
 	    else
@@ -160,7 +160,7 @@ local function dataL1(stor, permtb, sestb, code, user_id, date)
 [[
 select content_ts, content_type, content_compress, content_blob from content_get(%content_code%, %user_id%, %fix_date%, %fix_date%)
 ]]
-	    , "//tech/content"
+	    , "/plugins/tech/content"
 	    , {content_code=code, user_id=user_id, fix_date=date}
 	)
 	if (err == nil or err == false) and tb ~= nil and #tb == 1 then
@@ -173,7 +173,7 @@ select content_ts, content_type, content_compress, content_blob from content_get
 select count(*) exist from my_staff(%user_id%, 1::bool_t)
     where my_staff = %code%
 ]]
-		    , "//tech/exist.my_staff"
+		    , "/plugins/tech/exist.my_staff"
 		    , {user_id = sestb.erpid, code = user_id}
 		)
 		if (err == nil or err == false) and xx ~= nil and #xx == 1 and xx[1].exist > 0 then
@@ -193,7 +193,7 @@ select count(*) exist from j_user_activities where fix_date=%fix_date% and user_
     select account_id from (select expand_cities(city_id) city_id, chan_id from my_cities where user_id in (select my_staff(%user_id%, 1::bool_t))) c, accounts a where c.city_id=a.city_id and (c.chan_id='' or c.chan_id=a.chan_id)
 )
 ]]
-			, "//tech/exist.indirect_staff"
+			, "/plugins/tech/exist.indirect_staff"
 			, {user_id = sestb.erpid, fix_date=date, code = user_id}
 		    )
 		    if (err == nil or err == false) and xx ~= nil and #xx == 1 and xx[1].exist then
@@ -212,7 +212,7 @@ select account_id from my_regions r, accounts a where r.user_id in (select my_st
     union
 select account_id from (select expand_cities(city_id) city_id, chan_id from my_cities where user_id in (select my_staff(%user_id%, 1::bool_t))) c, accounts a where c.city_id=a.city_id and (c.chan_id='' or c.chan_id=a.chan_id)
 ]]
-			, "//tech/F.my_habitat"
+			, "/plugins/tech/F.my_habitat"
 			, {user_id = sestb.erpid}
 		    )
 		end
@@ -223,7 +223,7 @@ select count(*) exist from users
     where (%dep_id% is null or dep_ids is null or dep_ids && string_to_array(%dep_id%,',')::uids_t)
 	and (%country_id% is null or (country_id=any(string_to_array(%country_id%,',')::uids_t)))
 ]]
-		    , "//tech/exist.my_staff"
+		    , "/plugins/tech/exist.my_staff"
 		    , {
 			dep_id = sestb.department == nil and stor.NULL or sestb.department,
 			country_id = sestb.country == nil and stor.NULL or sestb.country, 
@@ -239,7 +239,7 @@ select count(*) exist from users
 select count(*) exist from users
     where distr_ids && string_to_array(%distr_id%,',')::uids_t and user_id = %code%
 ]]
-		    , "//tech/exist.my_staff"
+		    , "/plugins/tech/exist.my_staff"
 		    , {distr_id = sestb.distributor, code = user_id}
 		)
 		if (err == nil or err == false) and xx ~= nil and #xx == 1 and xx[1].exist > 0 then
@@ -251,7 +251,7 @@ select count(*) exist from users
 select count(*) exist from users
     where agency_id=any(string_to_array(%agency_id%,',')) and user_id = %code%
 ]]
-		    , "//tech/exist.my_staff"
+		    , "/plugins/tech/exist.my_staff"
 		    , {agency_id = sestb.agency, code = user_id}
 		)
 		if (err == nil or err == false) and xx ~= nil and #xx == 1 and xx[1].exist > 0 then
@@ -266,7 +266,7 @@ select count(*) exist from users
 [[
 select guid, zstatus, znote from j_user_activities where user_id = %user_id% and fix_date = %fix_date%
 ]]
-		    , "//tech/zstatus"
+		    , "/plugins/tech/zstatus"
 		    , {user_id=user_id, fix_date=date}
 		)
 	    end
@@ -284,7 +284,7 @@ local function photo(stor, blob_id)
 [[
 select photo_get(%blob_id%::blob_t) photo
 ]]
-	, "//tech/photo"
+	, "/plugins/tech/photo"
 	, { blob_id = blob_id })
     end
     )
@@ -295,7 +295,7 @@ local function thumb(stor, blob_id)
 [[
 select thumb_get(%blob_id%::blob_t) photo
 ]]
-	, "//tech/thumb"
+	, "/plugins/tech/thumb"
 	, {blob_id = blob_id})
     end
     )
@@ -307,7 +307,7 @@ local function target(stor, uid, params)
 [[
 select console.req_target(%req_uid%, %_datetime%, (%doc_id%, %sub%, %msg%, %strict%::bool_t, %urgent%::bool_t)::console.target_at_t) target_id
 ]]
-	, "//tech/new_target"
+	, "/plugins/tech/new_target"
 	, params)
     end, false
     )
@@ -318,7 +318,7 @@ local function zstatus(stor, uid, reqdt, cmd, guid, note)
 [[
 select console.req_zstatus(%req_uid%, %req_dt%, %cmd%, %guid%, %msg%) zrows
 ]]
-	, "//tech/zstatus"
+	, "/plugins/tech/zstatus"
 	, {req_uid = uid, req_dt = reqdt, cmd = cmd, guid = guid, msg = note or stor.NULL})
     end, false
     )
@@ -527,7 +527,7 @@ function M.startup(lang, permtb, sestb, params, stor)
     return table.concat(ar,"\n")
 end
 
-function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor, res)
+function M.data(lang, method, permtb, sestb, params, content, content_type, stor, res)
     local tb, err, x
     if method == "GET" then
 	if params.calendar ~= nil then

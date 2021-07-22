@@ -203,7 +203,7 @@ var PLUG = (function() {
     function _datareq() {
 	ProgressDialog.show();
 	_cache.data = null; // drop the internal cache
-	G.xhr("GET", G.getajax({plug: _code}), "json", function(xhr, data) {
+	G.xhr("GET", G.getdataref({plug: _code}), "json", function(xhr, data) {
 	    if( xhr.status == 200 && data != null && typeof data == 'object' ) {
 		_cache.data = data;
 		_tags.tbody.html(_datatbl(data, 1, _tags.total, _getfilter(), _cache.checked, _perm).join(""));
@@ -263,7 +263,7 @@ var PLUG = (function() {
     function _changeStatus(self, method, row_no, user_id, account_id) {
 	ProgressDialog.show();
 	self.style.visibility = 'hidden';
-	G.xhr(method, G.getajax({plug: _code, account_id: account_id, user_id: user_id, _datetime: G.getdatetime(new Date())}), "", function(xhr) {
+	G.xhr(method, G.getdataref({plug: _code, account_id: account_id, user_id: user_id, _datetime: G.getdatetime(new Date())}), "", function(xhr) {
 	    if( xhr.status == 200 ) {
 		_cache.data.rows[row_no-1][method == 'PUT' ? 'validated' : 'rejected'] = true;
 		for(var i = 0, cells = self.parentNode.parentNode.cells, size = cells.length; i < size; i++ ) {

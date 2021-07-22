@@ -223,7 +223,7 @@ var PLUG = (function() {
     function _datareq() {
 	ProgressDialog.show();
 	_cache.data = null; // drop the internal cache
-	G.xhr("GET", G.getajax(_cache.params), "json", function(xhr, data) {
+	G.xhr("GET", G.getdataref(_cache.params), "json", function(xhr, data) {
 	    if( xhr.status == 200 && data != null && typeof data == 'object' ) {
 		if( data.objects != null && Array.isArray(data.rows) && data.rows.length > 0 ) {
 		    _resolveLinks(data.rows, data.objects.regions, "region_id", function(r, ptr) {
@@ -400,7 +400,7 @@ var PLUG = (function() {
 			ar.push("&nbsp;");
 		    } else {
 			ar.push("<img class='clickable' onclick='PLUG.slideshow([\"", x.ref_id, "\"],1)' height='90px' src='",
-			    G.getajax({plug: _code, thumb: "yes", blob_id: x.ref_id}), "' />");
+			    G.getdataref({plug: _code, thumb: "yes", blob_id: x.ref_id}), "' />");
 		    }
 		    ar.push("</td>");
 		    ar.push("<td class='string", xs, "'>");
@@ -439,7 +439,7 @@ var PLUG = (function() {
 	    Dialog({width: 880, title: txt, body: _moretbl(a, month).join('')}).show();
 	} else {
 	    ProgressDialog.show();
-	    G.xhr("GET", G.getajax(Object.assign({}, _cache.params, {account_id: a.account_id})), "json", function(xhr, data) {
+	    G.xhr("GET", G.getdataref(Object.assign({}, _cache.params, {account_id: a.account_id})), "json", function(xhr, data) {
 		if( xhr.status == 200 && data != null && typeof data == 'object' ) {
 		    if( Array.isArray(data.photos) ) {
 			data.photos.forEach(function(x) {
@@ -478,7 +478,7 @@ var PLUG = (function() {
 
     function _saveJpeg(tag, ref_id) {
 	var timerId = setInterval(function() { if( tag.isHidden() ) { tag.show(); } else { tag.hide(); }}, 350);
-	G.xhr("GET", G.getajax({plug: _code, blob_id: ref_id}), "blob", function(xhr) {
+	G.xhr("GET", G.getdataref({plug: _code, blob_id: ref_id}), "blob", function(xhr) {
 	    if( xhr.status == 200 ) {
 		saveAs(xhr.response, ref_id + ".jpg");
 	    }
@@ -543,7 +543,7 @@ var PLUG = (function() {
 		_cache.params.year = y;
 		_tags.popups = {};
 		_datareq();
-		history.replaceState(_cache.params, "", G.getref({plug: _code, year: _cache.params.year}));
+		history.replaceState(_cache.params, "", G.getdefref({plug: _code, year: _cache.params.year}));
 	    }
 	},
 	regions: function(tag, offset) {
@@ -607,7 +607,7 @@ var PLUG = (function() {
 	},
 	slideshow: function(blobs, position) {
 	    var ar = [];
-	    blobs.forEach(function(arg) { ar.push(G.getajax({plug: _code, blob_id: arg})); });
+	    blobs.forEach(function(arg) { ar.push(G.getdataref({plug: _code, blob_id: arg})); });
 	    SlideshowSimple(ar, {idx: position}).show();
 	},
 	save: function(tag, ref_id) {

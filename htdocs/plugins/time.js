@@ -443,7 +443,7 @@ var PLUG = (function() {
 		ar.push("<tr>");
 		ar.push("<td class='autoincrement", violations, disabled, fn.isEmpty() ? "'>" : ("' data-title='" + fn.join(" + ") + "'>"));
 		if( r.alive != null && r.alive ) {
-		    ar.push("<a target='_blank' href='", G.getref({plug:'tech',user_id:data.user_id,date:r.route_date}), 
+		    ar.push("<a target='_blank' href='", G.getdefref({plug:'tech',user_id:data.user_id,date:r.route_date}), 
 			"'>", d.getDate(), "</a>");
 		} else {
 		    ar.push(d.getDate());
@@ -586,7 +586,7 @@ var PLUG = (function() {
     function _datareq(y, m, u) {
 	ProgressDialog.show();
 	_cache.data = null; // drop the internal cache
-	G.xhr("GET", G.getajax({plug: _code, year: y, month: m}), "json", function(xhr, data) {
+	G.xhr("GET", G.getdataref({plug: _code, year: y, month: m}), "json", function(xhr, data) {
 	    if( xhr.status == 200 && data != null && typeof data == 'object' && data.code == 'time' ) {
 		//console.log(data);
 		Array.forEach(data.rows, function(ptr) {
@@ -735,7 +735,7 @@ var PLUG = (function() {
 	if( typeof u != 'undefined' && u != null ) {
 	    p1.u = u; p2.user_id = u;
 	}
-	history.replaceState(p1, "", G.getref(p2));
+	history.replaceState(p1, "", G.getdefref(p2));
     }
 
     function _morepage(arg) {
@@ -791,7 +791,7 @@ var PLUG = (function() {
 		    _datareq(y, m, _cache.u);
 		    _historyState(y, m, _cache.u);
 		    _tags.popups = {}; _tags.popups[obj] = tmp;
-		}, {year: _cache.y, month: _cache.m, uri: G.getajax({plug: _code, calendar: true})})
+		}, {year: _cache.y, month: _cache.m, uri: G.getdataref({plug: _code, calendar: true})})
 	    });
 	},
 	users: function(tag, type, offset) {

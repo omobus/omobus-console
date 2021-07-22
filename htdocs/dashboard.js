@@ -9,7 +9,7 @@ var Dashboard = (function() {
 	for( var i = 0, size = rows.length; i < size; i++ ) {
 	    if( (r = rows[i]) != null && (x = lang[r]) != null ) {
 		if( z == 0 ) ar.push("<tr>");
-		ar.push("<td " + (z == 0 ? "" : "class='r'") + "><a href='" + G.getref({plug: r}) + "'>", x.title, "</a></td>");
+		ar.push("<td " + (z == 0 ? "" : "class='r'") + "><a href='" + G.getdefref({plug: r}) + "'>", x.title, "</a></td>");
 		if( z != 0 ) ar.push("</tr>");
 		z += (z == 0 ? 1 : -1 );
 	    }
@@ -102,7 +102,7 @@ var Dashboard = (function() {
 	}
 	ar.push("<hr />");
 	ar.push(lang.support_notice);
-	ar.push("<br /><a href='" + G.getref({plug: "tickets"}) + "'>", lang.tickets.title4, "</a>");
+	ar.push("<br /><a href='" + G.getdefref({plug: "tickets"}) + "'>", lang.tickets.title4, "</a>");
 	return ar;
     }
 

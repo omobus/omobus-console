@@ -57,7 +57,7 @@ and (
     )
 )
 ]]
-		) , "//pos_materials/get", {
+		) , "/plugins/pos_materials/get", {
 		    user_id = sestb.erpid,
 		    country_id = sestb.country == nil and stor.NULL or sestb.country
 		}
@@ -72,7 +72,7 @@ select brand_id, descr from brands
 	    )
 order by row_no, descr
 ]]
-		    , "//pos_materials/brands", { 
+		    , "/plugins/pos_materials/brands", { 
 			user_id = sestb.erpid 
 		    }
 		)
@@ -84,7 +84,7 @@ select dep_id, descr from departments
     where hidden = 0 and (select case when NIL(dep_id) is null or dep_id=any(dep_ids) then 1 else 0 end from users where user_id=%user_id%) > 0
 order by descr, dep_id
 ]]
-		    , "//pos_materials/departments", {
+		    , "/plugins/pos_materials/departments", {
 			user_id = sestb.erpid
 		    }
 		)
@@ -100,7 +100,7 @@ select country_id, descr from countries
     )
 order by row_no, descr
 ]]
-		    , "//pos_materials/countries", {
+		    , "/plugins/pos_materials/countries", {
 			user_id = sestb.erpid,
 			country_id = sestb.country == nil and stor.NULL or sestb.country
 		    }
@@ -125,7 +125,7 @@ and (
     )
 )
 ]]
-		) ,"//pos_materials/get", { 
+		) ,"/plugins/pos_materials/get", { 
 		    dep_id = sestb.department == nil and stor.NULL or sestb.department,
 		    country_id = sestb.country == nil and stor.NULL or sestb.country,
 		    my = sestb.username
@@ -141,7 +141,7 @@ select brand_id, descr from brands
 	    )
 order by row_no, descr
 ]]
-		    , "//pos_materials/brands", { 
+		    , "/plugins/pos_materials/brands", { 
 			dep_id = sestb.department == nil and stor.NULL or sestb.department
 		    }
 		)
@@ -153,7 +153,7 @@ select dep_id, descr from departments
     where hidden = 0 and (%dep_id% is null or dep_id is null or dep_id=any(string_to_array(%dep_id%,',')::uids_t))
 order by descr, dep_id
 ]]
-		    , "//pos_materials/departments", {
+		    , "/plugins/pos_materials/departments", {
 			dep_id = sestb.department == nil and stor.NULL or sestb.department
 		    }
 		)
@@ -165,14 +165,14 @@ select country_id, descr from countries
     where hidden = 0 and (%country_id% is null or country_id = any(string_to_array(%country_id%,',')::uids_t))
 order by row_no, descr
 ]]
-		    , "//pos_materials/countries", {
+		    , "/plugins/pos_materials/countries", {
 			country_id = sestb.country == nil and stor.NULL or sestb.country
 		    }
 		)
 	    end
 	else
 	    tb.rows, err = func_execute(tran, qs:replace("$(0)", ""),
-		"//pos_materials/get"
+		"/plugins/pos_materials/get"
 	    )
 	    if err == nil or err == false then
 		tb.brands, err = func_execute(tran,
@@ -181,7 +181,7 @@ select brand_id, descr from brands
     where hidden = 0 and manuf_id in (select manuf_id from manufacturers where competitor is null or competitor = 0)
 order by row_no, descr
 ]]
-		    , "//pos_materials/brands"
+		    , "/plugins/pos_materials/brands"
 		)
 	    end
 	    if err == nil or err == false then
@@ -191,7 +191,7 @@ select dep_id, descr from departments
     where hidden = 0
 order by descr, dep_id
 ]]
-		    , "//pos_materials/departments"
+		    , "/plugins/pos_materials/departments"
 	    )
 	    end
 	    if err == nil or err == false then
@@ -201,7 +201,7 @@ select country_id, descr from countries
     where hidden = 0
 order by row_no, descr
 ]]
-		    , "//pos_materials/countries"
+		    , "/plugins/pos_materials/countries"
 		)
 	    end
 	end
@@ -212,7 +212,7 @@ select placement_id, descr from placements
     where hidden = 0
 order by row_no, descr
 ]]
-		, "//pos_materials/placements"
+		, "/plugins/pos_materials/placements"
 	    )
 	end
 	if err == nil or err == false then
@@ -222,7 +222,7 @@ select chan_id, descr from channels
     where hidden = 0
 order by descr
 ]]
-		, "//pos_materials/channels"
+		, "/plugins/pos_materials/channels"
 	    )
 	end
 
@@ -234,7 +234,7 @@ order by descr
 select brand_id, descr, hidden from brands
     order by descr, row_no
 ]]
-		, "//pos_materials/_f/brands"
+		, "/plugins/pos_materials/_f/brands"
 	    )
 	end
 	if err == nil or err == false then
@@ -243,7 +243,7 @@ select brand_id, descr, hidden from brands
 select placement_id, descr, hidden from placements
     order by descr, row_no
 ]]
-		, "//pos_materials/_f/retail_chains"
+		, "/plugins/pos_materials/_f/retail_chains"
 	    )
 	end
 	if err == nil or err == false then
@@ -252,7 +252,7 @@ select placement_id, descr, hidden from placements
 select chan_id, descr, hidden from channels
     order by descr
 ]]
-		, "//pos_materials/_f/channels"
+		, "/plugins/pos_materials/_f/channels"
 	    )
 	end
 	if err == nil or err == false then
@@ -261,7 +261,7 @@ select chan_id, descr, hidden from channels
 select dep_id, descr, hidden from departments
     order by descr, dep_id
 ]]
-		, "//pos_materials/_f/departments"
+		, "/plugins/pos_materials/_f/departments"
 	    )
 	end
 	if err == nil or err == false then
@@ -270,7 +270,7 @@ select dep_id, descr, hidden from departments
 select country_id, descr, hidden from countries
     order by row_no, descr
 ]]
-		, "//planograms/_f/countries"
+		, "/plugins/planograms/_f/countries"
 	    )
 	end
 
@@ -284,7 +284,7 @@ local function blob(stor, posm_id)
 [[
 select posm_id, blob, content_type from pos_materials where posm_id = %posm_id%
 ]]
-	, "//pos_materials/blob", {posm_id = posm_id})
+	, "/plugins/pos_materials/blob", {posm_id = posm_id})
     end
     )
 end
@@ -294,7 +294,7 @@ local function author(stor, posm_id)
 [[
 select author_id from pos_materials where posm_id=%posm_id%
 ]]
-	, "//pos_materials/author/"
+	, "/plugins/pos_materials/author/"
 	, {posm_id = posm_id})
     end
     )
@@ -305,7 +305,7 @@ local function unlink(stor, uid, reqdt, posm_id)
 [[
 select console.req_pos_material(%req_uid%, %req_dt%, 'unlink', %posm_id%, null::console.pos_material_t) rv
 ]]
-        , "//pos_materials/unlink/"
+        , "/plugins/pos_materials/unlink/"
         , {req_uid = uid, req_dt = reqdt, posm_id = posm_id})
     end
     )
@@ -327,7 +327,7 @@ select console.req_pos_material(%req_uid%, %_datetime%, 'edit', %posm_id%, (
     )
 ) rv
 ]]
-	, "//pos_materials/edit/"
+	, "/plugins/pos_materials/edit/"
 	, params)
     end
     )
@@ -338,7 +338,7 @@ local function post(stor, uid, reqdt, blob, content_type)
 [[
 select console.req_pos_material(%req_uid%, %req_dt%/*, 'add'*/, %name%, %1:blob%, %content_type%) rv
 ]]
-	, "//pos_materials/add/"
+	, "/plugins/pos_materials/add/"
 	, {req_uid = uid, req_dt = reqdt, name = blob.name, content_type = content_type}
 	, blob.contents)
     end
@@ -413,7 +413,7 @@ function M.startup(lang, permtb, sestb, params, stor)
     return string.format("startup(%s);", json.encode(permtb));
 end
 
-function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor, res)
+function M.data(lang, method, permtb, sestb, params, content, content_type, stor, res)
     local tb, err
     if method == "GET" then
 	if params.blob ~= nil then

@@ -194,7 +194,7 @@ var PLUG = (function() {
     function _datareq(y, m) {
 	ProgressDialog.show();
 	_cache.data = null; // drop the internal cache
-	G.xhr("GET", G.getajax({plug: _code, year: y, month: m}), "json-js", function(xhr, data) {
+	G.xhr("GET", G.getdataref({plug: _code, year: y, month: m}), "json-js", function(xhr, data) {
 	    if( xhr.status == 200 && data != null && typeof data == 'object' ) {
 		_cache.data = data;
 		_markLatestRows(data.rows);
@@ -382,9 +382,9 @@ var PLUG = (function() {
 		return MonthsPopup(function(y, m) {
 		    var tmp = _tags.popups[obj];
 		    _datareq(y, m);
-		    history.replaceState({y:y, m:m}, "", G.getref({plug: _code, year: y, month: m}));
+		    history.replaceState({y:y, m:m}, "", G.getdefref({plug: _code, year: y, month: m}));
 		    _tags.popups = {}; _tags.popups[obj] = tmp;
-		}, {year: _cache.y, month: _cache.m, uri: G.getajax({plug: _code, calendar: true})})
+		}, {year: _cache.y, month: _cache.m, uri: G.getdataref({plug: _code, calendar: true})})
 	    });
 	},
 	users: function(tag, type, offset) {

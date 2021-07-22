@@ -107,7 +107,7 @@ var PLUG = (function() {
 			ar.push("&nbsp;");
 		    } else {
 			ar.push("<img class='clickable' onclick='PLUG.slideshow(" + r.blob_id + ")' height='90px' " + (k>=20?"data-src='":"src='") + 
-			    G.getajax({plug: _code, blob: "yes", thumb: "yes", blob_id: r.blob_id}) + "' />");
+			    G.getdataref({plug: _code, blob: "yes", thumb: "yes", blob_id: r.blob_id}) + "' />");
 		    }
 		    ar.push("</td>");
 		    ar.push("<td class='delim string note'>", G.shielding(r.doc_note), "</td>");
@@ -168,7 +168,7 @@ var PLUG = (function() {
     function _datareq(y, m) {
 	ProgressDialog.show();
 	_cache.data = null; // drop the internal cache
-	G.xhr("GET", G.getajax({plug: _code, year: y, month: m}), "json-js", function(xhr, data) {
+	G.xhr("GET", G.getdataref({plug: _code, year: y, month: m}), "json-js", function(xhr, data) {
 	    if( xhr.status == 200 && data != null && typeof data == 'object' ) {
 		_cache.data = data;
 		_tags.tbody.html(_datatbl(data, 1, _tags.total, _getfilter(), _cache.checked, _perm).join(""));
@@ -343,9 +343,9 @@ var PLUG = (function() {
 		return MonthsPopup(function(y, m) {
 		    var tmp = _tags.popups[obj];
 		    _datareq(y, m);
-		    history.replaceState({y:y, m:m}, "", G.getref({plug: _code, year: y, month: m}));
+		    history.replaceState({y:y, m:m}, "", G.getdefref({plug: _code, year: y, month: m}));
 		    _tags.popups = {}; _tags.popups[obj] = tmp;
-		}, {year: _cache.y, month: _cache.m, uri: G.getajax({plug: _code, calendar: true})})
+		}, {year: _cache.y, month: _cache.m, uri: G.getdataref({plug: _code, calendar: true})})
 	    });
 	},
 	users: function(tag, type, offset) {
@@ -377,7 +377,7 @@ var PLUG = (function() {
 	    });
 	},
 	slideshow: function(blob_id) {
-	    SlideshowSimple([G.getajax({plug: _code, blob: "yes", blob_id: blob_id})]).show();
+	    SlideshowSimple([G.getdataref({plug: _code, blob: "yes", blob_id: blob_id})]).show();
 	},
 	xlsx: function() {
 	    _toxlsx();

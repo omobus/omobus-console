@@ -57,7 +57,7 @@ order by j.inserted_ts desc, j.fix_dt desc
 ]]
 	if sestb.erpid ~= nil then
 	    tb.rows, err = func_execute(tran, qs:replace("$(0)", "j.user_id in (select * from my_staff(%user_id%, 0::bool_t)) and "),
-		"//discards/get", { user_id = sestb.erpid,
+		"/plugins/discards/get", { user_id = sestb.erpid,
 		    registered = (permtb.data ~= nil and permtb.data.registered == true) and 1 or 0,
 		    validated = (permtb.data ~= nil and permtb.data.validated == true) and 1 or 0,
 		    rejected = (permtb.data ~= nil and permtb.data.rejected == true) and 1 or 0,
@@ -65,7 +65,7 @@ order by j.inserted_ts desc, j.fix_dt desc
 		})
 	elseif sestb.department ~= nil or sestb.country ~= nil then
 	    tb.rows, err = func_execute(tran, qs:replace("$(0)", "(%dep_id% is null or u.dep_ids is null or u.dep_ids && string_to_array(%dep_id%,',')::uids_t) and (%country_id% is null or (u.country_id=any(string_to_array(%country_id%,',')::uids_t))) and "),
-		"//discards/get", { 
+		"/plugins/discards/get", { 
 		    dep_id = sestb.department == nil and stor.NULL or sestb.department,
 		    country_id = sestb.country == nil and stor.NULL or sestb.country,
 		    registered = (permtb.data ~= nil and permtb.data.registered == true) and 1 or 0,
@@ -75,7 +75,7 @@ order by j.inserted_ts desc, j.fix_dt desc
 		})
 	elseif sestb.distributor ~= nil then
 	    tb.rows, err = func_execute(tran, qs:replace("$(0)", "u.distr_ids && string_to_array(%distr_id%,',')::uids_t and "),
-		"//discards/get", { distr_id = sestb.distributor,
+		"/plugins/discards/get", { distr_id = sestb.distributor,
 		    registered = (permtb.data ~= nil and permtb.data.registered == true) and 1 or 0,
 		    validated = (permtb.data ~= nil and permtb.data.validated == true) and 1 or 0,
 		    rejected = (permtb.data ~= nil and permtb.data.rejected == true) and 1 or 0,
@@ -83,7 +83,7 @@ order by j.inserted_ts desc, j.fix_dt desc
 		})
 	elseif sestb.agency ~= nil then
 	    tb.rows, err = func_execute(tran, qs:replace("$(0)", "u.agency_id = any(string_to_array(%agency_id%,',')) and "),
-		"//discards/get", { agency_id = sestb.agency,
+		"/plugins/discards/get", { agency_id = sestb.agency,
 		    registered = (permtb.data ~= nil and permtb.data.registered == true) and 1 or 0,
 		    validated = (permtb.data ~= nil and permtb.data.validated == true) and 1 or 0,
 		    rejected = (permtb.data ~= nil and permtb.data.rejected == true) and 1 or 0,
@@ -91,7 +91,7 @@ order by j.inserted_ts desc, j.fix_dt desc
 		})
 	else
 	    tb.rows, err = func_execute(tran, qs:replace("$(0)", ""),
-		"//discards/get", {
+		"/plugins/discards/get", {
 		    registered = (permtb.data ~= nil and permtb.data.registered == true) and 1 or 0,
 		    validated = (permtb.data ~= nil and permtb.data.validated == true) and 1 or 0,
 		    rejected = (permtb.data ~= nil and permtb.data.rejected == true) and 1 or 0,
@@ -104,7 +104,7 @@ order by j.inserted_ts desc, j.fix_dt desc
 select user_id, descr, dev_login, area, hidden from users
     order by descr
 ]]
-		, "//discards/users/"
+		, "/plugins/discards/users/"
 	    )
 	end
 	if (permtb.columns or {}).channel == true and (err == nil or err == false) then
@@ -113,7 +113,7 @@ select user_id, descr, dev_login, area, hidden from users
 select chan_id, descr, hidden from channels
     order by descr
 ]]
-		, "//discards/channels/"
+		, "/plugins/discards/channels/"
 	    )
 	end
 	if (permtb.columns or {}).potential == true and (err == nil or err == false) then
@@ -122,7 +122,7 @@ select chan_id, descr, hidden from channels
 select poten_id, descr, hidden from potentials
     order by descr
 ]]
-		, "//discards/potentials/"
+		, "/plugins/discards/potentials/"
 	    )
 	end
 	if err == nil or err == false then
@@ -131,7 +131,7 @@ select poten_id, descr, hidden from potentials
 select rc_id, descr, ka_type, hidden from retail_chains
     order by descr
 ]]
-		, "//discards/retail_chains/"
+		, "/plugins/discards/retail_chains/"
 	    )
 	end
 	if err == nil or err == false then
@@ -140,7 +140,7 @@ select rc_id, descr, ka_type, hidden from retail_chains
 select discard_type_id, descr, hidden from discard_types
     order by row_no, descr
 ]]
-		, "//discards/discard_types/"
+		, "/plugins/discards/discard_types/"
 	    )
 	end
 	return tb, err
@@ -153,7 +153,7 @@ local function accept(stor, uid, reqdt, account_id, user_id, activity_type_id, r
 [[
 select console.req_discard(%req_uid%, %req_dt%, 'validate', %account_id%, %user_id%, %activity_type_id%, %route_date%)
 ]]
-	, "//discards/validate/"
+	, "/plugins/discards/validate/"
 	, {
 	    req_uid = uid, 
 	    req_dt = reqdt, 
@@ -171,7 +171,7 @@ local function reject(stor, uid, reqdt, account_id, user_id, activity_type_id, r
 [[
 select console.req_discard(%req_uid%, %req_dt%, 'reject', %account_id%, %user_id%, %activity_type_id%, %route_date%)
 ]]
-	, "//discards/reject/"
+	, "/plugins/discards/reject/"
 	, {
 	    req_uid = uid, 
 	    req_dt = reqdt, 
@@ -232,7 +232,7 @@ function M.startup(lang, permtb, sestb, params, stor)
     return string.format("startup(%s);", json.encode(permtb));
 end
 
-function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor, res)
+function M.data(lang, method, permtb, sestb, params, content, content_type, stor, res)
     local tb, err
     if method == "GET" then
 	tb, err = data(permtb, stor, sestb)

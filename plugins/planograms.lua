@@ -57,7 +57,7 @@ and (
     )
 )
 ]]
-		) , "//planograms/get", {
+		) , "/plugins/planograms/get", {
 		    user_id = sestb.erpid,
 		    country_id = sestb.country == nil and stor.NULL or sestb.country
 		}
@@ -72,7 +72,7 @@ select brand_id, descr from brands
 	    )
 order by row_no, descr
 ]]
-		    , "//planograms/brands", { 
+		    , "/plugins/planograms/brands", { 
 			user_id = sestb.erpid
 		    }
 		)
@@ -88,7 +88,7 @@ select rc_id, descr, ka_type, country_id from retail_chains
     )
 order by descr, ka_type, rc_id
 ]]
-		    , "//planograms/retail_chains", {
+		    , "/plugins/planograms/retail_chains", {
 			user_id = sestb.erpid,
 			country_id = sestb.country == nil and stor.NULL or sestb.country
 		    }
@@ -101,7 +101,7 @@ select dep_id, descr from departments
     where hidden = 0 and (select case when NIL(dep_id) is null or dep_id=any(dep_ids) then 1 else 0 end from users where user_id=%user_id%) > 0
 order by descr, dep_id
 ]]
-		    , "//planograms/departments", { 
+		    , "/plugins/planograms/departments", { 
 			user_id = sestb.erpid
 		    }
 		)
@@ -117,7 +117,7 @@ select country_id, descr from countries
     )
 order by row_no, descr
 ]]
-		    , "//planograms/countries", { 
+		    , "/plugins/planograms/countries", { 
 			user_id = sestb.erpid,
 			country_id = sestb.country == nil and stor.NULL or sestb.country 
 		    }
@@ -142,7 +142,7 @@ and (
     )
 )
 ]]
-		) ,"//planograms/get", { 
+		) ,"/plugins/planograms/get", { 
 		    dep_id = sestb.department == nil and stor.NULL or sestb.department,
 		    country_id = sestb.country == nil and stor.NULL or sestb.country,
 		    my = sestb.username
@@ -158,7 +158,7 @@ select brand_id, descr from brands
 	    )
 order by row_no, descr
 ]]
-		    , "//planograms/brands", { 
+		    , "/plugins/planograms/brands", { 
 			dep_id = sestb.department == nil and stor.NULL or sestb.department
 		    }
 		)
@@ -170,7 +170,7 @@ select rc_id, descr, ka_type, country_id from retail_chains
     where hidden = 0 and (%country_id% is null or country_id = any(string_to_array(%country_id%,',')::uids_t))
 order by descr, ka_type, rc_id
 ]]
-		    , "//planograms/retail_chains", {
+		    , "/plugins/planograms/retail_chains", {
 			country_id = sestb.country == nil and stor.NULL or sestb.country
 		    }
 		)
@@ -182,7 +182,7 @@ select dep_id, descr from departments
     where hidden = 0 and (%dep_id% is null or dep_id is null or dep_id=any(string_to_array(%dep_id%,',')::uids_t))
 order by descr, dep_id
 ]]
-		    , "//planograms/departments", {
+		    , "/plugins/planograms/departments", {
 			dep_id = sestb.department == nil and stor.NULL or sestb.department
 		}
 	    )
@@ -194,14 +194,14 @@ select country_id, descr from countries
     where hidden = 0 and (%country_id% is null or country_id = any(string_to_array(%country_id%,',')::uids_t))
 order by row_no, descr
 ]]
-		    , "//planograms/countries", { 
+		    , "/plugins/planograms/countries", { 
 			country_id = sestb.country == nil and stor.NULL or sestb.country 
 		    }
 		)
 	    end
 	else
 	    tb.rows, err = func_execute(tran, qs:replace("$(0)", ""),
-		"//planograms/get"
+		"/plugins/planograms/get"
 	    )
 	    if err == nil or err == false then
 		tb.brands, err = func_execute(tran,
@@ -210,7 +210,7 @@ select brand_id, descr from brands
     where hidden = 0 and manuf_id in (select manuf_id from manufacturers where competitor is null or competitor = 0)
 order by row_no, descr
 ]]
-		    , "//planograms/brands"
+		    , "/plugins/planograms/brands"
 		)
 	    end
 	    if err == nil or err == false then
@@ -220,7 +220,7 @@ select rc_id, descr, ka_type, country_id from retail_chains
     where hidden = 0
 order by descr, ka_type, rc_id
 ]]
-		    , "//planograms/retail_chains"
+		    , "/plugins/planograms/retail_chains"
 		)
 	    end
 	    if err == nil or err == false then
@@ -230,7 +230,7 @@ select dep_id, descr from departments
     where hidden = 0
 order by descr, dep_id
 ]]
-		    , "//info_materials/departments"
+		    , "/plugins/info_materials/departments"
 		)
 	    end
 	    if err == nil or err == false then
@@ -240,7 +240,7 @@ select country_id, descr from countries
     where hidden = 0
 order by row_no, descr
 ]]
-		    , "//planograms/countries"
+		    , "/plugins/planograms/countries"
 		)
 	    end
 	end
@@ -251,7 +251,7 @@ select chan_id, descr from channels
     where hidden = 0
 order by descr
 ]]
-		, "//planograms/channels"
+		, "/plugins/planograms/channels"
 	    )
 	end
 
@@ -263,7 +263,7 @@ order by descr
 select brand_id, descr, hidden from brands
     order by descr, row_no
 ]]
-		, "//planograms/_f/brands"
+		, "/plugins/planograms/_f/brands"
 	    )
 	end
 	if err == nil or err == false then
@@ -272,7 +272,7 @@ select brand_id, descr, hidden from brands
 select rc_id, descr, ka_type, country_id, hidden from retail_chains
     order by descr, ka_type
 ]]
-		, "//planograms/_f/retail_chains"
+		, "/plugins/planograms/_f/retail_chains"
 	    )
 	end
 	if err == nil or err == false then
@@ -281,7 +281,7 @@ select rc_id, descr, ka_type, country_id, hidden from retail_chains
 select chan_id, descr, hidden from channels
     order by descr
 ]]
-		, "//planograms/_f/channels"
+		, "/plugins/planograms/_f/channels"
 	    )
 	end
 	if err == nil or err == false then
@@ -290,7 +290,7 @@ select chan_id, descr, hidden from channels
 select dep_id, descr, hidden from departments
     order by descr, dep_id
 ]]
-		, "//planograms/_f/departments"
+		, "/plugins/planograms/_f/departments"
 	    )
 	end
 	if err == nil or err == false then
@@ -299,7 +299,7 @@ select dep_id, descr, hidden from departments
 select country_id, descr, hidden from countries
     order by row_no, descr
 ]]
-	    , "//planograms/_f/countries"
+	    , "/plugins/planograms/_f/countries"
 	    )
 	end
 
@@ -313,7 +313,7 @@ local function blob(stor, pl_id)
 [[
 select pl_id, blob, content_type from planograms where pl_id = %pl_id%
 ]]
-	, "//planograms/blob/", {pl_id = pl_id})
+	, "/plugins/planograms/blob/", {pl_id = pl_id})
     end
     )
 end
@@ -323,7 +323,7 @@ local function author(stor, pl_id)
 [[
 select author_id from planograms where pl_id=%pl_id%
 ]]
-	, "//planograms/author/"
+	, "/plugins/planograms/author/"
 	, {pl_id = pl_id})
     end
     )
@@ -334,7 +334,7 @@ local function unlink(stor, uid, reqdt, pl_id)
 [[
 select console.req_planogram(%req_uid%, %req_dt%, 'unlink', %pl_id%, null::console.planogram_t) rv
 ]]
-        , "//planograms/unlink/"
+        , "/plugins/planograms/unlink/"
         , {req_uid = uid, req_dt = reqdt, pl_id = pl_id})
     end
     )
@@ -356,7 +356,7 @@ select console.req_planogram(%req_uid%, %_datetime%, 'edit', %pl_id%, (
     )
 ) rv
 ]]
-	, "//planograms/edit/"
+	, "/plugins/planograms/edit/"
 	, params)
     end
     )
@@ -367,7 +367,7 @@ local function post(stor, uid, reqdt, blob, content_type)
 [[
 select console.req_planogram(%req_uid%, %req_dt%/*, 'add'*/, %name%, %1:blob%, %content_type%) rv
 ]]
-	, "//planograms/add/"
+	, "/plugins/planograms/add/"
 	, {req_uid = uid, req_dt = reqdt, name = blob.name, content_type = content_type}
 	, blob.contents)
     end
@@ -440,7 +440,7 @@ function M.startup(lang, permtb, sestb, params, stor)
     return string.format("startup(%s);", json.encode(permtb));
 end
 
-function M.ajax(lang, method, permtb, sestb, params, content, content_type, stor, res)
+function M.data(lang, method, permtb, sestb, params, content, content_type, stor, res)
     local tb, err
     if method == "GET" then
 	if params.blob ~= nil then

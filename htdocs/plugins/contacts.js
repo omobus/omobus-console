@@ -183,7 +183,7 @@ var PLUG = (function() {
     function _datareq() {
 	ProgressDialog.show();
 	_cache.data = null; // drop the internal cache
-	G.xhr("GET", G.getajax({plug: _code}), "json", function(xhr, data) {
+	G.xhr("GET", G.getdataref({plug: _code}), "json", function(xhr, data) {
 	    if( xhr.status == 200 && data != null && typeof data == 'object' ) {
 		_cache.data = data;
 		_tags.tbody.html(_datatbl(data, 1, _tags.total, _getfilter(), _cache.checked, _perm).join(""));
@@ -396,7 +396,7 @@ var PLUG = (function() {
 	    _page(1);
 	},
 	slideshow: function(contact_id) {
-	    SlideshowSimple([G.getajax({plug: _code, consent: "yes", contact_id: contact_id})]).show();
+	    SlideshowSimple([G.getdataref({plug: _code, consent: "yes", contact_id: contact_id})]).show();
 	},
 	xlsx: function() {
 	    _toxlsx();

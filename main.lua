@@ -12,86 +12,20 @@ local core = require 'core'
 
 local auth = require 'auth'
 local stor = require 'stor'
-local plugins = require 'plugins'
+
 local roles = require 'roles'
-local dumps = require 'dumps'
 local objects = require 'objects'
-local ark = require 'archive'
+local plugins = require 'plugins'
+local dumps = require 'dumps'
+local services = require 'services'
+
 
 local function REF(arg)
     return '/' .. V.package_code .. arg
 end
 
-local function photorequest(lang, params, stor, res)
-    if params == nil or params.ref == nil then
-	scgi.writeHeader(res, 400, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
-	scgi.writeBody(res, "Bad request")
-    else
-	local tb, err = stor.get(function(tran, func_execute) return func_execute(tran,
-[[
-select photo_get(%guid%::uuid) photo
-]]
-	    , "//photo"
-	    , {guid = params.ref}
-	    )
-	end
-	)
-	if err then
-	    scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
-	    scgi.writeBody(res, "Internal server error")
-	elseif tb == nil or #tb ~= 1 or tb[1].photo == nil then
-	    tb, err = ark.getJPEG('photo', {ref = params.ref})
-	    if err then
-		scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
-		scgi.writeBody(res, "Internal server error")
-	    elseif tb == nil then
-		scgi.writeHeader(res, 400, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
-		scgi.writeBody(res, "Bad request")
-	    else
-		scgi.writeHeader(res, 200, {["Content-Type"] = mime.jpeg})
-		scgi.writeBody(res, tb)
-	    end
-	else
-	    scgi.writeHeader(res, 200, {["Content-Type"] = mime.jpeg})
-	    scgi.writeBody(res, tb[1].photo)
-	end
-    end
-end
-
-local function thumbrequest(lang, params, stor, res)
-    if params == nil or params.ref == nil then
-	scgi.writeHeader(res, 400, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
-	scgi.writeBody(res, "Bad request")
-    else
-	local tb, err = stor.get(function(tran, func_execute) return func_execute(tran,
-[[
-select thumb_get(%guid%::uuid) photo
-]]
-	    , "//thumb"
-	    , {guid = params.ref}
-	    )
-	end
-	)
-	if err then
-	    scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
-	    scgi.writeBody(res, "Internal server error")
-	elseif tb == nil or #tb ~= 1 or tb[1].photo == nil then
-	    tb, err = ark.getJPEG('thumb', {ref = params.ref})
-	    if err then
-		scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
-		scgi.writeBody(res, "Internal server error")
-	    elseif tb == nil then
-		scgi.writeHeader(res, 400, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
-		scgi.writeBody(res, "Bad request")
-	    else
-		scgi.writeHeader(res, 200, {["Content-Type"] = mime.jpeg})
-		scgi.writeBody(res, tb)
-	    end
-	else
-	    scgi.writeHeader(res, 200, {["Content-Type"] = mime.jpeg})
-	    scgi.writeBody(res, tb[1].photo)
-	end
-    end
+local function SAFE(arg)
+    return arg or '-'
 end
 
 local function userparams(stor, user_id)
@@ -102,7 +36,7 @@ local function userparams(stor, user_id)
 [[
 select user_id, descr from users where user_id=%user_id%
 ]]
-		, "//main/u_params"
+		, "/main/u_params"
 		, {user_id = user_id}
 	    )
 	    tb = (tb ~= nil and #tb > 0) and tb[1] or {}
@@ -125,7 +59,7 @@ where sup.hidden = 0 and (
     )
 order by sup.row_no limit 10
 ]]
-	    , "//main/support"
+	    , "/main/support"
 	    , { user_id = user_id ~= nil and user_id or '' }
 	)
 
@@ -134,7 +68,7 @@ order by sup.row_no limit 10
 select param_id, ("monthDate_First"(current_date - "paramInteger"('dumps:depth')))::date_t param_value from sysparams 
     where param_id='dumps:depth' and param_value is not null
 ]]
-	    , "//main/sysparams"
+	    , "/main/sysparams"
 	)
 	if sysparams ~= nil then
 	    for i, v in ipairs(sysparams) do
@@ -175,7 +109,7 @@ select distinct right(content_code,length(content_code)-5) content_code from con
 select distinct content_code from content_stream 
     where content_code not like 'stat_%' and content_code not like 'tech_%' and content_code <> 'a_list' and content_blob is not null
 ]]
-	    , "//main/objects"
+	    , "/main/objects"
 	)
 	for k in pairs(perm) do
 	    idx1[k] = true
@@ -191,8 +125,6 @@ select distinct content_code from content_stream
 	    for i2, v2 in ipairs(objects[k]) do
 		if idx1[v2] == true and (f == false or idx2[v2] == true) then
 		    table.insert(ref, v2)
-		--else
-		--    log.i(string.format("- %s: %d ==> %s ",k, i2, v2))
 		end
 	    end
 	    if #ref > 0 then
@@ -253,7 +185,7 @@ local function default_page(lang, sestb, params, res, plug_data)
     table.insert(ar, '</head>')
     table.insert(ar, '<body>')
     table.insert(ar, '<table width="100%" class="topbar"><tr>' .. config.logo.main)
-    table.insert(ar, '<td><span class="logotitle" onclick="document.location=G.getref();">' .. config.title .. 
+    table.insert(ar, '<td><span class="logotitle" onclick="document.location=G.getdefref();">' .. config.title .. 
 	'&nbsp;</span><span class="logosubtitle">' .. config.subtitle .. '</span></td>')
     table.insert(ar, '<td align="right">')
     table.insert(ar, '<div style="text-align: right; white-space: nowrap;">')
@@ -331,7 +263,7 @@ function login_page(lang, params, ip, agent, res)
 	["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
     })
     scgi.writeBody(res, table.concat(ar,"\n"));
-    log.i(string.format("[audit] IP:%s requested the login form. %s.", ip, agent))
+    log.i(string.format("[audit] IP:%s => requested the login form using %s", ip, agent))
 end
 
 local function get_lang(lang)
@@ -350,192 +282,268 @@ function websvc_main()
 
 	    if env.HTTP_ACCEPT_LANGUAGE == nil then env.HTTP_ACCEPT_LANGUAGE = 'en' end
 
+	    local ip = env.REMOTE_ADDR
+	    local method = env.REQUEST_METHOD
 	    local script = (env.PATH_INFO ~= nil and #env.PATH_INFO > 0) and env.PATH_INFO or env.SCRIPT_NAME
 	    local params = uri.parseQuery(env.QUERY_STRING)
 	    local lang = get_lang(params.lang or string.sub(env.HTTP_ACCEPT_LANGUAGE,1,2))
 	    local sestb, roletb, permtb, q, sid, obsolete
 
 	    if script == nil or #script == 0 or script == REF('/about:echo') then
-		scgi.writeHeader(res, 200, {["Content-Type"] = mime.json .. "; charset=utf-8"})
-		scgi.writeBody(res, json.encode(env))
+		if method == 'GET' then
+		    log.i(string.format("[/about:echo] GET [from: %s]", ip));
+		    scgi.writeHeader(res, 200, {["Content-Type"] = mime.json .. "; charset=utf-8"})
+		    scgi.writeBody(res, json.encode(env))
+		else
+		    log.w(string.format("[/about:echo] %s [from: %s] => method dosn't supported", method, ip));
+		    scgi.writeHeader(res, 400, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
+		    scgi.writeBody(res, string.format("[%s] method dosn't supported.",method))
+		end
 	    elseif script == REF("/") or script == REF("/login") then
-		login_page(lang, params, env.REMOTE_ADDR, env.HTTP_USER_AGENT, res)
+		if method == 'GET' then
+		    log.i(string.format("[/login] GET [from: %s]", ip));
+		    login_page(lang, params, ip, env.HTTP_USER_AGENT, res)
+		else
+		    log.w(string.format("[/login] %s [from: %s] => method dosn't supported", method, ip));
+		    scgi.writeHeader(res, 400, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
+		    scgi.writeBody(res, string.format("[%s] method dosn't supported.",method))
+		end
 	    elseif script == REF("/auth") then
 		stor.init()
-		local pp = (env.REQUEST_METHOD == "POST" and type(content) == "string") and uri.parseQuery(content) or params
-		sid = auth.mySID(lang, pp, env.REMOTE_ADDR, stor)
+		local pp = (method == "POST" and type(content) == "string") and uri.parseQuery(content) or params
+		sid = auth.mySID(lang, pp, ip, stor)
 		if sid == nil then
+		    log.w(string.format("[/auth] %s [from: %s] => invalid username or password", method, ip));
 		    scgi.writeHeader(res, 400, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
 		    scgi.writeBody(res, 'Invalid username or password')
 		else
+		    log.i(string.format("[/auth] %s [from: %s]", method, ip));
 		    scgi.writeHeader(res, 200, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
 		    scgi.writeBody(res, string.format("%s?sid=%s&lang=%s", REF("/default"), sid, lang))
-		    log.i(string.format("[audit] IP:%s user is logged on as %s. SID=%s.", env.REMOTE_ADDR, pp.username, sid))
+		    log.i(string.format("[audit] IP:%s user is logged on as %s (SID:%s)", ip, pp.username, sid))
 		end
 		stor.cleanup()
 	    elseif script == REF("/logout") then
 		stor.init()
-		sestb = auth.killSID(params.sid, env.REMOTE_ADDR, stor)
+		sestb = auth.killSID(params.sid, ip, stor)
+		log.i(string.format("[/logout] %s => sid:%s [from: %s]", method, SAFE(params.sid), ip));
 		if sestb ~= nil then
 		    scgi.writeHeader(res, 301, {["Location"] = REF("/")})
-		    log.i(string.format("[audit] IP:%s user %s logs out. SID=%s.", env.REMOTE_ADDR, sestb.username, params.sid))
+		    log.i(string.format("[audit] IP:%s user %s logs out (SID:%s).", ip, sestb.username, params.sid))
 		else 
 		    scgi.writeHeader(res, 302, {["Location"] = string.format("%s?msgcode=invalid&lang=%s", REF("/login"), lang)})
 		    scgi.writeBody(res, "Invalid session")
-		    log.w(string.format("[audit] IP:%s user logs out: invalid session. SID=%s.", env.REMOTE_ADDR, params.sid == nil and '-' or params.sid))
+		    log.w(string.format("[audit] IP:%s => invalid session (SID: %s).", ip, params.sid == nil and '-' or params.sid))
 		end
 		stor.cleanup()
 	    elseif script == REF("/keep-alive") then
 		stor.init()
-		sestb, obsolete = auth.validate(params.sid, env.REMOTE_ADDR, stor)
+		sestb, obsolete = auth.validate(params.sid, ip, stor)
 		if sestb ~= nil then
+		    log.i(string.format("[/keep-alive] %s => sid:%s [from: %s]", method, SAFE(params.sid), ip));
 		    scgi.writeHeader(res, 200, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
 		elseif obsolete == 1 then
+		    log.w(string.format("[/keep-alive] %s => sid:%s [from: %s] => obsolete session", method, SAFE(params.sid), ip));
 		    scgi.writeHeader(res, 401, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
 		    scgi.writeBody(res, "Obsolete session")
 		else
+		    log.w(string.format("[/keep-alive] %s => sid:%s [from: %s] => invalid session", method, SAFE(params.sid), ip));
 		    scgi.writeHeader(res, 401, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
 		    scgi.writeBody(res, "Invalid session")
 		end
 		stor.cleanup()
 	    elseif script == REF("/default") then
-		stor.init()
-		sestb, obsolete = auth.validate(params.sid, env.REMOTE_ADDR, stor)
-		if sestb ~= nil then
-		    roletb = roles.get(sestb.group)
-		    if roletb ~= nil and roletb.permissions ~= nil and roletb.permissions ~= nil then
-			q = params.plug ~= nil and params.plug or roletb.home
-			if q == nil then
-			    scgi.writeHeader(res, 400, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
-			    scgi.writeBody(res, "Bad request")
-			else
-			    permtb = roletb.permissions[q]
-			    if permtb == nil then
+		if method == 'GET' then
+		    stor.init()
+		    sestb, obsolete = auth.validate(params.sid, ip, stor)
+		    if sestb ~= nil then
+			roletb = roles.get(sestb.group)
+			if roletb ~= nil and roletb.permissions ~= nil and roletb.permissions ~= nil then
+			    q = params.plug ~= nil and params.plug or roletb.home
+			    if q == nil then
+				log.w(string.format("[/default] %s => sid:%s, role:%s [from: %s] => bad request", 
+				    method, SAFE(params.sid), SAFE(sestb.group), ip));
 				scgi.writeHeader(res, 400, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
 				scgi.writeBody(res, "Bad request")
 			    else
-				default_page(lang, sestb, params, res, plugins.get(q).scripts(lang, permtb, sestb, params))
+				permtb = roletb.permissions[q]
+				if permtb == nil then
+				    log.w(string.format("[/default] %s => sid:%s, role:%s, plug:%s [from: %s] => not permitted", 
+					method, SAFE(params.sid), SAFE(sestb.group), q, ip));
+				    scgi.writeHeader(res, 400, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
+				    scgi.writeBody(res, "Not permitted")
+				else
+				    log.w(string.format("[/default] %s => sid:%s, role:%s, plug:%s [from: %s]", 
+					method, SAFE(params.sid), SAFE(sestb.group), q, ip));
+				    default_page(lang, sestb, params, res, plugins.get(q).scripts(lang, permtb, sestb, params))
+				end
 			    end
+			else
+			    log.i(string.format("[/default] %s => sid:%s, role:%s [from: %s] => bad request", 
+				method, SAFE(params.sid), SAFE(sestb.group), ip));
+			    scgi.writeHeader(res, 400, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
+			    scgi.writeBody(res, "Bad request")
 			end
+
+		    elseif obsolete == 1 then
+			log.w(string.format("[/default] %s => sid:%s [from: %s] => obsolete session", method, SAFE(params.sid), ip));
+			scgi.writeHeader(res, 302, {["Location"] = string.format("%s?msgcode=obsolete&lang=%s", REF("/login"), lang)})
+			scgi.writeBody(res, "Obsolete session")
 		    else
-			scgi.writeHeader(res, 400, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
-			scgi.writeBody(res, "Bad request")
+			log.w(string.format("[/default] %s => sid:%s [from: %s] => invalid session", method, SAFE(params.sid), ip));
+			scgi.writeHeader(res, 302, {["Location"] = string.format("%s?msgcode=invalid&lang=%s", REF("/login"), lang)})
+			scgi.writeBody(res, "Invalid session")
 		    end
-		elseif obsolete == 1 then
-		    scgi.writeHeader(res, 302, {["Location"] = string.format("%s?msgcode=obsolete&lang=%s", REF("/login"), lang)})
-		    scgi.writeBody(res, "Obsolete session")
+		    stor.cleanup()
 		else
-		    scgi.writeHeader(res, 302, {["Location"] = string.format("%s?msgcode=invalid&lang=%s", REF("/login"), lang)})
-		    scgi.writeBody(res, "Invalid session")
+		    log.w(string.format("[/default] %s => sid:%s [from: %s] => method dosn't supported", method, SAFE(params.sid), ip));
+		    scgi.writeHeader(res, 400, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
+		    scgi.writeBody(res, string.format("[%s] method dosn't supported.",method))
 		end
-		stor.cleanup()
 	    elseif script == REF("/startup") then
-		stor.init()
-		sestb, obsolete = auth.validate(params.sid, env.REMOTE_ADDR, stor)
-		if sestb ~= nil then
-		    roletb = roles.get(sestb.group)
-		    if roletb ~= nil and roletb.permissions ~= nil and roletb.permissions ~= nil then
-			q = params.plug ~= nil and params.plug or roletb.home
-			if q == nil then
-			    scgi.writeHeader(res, 400, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
-			    scgi.writeBody(res, "Bad request")
-			else
-			    permtb = roletb.permissions[q]
-			    if permtb == nil then
+		if method == 'GET' then
+		    stor.init()
+		    sestb, obsolete = auth.validate(params.sid, ip, stor)
+		    if sestb ~= nil then
+			roletb = roles.get(sestb.group)
+			if roletb ~= nil and roletb.permissions ~= nil and roletb.permissions ~= nil then
+			    q = params.plug ~= nil and params.plug or roletb.home
+			    if q == nil then
+				log.w(string.format("[/startup] %s => sid:%s, role:%s [from: %s] => bad request", 
+				    method, SAFE(params.sid), SAFE(sestb.group), ip));
 				scgi.writeHeader(res, 400, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
 				scgi.writeBody(res, "Bad request")
 			    else
-				startup_script(lang, 
-				    sestb,
-				    userparams(stor, sestb.erpid), 
-				    selectableobjects(stor,roletb.permissions),
-				    dumps.list(config, sestb.username),
-				    res, 
-				    plugins.get(q).startup(lang, permtb, sestb, params, stor)
-				)
+				permtb = roletb.permissions[q]
+				if permtb == nil then
+				    log.w(string.format("[/startup] %s => sid:%s, role:%s, plug:%s [from: %s] => not permitted", 
+					method, SAFE(params.sid), SAFE(sestb.group), q, ip));
+				    scgi.writeHeader(res, 400, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
+				    scgi.writeBody(res, "Not permitted")
+				else
+				    log.i(string.format("[/startup] %s => sid:%s, role:%s, plug:%s [from: %s]", 
+					method, SAFE(params.sid), SAFE(sestb.group), q, ip));
+				    startup_script(lang, 
+					sestb,
+					userparams(stor, sestb.erpid), 
+					selectableobjects(stor,roletb.permissions),
+					dumps.list(config, sestb.username),
+					res, 
+					plugins.get(q).startup(lang, permtb, sestb, params, stor)
+				    )
+				end
 			    end
+			else
+			    log.w(string.format("[/startup] %s => sid:%s, role:%s [from: %s] => bad request", 
+				method, SAFE(params.sid), SAFE(sestb.group), ip));
+			    scgi.writeHeader(res, 400, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
+			    scgi.writeBody(res, "Bad request")
 			end
+		    elseif obsolete == 1 then
+			log.w(string.format("[/startup] %s => sid:%s [from: %s] => obsolete session", method, SAFE(params.sid), ip));
+			scgi.writeHeader(res, 401, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
+			scgi.writeBody(res, "Obsolete session")
 		    else
-			scgi.writeHeader(res, 400, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
-			scgi.writeBody(res, "Bad request")
+			log.w(string.format("[/startup] %s => sid:%s [from: %s] => invalid session", method, SAFE(params.sid), ip));
+			scgi.writeHeader(res, 401, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
+			scgi.writeBody(res, "Invalid session")
 		    end
-		elseif obsolete == 1 then
-		    scgi.writeHeader(res, 401, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
-		    scgi.writeBody(res, "Obsolete session")
+		    stor.cleanup()
 		else
-		    scgi.writeHeader(res, 401, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
-		    scgi.writeBody(res, "Invalid session")
+		    log.w(string.format("[/startup] %s => sid:%s [from: %s] => method dosn't supported", method, SAFE(params.sid), ip));
+		    scgi.writeHeader(res, 400, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
+		    scgi.writeBody(res, string.format("[%s] method dosn't supported.",method))
 		end
-		stor.cleanup()
-	    elseif script == REF("/ajax") then
+	    elseif script == REF("/data") then
 		stor.init()
-		sestb, obsolete = auth.validate(params.sid, env.REMOTE_ADDR, stor)
+		sestb, obsolete = auth.validate(params.sid, ip, stor)
 		if sestb ~= nil then
 		    roletb = roles.get(sestb.group)
 		    if roletb == nil or roletb.permissions == nil or roletb.permissions == nil then
+			log.w(string.format("[/data] %s => sid:%s, role:%s [from: %s] => bad request", 
+			    method, SAFE(params.sid), SAFE(sestb.group), ip));
 			scgi.writeHeader(res, 400, {["Content-Type"] = mime.json .. "; charset=utf-8"})
 			scgi.writeBody(res, "{\"msg\":\"Bad request\"}")
 		    else
 			q = params.plug ~= nil and params.plug or roletb.home
 			if q == nil then
+			    log.w(string.format("[/data] %s => sid:%s, role:%s [from: %s] => bad request", 
+				method, SAFE(params.sid), SAFE(sestb.group), ip));
 			    scgi.writeHeader(res, 400, {["Content-Type"] = mime.json .. "; charset=utf-8"})
 			    scgi.writeBody(res, "{\"msg\":\"Bad request\"}")
 			else
 			    permtb = roletb.permissions[q]
 			    if permtb == nil then
+				log.w(string.format("[/data] %s => sid:%s, role:%s, plug:%s [from: %s] => not permitted", 
+				    method, SAFE(params.sid), SAFE(sestb.group), q, ip));
 				scgi.writeHeader(res, 403, {["Content-Type"] = mime.json .. "; charset=utf-8"})
-				scgi.writeBody(res, "{\"msg\":\"Access denied\"}")
+				scgi.writeBody(res, "{\"msg\":\"Not permitted\"}")
 			    else
-				plugins.get(q).ajax(lang, env.REQUEST_METHOD, permtb, sestb, 
-				    params, content, env.CONTENT_TYPE, stor, res)
+				log.i(string.format("[/data] %s => sid:%s, role:%s, plug:%s [from: %s]", 
+				    method, SAFE(params.sid), SAFE(sestb.group), q, ip));
+				plugins.get(q).data(lang, method, permtb, sestb, params, content, env.CONTENT_TYPE, stor, res)
 			    end
 			end
 		    end
 		elseif obsolete == 1 then
+		    log.w(string.format("[/data] %s => sid:%s [from: %s] => obsolete session", method, SAFE(params.sid), ip));
 		    scgi.writeHeader(res, 401, {["Content-Type"] = mime.json .. "; charset=utf-8"})
 		    scgi.writeBody(res, "{\"msg\":\"Obsolete session\"}")
 		else
+		    log.w(string.format("[/data] %s => sid:%s [from: %s] => invalid session", method, SAFE(params.sid), ip));
 		    scgi.writeHeader(res, 401, {["Content-Type"] = mime.json .. "; charset=utf-8"})
 		    scgi.writeBody(res, "{\"msg\":\"Invalid session\"}")
 		end
 		stor.cleanup()
-	    elseif script == REF("/photo") then
-		stor.init()
-		photorequest(lang, params, stor, res)
-		stor.cleanup()
-	    elseif script == REF("/thumb") then
-		stor.init()
-		thumbrequest(lang, params, stor, res)
-		stor.cleanup()
 	    elseif script == REF("/dump") and params.name ~= nil then
-		stor.init()
-		sestb, obsolete = auth.validate(params.sid, env.REMOTE_ADDR, stor)
-		if sestb ~= nil then
-		    local dumptb = dumps.get(config, sestb.username, params.name)
-		    if dumptb == nil then
-			scgi.writeHeader(res, 400, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
-			scgi.writeBody(res, "Bad request")
-		    elseif dumptb.name == nil or dumptb.data == nil then
-			scgi.writeHeader(res, 404, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
-			scgi.writeBody(res, "Not Found")
-		    else
-			scgi.writeHeader(res, 200, {
+		if method == 'GET' then
+		    stor.init()
+		    sestb, obsolete = auth.validate(params.sid, ip, stor)
+		    if sestb ~= nil then
+			local dumptb = dumps.get(config, sestb.username, params.name)
+			if dumptb == nil then
+			    log.w(string.format("[/data] %s => sid:%s, name:%s [from: %s] => bad request", 
+				method, SAFE(params.sid), params.name, ip));
+			    scgi.writeHeader(res, 400, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
+			    scgi.writeBody(res, "Bad request")
+			elseif dumptb.name == nil or dumptb.data == nil then
+			    log.w(string.format("[/data] %s => sid:%s, name:%s [from: %s] => not found", 
+				method, SAFE(params.sid), params.name, ip));
+			    scgi.writeHeader(res, 404, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
+			    scgi.writeBody(res, "Not Found")
+			else
+			    log.i(string.format("[/data] %s => sid:%s, name:%s [from: %s]", 
+				method, SAFE(params.sid), params.name, ip));
+			    scgi.writeHeader(res, 200, {
 				["Content-Type"] = mime.zip,
 				["Content-Disposition"] = "inline; filename=\"" .. dumptb.name .. "\""
 			    })
-			scgi.writeBody(res, dumptb.data)
+			    scgi.writeBody(res, dumptb.data)
+			end
+		    elseif obsolete == 1 then
+			log.w(string.format("[/dump] %s => sid:%s [from: %s] => obsolete session", method, SAFE(params.sid), ip));
+			scgi.writeHeader(res, 401, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
+			scgi.writeBody(res, "Obsolete session")
+		    else
+			log.w(string.format("[/dump] %s => sid:%s [from: %s] => invalid session", method, SAFE(params.sid), ip));
+			scgi.writeHeader(res, 401, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
+			scgi.writeBody(res, "Invalid session")
 		    end
-		elseif obsolete == 1 then
-		    scgi.writeHeader(res, 401, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
-		    scgi.writeBody(res, "Obsolete session")
+		    stor.cleanup()
 		else
-		    scgi.writeHeader(res, 401, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
-		    scgi.writeBody(res, "Invalid session")
+		    log.w(string.format("[/dump] %s => sid:%s [from: %s] => method dosn't supported", method, SAFE(params.sid), ip));
+		    scgi.writeHeader(res, 400, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
+		    scgi.writeBody(res, string.format("[%s] method dosn't supported.",method))
 		end
-		stor.cleanup()
-	    else
-		scgi.writeHeader(res, 400, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
-		scgi.writeBody(res, "Bad request")
+	    else -- public services
+		local svc = services.get(string.match(script, '/' .. V.package_code .. '/(%w+)'))
+		if svc ~= nil then
+		    svc.main(lang, ip, method, params, content, env.CONTENT_TYPE, res)
+		else 
+		    log.w(string.format("request: %s, method: %s, from: %s => ignored", script, method, ip));
+		    scgi.writeHeader(res, 400, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
+		    scgi.writeBody(res, "Bad request")
+		end
 	    end
 
 	    return 0

@@ -114,7 +114,7 @@ var PLUG = (function() {
 			ar.push("<a href='javascript:void(0);' onclick='PLUG.slideshow(\"", r.pl_id, "\")'>",
 			    r.blob_size ? G.getnumeric_l(r.blob_size/1024, 1) : lang.dash, "</a>");
 		    } else {
-			ar.push("<a href='", G.getajax({plug: _code, pl_id: r.pl_id, blob: true}), "' target='_blank'>",
+			ar.push("<a href='", G.getdataref({plug: _code, pl_id: r.pl_id, blob: true}), "' target='_blank'>",
 			    r.blob_size ? G.getnumeric_l(r.blob_size/1024, 1) : lang.dash, "</a>");
 		    }
 		    ar.push("</td>");
@@ -294,7 +294,7 @@ var PLUG = (function() {
 	ProgressDialog.show();
 	_cache.data = null; // drop the internal cache
 	_cache.page = null;
-	G.xhr("GET", G.getajax({plug: _code}), "json", function(xhr, data) {
+	G.xhr("GET", G.getdataref({plug: _code}), "json", function(xhr, data) {
 	    if( xhr.status == 200 && data != null && typeof data == 'object' ) {
 		//console.log(data);
 		_tags.tbody.html(_datatbl(data, 1, _tags.total, _getfilter(), _cache.checked, _perm).join(""));
@@ -333,7 +333,7 @@ var PLUG = (function() {
 		fd.append("_datetime", G.getdatetime(new Date()));
 		fd.append("blob", f, f.name.replace(/\.[^/.]+$/, ""));
 		fd.append("content_type", f.type);
-		xhr = G.xhr("POST", G.getajax({plug: _code}), "json", function(xhr, resp) {
+		xhr = G.xhr("POST", G.getdataref({plug: _code}), "json", function(xhr, resp) {
 		    if( xhr.status == 200 ) {
 			PLUG.refresh();
 		    } else {
@@ -432,7 +432,7 @@ var PLUG = (function() {
 	    });
 	},
 	slideshow: function(arg) {
-	    SlideshowSimple([G.getajax({plug: _code, blob: "yes", pl_id: arg})]).show();
+	    SlideshowSimple([G.getdataref({plug: _code, blob: "yes", pl_id: arg})]).show();
 	},
 	drop: function(files) {
 	    if( _perm.add ) {
@@ -709,7 +709,7 @@ var PLUG = (function() {
 			dialogObject.startSpinner();
 			alertView.hide();
 
-			G.xhr("PUT", G.getajax({plug: _code, pl_id: data.pl_id}), "json", function(xhr, resp) {
+			G.xhr("PUT", G.getdataref({plug: _code, pl_id: data.pl_id}), "json", function(xhr, resp) {
 			    if( xhr.status == 200 ) {
 				PLUG.refresh();
 				dialogObject.hide();
@@ -730,7 +730,7 @@ var PLUG = (function() {
 	    fd.append("_datetime", G.getdatetime(new Date()));
 	    ProgressDialog.show();
 	    tag.style.visibility = 'hidden';
-	    G.xhr("DELETE", G.getajax({plug: _code, pl_id: pl_id}), "", function(xhr) {
+	    G.xhr("DELETE", G.getdataref({plug: _code, pl_id: pl_id}), "", function(xhr) {
 		if( xhr.status == 200 ) {
 		    var indexElement = _cache.data.rows.findIndex(function(v) {
 			return v.pl_id == pl_id;

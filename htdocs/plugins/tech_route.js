@@ -776,7 +776,7 @@ var __route = (function() {
 			ar.push("&nbsp;");
 		    } else {
 			ar.push("<img class='clickable' onclick='PLUG.slideshow([", e.blob_id, "],1)' height='90px' src='",
-			    G.getajax({plug: "tech", blob: "yes", thumb: "yes", blob_id: e.blob_id}), "' />");
+			    G.getdataref({plug: "tech", blob: "yes", thumb: "yes", blob_id: e.blob_id}), "' />");
 		    }
 		    ar.push("</td>");
 		    ar.push("<td class='string", xs, "'>");
@@ -820,7 +820,7 @@ var __route = (function() {
 			ar.push("&nbsp;");
 		    } else {
 			ar.push("<img class='clickable' onclick='PLUG.slideshow([", e.blob_id, "],1)' height='90px' src='",
-			    G.getajax({plug: "tech", blob: "yes", thumb: "yes", blob_id: e.blob_id}), "' />");
+			    G.getdataref({plug: "tech", blob: "yes", thumb: "yes", blob_id: e.blob_id}), "' />");
 		    }
 		    ar.push("</td>");
 		    ar.push("<td class='string", xs, "'>", G.shielding(e.doc_note), "</td>");
@@ -1468,7 +1468,7 @@ var __route = (function() {
 		    ar.push("&nbsp;");
 		} else {
 		    ar.push("<img class='clickable' onclick='PLUG.slideshow([", r.blob_id, "],1)' height='90px' src='",
-			G.getajax({plug: "tech", blob: "yes", thumb: "yes", blob_id: r.blob_id}), "' />");
+			G.getdataref({plug: "tech", blob: "yes", thumb: "yes", blob_id: r.blob_id}), "' />");
 		}
 		ar.push("</td>");
 		ar.push("<td class='string", xs, "'>");
@@ -1509,7 +1509,7 @@ var __route = (function() {
 		    ar.push("&nbsp;");
 		} else {
 		    ar.push("<img class='clickable' onclick='PLUG.slideshow([", r.blob_id, "],1)' height='90px' src='",
-			G.getajax({plug: "tech", blob: "yes", thumb: "yes", blob_id: r.blob_id}), "' />");
+			G.getdataref({plug: "tech", blob: "yes", thumb: "yes", blob_id: r.blob_id}), "' />");
 		}
 		ar.push("</td>");
 		ar.push("<td class='string", xs, "'>", G.shielding(r.doc_note), "</td>");
@@ -2209,7 +2209,7 @@ var __route = (function() {
 	    } else {
 		ProgressDialog.show();
 		_cache.data[user_id] = null; // drops the internal cache
-		G.xhr("GET", G.getajax({plug: "tech", code: "tech_route", user_id: user_id, date: G.getdate(date)}), "json", function(xhr, data) {
+		G.xhr("GET", G.getdataref({plug: "tech", code: "tech_route", user_id: user_id, date: G.getdate(date)}), "json", function(xhr, data) {
 		    if( xhr.status == 200 &&  data != null && typeof data == 'object' ) {
 /* obsolete after 2022.06 BEGIN */
 for( k in data.audits) { data.audits[k].forEach(function(arg) { if( !Array.isArray(arg.rows) && Array.isArray(arg.criterias) ) arg.rows = arg.criterias; }); }
@@ -2258,7 +2258,7 @@ for( k in data.shelfs) { data.shelfs[k].forEach(function(arg) { if( !Array.isArr
 	    var x = new Popup(), zaccept, zreject, znote, zalert;
 	    var ptr = _cache.data[user_id]._c[row_no].ptr;
 	    var commit = function(self, method) {
-		var xhr = G.xhr(method, G.getajax({plug: 'tech'}), "", function(xhr) {
+		var xhr = G.xhr(method, G.getdataref({plug: 'tech'}), "", function(xhr) {
 		    if( xhr.status == 200 ) {
 			ptr.zstatus = method == 'PUT' ? 'accepted' : /*method == 'DELETE'*/'rejected';
 			ptr.znote = ptr._znote;

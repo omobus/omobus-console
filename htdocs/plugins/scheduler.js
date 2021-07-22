@@ -270,7 +270,7 @@ var PLUG = (function() {
 		dialogObject.startSpinner();
 		alertView.hide();
 		if( typeof newJob.type == 'undefined' || newJob.type == '' ) {
-		    G.xhr("DELETE", G.getajax(par), "json", function(xhr, resp) {
+		    G.xhr("DELETE", G.getdataref(par), "json", function(xhr, resp) {
 			if( xhr.status == 200 && typeof resp.updated_rows != 'undefined' && resp.updated_rows > 0 ) {
 			    ptr.jobs[num-1] = {};
 			    tag.html("");
@@ -291,7 +291,7 @@ var PLUG = (function() {
 		    } else if( newJob.type == 'account' ) {
 			xz.a_name = newJob.a_name;
 		    }
-		    var xhr = G.xhr("PUT", G.getajax(par), "json", function(xhr, resp) {
+		    var xhr = G.xhr("PUT", G.getdataref(par), "json", function(xhr, resp) {
 			if( xhr.status == 200 ) {
 			    if( typeof resp.updated_rows != 'undefined' && resp.updated_rows > 0 ) {
 				ptr.jobs[num-1] = xz;
@@ -335,7 +335,7 @@ var PLUG = (function() {
 
     function _schedreq(params, updateHistory, perm) {
 	ProgressDialog.show();
-	G.xhr("GET", G.getajax(Object.assign({plug:_code}, params)), "json", function(xhr, data) {
+	G.xhr("GET", G.getdataref(Object.assign({plug:_code}, params)), "json", function(xhr, data) {
 	    if( xhr.status == 200 && data != null && typeof data == 'object' ) {
 		//console.log(data);
 		_tags.sched.html(_schedtbl(data, perm).join(""));
@@ -421,7 +421,7 @@ var PLUG = (function() {
 		_tags.sched.html(_warntbl(xhr.status == 403 ? lang.errors.not_permitted : lang.errors.runtime).join(""));
 	    }
 	    if( updateHistory ) {
-		history.replaceState(params, "", G.getref(Object.assign({plug:_code}, params)));
+		history.replaceState(params, "", G.getdefref(Object.assign({plug:_code}, params)));
 	    }
 	    _tags.popups = {};
 	    ProgressDialog.hide();
