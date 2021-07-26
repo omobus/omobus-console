@@ -39,8 +39,7 @@ select
     x.extra_info,
     x.author_id, coalesce(au.descr, x.author_id) author,
     x.updated_ts,
-    x."_isAlienData",
-    case when x.consent is not null then 1 else null end "_isConsentExist"
+    x."_isAlienData"
 from contacts x 
     left join job_titles j on j.job_title_id = x.job_title_id
     left join loyalty_levels l on l.loyalty_level_id = x.loyalty_level_id
@@ -167,17 +166,6 @@ select loyalty_level_id, descr, hidden from loyalty_levels
     )
 end
 
-local function consent(stor, contact_id)
-    return stor.get(function(tran, func_execute) return func_execute(tran,
-[[
-select consent from contacts where contact_id = %contact_id%
-]]
-	, "/plugins/contacts/consent"
-	, {contact_id = contact_id})
-    end
-    )
-end
-
 local function compress(arg)
     return zlib.deflate(6):finish(arg)
 end
@@ -217,7 +205,6 @@ function M.scripts(lang, permtb, sestb, params)
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.jobtitles.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.loyaltylevels.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.users.js"> </script>')
-    table.insert(ar, '<script src="' .. V.static_prefix .. '/slideshow.simple.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/plugins/contacts.js"> </script>')
     return table.concat(ar,"\n")
 end
@@ -229,34 +216,16 @@ end
 function M.data(lang, method, permtb, sestb, params, content, content_type, stor, res)
     local tb, err
     if method == "GET" then
-	if params.consent ~= nil and params.contact_id ~= nil then
-	    -- validate input data
-	    assert(validate.isuid(params.contact_id), "invalid [contact_id] parameter.")
-	    -- execute query
-	    tb, err = consent(stor, params.contact_id)
-	    if err then
-		scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
-		scgi.writeBody(res, "Internal server error")
-	    elseif tb == nil or #tb ~= 1 or tb[1].consent == nil then
-		scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
-		scgi.writeBody(res, "Invalid input parameters")
-	    else
-		scgi.writeHeader(res, 200, {["Content-Type"] = mime.jpeg})
-		scgi.writeBody(res, tb[1].consent)
-	    end
+	tb, err = data(stor, permtb.columns or {}, sestb)
+	if err then
+	    scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
+	    scgi.writeBody(res, "Internal server error")
+	elseif tb == nil or tb.rows == nil then
+	    scgi.writeHeader(res, 200, {["Content-Type"] = mime.json .. "; charset=utf-8"})
+	    scgi.writeBody(res, "{}")
 	else
-	    -- execute query
-	    tb, err = data(stor, permtb.columns or {}, sestb)
-	    if err then
-		scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
-		scgi.writeBody(res, "Internal server error")
-	    elseif tb == nil or tb.rows == nil then
-		scgi.writeHeader(res, 200, {["Content-Type"] = mime.json .. "; charset=utf-8"})
-		scgi.writeBody(res, "{}")
-	    else
-		scgi.writeHeader(res, 200, {["Content-Type"] = mime.json .. "; charset=utf-8", ["Content-Encoding"] = "deflate"})
-		scgi.writeBody(res, compress(json.encode(personalize(tb))))
-	    end
+	    scgi.writeHeader(res, 200, {["Content-Type"] = mime.json .. "; charset=utf-8", ["Content-Encoding"] = "deflate"})
+	    scgi.writeBody(res, compress(json.encode(personalize(tb))))
 	end
     else
 	scgi.writeHeader(res, 400, {["Content-Type"] = mime.txt .. "; charset=utf-8"})

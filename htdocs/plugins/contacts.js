@@ -12,7 +12,7 @@ var PLUG = (function() {
     }
 
     function _getcolumns(perm) {
-	let x = 13, c = perm.columns || {};
+	let x = 12, c = perm.columns || {};
 	if( c.channel == true ) x++;
 	if( c.loyalty == true ) x++;
 	return x;
@@ -45,7 +45,6 @@ var PLUG = (function() {
 	if( perm.columns != null && perm.columns.channel == true ) {
 	    ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.channels(this)'>", lang.chan_name, "</a></th>");
 	}
-	ar.push("<th class='symbol'><a href='javascript:void(0)' onclick='PLUG.consent(this)'>", "&#x203B;", "<a/></th>");
 	ar.push("<th>", lang.note, "</th>");
 	ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"author\",0.90)'>", lang.author, "</a></th>");
 	ar.push("<th>", "&#9850;", "</th>");
@@ -56,7 +55,6 @@ var PLUG = (function() {
 	ar.push(JobTitlesPopup.container());
 	ar.push(LoyaltyLevelsPopup.container());
 	ar.push(UsersPopup.container("authorsPopup"));
-	ar.push(SlideshowSimple.container());
 	return ar;
     }
 
@@ -69,18 +67,31 @@ var PLUG = (function() {
 	}
 	a.push(_tags.f.val());
 	return Filter(a.join(' '), false, {
-	    account_id:true, a_code:true, a_name:true, address:true,
-	    chan_id: true, chan:true,
-	    poten:true,
-	    rc_id:true, rc:true, ka_type:true,
-	    region:true,
-	    city:true,
-	    contact_id:true, name:true, surname:true, patronymic:true, phone:true, mobile:true, email:true,
-	    job_title_id:true, job_title:true,
-	    loyalty_level_id:true,
-	    extra_info:true,
-	    author_id:true, author:true,
-	    _isconsentexist:true
+	    account_id: true, 
+	    a_code: true, 
+	    a_name: true, 
+	    address: true,
+	    chan_id: true, 
+	    chan: true,
+	    poten: true,
+	    rc_id: true, 
+	    rc: true, 
+	    ka_type: true,
+	    region: true,
+	    city: true,
+	    contact_id: true,
+	    name: true, 
+	    surname: true, 
+	    patronymic: true, 
+	    phone: true, 
+	    mobile: true, 
+	    email: true,
+	    job_title_id: true, 
+	    job_title: true,
+	    loyalty_level_id: true,
+	    extra_info: true,
+	    author_id: true, 
+	    author: true
 	});
     }
 
@@ -122,13 +133,6 @@ var PLUG = (function() {
 		    if( perm.columns != null && perm.columns.channel == true ) {
 			ar.push("<td class='ref sw95px'>", G.shielding(r.chan), "</td>");
 		    }
-		    ar.push("<td class='ref'>");
-		    if( r._isconsentexist ) {
-			ar.push("<a href='javascript:void(0)' onclick='PLUG.slideshow(\"{0}\")'>[&nbsp;&#x203B;&nbsp;]</a>".format_a(r.contact_id));
-		    } else {
-			ar.push("&nbsp;");
-		    }
-		    ar.push("</td>");
 		    ar.push("<td class='string note'>", G.shielding(r.extra_info), "</td>");
 		    ar.push("<td class='string sw95px'>", G.shielding(r.author), "</td>");
 		    ar.push("<td width='14px' class='int'>", r._isaliendata ? "&#9850;" : "&nbsp;", "</td>");
@@ -270,10 +274,9 @@ var PLUG = (function() {
 			ws.cell("O{0}".format_a(i + offset)).value(r.city);
 			ws.cell("P{0}".format_a(i + offset)).value(r.rc);
 			ws.cell("Q{0}".format_a(i + offset)).value(r.ka_type);
-			ws.cell("R{0}".format_a(i + offset)).value(r._isconsentexist ? 1 : 0);
-			ws.cell("S{0}".format_a(i + offset)).value(r.doc_note);
-			ws.cell("T{0}".format_a(i + offset)).value(r.author);
-			ws.cell("U{0}".format_a(i + offset)).value(/*Date.parseISO8601(*/r.updated_ts/*)*/);
+			ws.cell("R{0}".format_a(i + offset)).value(r.doc_note);
+			ws.cell("S{0}".format_a(i + offset)).value(r.author);
+			ws.cell("T{0}".format_a(i + offset)).value(/*Date.parseISO8601(*/r.updated_ts/*)*/);
 		    }
 		    wb.outputAsync()
 			.then(function(blob) {
@@ -380,23 +383,6 @@ var PLUG = (function() {
 		    _onpopup(tag, arg, "loyalty_level_id");
 		})
 	    });
-	},
-	consent: function(tag) {
-	    if( _cache.xfilters == null ) {
-		_cache.xfilters = {};
-	    }
-	    const x = _cache.xfilters;
-	    if( typeof x._isconsentexist == 'undefined' || x._isconsentexist == null ) {
-		x._isconsentexist = Filter.escape("_isconsentexist", "1");
-		tag.addClass('important');
-	    } else {
-		x._isconsentexist = null;
-		tag.removeClass('important')
-	    }
-	    _page(1);
-	},
-	slideshow: function(contact_id) {
-	    SlideshowSimple([G.getdataref({plug: _code, consent: "yes", contact_id: contact_id})]).show();
 	},
 	xlsx: function() {
 	    _toxlsx();
