@@ -135,6 +135,7 @@ select
     r.qrow_id, r.descr, quest_path(null, r.qname_id, r.pid) qpath, r.hidden, n.descr qname 
 from quest_rows r
     left join quest_names n on r.qname_id = n.qname_id
+where r.ftype = 0
 order by r.descr, n.descr, r.qrow_id
 ]]
 		, "/plugins/quests/quest_rows"

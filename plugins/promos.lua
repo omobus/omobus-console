@@ -122,6 +122,15 @@ select promo_type_id, descr, hidden from promo_types
 	    )
 	end
 	if err == nil or err == false then
+	    tb.values, err = func_execute(tran,
+[[
+select promo_value_id, descr, hidden from promo_values
+    order by descr
+]]
+		, "/plugins/promos/promo_values"
+	    )
+	end
+	if err == nil or err == false then
 	    tb.categories, err = func_execute(tran,
 [[
 select categ_id, descr, hidden from categories
@@ -140,6 +149,15 @@ from brands b
 order by m.competitor nulls first, b.row_no, b.descr
 ]]
 		, "/plugins/promos/brands"
+	    )
+	end
+	if err == nil or err == false then
+	    tb.products, err = func_execute(tran,
+[[
+select prod_id, code, descr, hidden from products
+    order by descr
+]]
+		, "/plugins/promos/products"
 	    )
 	end
 	if err == nil or err == false then
@@ -194,7 +212,9 @@ local function personalize(sestb, data)
     local idx_rcs = {}
     local idx_categs = {}
     local idx_brands = {}
+    local idx_prods = {}
     local idx_types = {}
+    local idx_values = {}
     local idx_heads = {}
 
     if sestb.erpid ~= nil or sestb.department ~= nil or sestb.country ~= nil or sestb.distributor ~= nil or sestb.agency ~= nil then
@@ -214,13 +234,11 @@ local function personalize(sestb, data)
 		idx_users[v.user_id] = 1
 		if v.chan_id ~= nil then idx_channels[v.chan_id] = 1; end
 		if v.rc_id ~= nil then idx_rcs[v.rc_id] = 1; end
-		if v.promo_types ~= nil then 
-		    for _, w in ipairs(v.promo_types) do
-			idx_types[w.promo_type_id] = 1
-		    end
-		end
 		if v.categ_id ~= nil then idx_categs[v.categ_id] = 1; end
 		if v.brand_id ~= nil then idx_brands[v.brand_id] = 1; end
+		if v.prod_id ~= nil then idx_prods[v.prod_id] = 1; end
+		if v.promo_type_id ~= nil then idx_types[v.promo_type_id] = 1; end
+		if v.promo_value_id ~= nil then idx_values[v.promo_value_id] = 1; end
 		if v.head_id ~= nil then idx_heads[v.head_id] = 1; end
 		table.insert(tb, v); 
 		v.row_no = #tb
@@ -232,13 +250,11 @@ local function personalize(sestb, data)
 	    idx_users[v.user_id] = 1
 	    if v.chan_id ~= nil then idx_channels[v.chan_id] = 1; end
 	    if v.rc_id ~= nil then idx_rcs[v.rc_id] = 1; end
-	    if v.promo_types ~= nil then 
-		for _, w in ipairs(v.promo_types) do
-		    idx_types[w.promo_type_id] = 1
-		end
-	    end
 	    if v.categ_id ~= nil then idx_categs[v.categ_id] = 1; end
 	    if v.brand_id ~= nil then idx_brands[v.brand_id] = 1; end
+	    if v.prod_id ~= nil then idx_prods[v.prod_id] = 1; end
+	    if v.promo_type_id ~= nil then idx_types[v.promo_type_id] = 1; end
+	    if v.promo_value_id ~= nil then idx_values[v.promo_value_id] = 1; end
 	    if v.head_id ~= nil then idx_heads[v.head_id] = 1; end
 	end
     end
@@ -249,7 +265,9 @@ local function personalize(sestb, data)
     p.retail_chains = core.reduce(data.retail_chains, 'rc_id', idx_rcs)
     p.categories = core.reduce(data.categories, 'categ_id', idx_categs)
     p.brands = core.reduce(data.brands, 'brand_id', idx_brands)
+    p.products = core.reduce(data.products, 'prod_id', idx_prods)
     p.promo_types = core.reduce(data.types, 'promo_type_id', idx_types)
+    p.promo_values = core.reduce(data.values, 'promo_value_id', idx_values)
 
     return json.encode(p)
 end
@@ -265,7 +283,9 @@ function M.scripts(lang, permtb, sestb, params)
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.brands.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.categories.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.channels.js"> </script>')
+    table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.products.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.promotypes.js"> </script>')
+    table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.promovalues.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.retailchains.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.users.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/slideshow.simple.js"> </script>')

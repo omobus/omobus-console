@@ -7,7 +7,7 @@ var PLUG = (function() {
     var _cache = {}, _perm = {}, _tags = {}, _F = false /* abort export photos */;
 
     function _getcolumns(perm) {
-	let x = 11, c = perm.columns || {};
+	let x = 14, c = perm.columns || {};
 	if( c.channel == true ) x++;
 	return x;
     }
@@ -41,7 +41,9 @@ var PLUG = (function() {
 	}
 	ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.categories(this, 0.6)'>", lang.categ_name, "</a></th>");
 	ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.brands(this, 0.6)'>", lang.brand, "</a></th>");
+	ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.products(this, 0.6)'>", lang.prod_name, "</a></th>");
 	ar.push("<th><a href='javascript:void(0)' onclick='PLUG.types(this, 0.6)'>", lang.promos.type, "</a></th>");
+	ar.push("<th><a href='javascript:void(0)' onclick='PLUG.values(this, 0.6)'>", lang.promos.value, "</a></th>");
 	ar.push("<th>", lang.photo, "</th>");
 	ar.push("<th>", lang.note, "</th>");
 	ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"head\",0.90)'>", lang.head_name, "</a></th>");
@@ -51,7 +53,9 @@ var PLUG = (function() {
 	ar.push(BrandsPopup.container());
 	ar.push(CategoriesPopup.container());
 	ar.push(ChannelsPopup.container());
+	ar.push(ProductsPopup.container());
 	ar.push(PromoTypesPopup.container());
+	ar.push(PromoValuesPopup.container());
 	ar.push(RetailChainsPopup.container());
 	ar.push(UsersPopup.container());
 	ar.push(UsersPopup.container("headsPopup"));
@@ -69,20 +73,35 @@ var PLUG = (function() {
 	}
 	a.push(_tags.f.val());
 	return Filter(a.join(' '), false, {
-	    doc_id:true,
-	    fix_dt:true, 
-	    user_id:true, dev_login:true, u_name:true, 
-	    account_id:true, a_code:true, a_name:true, address:true, 
-	    chan_id: true, chan:true, 
-	    poten:true, 
-	    rc_id:true, rc:true, ka_type:true, 
-	    region:true, 
-	    city:true, 
-	    categ_id:true, categ:true,
-	    brand_id:true, brand:true,
-	    "promo_types.promo_type_id":true,
-	    doc_note:true,
-	    head_id:true
+	    doc_id: true,
+	    fix_dt: true, 
+	    user_id: true, 
+	    dev_login: true, 
+	    u_name: true, 
+	    account_id: true, 
+	    a_code: true, 
+	    a_name: true, 
+	    address: true, 
+	    chan_id:  true, 
+	    chan: true, 
+	    poten: true, 
+	    rc_id: true, 
+	    rc: true, 
+	    ka_type: true, 
+	    region: true, 
+	    city: true, 
+	    categ_id: true, 
+	    categ: true,
+	    brand_id: true, 
+	    prod_id: true,
+	    prod: true,
+	    brand: true,
+	    promo_type_id: true,
+	    promo_type: true,
+	    promo_value_id: true,
+	    promo_value: true,
+	    doc_note: true,
+	    head_id: true
 	});
     }
 
@@ -110,16 +129,9 @@ var PLUG = (function() {
 		    }
 		    ar.push("<td class='ref sw95px'>", G.shielding(r.categ), "</td>");
 		    ar.push("<td class='ref sw95px'>", G.shielding(r.brand), "</td>");
-		    ar.push("<td class='ref'>");
-		    if( Array.isArray(r.promo_types) ) {
-			r.promo_types.forEach(function(arg0, arg1) {
-			    if( arg1 > 0 ) {
-				ar.push("<hr/>");
-			    }
-			    ar.push(G.shielding(arg0.descr));
-			});
-		    }
-		    ar.push("</td>");
+		    ar.push("<td class='string'>", G.shielding(r.prod), "</td>");
+		    ar.push("<td class='ref sw95px'>", G.shielding(r.promo_type), "</td>");
+		    ar.push("<td class='ref sw95px'>", G.shielding(r.promo_value), "</td>");
 		    ar.push("<td class='ref'>");
 		    if( Array.isArray(r.photos) ) {
 			r.photos.forEach(function(arg0, arg1, arg2) {
@@ -275,30 +287,19 @@ var PLUG = (function() {
 			ws.cell("N{0}".format_a(i + offset)).value(r.categ);
 			ws.cell("O{0}".format_a(i + offset)).value(r.manuf);
 			ws.cell("P{0}".format_a(i + offset)).value(r.brand);
-			if( Array.isArray(r.promo_types) && r.promo_types.length > 0 ) {
-			    const cell = ws.cell("Q{0}".format_a(i + offset));
-			    const ff = cell.style('fontFamily');
-			    const fs = cell.style('fontSize');
-			    const rt = new XlsxPopulate.RichText();
-			    r.promo_types.forEach(function(val, index) {
-				if( index > 0 ) {
-				    rt.add("\n")
-				}
-				rt.add(val.descr, {fontFamily: ff, fontSize: fs});
-			    });
-			    cell.value(rt);
-			    ws.row(i + offset).height(r.promo_types.length*12 + 3);
-			}
+			ws.cell("Q{0}".format_a(i + offset)).value(r.prod);
+			ws.cell("R{0}".format_a(i + offset)).value(r.promo_type);
+			ws.cell("S{0}".format_a(i + offset)).value(r.promo_value);
 			if( Array.isArray(r.refs) && r.refs.length > 0 ) {
-			    const n = ["R","S","T","U"];
+			    const n = ["T","U","V","W"];
 			    r.refs.forEach(function(val, index) {
 				ws.cell("{1}{0}".format_a(i + offset,n[index])).value("[ {0} ]".format_a(index + 1))
 				    .style({ fontColor: "0563c1", underline: true })
 				    .hyperlink({ hyperlink: G.getphotoref(r.refs[index],true) });
 			    });
 			}
-			ws.cell("V{0}".format_a(i + offset)).value(r.doc_note);
-			ws.cell("W{0}".format_a(i + offset)).value(r.head_name);
+			ws.cell("X{0}".format_a(i + offset)).value(r.doc_note);
+			ws.cell("Y{0}".format_a(i + offset)).value(r.head_name);
 		    }
 		    wb.outputAsync()
 			.then(function(blob) {
@@ -411,6 +412,13 @@ var PLUG = (function() {
 		})
 	    });
 	},
+	values: function(tag, offset) {
+	    _togglePopup("promo_values", tag, offset, function(obj) {
+		return PromoValuesPopup(_cache.data[obj], function(arg, i, ar) {
+		    _onpopup(tag, arg, "promo_value_id");
+		})
+	    });
+	},
 	categories: function(tag, offset) {
 	    _togglePopup("categories", tag, offset, function(obj) {
 		return CategoriesPopup(_cache.data[obj], function(arg, i, ar) {
@@ -422,6 +430,13 @@ var PLUG = (function() {
 	    _togglePopup("brands", tag, offset, function(obj) {
 		return BrandsPopup(_cache.data[obj], function(arg, i, ar) {
 		    _onpopup(tag, arg, "brand_id");
+		})
+	    });
+	},
+	products: function(tag, offset) {
+	    _togglePopup("products", tag, offset, function(obj) {
+		return ProductsPopup(_cache.data[obj], function(arg, i, ar) {
+		    _onpopup(tag, arg, "prod_id");
 		})
 	    });
 	},

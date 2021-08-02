@@ -4,7 +4,7 @@
 PLUG.registerRef("promo", (function() {
     /* private properties & methods */
     var _cache = {}; // internal cache object for preventing reloading data
-    var _columns = 10;
+    var _columns = 12;
 
     function _gettable() {
 	var ar = [];
@@ -14,9 +14,11 @@ PLUG.registerRef("promo", (function() {
 	ar.push("<th>", lang.a_code, "</th>");
 	ar.push("<th>", lang.a_name, "</th>");
 	ar.push("<th>", lang.address, "</th>");
-	ar.push("<th>", lang.categ_name, "</th>");
-	ar.push("<th>", lang.brand, "</th>");
-	ar.push("<th>", lang.promos.type, "</th>");
+	ar.push("<th class='sw95px'>", lang.categ_name, "</th>");
+	ar.push("<th class='sw95px'>", lang.brand, "</th>");
+	ar.push("<th>", lang.prod_name, "</th>");
+	ar.push("<th class='sw95px'>", lang.promos.type, "</th>");
+	ar.push("<th class='sw95px'>", lang.promos.value, "</th>");
 	ar.push("<th>", lang.note, "</th>");
 	ar.push("<th>", lang.photo, "</th>");
 	ar.push("</tr>", G.thnums(_columns), "</thead>");
@@ -40,21 +42,14 @@ PLUG.registerRef("promo", (function() {
 		k, "\")'>", r.row_no, "</td>");
 	    ar.push("<td class='time'>", G.gettime_l(Date.parseISO8601(r.fix_dt)), "</td>");
 	    ar.push("<td class='int'>", G.shielding(r.a_code), "</td>");
-	    ar.push("<td class='string'>", G.shielding(r.a_name), "</td>");
-	    ar.push("<td class='string'>", G.shielding(r.address), "</td>");
+	    ar.push("<td class='a_name'>", G.shielding(r.a_name), "</td>");
+	    ar.push("<td class='a_address'>", G.shielding(r.address), "</td>");
 	    ar.push("<td class='ref'>", G.shielding(r.categ), "</td>");
 	    ar.push("<td class='ref'>", G.shielding(r.brand), "</td>");
-	    ar.push("<td class='ref'>");
-	    if( Array.isArray(r.promo_types) ) {
-		r.promo_types.forEach(function(arg0, arg1) {
-		    if( arg1 > 0 ) {
-			ar.push("<hr/>");
-		    }
-		    ar.push(G.shielding(arg0));
-		});
-	    }
-	    ar.push("</td>");
-	    ar.push("<td class='string'>", G.shielding(r.doc_note), "</td>");
+	    ar.push("<td class='string'>", G.shielding(r.prod), "</td>");
+	    ar.push("<td class='ref'>", G.shielding(r.promo_type), "</td>");
+	    ar.push("<td class='ref'>", G.shielding(r.value), "</td>");
+	    ar.push("<td class='note'>", G.shielding(r.doc_note), "</td>");
 	    ar.push("<td class='ref'>");
 	    if( Array.isArray(r.photos) ) {
 		r.photos.forEach(function(arg0, arg1, arg2) {

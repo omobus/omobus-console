@@ -53,7 +53,7 @@ from j_additions j
     left join users ex on ex.user_id = u.executivehead_id
     left join users v on v.user_id = j.validator_id
 where $(0)
-    (a.approved is null or a.approved = 0) and
+    /*(a.approved is null or a.approved = 0) and*/
     (
 	(j.validated = 0 and j.hidden = 0 and %registered% = 1)
 	or (j.validated = 1 and j.hidden = 0 and %validated% = 1)

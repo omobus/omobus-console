@@ -928,7 +928,8 @@ var __route = (function() {
 		ar.push("<td class='divider'>", lang.num, "</td>");
 		ar.push("<td class='divider'>", lang.categ_name, "</td>");
 		ar.push("<td class='divider'>", lang.brand, "</td>");
-		ar.push("<td class='divider' Xwidth='300px'>", lang.promos.type, "</td>");
+		ar.push("<td class='divider'>", lang.prod_name, "</td>");
+		ar.push("<td class='divider'>", lang.promos.type, "</td>");
 		ar.push("<td class='divider'>", lang.note, "</td>");
 		ar.push("<td class='divider'>", lang.photo, "</td>");
 		ar.push("</tr>");
@@ -937,6 +938,7 @@ var __route = (function() {
 		    ar.push("<td class='autoincrement'>", row_no + 1, "</td>");
 		    ar.push("<td class='ref'>", G.shielding(e.categ), "</td>");
 		    ar.push("<td class='ref'>", G.shielding(e.brand), "</td>");
+		    ar.push("<td class='ref'>", G.shielding(e.prod), "</td>");
 		    ar.push("<td class='ref'>");
 		    if( Array.isArray(e.promo_types) ) {
 			e.promo_types.forEach(function(arg0, arg1) {
@@ -1615,13 +1617,15 @@ var __route = (function() {
 		ar.push("<tr class='def'>");
 		ar.push("<td class='divider'>", lang.categ_name, "</td>");
 		ar.push("<td class='divider'>", lang.brand, "</td>");
-		ar.push("<td class='divider' Xwidth='300px'>", lang.promos.type, "</td>");
+		ar.push("<td class='divider'>", lang.prod_name, "</td>");
+		ar.push("<td class='divider'>", lang.promos.type, "</td>");
 		ar.push("<td class='divider'>", lang.note, "</td>");
 		ar.push("<td class='divider'>", lang.photo, "</td>");
 		ar.push("</tr>");
 		ar.push("<tr>");
 		ar.push("<td class='ref'>", G.shielding(r.categ), "</td>");
 		ar.push("<td class='ref'>", G.shielding(r.brand), "</td>");
+		ar.push("<td class='ref'>", G.shielding(r.prod), "</td>");
 		ar.push("<td class='ref'>");
 		if( Array.isArray(r.promo_types) ) {
 		    r.promo_types.forEach(function(arg0, arg1) {

@@ -1,15 +1,15 @@
 /* -*- JavaScript -*- */
 /* Copyright (c) 2006 - 2021 omobus-console authors, see the included COPYRIGHT file. */
 
-function PromoTypesPopup(rows, selection, params /* params = { everything: true|false, container = "DOM container"} */) {
-    if( !(this instanceof PromoTypesPopup) ) {
-	return new PromoTypesPopup(rows, selection, params);
+function PromoValuesPopup(rows, selection, params /* params = { everything: true|false, container = "DOM container"} */) {
+    if( !(this instanceof PromoValuesPopup) ) {
+	return new PromoValuesPopup(rows, selection, params);
     }
     if( params == null || typeof params == 'undefined' ) {
-	params = { everything: true, container: _("promotypesPopup") };
+	params = { everything: true, container: _("promovaluesPopup") };
     }
     if( params.container == null || typeof params.container == 'undefined' ) {
-	params.container = _("promotypesPopup");
+	params.container = _("promovaluesPopup");
     }
     if( !(params.container instanceof HTMLElement) ) {
 	params.container = _(params.container);
@@ -65,7 +65,7 @@ function PromoTypesPopup(rows, selection, params /* params = { everything: true|
 	});
     }
     this._foreach(body.getElementsByTagName('a'), function(arg, i) {
-	if( arg.getAttribute('name') == 'promotypesEverything' ) {
+	if( arg.getAttribute('name') == 'promovaluesEverything' ) {
 	    arg.onclick = oneverything;
 	}
     });
@@ -74,17 +74,17 @@ function PromoTypesPopup(rows, selection, params /* params = { everything: true|
 
 /* static functions: */
 
-(function (PromoTypesPopup, undefined) {
-    PromoTypesPopup.container = function(id) {
-	return "<div id='" + (id == null || typeof id == 'undefined' ? "promotypesPopup" : id) + 
+(function (PromoValuesPopup, undefined) {
+    PromoValuesPopup.container = function(id) {
+	return "<div id='" + (id == null || typeof id == 'undefined' ? "promovaluesPopup" : id) + 
 	    "' class='ballon'><div class='arrow'></div><div class='body' style='min-height: 30px;'></div></div>";
     };
-}(PromoTypesPopup));
+}(PromoValuesPopup));
 
 
 /** private functions: **/
 
-PromoTypesPopup.prototype._get = function(rows, everything) {
+PromoValuesPopup.prototype._get = function(rows, everything) {
     var ar = [], r;
     //if( rows.length > 5 ) {
 	ar.push("<div class='search'><input type='text' maxlength='96' autocomplete='off' placeholder='",
@@ -101,18 +101,18 @@ PromoTypesPopup.prototype._get = function(rows, everything) {
     ar.push("</table></div>");
     if( everything ) {
 	ar.push("<br />");
-	ar.push("<div class='r'><a name='promotypesEverything' href='javascript:void(0);'>", lang.promos.type_everything, "</a></div>");
+	ar.push("<div class='r'><a name='promovaluesEverything' href='javascript:void(0);'>", lang.promos.value_everything, "</a></div>");
     }
     return ar;
 }
 
-PromoTypesPopup.prototype._foreach = function(tags, cb) {
+PromoValuesPopup.prototype._foreach = function(tags, cb) {
     for( var i = 0, size = tags == null ? 0 : tags.length; i < size; i++ ) {
 	cb(tags[i], i);
     }
 }
 
-PromoTypesPopup.prototype._onsearch = function(value) {
+PromoValuesPopup.prototype._onsearch = function(value) {
     var f = Filter(value, true);
     var empty = true;
     for( var i = 0, size = this._rows.length; i < size; i++ ) {
@@ -132,7 +132,7 @@ PromoTypesPopup.prototype._onsearch = function(value) {
     this._container.setAttribute('X-search', value);
 }
 
-PromoTypesPopup.prototype._onselect = function(index) {
+PromoValuesPopup.prototype._onselect = function(index) {
     if( !this._rows[index]._selected ) {
 	this._foreach(this._tb.rows, function(arg) { arg.className = null; });
 	this._tb.rows[index].className = "selected";
@@ -145,7 +145,7 @@ PromoTypesPopup.prototype._onselect = function(index) {
     }
 }
 
-PromoTypesPopup.prototype._oneverything = function() {
+PromoValuesPopup.prototype._oneverything = function() {
     var x = this._container.hasAttribute('X-uid');
     this._foreach(this._tb.rows, function(arg) { arg.className = null; });
     this._rows.forEach(function(arg) { if( arg._selected == true ) { arg._selected = null; x = true; } });
@@ -155,7 +155,7 @@ PromoTypesPopup.prototype._oneverything = function() {
     this._container.removeAttribute('X-uid');
 }
 
-PromoTypesPopup.prototype._show = function(arg, offset) {
+PromoValuesPopup.prototype._show = function(arg, offset) {
     this._container.onclick = this._container.hide;
     this._container.show();
     this._container.popupDown(arg, typeof offset == 'undefined' ? offset : offset*2);
@@ -166,22 +166,22 @@ PromoTypesPopup.prototype._show = function(arg, offset) {
 
 /* public functions: */
 
-PromoTypesPopup.prototype.show = function(arg, offset) {
+PromoValuesPopup.prototype.show = function(arg, offset) {
     if( this._container.isHidden() ) {
 	this._show(arg, offset);
     }
 }
 
-PromoTypesPopup.prototype.hide = function() {
+PromoValuesPopup.prototype.hide = function() {
     this._container.hide();
 }
 
-PromoTypesPopup.prototype.toggle = function(arg, offset) {
+PromoValuesPopup.prototype.toggle = function(arg, offset) {
     if( this._container.toggle() ) {
 	this._show(arg, offset);
     }
 }
 
-PromoTypesPopup.prototype.isHidden = function() {
+PromoValuesPopup.prototype.isHidden = function() {
     return this._container.isHidden();
 }
