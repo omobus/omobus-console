@@ -40,7 +40,7 @@ var lang = {
     /* String resources: */
 
     a_code: "Код клиента",
-    a_name: "Наименование клиента",
+    a_name: "Клиент",
     abort: "прервать", 
     activity_type: "Вид активности",
     activity_type_everything: "Все виды активности",
@@ -331,7 +331,6 @@ var lang = {
     num: "№",
     num_of_days: "{0} д.",
     latest: "Только последние",
-    /*legal_address: "Юридический адрес",*/
     less_min: "<{0} мин.",
     login: "Вход в систему",
     oos_type: "Причина Out-of-Stock",

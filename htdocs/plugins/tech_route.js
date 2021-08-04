@@ -57,7 +57,6 @@ var __route = (function() {
 	var ar = [];
 	if( !String.isEmpty(r.number) ) { ar.push(G.shielding(r.number)); }
 	ar.push("{0} {1}.".format_a(G.shielding(r.account), G.shielding(r.address)));
-	/*if( !String.isEmpty(r.legal_address) ) { ar.push("<i>{0}</i>: <u>{1}</u>.".format_a(lang.legal_address, G.shielding(r.legal_address))); }*/
 	if( !String.isEmpty(r.addition_type) ) { ar.push("<i>{0}</i>: <u>{1}</u>.".format_a(lang.addition_type, G.shielding(r.addition_type))); }
 	if( !String.isEmpty(r.chan) )          { ar.push("<i>{0}</i>: <u>{1}</u>.".format_a(lang.chan_name, G.shielding(r.chan))); }
 	if( !String.isEmpty(r.doc_note) )      { ar.push("<i>{0}</i>: <u>{1}</u>.".format_a(lang.note, G.shielding(r.doc_note))); }
