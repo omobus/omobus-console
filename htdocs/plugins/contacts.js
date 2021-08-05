@@ -12,7 +12,7 @@ var PLUG = (function() {
     }
 
     function _getcolumns(perm) {
-	let x = 12, c = perm.columns || {};
+	let x = 11, c = perm.columns || {};
 	if( c.channel == true ) x++;
 	if( c.loyalty == true ) x++;
 	return x;
@@ -36,7 +36,6 @@ var PLUG = (function() {
 	if( perm.columns != null && perm.columns.loyalty == true ) {
 	    ar.push("<th width='65px'><a href='javascript:void(0)' onclick='PLUG.levels(this, 0.30)'>", lang.loyalty_level, "</a></th>");
 	}
-	ar.push("<th width='95px'>", lang.phone, "</th>");
 	ar.push("<th width='95px'>", lang.mobile, "</th>");
 	ar.push("<th>", lang.email, "</th>");
 	ar.push("<th>", lang.a_code, "</th>");
@@ -83,7 +82,6 @@ var PLUG = (function() {
 	    name: true, 
 	    surname: true, 
 	    patronymic: true, 
-	    phone: true, 
 	    mobile: true, 
 	    email: true,
 	    job_title_id: true, 
@@ -124,7 +122,6 @@ var PLUG = (function() {
 		    if( perm.columns != null && perm.columns.loyalty == true ) {
 			ar.push("<td class='ref'>", G.shielding(r.loyalty_level), "</td>");
 		    }
-		    ar.push("<td class='int'>", G.shielding(r.phone), "</td>");
 		    ar.push("<td class='int'>", G.shielding(r.mobile), "</td>");
 		    ar.push("<td class='int'>", G.shielding(r.email), "</td>");
 		    ar.push("<td class='int", xs, "'>", G.shielding(r.a_code), "</td>");
@@ -262,21 +259,20 @@ var PLUG = (function() {
 			ws.cell("C{0}".format_a(i + offset)).value(_fmtcontact(r));
 			ws.cell("D{0}".format_a(i + offset)).value(r.job_title);
 			ws.cell("E{0}".format_a(i + offset)).value(r.loyalty_level);
-			ws.cell("F{0}".format_a(i + offset)).value(r.phone);
-			ws.cell("G{0}".format_a(i + offset)).value(r.mobile);
-			ws.cell("H{0}".format_a(i + offset)).value(r.email);
-			ws.cell("I{0}".format_a(i + offset)).value(r.a_code);
-			ws.cell("J{0}".format_a(i + offset)).value(r.a_name);
-			ws.cell("K{0}".format_a(i + offset)).value(r.address);
-			ws.cell("L{0}".format_a(i + offset)).value(r.chan);
-			ws.cell("M{0}".format_a(i + offset)).value(r.poten);
-			ws.cell("N{0}".format_a(i + offset)).value(r.region);
-			ws.cell("O{0}".format_a(i + offset)).value(r.city);
-			ws.cell("P{0}".format_a(i + offset)).value(r.rc);
-			ws.cell("Q{0}".format_a(i + offset)).value(r.ka_type);
-			ws.cell("R{0}".format_a(i + offset)).value(r.doc_note);
-			ws.cell("S{0}".format_a(i + offset)).value(r.author);
-			ws.cell("T{0}".format_a(i + offset)).value(/*Date.parseISO8601(*/r.updated_ts/*)*/);
+			ws.cell("F{0}".format_a(i + offset)).value(r.mobile);
+			ws.cell("G{0}".format_a(i + offset)).value(r.email);
+			ws.cell("H{0}".format_a(i + offset)).value(r.a_code);
+			ws.cell("I{0}".format_a(i + offset)).value(r.a_name);
+			ws.cell("J{0}".format_a(i + offset)).value(r.address);
+			ws.cell("K{0}".format_a(i + offset)).value(r.chan);
+			ws.cell("L{0}".format_a(i + offset)).value(r.poten);
+			ws.cell("M{0}".format_a(i + offset)).value(r.region);
+			ws.cell("N{0}".format_a(i + offset)).value(r.city);
+			ws.cell("O{0}".format_a(i + offset)).value(r.rc);
+			ws.cell("P{0}".format_a(i + offset)).value(r.ka_type);
+			ws.cell("Q{0}".format_a(i + offset)).value(r.doc_note);
+			ws.cell("R{0}".format_a(i + offset)).value(r.author);
+			ws.cell("S{0}".format_a(i + offset)).value(/*Date.parseISO8601(*/r.updated_ts/*)*/);
 		    }
 		    wb.outputAsync()
 			.then(function(blob) {

@@ -21,20 +21,29 @@ local function data(stor, permtb, sestb)
 [[
 select 
     x.contact_id,
-    x.account_id, a.code a_code, a.descr a_name, a.address, a.hidden a_hidden, a.locked a_locked,
-    /*re.descr region,*/
-    /*c.descr city,*/
-    a.rc_id, r.descr rc, r.ka_type,
-    /*p.descr poten,*/
-    a.chan_id, ch.descr chan,
+    x.account_id, 
+    a.code a_code, 
+    a.descr a_name, 
+    a.address, 
+    a.hidden a_hidden, 
+    a.locked a_locked,
+    re.descr region,
+    c.descr city,
+    a.rc_id, 
+    r.descr rc, 
+    r.ka_type,
+    p.descr poten,
+    a.chan_id, 
+    ch.descr chan,
     x.name "name",
     x.surname,
     x.patronymic,
-    x.job_title_id, j.descr job_title,
-    x.phone,
+    x.job_title_id, 
+    j.descr job_title,
     x.mobile,
     x.email,
-    x.loyalty_level_id, l.descr loyalty_level,
+    x.loyalty_level_id, 
+    l.descr loyalty_level,
     x.locked "locked",
     x.extra_info,
     x.author_id, coalesce(au.descr, x.author_id) author,
@@ -44,11 +53,11 @@ from contacts x
     left join job_titles j on j.job_title_id = x.job_title_id
     left join loyalty_levels l on l.loyalty_level_id = x.loyalty_level_id
     left join accounts a on a.account_id = x.account_id
-    /*left join potentials p on a.poten_id = p.poten_id*/
+    left join potentials p on a.poten_id = p.poten_id
     left join channels ch on a.chan_id = ch.chan_id
     left join retail_chains r on a.rc_id = r.rc_id
-    /*left join regions re on a.region_id = re.region_id*/
-    /*left join cities c on a.city_id = c.city_id*/
+    left join regions re on a.region_id = re.region_id
+    left join cities c on a.city_id = c.city_id
     left join users au on au.user_id = x.author_id
 where x.hidden = 0 $(0)
 order by a.descr, a.address, a.code, x."name", x.surname, x.patronymic, x.contact_id
