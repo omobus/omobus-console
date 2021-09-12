@@ -45,6 +45,7 @@ M.permissions = {
     training_materials 	= require 'roles.defs.training_materials',
     trainings 		= require 'roles.defs.trainings',
     unsched 		= require 'roles.defs.unsched',
+    whereis 		= require 'roles.defs.whereis',
     wishes 		= require 'roles.defs.wishes'
 }
 

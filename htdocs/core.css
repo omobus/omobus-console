@@ -75,24 +75,30 @@ hr {
     display: none;
 }
 
-.topbar {
-    height: 40px;
-}
-
-.logotitle {
+.logoTitle {
     color: #080c57;
     font-size: 13pt;
     font-weight: bold;
-    cursor: pointer;
 }
 
-.logosubtitle {
+.logoSubTitle {
     color: #a3a3a3;
     font-size: 9pt;
 }
 
-.attention {
-    color: red;
+.logoWatermark {
+    color: #939393;
+    font-size: 9pt;
+}
+
+.topbar {
+    min-height: 40px;
+    border-collapse: collapse;
+}
+
+.topbar th,
+.topbar td {
+    vertical-align: middle;
 }
 
 .watermark {

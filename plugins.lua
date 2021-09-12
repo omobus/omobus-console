@@ -46,6 +46,7 @@ local modules = {
 	training_materials 	= require 'plugins.training_materials',
 	trainings 		= require 'plugins.trainings',
 	unsched 		= require 'plugins.unsched',
+	whereis 		= require 'plugins.whereis',
 	wishes 			= require 'plugins.wishes'
     }
 

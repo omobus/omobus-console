@@ -49,7 +49,8 @@ M.managment = {
     "training_materials", 
     "pos_materials", 
     "planograms",
-    "contacts"
+    "contacts",
+    "whereis"
 }
 
 M.archives = {

@@ -23,6 +23,12 @@
     };
 }(Array));
 
+(function (Array, undefined) {
+    Array.createIndexBy = function(arg, k) {
+	return Array.isEmpty(arg) ? {} : arg.createIndexBy(k);
+    };
+}(Array));
+
 /* public functions: */
 
 if( !Array.prototype.isEmpty ) {
