@@ -184,9 +184,20 @@ local function default_page(lang, sestb, params, res, plug_data)
     table.insert(ar, '<script src="' .. REF('/startup') .. '?' .. uri.buildQuery(params) .. '"> </script>')
     table.insert(ar, '</head>')
     table.insert(ar, '<body>')
-    table.insert(ar, '<table width="100%" class="topbar"><tr>' .. config.logo.main)
-    table.insert(ar, '<td><span class="logotitle" onclick="document.location=G.getdefref();">' .. config.title .. 
-	'&nbsp;</span><span class="logosubtitle">' .. config.subtitle .. '</span></td>')
+    table.insert(ar, '<table class="topbar" width="100%">')
+    table.insert(ar, '<tr>')
+    if config.logo.main ~= nil and #config.logo.main > 0 then
+	table.insert(ar, config.logo.main)
+    end
+    table.insert(ar, '<td>')
+    --table.insert(ar, '<div>')
+    table.insert(ar, '<span class="logoTitle" onclick="document.location=G.getdefref();">' .. config.title .. 
+	'&nbsp;</span><span class="logoSubTitle">' .. config.subtitle .. '</span>')
+    --table.insert(ar, '</div>')
+    --table.insert(ar, '<div>')
+    --table.insert(ar, '<span class="logoWatermark" id="userRef">&nbsp;</span>')
+    --table.insert(ar, '</div>')
+    table.insert(ar, '</td>')
     table.insert(ar, '<td align="right">')
     table.insert(ar, '<div style="text-align: right; white-space: nowrap;">')
     table.insert(ar, '<span id="userRef">&nbsp;</span>')

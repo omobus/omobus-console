@@ -9,7 +9,7 @@ M.subtitle	= "management console"
 -- *** LOGO
 M.logo		= {
     auth	= "LOGO",
-    main	= ""
+    main	= "" -- "<td width='110px'><img height='35px' src='/logo.png'></td>" 
 }
 
 M.ca_file 	= "/OMOBUS_Root_Certification_Authority.pem"
@@ -36,7 +36,7 @@ M.session	= {
     strict 	= false
 }
 
--- *** Main data storage parameters ***
+-- *** PostgreSQL server parameters ***
 M.data 		= {
     server	= "hostaddr=127.0.0.1 port=5432",
     storage	= "omobus-proxy-db",
@@ -44,7 +44,7 @@ M.data 		= {
     password	= "omobus"
 }
 
--- *** Archive data storage parameters ***
+-- *** LTS web-service parameters ***
 M.ark 		= {
     host 	= "192.168.83.7",
     port 	= 8080,
