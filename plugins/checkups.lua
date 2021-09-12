@@ -139,7 +139,7 @@ select categ_id, descr, hidden from categories
 select prod_id, code, descr, hidden from products
     order by descr
 ]]
-		, "/plugins/presences/products"
+		, "/plugins/checkups/products"
 	    )
 	end
 	if err == nil or err == false then
@@ -252,7 +252,6 @@ end
 -- *** plugin interface: begin
 function M.scripts(lang, permtb, sestb, params)
     local ar = {}
-    table.insert(ar, '<script src="' .. V.static_prefix .. '/libs/jszip-3.2.2.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/libs/xlsx-1.21.0.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup_L.monthcal.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.brands.js"> </script>')
