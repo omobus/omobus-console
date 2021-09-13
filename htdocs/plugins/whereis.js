@@ -12,6 +12,7 @@ var PLUG = (function() {
 	if( c.category == true ) x++;
 	if( c.channel == true ) x++;
 	if( c.phone == true ) x++;
+	if( c.region == true ) x++;
 	return x;
     }
 
@@ -32,6 +33,9 @@ var PLUG = (function() {
 	ar.push("<th>", lang.a_code, "</th>");
 	ar.push("<th><a href='javascript:void(0)' onclick='PLUG.retail_chains(this)'>", lang.a_name, "</a></th>");
 	ar.push("<th><a href='javascript:void(0)' onclick='PLUG.cities(this)'>", lang.address, "</a></th>");
+	if( perm.columns != null && perm.columns.region == true ) {
+	    ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.regions(this)'>", lang.region, "</a></th>");
+	}
 	if( perm.columns != null && perm.columns.channel == true ) {
 	    ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.channels(this)'>", lang.chan_name, "</a></th>");
 	}
@@ -53,6 +57,7 @@ var PLUG = (function() {
 	ar.push(ChannelsPopup.container());
 	ar.push(CitiesPopup.container());
 	ar.push(ProductsPopup.container());
+	ar.push(RegionsPopup.container());
 	ar.push(RetailChainsPopup.container());
 	return ar;
     }
@@ -78,7 +83,7 @@ var PLUG = (function() {
 	    chan : true, 
 	    city_id : true,
 	    city : true, 
-	    /*region_id : true,*/
+	    region_id : true,
 	    region : true,
 	    rc_id : true, 
 	    rc : true, 
@@ -105,6 +110,9 @@ var PLUG = (function() {
 		    ar.push("<td class='int'>", G.shielding(r.a_code), "</td>");
 		    ar.push("<td class='string a_name'>", G.shielding(r.a_name), "</td>");
 		    ar.push("<td class='string a_address'>", G.shielding(r.address), "</td>");
+		    if( perm.columns != null && perm.columns.region == true ) {
+			ar.push("<td class='ref sw95px delim'>", G.shielding(r.region), "</td>");
+		    }
 		    if( perm.columns != null && perm.columns.channel == true ) {
 			ar.push("<td class='ref sw95px delim'>", G.shielding(r.chan), "</td>");
 		    }
@@ -214,6 +222,7 @@ var PLUG = (function() {
 		x.rc_id = r.rc_id;
 		x.rc = r.descr;
 		x.ka_type = r.ka_type;
+		x.region_id = e.region_id;
 		x.region = e.descr;
 		x.city_id = k.city_id;
 		x.city = k.descr;
@@ -228,7 +237,7 @@ var PLUG = (function() {
 	    categories: data.categories,
 	    channels: data.channels,
 	    cities: data.cities,
-	    /*regions: data.regions,*/
+	    regions: data.regions,
 	    products: data.products,
 	    retail_chains: data.retail_chains
 	}
@@ -430,6 +439,13 @@ var PLUG = (function() {
 	    _togglePopup("products", tag, offset, function(obj) {
 		return ProductsPopup(_cache.data[obj], function(arg, i, ar) {
 		    _onpopup(tag, arg, "prod_id");
+		})
+	    });
+	},
+	regions: function(tag, offset) {
+	    _togglePopup("regions", tag, offset, function(obj) {
+		return RegionsPopup(_cache.data[obj], function(arg, i, ar) {
+		    _onpopup(tag, arg, "region_id");
 		})
 	    });
 	},
