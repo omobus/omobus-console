@@ -194,8 +194,8 @@ var PLUG = (function() {
 		    ar.push("<td class='delim string note'>", G.shielding(r.doc_note), "</td>");
 		    ar.push("<td class='string sw95px'>", G.shielding(r.head_name), "</td>");
 		    ar.push("</tr>");
-		    data._rows.push(r);
 		}
+		data._rows.push(r);
 		x++;
 	    }
 	}
