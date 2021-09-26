@@ -33,21 +33,23 @@ var PLUG = (function() {
 	ar.push("<th rowspan='2'>", lang.a_name, "</th>");
 	ar.push("<th width='380px' rowspan='2'>", lang.address, "</th>");
 	if( perm.weeks > 1 ) {
-	    ar.push("<th colspan='" + perm.weeks + "'>", lang.routes.weeks, "</th>");
+	    ar.push("<th colspan='", perm.weeks, "'>", lang.routes.weeks, "</th>");
 	}
 	ar.push("<th colspan='7'>", lang.routes.days, "</th>");
-	ar.push("<th rowspan='2'>", lang.intotal, "</th>");
+	ar.push("<th rowspan='2'>", "<a href='javascript:void(0)' onclick='PLUG.intotals(this)'>", lang.intotal, "</a>", "</th>");
 	ar.push("<th rowspan='2'>", lang.chan_name, "</th>");
 	ar.push("<th rowspan='2'>", lang.poten, "</th>");
 	ar.push("<th width='95px' rowspan='2'>", lang.taskboard, "</th>");
 	ar.push("</tr><tr>");
 	if( perm.weeks > 1 ) {
-	    for( var i = 1; i <= perm.weeks; i++ ) {
-		ar.push("<th width='20px'>", i,"</th>");
+	    for( var i = 0; i < perm.weeks; i++ ) {
+		ar.push("<th width='20px'>", "<a href='javascript:void(0)' onclick='PLUG.weeks(this,", i, ")'>", 
+		    i + 1, "</a>", "</th>");
 	    }
 	}
 	for( var i = 0, a = lang.calendar.firstDay; i < 7; i++, a++ ) {
-	    ar.push("<th width='20px'>", lang.calendar.days.namesAbbr[a==7?0:a], "</th>");
+	    ar.push("<th width='20px'>", "<a href='javascript:void(0)' onclick='PLUG.days(this,", i, ")'>", 
+		lang.calendar.days.namesAbbr[a==7?0:a], "</a>", "</th>");
 	}
 	ar.push("</tr>", G.thnums(_getcolumns(perm)), "</thead><tbody id='maintb'></tbody></table>");
 	ar.push("<div id='plugMap' class='map'></div>");
@@ -97,24 +99,40 @@ var PLUG = (function() {
 
     function _getfilter() {
 	var a = [];
+	if( _cache.xfilters != null ) {
+	    for( var name in _cache.xfilters ) {
+		a.push(_cache.xfilters[name]);
+	    }
+	}
 	if( typeof _cache.userFilter == 'string' ) {
 	    a.push("user_id={0}$ ".format_a(_cache.userFilter));
 	}
 	a.push(_tags.f.val());
 	return Filter(a.join(' '), false, {
-	    user_id:true,
-	    dev_login:true,
-	    u_name:true,
-	    account_id:true,
-	    a_code:true,
-	    a_name:true,
-	    address:true,
-	    chan:true,
-	    poten:true,
-	    retail_chain:true,
-	    ka_type:true,
-	    region:true,
-	    city:true
+	    user_id: true,
+	    dev_login: true,
+	    u_name: true,
+	    account_id: true,
+	    a_code: true,
+	    a_name: true,
+	    address: true,
+	    chan: true,
+	    poten: true,
+	    retail_chain: true,
+	    ka_type: true,
+	    region: true,
+	    city: true,
+	    "weeks.0": true,
+	    "weeks.1": true,
+	    "weeks.2": true,
+	    "weeks.3": true,
+	    "days.0": true,
+	    "days.1": true,
+	    "days.2": true,
+	    "days.3": true,
+	    "days.4": true,
+	    "days.5": true,
+	    "days.6": true
 	});
     }
 
@@ -442,6 +460,40 @@ var PLUG = (function() {
 	return ar;
     }
 
+    function _f0(tag, name, num) {
+	const n = "{1}.{0}".format_a(num, name);
+	if( _cache.xfilters == null ) {
+	    _cache.xfilters = {};
+	}
+	if( tag.hasClass("important") ) {
+	    _cache.xfilters[n] = null;
+	    tag.removeClass('important');
+	} else {
+	    _cache.xfilters[n] = "{1}\.{0}=1$".format_a(num, name);
+	    tag.addClass('important');
+	}
+	_page(1);
+    }
+
+    function _f1(tag, perm) {
+	if( _cache.xfilters == null ) {
+	    _cache.xfilters = {};
+	}
+	if( tag.hasClass("important") ) {
+	    _cache.xfilters["intotals"] = null;
+	    tag.removeClass('important');
+	} else {
+	    const ar = [];
+	    ar.push("days\.(0|1|2|3|4|5|6)=1$");
+	    if( perm.weeks > 1 ) {
+		ar.push("weeks\.(0|1|2|3)=1$");
+	    }
+	    _cache.xfilters["intotals"] = ar.join(' ');
+	    tag.addClass('important');
+	}
+	_page(1);
+    }
+
 
 /* public properties & methods */
     return {
@@ -613,6 +665,18 @@ var PLUG = (function() {
 	more: function(tag, row_no) {
 	    //console.log(_cache.data.rows[row_no]);
 	    Dialog({width: 500, title: lang.extra_info, body: _detailsbody(_cache.data.b_date, _cache.data.rows[row_no])}).show();
+	},
+	weeks: function(tag, num) {
+	    /*_togglePopup();*/
+	    _f0(tag, "weeks", num);
+	},
+	days: function(tag, num) {
+	    /*_togglePopup();*/
+	    _f0(tag, "days", num);
+	},
+	intotals: function(tag) {
+	    /*_togglePopup();*/
+	    _f1(tag, _perm);
 	}
     }
 })();

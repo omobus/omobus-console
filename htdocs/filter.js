@@ -65,16 +65,25 @@ Filter.prototype._enumerateKeys = function(ar, cb, prefix) {
 		    var xv = val[i];
 		    var xt = typeof xv;
 		    if( xt == 'object' ) {
-			this._enumerateKeys(val[i], cb, key + '.');
+			/*this._enumerateKeys(val[i], cb, "{0}.{1}.".format_a(key, i));*/
+			this._enumerateKeys(val[i], cb, "{0}.".format_a(key));
 		    } else if( xt != 'function' && xv != null ) {
-			cb(prefix == null ? key : (prefix + key), xv);
+			if( prefix == null ) {
+			    cb("{0}.{1}".format_a(key, i), xv);
+			} else {
+			    cb("{2}{0}.{1}".format_a(key, i, prefix), xv);
+			}
 		    }
 		}
 	    } else {
-		this._enumerateKeys(val, cb, key + '.');
+		this._enumerateKeys(val, cb, "{0}.".format_a(key));
 	    }
 	} else if( type != 'function' && val != null ) {
-	    cb(prefix == null ? key : (prefix + key), val);
+	    if( prefix == null ) {
+		cb(key, val);
+	    } else {
+		cb(prefix + key, val);
+	    }
         }
     }
 }
