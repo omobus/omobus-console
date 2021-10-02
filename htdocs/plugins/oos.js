@@ -67,21 +67,34 @@ var PLUG = (function() {
 	    }
 	}
 	a.push(_tags.f.val());
-	return Filter(a.join(' '), false, {
-	    fix_dt:true, 
-	    user_id:true, dev_login:true, u_name:true, 
-	    account_id:true, a_code:true, a_name:true, address:true, 
-	    chan_id: true, chan:true, 
-	    poten:true, 
-	    rc_id:true, rc:true, ka_type:true, 
-	    region:true, 
-	    city:true, 
-	    brand_id:true, brand:true,
-	    categ_id:true, categ:true,
-	    prod_id:true, p_code:true, prod:true,
-	    oos_type_id:true, oos_type:true,
-	    head_id:true
-	});
+	return Filter(a.join(' '), false, [
+	    "fix_dt", 
+	    "user_id", 
+	    "dev_login", 
+	    "u_name", 
+	    "account_id", 
+	    "a_code", 
+	    "a_name", 
+	    "address", 
+	    "chan_id", 
+	    "chan", 
+	    "poten", 
+	    "rc_id", 
+	    "rc", 
+	    "ka_type", 
+	    "region", 
+	    "city", 
+	    "brand_id", 
+	    "brand",
+	    "categ_id", 
+	    "categ",
+	    "prod_id", 
+	    "p_code", 
+	    "prod",
+	    "oos_type_id", 
+	    "oos_type",
+	    "head_id"
+	]);
     }
 
     function _datamsg(msg, perm) {

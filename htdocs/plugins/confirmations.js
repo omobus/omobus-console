@@ -71,23 +71,36 @@ var PLUG = (function() {
 	    }
 	}
 	a.push(_tags.f.val());
-	return Filter(a.join(' '), false, {
-	    doc_id:true,
-	    fix_dt:true, 
-	    user_id:true, dev_login:true, u_name:true, 
-	    account_id:true, a_code:true, a_name:true, address:true, 
-	    chan_id: true, chan:true, 
-	    poten:true, 
-	    rc_id:true, rc:true, ka_type:true, 
-	    region:true, 
-	    city:true, 
-	    confirmation_type_id:true, confirm:true,
-	    doc_note:true,
-	    target_id:true, subject:true, body:true, b_date:true, e_date:true, 
-	    author_id:true,
-	    head_id:true,
-	    "remark.status":true
-	});
+	return Filter(a.join(' '), false, [
+	    "doc_id",
+	    "fix_dt", 
+	    "user_id", 
+	    "dev_login", 
+	    "u_name", 
+	    "account_id", 
+	    "a_code", 
+	    "a_name", 
+	    "address", 
+	    "chan_id", 
+	    "chan", 
+	    "poten", 
+	    "rc_id", 
+	    "rc", 
+	    "ka_type", 
+	    "region", 
+	    "city", 
+	    "confirmation_type_id", 
+	    "confirm",
+	    "doc_note",
+	    "target_id", 
+	    "subject", 
+	    "body", 
+	    "b_date", 
+	    "e_date", 
+	    "author_id",
+	    "head_id",
+	    "remark.status"
+	]);
     }
 
     function _targettbl(r) {

@@ -69,14 +69,16 @@ var PLUG = (function() {
 	    }
 	}
 	a.push(_tags.f.val());
-	return Filter(a.join(' '), false, {
-	    route_date:true, 
-	    user_id:true, dev_login:true, u_name:true,
-	    area:true,
-	    deps:true,
-	    distrs:true,
-	    head_id:true
-	});
+	return Filter(a.join(' '), false, [
+	    "route_date", 
+	    "user_id", 
+	    "dev_login", 
+	    "u_name",
+	    "area",
+	    "deps",
+	    "distrs",
+	    "head_id"
+	]);
     }
 
     function _datamsg(msg, perm) {

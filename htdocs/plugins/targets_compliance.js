@@ -67,22 +67,30 @@ var PLUG = (function() {
 	    }
 	}
 	a.push(_tags.f.val());
-	return Filter(a.join(' '), false, {
-	    target_id:true, 
-	    author_id:true, author_name:true, 
-	    account_id:true, a_code:true, a_name:true, address:true, 
-	    chan_id:true, chan:true, 
-	    poten:true, 
-	    rc_id:true, rc:true, ka_type:true, 
-	    region:true, 
-	    city:true, 
-	    subject:true, 
-	    target_type_id:true, target_type:true, 
-	    b_date:true, 
-	    "L.performer_id":true,
-	    "L.head_id":true, 
-	    "L.confirmation_type_id":true
-	});
+	return Filter(a.join(' '), false, [
+	    "target_id", 
+	    "author_id", 
+	    "author_name", 
+	    "account_id", 
+	    "a_code", 
+	    "a_name", 
+	    "address", 
+	    "chan_id", 
+	    "chan", 
+	    "poten", 
+	    "rc_id", 
+	    "rc", 
+	    "ka_type", 
+	    "region", 
+	    "city", 
+	    "subject", 
+	    "target_type_id", 
+	    "target_type", 
+	    "b_date", 
+	    "L\.[0-9]+\.performer_id",
+	    "L\.[0-9]+\.head_id", 
+	    "L\.[0-9]+\.confirmation_type_id"
+	]);
     }
 
     function _targettbl(r) {

@@ -70,25 +70,33 @@ var PLUG = (function() {
 	    }
 	}
 	a.push(_tags.f.val());
-	return Filter(a.join(' '), false, {
-	    doc_id:true,
-	    doc_no:true,
-	    fix_dt:true, 
-	    user_id:true, dev_login:true, u_name:true, 
-	    account_id:true, a_code:true, a_name:true, address:true, 
-	    chan_id:true, chan:true, 
-	    poten:true, 
-	    rc_id:true, rc:true, ka_type:true, 
-	    region:true, 
-	    city:true, 
-	    order_type_id:true,
-	    distr_id:true, 
-	    delivery_type_id:true, 
-	    payment_method_id:true, 
-	    doc_id:true, 
-	    doc_note:true,
-	    head_id:true
-	});
+	return Filter(a.join(' '), false, [
+	    "doc_id",
+	    "doc_no",
+	    "fix_dt", 
+	    "user_id", 
+	    "dev_login", 
+	    "u_name", 
+	    "account_id", 
+	    "a_code", 
+	    "a_name", 
+	    "address", 
+	    "chan_id", 
+	    "chan", 
+	    "poten", 
+	    "rc_id", 
+	    "rc", 
+	    "ka_type", 
+	    "region", 
+	    "city", 
+	    "order_type_id",
+	    "distr_id", 
+	    "delivery_type_id", 
+	    "payment_method_id", 
+	    "doc_id", 
+	    "doc_note",
+	    "head_id"
+	]);
     }
 
     function _detailsbody(r) {

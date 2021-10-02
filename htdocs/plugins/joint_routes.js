@@ -58,7 +58,7 @@ var PLUG = (function() {
 	    }
 	}
 	a.push(_tags.f.val());
-	return Filter(a.join(' '), false, {fix_date:true, employee_id:true, employee:true, author_id:true});
+	return Filter(a.join(' '), false, ["fix_date", "employee_id", "employee", "author_id"]);
     }
 
     function _detailsbody(r) {

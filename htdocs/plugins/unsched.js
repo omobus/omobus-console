@@ -47,14 +47,17 @@ var PLUG = (function() {
 	    }
 	}
 	a.push(_tags.f.val());
-	return Filter(a.join(' '), false, {
-	    doc_id:true,
-	    fix_dt:true,
-	    user_id:true, dev_login:true, u_name:true, 
-	    unsched_type_id:true, unsched_type:true, 
-	    doc_note:true, 
-	    head_id:true
-	});
+	return Filter(a.join(' '), false, [
+	    "doc_id",
+	    "fix_dt",
+	    "user_id", 
+	    "dev_login", 
+	    "u_name", 
+	    "unsched_type_id", 
+	    "unsched_type", 
+	    "doc_note", 
+	    "head_id"
+	]);
     }
 
     function _datamsg(msg, perm) {

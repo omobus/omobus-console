@@ -58,19 +58,27 @@ var PLUG = (function() {
 	    }
 	}
 	a.push(_tags.f.val());
-	return Filter(a.join(' '), false, {
-	    fix_dt:true, 
-	    user_id:true, dev_login:true, u_name:true, 
-	    account_id:true, a_code:true, a_name:true, address:true, 
-	    chan_id: true, chan:true, 
-	    poten:true, 
-	    rc_id:true, rc:true, ka_type:true, 
-	    region:true, 
-	    city:true, 
-	    qname_id:true,
-	    qrow_id:true,
-	    head_id:true
-	});
+	return Filter(a.join(' '), false, [
+	    "fix_dt", 
+	    "user_id", 
+	    "dev_login", 
+	    "u_name", 
+	    "account_id", 
+	    "a_code", 
+	    "a_name", 
+	    "address", 
+	    "chan_id", 
+	    "chan", 
+	    "poten", 
+	    "rc_id", 
+	    "rc", 
+	    "ka_type", 
+	    "region", 
+	    "city", 
+	    "qname_id",
+	    "qrow_id",
+	    "head_id"
+	]);
     }
 
     function _datamsg(msg, perm) {

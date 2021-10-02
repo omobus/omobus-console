@@ -68,19 +68,29 @@ var PLUG = (function() {
 	    }
 	}
 	a.push(_tags.f.val());
-	return Filter(a.join(' '), false, {
-	    fix_dt:true, 
-	    user_id:true, dev_login:true, u_name:true,
-	    account_id:true, a_code:true, a_name:true, address:true, 
-	    chan_id:true, chan:true, 
-	    poten_id:true, poten:true,
-	    rc_id:true, rc:true, ka_type:true, 
-	    region:true, 
-	    city:true, 
-	    activity_type:true,
-	    discard_type_id:true, discard_type:true,
-	    head_id:true
-	});
+	return Filter(a.join(' '), false, [
+	    "fix_dt", 
+	    "user_id", 
+	    "dev_login", 
+	    "u_name",
+	    "account_id", 
+	    "a_code", 
+	    "a_name", 
+	    "address", 
+	    "chan_id", 
+	    "chan", 
+	    "poten_id", 
+	    "poten",
+	    "rc_id", 
+	    "rc", 
+	    "ka_type", 
+	    "region", 
+	    "city", 
+	    "activity_type",
+	    "discard_type_id", 
+	    "discard_type",
+	    "head_id"
+	]);
     }
 
     function _datamsg(msg, perm) {

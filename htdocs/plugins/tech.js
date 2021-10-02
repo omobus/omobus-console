@@ -97,15 +97,16 @@ var PLUG = (function() {
 	    }
 	}
 	a.push(_tags.f.val());
-	return Filter(a.join(' '), false, {
-	    user_id:true, 
-	    dev_login:true, 
-	    u_name:true, 
-	    pid:true, 
-	    area:true, 
-	    departments:true, 
-	    distributors:true, 
-	    pause:true});
+	return Filter(a.join(' '), false, [
+	    "user_id", 
+	    "dev_login", 
+	    "u_name", 
+	    "pid", 
+	    "area", 
+	    "departments\.[0-9]+", 
+	    "distributors\.[0-9]+", 
+	    "pause"
+	]);
     }
 
     function _datamsg(msg) {

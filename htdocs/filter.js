@@ -1,16 +1,20 @@
 /* -*- JavaScript -*- */
 /* Copyright (c) 2006 - 2021 omobus-console authors, see the included COPYRIGHT file. */
 
-function Filter(arg, short, maptb) {
+function Filter(arg, short, params) {
     if( !(this instanceof Filter) ) {
-	return new Filter(arg, short, maptb);
+	return new Filter(arg, short, params);
     }
     if( arg instanceof HTMLElement ) {
 	arg = arg.val();
     }
     this._ar = this._init(arg);
     this._short = short;
-    this._maptb = maptb;
+    this._params = [];
+
+    for( let i = 0, s = Array.isArray(params) ? params.length : 0; i < s; i++ ) {
+	this._params.push(new RegExp(params[i], "im"));
+    }
 }
 
 
@@ -65,8 +69,7 @@ Filter.prototype._enumerateKeys = function(ar, cb, prefix) {
 		    var xv = val[i];
 		    var xt = typeof xv;
 		    if( xt == 'object' ) {
-			/*this._enumerateKeys(val[i], cb, "{0}.{1}.".format_a(key, i));*/
-			this._enumerateKeys(val[i], cb, "{0}.".format_a(key));
+			this._enumerateKeys(val[i], cb, "{0}.{1}.".format_a(key, i));
 		    } else if( xt != 'function' && xv != null ) {
 			if( prefix == null ) {
 			    cb("{0}.{1}".format_a(key, i), xv);
@@ -90,9 +93,17 @@ Filter.prototype._enumerateKeys = function(ar, cb, prefix) {
 
 // Dumps as key=value\n string.
 Filter.prototype._dump = function(args) {
-    var ar = [], own = this;
+    let ar = [], own = this;
     this._enumerateKeys(args, function(k, v) {
-	if( typeof own._maptb == 'undefined' || (typeof own._maptb[k] != 'undefined' && own._maptb[k] == true) ) {
+	let f = Array.isEmpty(own._params);
+	if( !f ) {
+	    for( let x, i = 0, s = own._params.length; i < s && !f; i++ ) {
+		if( (x = own._params[i]) != null && x.test(k) ) {
+		    f = true;
+		}
+	    }
+	}
+	if( f ) {
 	    if( own._short ) {
 		ar.push(v,"\n");
 	    } else {

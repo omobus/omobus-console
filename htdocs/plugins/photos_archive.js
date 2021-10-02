@@ -96,14 +96,23 @@ var PLUG = (function() {
 	    }
 	}
 	a.push(_tags.f.val());
-	return Filter(a.join(' '), false, {
-	    account_id:true, code:true, a_name:true, address:true, 
-	    chan_id:true, chan:true, 
-	    poten_id:true, poten:true,
-	    rc_id:true, rc:true, ka_type:true,
-	    region_id:true, region:true,
-	    city_id:true, city:true
-	});
+	return Filter(a.join(' '), false, [
+	    "account_id", 
+	    "code", 
+	    "a_name", 
+	    "address", 
+	    "chan_id", 
+	    "chan", 
+	    "poten_id", 
+	    "poten",
+	    "rc_id", 
+	    "rc", 
+	    "ka_type",
+	    "region_id", 
+	    "region",
+	    "city_id", 
+	    "city"
+	]);
     }
 
     function _datamsg(msg, perm) {

@@ -129,15 +129,15 @@ var PLUG = (function() {
 	    }
 	}
 	a.push(_tags.f.val());
-	return Filter(a.join(' '), false, {
-	    user_id:true, 
-	    dev_login:true, 
-	    u_name:true, 
-	    head_id:true,
-	    area: true,
-	    departments:true,
-	    distributors:true
-	});
+	return Filter(a.join(' '), false, [
+	    "user_id", 
+	    "dev_login", 
+	    "u_name", 
+	    "head_id",
+	    "area",
+	    "departments\.[0-9]+",
+	    "distributors\.[0-9]+"
+	]);
     }
 
     function _datamsg(msg, perm) {

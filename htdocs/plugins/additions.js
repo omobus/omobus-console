@@ -67,15 +67,22 @@ var PLUG = (function() {
 	    }
 	}
 	a.push(_tags.f.val());
-	return Filter(a.join(' '), false, {
-	    doc_id:true,
-	    fix_dt:true, 
-	    user_id:true, dev_login:true, u_name:true,
-	    a_code:true, a_name:true, address:true, geo_address:true,
-	    chan_id:true, chan:true, 
-	    addition_type_id:true, addition_type:true, 
-	    head_id:true
-	});
+	return Filter(a.join(' '), false, [
+	    "doc_id",
+	    "fix_dt", 
+	    "user_id", 
+	    "dev_login", 
+	    "u_name",
+	    "a_code", 
+	    "a_name", 
+	    "address", 
+	    "geo_address",
+	    "chan_id", 
+	    "chan", 
+	    "addition_type_id", 
+	    "addition_type", 
+	    "head_id"
+	]);
     }
 
     function _datamsg(msg, perm) {

@@ -71,22 +71,34 @@ var PLUG = (function() {
 	    }
 	}
 	a.push(_tags.f.val());
-	return Filter(a.join(' '), false, {
-	    doc_id:true,
-	    fix_dt:true, 
-	    user_id:true, dev_login:true, u_name:true,
-	    account_id:true, a_code:true, a_name:true, address:true, 
-	    chan_id:true, chan:true, 
-	    poten:true,
-	    rc_id:true, rc:true, ka_type:true,
-	    region:true, city:true, 
-	    placement_id:true, placement:true,
-	    posm_id:true, posm:true,
-	    brand_id:true, brand:true,
-	    head_id:true, 
-	    doc_note:true,
-	    _isLatest:true
-	});
+	return Filter(a.join(' '), false, [
+	    "doc_id",
+	    "fix_dt", 
+	    "user_id", 
+	    "dev_login", 
+	    "u_name",
+	    "account_id", 
+	    "a_code", 
+	    "a_name", 
+	    "address", 
+	    "chan_id", 
+	    "chan", 
+	    "poten",
+	    "rc_id", 
+	    "rc", 
+	    "ka_type",
+	    "region", 
+	    "city", 
+	    "placement_id", 
+	    "placement",
+	    "posm_id", 
+	    "posm",
+	    "brand_id", 
+	    "brand",
+	    "head_id", 
+	    "doc_note",
+	    "_isLatest"
+	]);
     }
 
     function _getexplain(r, perm) {

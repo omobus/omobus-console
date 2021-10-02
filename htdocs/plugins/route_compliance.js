@@ -67,15 +67,15 @@ var PLUG = (function() {
     }
 
     function _getfilter() {
-	return Filter(_tags.f.val(), false, {
-	    user_id:true, 
-	    dev_login:true, 
-	    u_name:true, 
-	    head_name:true, 
-	    area: true,
-	    departments:true,
-	    distributors:true
-	});
+	return Filter(_tags.f.val(), false, [
+	    "user_id", 
+	    "dev_login", 
+	    "u_name", 
+	    "head_name", 
+	    "area",
+	    "departments\.[0-9]+",
+	    "distributors\.[0-9]+"
+	]);
     }
 
     function _fixpower(arg) {

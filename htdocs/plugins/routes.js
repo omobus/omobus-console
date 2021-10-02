@@ -108,32 +108,23 @@ var PLUG = (function() {
 	    a.push("user_id={0}$ ".format_a(_cache.userFilter));
 	}
 	a.push(_tags.f.val());
-	return Filter(a.join(' '), false, {
-	    user_id: true,
-	    dev_login: true,
-	    u_name: true,
-	    account_id: true,
-	    a_code: true,
-	    a_name: true,
-	    address: true,
-	    chan: true,
-	    poten: true,
-	    retail_chain: true,
-	    ka_type: true,
-	    region: true,
-	    city: true,
-	    "weeks.0": true,
-	    "weeks.1": true,
-	    "weeks.2": true,
-	    "weeks.3": true,
-	    "days.0": true,
-	    "days.1": true,
-	    "days.2": true,
-	    "days.3": true,
-	    "days.4": true,
-	    "days.5": true,
-	    "days.6": true
-	});
+	return Filter(a.join(' '), false, [
+	    "user_id",
+	    "dev_login",
+	    "u_name",
+	    "account_id",
+	    "a_code",
+	    "a_name",
+	    "address",
+	    "chan",
+	    "poten",
+	    "retail_chain",
+	    "ka_type",
+	    "region",
+	    "city",
+	    "weeks",
+	    "days"
+	]);
     }
 
     function _a(r, perm) {

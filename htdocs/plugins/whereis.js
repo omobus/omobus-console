@@ -70,28 +70,28 @@ var PLUG = (function() {
 	    }
 	}
 	a.push(_tags.f.val());
-	return Filter(a.join(' '), false, {
-	    account_id : true, 
-	    a_code : true, 
-	    a_name : true, 
-	    address : true, 
-	    brand_id : true, 
-	    brand : true,
-	    categ_id : true, 
-	    categ : true,
-	    chan_id : true, 
-	    chan : true, 
-	    city_id : true,
-	    city : true, 
-	    region_id : true,
-	    region : true,
-	    rc_id : true, 
-	    rc : true, 
-	    ka_type : true, 
-	    prod_id : true, 
-	    p_code : true, 
-	    p_name : true
-	});
+	return Filter(a.join(' '), false, [
+	    "account_id", 
+	    "a_code", 
+	    "a_name", 
+	    "address", 
+	    "brand_id", 
+	    "brand",
+	    "categ_id", 
+	    "categ",
+	    "chan_id", 
+	    "chan", 
+	    "city_id",
+	    "city", 
+	    "region_id",
+	    "region",
+	    "rc_id", 
+	    "rc", 
+	    "ka_type", 
+	    "prod_id", 
+	    "p_code", 
+	    "p_name"
+	]);
     }
 
     function _datamsg(msg, perm) {

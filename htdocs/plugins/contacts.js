@@ -65,32 +65,32 @@ var PLUG = (function() {
 	    }
 	}
 	a.push(_tags.f.val());
-	return Filter(a.join(' '), false, {
-	    account_id: true, 
-	    a_code: true, 
-	    a_name: true, 
-	    address: true,
-	    chan_id: true, 
-	    chan: true,
-	    poten: true,
-	    rc_id: true, 
-	    rc: true, 
-	    ka_type: true,
-	    region: true,
-	    city: true,
-	    contact_id: true,
-	    name: true, 
-	    surname: true, 
-	    patronymic: true, 
-	    mobile: true, 
-	    email: true,
-	    job_title_id: true, 
-	    job_title: true,
-	    loyalty_level_id: true,
-	    extra_info: true,
-	    author_id: true, 
-	    author: true
-	});
+	return Filter(a.join(' '), false, [
+	    "account_id", 
+	    "a_code", 
+	    "a_name", 
+	    "address",
+	    "chan_id", 
+	    "chan",
+	    "poten",
+	    "rc_id", 
+	    "rc", 
+	    "ka_type",
+	    "region",
+	    "city",
+	    "contact_id",
+	    "name", 
+	    "surname", 
+	    "patronymic", 
+	    "mobile", 
+	    "email",
+	    "job_title_id", 
+	    "job_title",
+	    "loyalty_level_id",
+	    "extra_info",
+	    "author_id", 
+	    "author"
+	]);
     }
 
     function _datamsg(msg, perm) {

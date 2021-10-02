@@ -72,37 +72,37 @@ var PLUG = (function() {
 	    }
 	}
 	a.push(_tags.f.val());
-	return Filter(a.join(' '), false, {
-	    doc_id: true,
-	    fix_dt: true, 
-	    user_id: true, 
-	    dev_login: true, 
-	    u_name: true, 
-	    account_id: true, 
-	    a_code: true, 
-	    a_name: true, 
-	    address: true, 
-	    chan_id:  true, 
-	    chan: true, 
-	    poten: true, 
-	    rc_id: true, 
-	    rc: true, 
-	    ka_type: true, 
-	    region: true, 
-	    city: true, 
-	    categ_id: true, 
-	    categ: true,
-	    brand_id: true, 
-	    prod_id: true,
-	    prod: true,
-	    brand: true,
-	    promo_type_id: true,
-	    promo_type: true,
-	    promo_value_id: true,
-	    promo_value: true,
-	    doc_note: true,
-	    head_id: true
-	});
+	return Filter(a.join(' '), false, [
+	    "doc_id",
+	    "fix_dt", 
+	    "user_id", 
+	    "dev_login", 
+	    "u_name", 
+	    "account_id", 
+	    "a_code", 
+	    "a_name", 
+	    "address", 
+	    "chan_id", 
+	    "chan", 
+	    "poten", 
+	    "rc_id", 
+	    "rc", 
+	    "ka_type", 
+	    "region", 
+	    "city", 
+	    "categ_id", 
+	    "categ",
+	    "brand_id", 
+	    "prod_id",
+	    "prod",
+	    "brand",
+	    "promo_type_id",
+	    "promo_type",
+	    "promo_value_id",
+	    "promo_value",
+	    "doc_note",
+	    "head_id"
+	]);
     }
 
     function _datamsg(msg, perm) {
