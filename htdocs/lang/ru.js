@@ -525,6 +525,8 @@ var lang = {
     },
     shipment: "Отгрузка",
     shortage: "мало",
+    specialization: "Специализация",
+    specialization_everything: "Все специализации",
     status: "Статус",
     stock: "Остаток",
     stocks: {

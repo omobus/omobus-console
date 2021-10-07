@@ -15,6 +15,7 @@ var PLUG = (function() {
 	let x = 11, c = perm.columns || {};
 	if( c.channel == true ) x++;
 	if( c.loyalty == true ) x++;
+	if( c.specialization == true ) x++;
 	return x;
     }
 
@@ -33,6 +34,9 @@ var PLUG = (function() {
 	ar.push("<th class='autoincrement'>", lang.num, "</th>");
 	ar.push("<th>", lang.contact, "</th>");
 	ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.jobs(this, 0.30)'>", lang.job_title, "</a></th>");
+	if( perm.columns != null && perm.columns.specialization == true ) {
+	    ar.push("<th width='65px'><a href='javascript:void(0)' onclick='PLUG.specs(this, 0.30)'>", lang.specialization, "</a></th>");
+	}
 	if( perm.columns != null && perm.columns.loyalty == true ) {
 	    ar.push("<th width='65px'><a href='javascript:void(0)' onclick='PLUG.levels(this, 0.30)'>", lang.loyalty_level, "</a></th>");
 	}
@@ -50,9 +54,10 @@ var PLUG = (function() {
 	ar.push("</tr>", G.thnums(_getcolumns(perm)), "</thead>");
 	ar.push("<tbody id='maintb'></tbody></table>");
 	ar.push(ChannelsPopup.container());
-	ar.push(RetailChainsPopup.container());
 	ar.push(JobTitlesPopup.container());
 	ar.push(LoyaltyLevelsPopup.container());
+	ar.push(RetailChainsPopup.container());
+	ar.push(SpecializationsPopup.container());
 	ar.push(UsersPopup.container("authorsPopup"));
 	return ar;
     }
@@ -86,6 +91,8 @@ var PLUG = (function() {
 	    "email",
 	    "job_title_id", 
 	    "job_title",
+	    "spec_id",
+	    "specialization",
 	    "loyalty_level_id",
 	    "extra_info",
 	    "author_id", 
@@ -119,6 +126,9 @@ var PLUG = (function() {
 		    } else {
 			ar.push("<td class='ref'>", G.shielding(r.job_title), "</td>");
 		    }
+		    if( perm.columns != null && perm.columns.specialization == true ) {
+			ar.push("<td class='ref'>", G.shielding(r.specialization), "</td>");
+		    }
 		    if( perm.columns != null && perm.columns.loyalty == true ) {
 			ar.push("<td class='ref'>", G.shielding(r.loyalty_level), "</td>");
 		    }
@@ -146,6 +156,10 @@ var PLUG = (function() {
 	}
 	if( ar.length == 0 ) {
 	    ar = _datamsg(lang.empty, perm);
+	}
+	if( typeof data.data_ts == 'string' ) {
+	    ar.push("<tr class='def'><td colspan='" + _getcolumns(perm) + "' class='watermark'>" + lang.data_ts +
+		"&nbsp;" + data.data_ts + "</td></tr>");
 	}
 	if( (z = Math.floor(x/perm.rows) + ((x%perm.rows)?1:0)) > 1 /*pages: */ ) {
 	    ar.push("<tr class='def'><td colspan='" + _getcolumns(perm) + "' class='navbar'>");
@@ -181,13 +195,92 @@ var PLUG = (function() {
 	return ar;
     }
 
+    function _compileRowset(data) {
+	const ar = [];
+	const i_accounts = Array.createIndexBy(data.accounts, "account_id");
+	const i_authors = Array.createIndexBy(data.authors, "user_id");
+	const i_channels = Array.createIndexBy(data.channels, "chan_id");
+	const i_cities = Array.createIndexBy(data.cities, "city_id");
+	const i_jobs = Array.createIndexBy(data.job_titles, "job_title_id");
+	const i_loyalties = Array.createIndexBy(data.loyalty_levels, "loyalty_level_id");
+	const i_regions = Array.createIndexBy(data.regions, "region_id");
+	const i_retail_chains = Array.createIndexBy(data.retail_chains, "rc_id");
+	const i_specs = Array.createIndexBy(data.specializations, "spec_id");
+
+	if( !Array.isEmpty(data.rows) ) {
+	    data.rows.forEach(function(arg, i) {
+		const a = i_accounts[arg.account_id] || {};
+		const u = i_authors[arg.author_id] || {};
+		const h = i_channels[a.chan_id] || {};
+		const k = i_cities[a.city_id] || {};
+		const j = i_jobs[arg.job_title_id] || {};
+		const l = i_loyalties[arg.loyalty_level_id] || {};
+		const e = i_regions[a.region_id] || {};
+		const r = i_retail_chains[a.rc_id] || {};
+		const s = i_specs[arg.spec_id] || {};
+		const x = {}
+
+		x.row_no = i + 1;
+		x.contact_id = arg.contact_id;
+		x.name = arg.name;
+		x.surname = arg.surname;
+		x.patronymic = arg.patronymic;
+		x.job_title_id = arg.job_title_id;
+		x.job_title = j.descr;
+		x.spec_id = arg.spec_id;
+		x.specialization = s.descr;
+		x.loyalty_level_id = arg.loyalty_level_id;
+		x.loyalty_level = l.descr;
+		x.mobile = arg.mobile;
+		x.email = arg.email;
+		x.account_id = a.account_id;
+		x.a_code = a.code;
+		x.a_name = a.descr;
+		x.address = a.address;
+		x.a_hidden = a.hidden;
+		x.a_locked = a.locked;
+		x.chan_id = h.chan_id;
+		x.chan = h.descr;
+		x.rc_id = r.rc_id;
+		x.rc = r.descr;
+		x.ka_type = r.ka_type;
+		x.region_id = e.region_id;
+		x.region = e.descr;
+		x.city_id = k.city_id;
+		x.city = k.descr;
+		x.author_id = arg.author_id;
+		x.author = u.descr;
+		x.extra_info = arg.extra_info;
+		x.locked = arg.locked;
+		x.updated_ts = arg.updated_ts;
+		x._isaliendata = arg._isaliendata;
+		ar.push(x);
+	    });
+	}
+
+	return {
+	    data_ts: data.data_ts,
+	    rows: ar,
+	    authors: data.authors,
+	    channels: data.channels,
+	    cities: data.cities,
+	    job_titles: data.job_titles,
+	    loyalty_levels: data.loyalty_levels,
+	    regions: data.regions,
+	    retail_chains: data.retail_chains,
+	    specializations: data.specializations
+	}
+    }
+
     function _datareq() {
 	ProgressDialog.show();
 	_cache.data = null; // drop the internal cache
 	G.xhr("GET", G.getdataref({plug: _code}), "json", function(xhr, data) {
 	    if( xhr.status == 200 && data != null && typeof data == 'object' ) {
-		_cache.data = data;
-		_tags.tbody.html(_datatbl(data, 1, _tags.total, _getfilter(), _cache.checked, _perm).join(""));
+		_cache.data = _compileRowset(data);
+		//console.log(data);
+		//console.log(_cache.data);
+		_tags.tbody.html(_datatbl(_cache.data, 1, _tags.total, _getfilter(), _cache.checked, _perm).join(""));
 	    } else {
 		_tags.tbody.html(_datamsg(lang.failure, _perm).join(""));
 		_tags.total.html("");
@@ -258,21 +351,22 @@ var PLUG = (function() {
 			ws.cell("B{0}".format_a(i + offset)).value(r.contact_id);
 			ws.cell("C{0}".format_a(i + offset)).value(_fmtcontact(r));
 			ws.cell("D{0}".format_a(i + offset)).value(r.job_title);
-			ws.cell("E{0}".format_a(i + offset)).value(r.loyalty_level);
-			ws.cell("F{0}".format_a(i + offset)).value(r.mobile);
-			ws.cell("G{0}".format_a(i + offset)).value(r.email);
-			ws.cell("H{0}".format_a(i + offset)).value(r.a_code);
-			ws.cell("I{0}".format_a(i + offset)).value(r.a_name);
-			ws.cell("J{0}".format_a(i + offset)).value(r.address);
-			ws.cell("K{0}".format_a(i + offset)).value(r.chan);
-			ws.cell("L{0}".format_a(i + offset)).value(r.poten);
-			ws.cell("M{0}".format_a(i + offset)).value(r.region);
-			ws.cell("N{0}".format_a(i + offset)).value(r.city);
-			ws.cell("O{0}".format_a(i + offset)).value(r.rc);
-			ws.cell("P{0}".format_a(i + offset)).value(r.ka_type);
-			ws.cell("Q{0}".format_a(i + offset)).value(r.doc_note);
-			ws.cell("R{0}".format_a(i + offset)).value(r.author);
-			ws.cell("S{0}".format_a(i + offset)).value(/*Date.parseISO8601(*/r.updated_ts/*)*/);
+			ws.cell("E{0}".format_a(i + offset)).value(r.specialization);
+			ws.cell("F{0}".format_a(i + offset)).value(r.loyalty_level);
+			ws.cell("G{0}".format_a(i + offset)).value(r.mobile);
+			ws.cell("H{0}".format_a(i + offset)).value(r.email);
+			ws.cell("I{0}".format_a(i + offset)).value(r.a_code);
+			ws.cell("J{0}".format_a(i + offset)).value(r.a_name);
+			ws.cell("K{0}".format_a(i + offset)).value(r.address);
+			ws.cell("L{0}".format_a(i + offset)).value(r.chan);
+			ws.cell("M{0}".format_a(i + offset)).value(r.poten);
+			ws.cell("N{0}".format_a(i + offset)).value(r.region);
+			ws.cell("O{0}".format_a(i + offset)).value(r.city);
+			ws.cell("P{0}".format_a(i + offset)).value(r.rc);
+			ws.cell("Q{0}".format_a(i + offset)).value(r.ka_type);
+			ws.cell("R{0}".format_a(i + offset)).value(r.doc_note);
+			ws.cell("S{0}".format_a(i + offset)).value(r.author);
+			ws.cell("T{0}".format_a(i + offset)).value(/*Date.parseISO8601(*/r.updated_ts/*)*/);
 		    }
 		    wb.outputAsync()
 			.then(function(blob) {
@@ -377,6 +471,13 @@ var PLUG = (function() {
 	    _togglePopup("loyalty_levels", tag, offset, function(obj) {
 		return LoyaltyLevelsPopup(_cache.data[obj], function(arg, i, ar) {
 		    _onpopup(tag, arg, "loyalty_level_id");
+		})
+	    });
+	},
+	specs: function(tag, offset) {
+	    _togglePopup("specializations", tag, offset, function(obj) {
+		return SpecializationsPopup(_cache.data[obj], function(arg, i, ar) {
+		    _onpopup(tag, arg, "spec_id");
 		})
 	    });
 	},
