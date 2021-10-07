@@ -90,7 +90,7 @@ and x.account_id in (
 	if err == nil or err == false then
 	    tb.accounts, err = func_execute(tran,
 [[
-select account_id, code, descr, address, rc_id, chan_id, city_id, region_id, phone hidden from accounts
+select account_id, code, descr, address, rc_id, chan_id, city_id, region_id, phone, hidden, locked from accounts
     order by descr, address, code
 ]]
 		, "/plugins/whereis/accounts"

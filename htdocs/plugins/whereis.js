@@ -104,12 +104,18 @@ var PLUG = (function() {
 	for( var i = 0, k = 0; i < size; i++ ) {
 	    if( (r = data.rows[i]) != null && f.is(r) ) {
 		if( (page-1)*perm.rows <= x && x < page*perm.rows ) {
+		    var xs = "";
+		    if( r.a_hidden ) {
+			xs = " strikethrough attention";
+		    } else if ( r.a_locked ) {
+			xs = " strikethrough";
+		    }
 		    ar.push("<tr" + (typeof checked != 'undefined' && checked[r.row_id] ? " class='selected'" : "") + ">");
 		    ar.push("<td class='autoincrement clickable' onclick=\"PLUG.checkrow(this.parentNode,'" +
 			r.row_id + "');event.stopPropagation();\">", r.row_no, "</td>");
-		    ar.push("<td class='int'>", G.shielding(r.a_code), "</td>");
-		    ar.push("<td class='string a_name'>", G.shielding(r.a_name), "</td>");
-		    ar.push("<td class='string a_address'>", G.shielding(r.address), "</td>");
+		    ar.push("<td class='int", xs, "'>", G.shielding(r.a_code), "</td>");
+		    ar.push("<td class='string a_name", xs, "'>", G.shielding(r.a_name), "</td>");
+		    ar.push("<td class='string a_address", xs, "'>", G.shielding(r.address), "</td>");
 		    if( perm.columns != null && perm.columns.region == true ) {
 			ar.push("<td class='ref sw95px delim'>", G.shielding(r.region), "</td>");
 		    }
@@ -210,6 +216,8 @@ var PLUG = (function() {
 		x.a_name = a.descr;
 		x.address = a.address;
 		x.phone = a.phone;
+		x.a_hidden = a.hidden;
+		x.a_locked = a.locked;
 		x.prod_id = p.prod_id;
 		x.p_code = p.code;
 		x.p_name = p.descr;
