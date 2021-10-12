@@ -95,6 +95,7 @@ var PLUG = (function() {
 	    "payment_method_id", 
 	    "doc_id", 
 	    "doc_note",
+	    "mailboxes",
 	    "head_id"
 	]);
     }
@@ -415,7 +416,13 @@ var PLUG = (function() {
 			ws.cell("V{0}".format_a(i + offset)).value(r.bonus);
 			ws.cell("W{0}".format_a(i + offset)).value(r.encashment);
 			ws.cell("X{0}".format_a(i + offset)).value(r.doc_note);
-			ws.cell("Y{0}".format_a(i + offset)).value(r.head_name);
+			if( Array.isArray(r.order_params) ) {
+			    ws.cell("Y{0}".format_a(i + offset)).value(r.order_params.join(", "));
+			}
+			if( Array.isArray(r.mailboxes) ) {
+			    ws.cell("Z{0}".format_a(i + offset)).value(r.mailboxes.join(", "));
+			}
+			ws.cell("AA{0}".format_a(i + offset)).value(r.head_name);
 		    }
 		    wb.outputAsync()
 			.then(function(blob) {
