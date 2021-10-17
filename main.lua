@@ -87,7 +87,7 @@ local function username(sestb, usertb)
     return sestb.cn ~= nil and sestb.cn or sestb.username
 end
 
-local function get_userdata(sestb, usertb, modstb, dumpstb)
+local function userdata(sestb, usertb, modstb, dumpstb)
     local tb = {}
     tb.cn = username(sestb, usertb)
     tb.ip = sestb.ip
@@ -140,12 +140,13 @@ local function startup_script(lang, sestb, usertb, modstb, dumpstb, res, plug_da
     table.insert(ar, "const __AUTHOR__='" .. V.package_name .. '/' .. V.package_version .. "';")
     table.insert(ar, "const __SID__='" .. sestb.sid .. "';")
     table.insert(ar, "const __STATIC_REF_PREFIX__='" .. V.static_prefix .. "';")
+    table.insert(ar, "const __USERNAME__='" .. ((usertb ~= nil and usertb.descr ~= nil) and usertb.descr or sestb.username) .. "';")
     table.insert(ar, "window.onload = function() {")
     if not config.session.strict then
 	table.insert(ar, "setInterval(function() { G.xhr('GET','keep-alive?sid=" .. sestb.sid .. 
 	    "','',function(xhr) {}).send(); }, " .. sestb.lifetime*1000/4 .. ");")
     end
-    table.insert(ar, "Dashboard.startup(" .. get_userdata(sestb, usertb, modstb, dumpstb) .. ");")
+    table.insert(ar, "Dashboard.startup(" .. userdata(sestb, usertb, modstb, dumpstb) .. ");")
     if plug_data ~= nil then
 	table.insert(ar, plug_data)
     end
@@ -190,13 +191,8 @@ local function default_page(lang, sestb, params, res, plug_data)
 	table.insert(ar, config.logo.main)
     end
     table.insert(ar, '<td>')
-    --table.insert(ar, '<div>')
     table.insert(ar, '<span class="logoTitle" onclick="document.location=G.getdefref();">' .. config.title .. 
 	'&nbsp;</span><span class="logoSubTitle">' .. config.subtitle .. '</span>')
-    --table.insert(ar, '</div>')
-    --table.insert(ar, '<div>')
-    --table.insert(ar, '<span class="logoWatermark" id="userRef">&nbsp;</span>')
-    --table.insert(ar, '</div>')
     table.insert(ar, '</td>')
     table.insert(ar, '<td align="right">')
     table.insert(ar, '<div style="text-align: right; white-space: nowrap;">')
