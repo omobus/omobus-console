@@ -7,7 +7,7 @@ var PLUG = (function() {
     var _cache = {}, _perm = {}, _tags = {};
 
     function _getcolumns(perm) {
-	let x = 12, c = perm.columns || {};
+	let x = 13, c = perm.columns || {};
 	if( c.channel == true ) x++;
 	if( c.brand == true ) x++;
 	if( c.category == true ) x++;
@@ -45,7 +45,8 @@ var PLUG = (function() {
 	}
 	ar.push("<th><a href='javascript:void(0)' onclick='PLUG.products(this,0.8)'>", lang.prod_name, "</a></th>");
 	ar.push("<th class='numeric' width='45px'>", lang.price, "</th>");
-	ar.push("<th class='bool'>", lang.promo, "</th>");
+	ar.push("<th class='numeric' width='45px'>", lang.promo, "</th>");
+	ar.push("<th class='bool'>", lang.discount, "</th>");
 	ar.push("<th class='numeric' width='45px'>", lang.rrp, "</th>");
 	ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"head\",0.90)'>", lang.head_name, "</a></th>");
 	ar.push("<th class='bool' width='35px'>", "&#x267A;", "</th>");
@@ -129,7 +130,13 @@ var PLUG = (function() {
 		    }
 		    ar.push("<td class='string note'>", G.shielding(r.prod), "</td>");
 		    ar.push("<td class='int'>", G.getcurrency_l(r.price), "</td>");
-		    ar.push("<td class='bool'>", r.promo ? lang.plus : "&nbsp;", "</td>");
+if( typeof r.discount == 'undefined' ) { /* obsolete after 01.10.2022 */
+ar.push("<td class='int'>", "&nbsp;", "</td>");
+ar.push("<td class='bool'>", r.promo ? lang.plus : "&nbsp;", "</td>");
+} else {
+		    ar.push("<td class='int'>", G.getcurrency_l(r.promo), "</td>");
+		    ar.push("<td class='bool'>", r.discount ? lang.plus : "&nbsp;", "</td>");
+}
 		    ar.push("<td class='int delim'>", G.getcurrency_l(r.rrp), "</td>");
 		    ar.push("<td class='string sw95px'>", G.shielding(r.head_name), "</td>");
 		    ar.push("<td class='bool'>", String.isEmpty(r.scratch) ? "" : "&#x267A;", "</td>");
@@ -317,10 +324,16 @@ var PLUG = (function() {
 			ws.cell("P{0}".format_a(i + offset)).value(r.p_code);
 			ws.cell("Q{0}".format_a(i + offset)).value(r.prod);
 			ws.cell("R{0}".format_a(i + offset)).value(r.price);
-			ws.cell("S{0}".format_a(i + offset)).value(r.promo ? "+" : "");
-			ws.cell("T{0}".format_a(i + offset)).value(r.rrp);
-			ws.cell("U{0}".format_a(i + offset)).value(r.head_name);
-			ws.cell("V{0}".format_a(i + offset)).value(String.isEmpty(r.scratch) ? "" : "♺");
+if( typeof r.discount == 'undefined' ) { /* obsolete after 01.10.2022 */
+ws.cell("T{0}".format_a(i + offset)).value(r.promo ? "+" : "");
+} else {
+			ws.cell("S{0}".format_a(i + offset)).value(r.promo);
+			ws.cell("T{0}".format_a(i + offset)).value(r.discount ? "+" : "");
+}
+			ws.cell("U{0}".format_a(i + offset)).value(r.units);
+			ws.cell("V{0}".format_a(i + offset)).value(r.rrp);
+			ws.cell("W{0}".format_a(i + offset)).value(r.head_name);
+			ws.cell("X{0}".format_a(i + offset)).value(String.isEmpty(r.scratch) ? "" : "♺");
 		    }
 		    wb.outputAsync()
 			.then(function(blob) {

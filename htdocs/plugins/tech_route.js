@@ -107,7 +107,7 @@ var __route = (function() {
     function _zstatusStyle(r) {
 	var xs = [];
 	if( r.zstatus == 'accepted' || r.zstatus == 'rejected' ) {
-	    xs.push(" ", r.zstatus, " footnote' data-title='", lang.zstatus[r.zstatus].format_a(G.shielding(r.activity_type)));
+	    xs.push(" ", r.zstatus, " footnote' data-title='", lang.zstatus[r.zstatus].format_a(G.shielding(r.zauthor,"-"),G.shielding(r.activity_type,"-").toLowerCase()));
 	    if( !String.isEmpty(r.znote) ) {
 		xs.push(": ", G.shielding(r.znote));
 	    }
@@ -900,9 +900,10 @@ var __route = (function() {
 		ar.push("<td class='divider'>", lang.num, "</td>");
 		ar.push("<td class='divider'>", lang.code, "</td>");
 		ar.push("<td class='divider'>", lang.prod_name, "</td>");
-		ar.push("<td class='divider' width='95px'>", lang.price, "</td>");
-		ar.push("<td class='divider' width='35px'>", lang.promo, "</td>");
-		ar.push("<td class='divider' width='95px'>", lang.rrp, "</td>");
+		ar.push("<td class='divider' width='85px'>", lang.price, "</td>");
+		ar.push("<td class='divider' width='85px'>", lang.promo, "</td>");
+		ar.push("<td class='divider' width='35px'>", lang.discount, "</td>");
+		ar.push("<td class='divider' width='85px'>", lang.rrp, "</td>");
 		ar.push("<td class='divider' width='35px'>", "&nbsp;", "</td>");
 		ar.push("</tr>");
 		r.rows.forEach(function(arg0, row_no) {
@@ -911,7 +912,13 @@ var __route = (function() {
 		    ar.push("<td class='int'>", G.shielding(arg0.p_code), "</td>");
 		    ar.push("<td class='string'>", G.shielding(arg0.prod), "</td>");
 		    ar.push("<td class='int'>", G.getcurrency_l(arg0.price), "</td>");
-		    ar.push("<td class='bool'>", (arg0.promo ? lang.plus : "&nbsp;"), "</td>");
+if( typeof arg0.promo == 'undefined' ) { /* obsolete after 01.10.2022 */
+ar.push("<td class='int'>", "&nbsp;", "</td>");
+ar.push("<td class='bool'>", (arg0.promo ? lang.plus : "&nbsp;"), "</td>");
+} else {
+		    ar.push("<td class='int'>", G.getcurrency_l(arg0.promo), "</td>");
+		    ar.push("<td class='bool'>", (arg0.discount ? lang.plus : "&nbsp;"), "</td>");
+}
 		    ar.push("<td class='int'>", G.getcurrency_l(arg0.rrp), "</td>");
 		    ar.push("<td class='bool'>", String.isEmpty(arg0.scratch) ? "" : "&#x267A;", "</td>");
 		    ar.push("</tr>");
@@ -1589,9 +1596,10 @@ var __route = (function() {
 		ar.push("<td class='divider'>", lang.num, "</td>");
 		ar.push("<td class='divider'>", lang.code, "</td>");
 		ar.push("<td class='divider'>", lang.prod_name, "</td>");
-		ar.push("<td class='divider' width='95px'>", lang.price, "</td>");
-		ar.push("<td class='divider' width='35px'>", lang.promo, "</td>");
-		ar.push("<td class='divider' width='95px'>", lang.rrp, "</td>");
+		ar.push("<td class='divider' width='85px'>", lang.price, "</td>");
+		ar.push("<td class='divider' width='85px'>", lang.promo, "</td>");
+		ar.push("<td class='divider' width='35px'>", lang.discount, "</td>");
+		ar.push("<td class='divider' width='85px'>", lang.rrp, "</td>");
 		ar.push("<td class='divider' width='35px'>", "&nbsp;", "</td>");
 		ar.push("</tr>");
 		r.rows.forEach(function(arg0) {
@@ -1600,7 +1608,13 @@ var __route = (function() {
 		    ar.push("<td class='int'>", G.shielding(arg0.p_code), "</td>");
 		    ar.push("<td class='string'>", G.shielding(arg0.prod), "</td>");
 		    ar.push("<td class='int'>", G.getcurrency_l(arg0.price), "</td>");
-		    ar.push("<td class='bool'>", (arg0.promo ? lang.plus : "&nbsp;"), "</td>");
+if( typeof arg0.promo == 'undefined' ) { /* obsolete after 01.10.2022 */
+ar.push("<td class='int'>", "&nbsp;", "</td>");
+ar.push("<td class='bool'>", (arg0.promo ? lang.plus : "&nbsp;"), "</td>");
+} else {
+		    ar.push("<td class='int'>", G.getcurrency_l(arg0.promo), "</td>");
+		    ar.push("<td class='bool'>", (arg0.discount ? lang.plus : "&nbsp;"), "</td>");
+}
 		    ar.push("<td class='int'>", G.getcurrency_l(arg0.rrp), "</td>");
 		    ar.push("<td class='bool'>", String.isEmpty(arg0.scratch) ? "" : "&#x267A;", "</td>");
 		    ar.push("</tr>");
@@ -2269,7 +2283,7 @@ for( k in data.shelfs) { data.shelfs[k].forEach(function(arg) { if( !Array.isArr
 			tag.removeClass('rejected');
 			tag.addClass(ptr.zstatus);
 			tag.addClass('footnote');
-			tag.setAttribute('data-title', lang.zstatus[ptr.zstatus].format_a(ptr.activity_type) +
+			tag.setAttribute('data-title', lang.zstatus[ptr.zstatus].format_a(G.shielding(__USERNAME__), G.shielding(ptr.activity_type,"").toLowerCase()) +
 			    (String.isEmpty(ptr.znote) ? "" : ": {0}".format_a(ptr.znote)));
 			x.hide();
 			Toast.show(lang.success.zstatus);

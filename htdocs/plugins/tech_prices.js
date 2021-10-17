@@ -4,7 +4,7 @@
 PLUG.registerRef("price", (function() {
     /* private properties & methods */
     var _cache = {}; // internal cache object for preventing reloading data
-    var _columns = 10;
+    var _columns = 11;
 
     function _gettable() {
 	var ar = [];
@@ -15,9 +15,10 @@ PLUG.registerRef("price", (function() {
 	ar.push("<th>", lang.a_name, "</th>");
 	ar.push("<th>", lang.address, "</th>");
 	ar.push("<th>", lang.prod_name, "</th>");
-	ar.push("<th class='numeric' width='95px'>", lang.price, "</th>");
-	ar.push("<th class='bool'>", lang.promo, "</th>");
-	ar.push("<th class='numeric' width='95px'>", lang.rrp, "</th>");
+	ar.push("<th class='numeric' width='85px'>", lang.price, "</th>");
+	ar.push("<th class='numeric' width='85px'>", lang.promo, "</th>");
+	ar.push("<th class='bool'>", lang.discount, "</th>");
+	ar.push("<th class='numeric' width='85px'>", lang.rrp, "</th>");
 	ar.push("<th class='bool' width='35px'>", "&#x267A;", "</th>");
 	ar.push("</tr>", G.thnums(_columns), "</thead><tbody id='xztb'></tbody></table>");
 	return ar;
@@ -37,7 +38,13 @@ PLUG.registerRef("price", (function() {
 	    ar.push("<td class='string'>", G.shielding(r.address), "</td>");
 	    ar.push("<td class='string'>", G.shielding(r.prod), "</td>");
 	    ar.push("<td class='int'>", G.getcurrency_l(r.price), "</td>");
-	    ar.push("<td class='bool'>", (r.promo ? lang.plus : "&nbsp;"), "</td>");
+if( typeof r.discount == 'undefined' ) { /* obsolete after 01.10.2022 */
+ar.push("<td class='int'>", "&nbsp;", "</td>");
+ar.push("<td class='bool'>", (r.promo ? lang.plus : "&nbsp;"), "</td>");
+} else {
+	    ar.push("<td class='int'>", G.getcurrency_l(r.promo), "</td>");
+	    ar.push("<td class='bool'>", (r.discount ? lang.plus : "&nbsp;"), "</td>");
+}
 	    ar.push("<td class='int'>", G.getcurrency_l(r.rrp), "</td>");
 	    ar.push("<td class='bool'>", String.isEmpty(r.scratch) ? "" : "&#x267A;", "</td>");
 	    ar.push("</tr>");
