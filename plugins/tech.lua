@@ -264,7 +264,14 @@ select count(*) exist from users
 	    if (err == nil or err == false) and permtb ~= nil and permtb.zstatus and code == 'tech_route' then
 		tb.zstatus, err = func_execute(tran,
 [[
-select guid, zstatus, znote from j_user_activities where user_id = %user_id% and fix_date = %fix_date%
+select 
+    j.guid, 
+    j.zstatus, 
+    j.znote, 
+    coalesce(z.descr,j.zauthor_id) zauthor 
+from j_user_activities j
+    left join users z on z.user_id = j.zauthor_id
+where j.user_id = %user_id% and j.fix_date = %fix_date%
 ]]
 		    , "/plugins/tech/zstatus"
 		    , {user_id=user_id, fix_date=date}
@@ -439,6 +446,7 @@ local function personalizeL3(tb, zstatus)  --: tech_route
 	    local k = idx[v.guid]
 	    v.zstatus = k and k.zstatus
 	    v.znote = k and k.znote
+	    v.zauthor = k and k.zauthor
 	end
     end
     return tb
