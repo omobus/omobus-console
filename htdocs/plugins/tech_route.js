@@ -486,9 +486,6 @@ var __route = (function() {
 	if( !String.isEmpty(a.rc) ) {
 	    ar.push("<div>", "{0}: {1}".format_a(lang.rc_name, G.shielding(a.rc)), "</div>");
 	}
-	if( typeof a.cash_register == 'number' && a.cash_register > 0 ) {
-	    ar.push("<div>", "{0}: {1}".format_a(lang.cash_registers, a.cash_register), "</div>");
-	}
 	ar.push("</td>", "<td width='10px'/>", "<td width='270px' style='text-align:right;'>");
 	ar.push("<div>", "{0}: {1}".format_a(lang.u_code, G.shielding(data.user_id)), "</div>");
 	ar.push("<div>", "{0}: {1}".format_a(lang.dev_login, G.shielding(data.dev_login)), "</div>");
@@ -1214,9 +1211,6 @@ ar.push("<td class='bool'>", (arg0.promo ? lang.plus : "&nbsp;"), "</td>");
 	}
 	if( !String.isEmpty(a.rc) ) {
 	    ar.push("<div>", "{0}: {1}".format_a(lang.rc_name, G.shielding(a.rc)), "</div>");
-	}
-	if( typeof a.cash_register == 'number' && a.cash_register > 0 ) {
-	    ar.push("<div>", "{0}: {1}".format_a(lang.cash_registers, a.cash_register), "</div>");
 	}
 	ar.push("</td>", "<td width='10px'/>", "<td width='270px' style='text-align:right;'>");
 	ar.push("<div>", "{0}: {1}".format_a(lang.u_code, G.shielding(data.user_id)), "</div>");

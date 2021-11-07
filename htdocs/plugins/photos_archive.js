@@ -362,9 +362,6 @@ var PLUG = (function() {
 	if( !String.isEmpty(r.rc) ) {
 	    ar.push("<div>", "{0}: {1}".format_a(lang.rc_name, G.shielding(r.rc)), "</div>");
 	}
-	if( typeof r.cash_register == 'number' && r.cash_register > 0 ) {
-	    ar.push("<div>", "{0}: {1}".format_a(lang.cash_registers, r.cash_register), "</div>");
-	}
 	ar.push("</td>", "<td width='10px'/>", "<td width='270px' style='text-align:right;'>");
 	ar.push("<div>", "&nbsp;", "</div>");
 	ar.push("</td>","</tr>","</table>");
