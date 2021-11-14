@@ -3,7 +3,7 @@
 
 local M = {} -- public interface
 
-M.columns = {channel=true, brand=true, loyalty=true}
+M.columns = {channel=true, brand=true, cohort=true}
 M.rows = 500
 M.zip = {photo='{doc_id}-{blob_id}', max=1000}
 

@@ -101,6 +101,8 @@ var lang = {
 	title1: "Осмотр т/зала за"
     },
     closed: "Вып.",
+    cohort: "Категория контакта",
+    cohort_everything: "Все категории контактов",
     comments: {
 	title: "Комментарии",
 	title1: "Комментарии за",
@@ -304,8 +306,8 @@ var lang = {
     },
     ka_type: "Тип сети",
     kilometers: "{0} км.",
-    loyalty_level: "Категория контакта",
-    loyalty_level_everything: "Все категории контактов",
+    loyalty_level: "Уровень лояльности",
+    loyalty_level_everything: "Все уровни лояльности",
     managment: "<div><b>УПРАВЛЯЮЩИЕ ОТЧЕТЫ</b></div><div>Отчеты управления позволяют вносить изменения в исходные данные, используемые в ходе работы OMOBUS.</div>",
     mileage: "Общий пробег за весь день",
     mileageAbbr: "Пробег, км.",

@@ -3,7 +3,7 @@
 
 local M = {} -- public interface
 
-M.columns = {channel=true, loyalty=true, specialization=true}
+M.columns = {channel=true, cohort=true, specialization=true}
 M.rows = 500
 
 return M

@@ -14,7 +14,7 @@ var PLUG = (function() {
     function _getcolumns(perm) {
 	let x = 11, c = perm.columns || {};
 	if( c.channel == true ) x++;
-	if( c.loyalty == true ) x++;
+	if( c.cohort == true ) x++;
 	if( c.specialization == true ) x++;
 	return x;
     }
@@ -37,8 +37,8 @@ var PLUG = (function() {
 	if( perm.columns != null && perm.columns.specialization == true ) {
 	    ar.push("<th width='65px'><a href='javascript:void(0)' onclick='PLUG.specs(this, 0.30)'>", lang.specialization, "</a></th>");
 	}
-	if( perm.columns != null && perm.columns.loyalty == true ) {
-	    ar.push("<th width='65px'><a href='javascript:void(0)' onclick='PLUG.levels(this, 0.30)'>", lang.loyalty_level, "</a></th>");
+	if( perm.columns != null && perm.columns.cohort == true ) {
+	    ar.push("<th width='65px'><a href='javascript:void(0)' onclick='PLUG.levels(this, 0.30)'>", lang.cohort, "</a></th>");
 	}
 	ar.push("<th width='95px'>", lang.mobile, "</th>");
 	ar.push("<th>", lang.email, "</th>");
@@ -55,7 +55,7 @@ var PLUG = (function() {
 	ar.push("<tbody id='maintb'></tbody></table>");
 	ar.push(ChannelsPopup.container());
 	ar.push(JobTitlesPopup.container());
-	ar.push(LoyaltyLevelsPopup.container());
+	ar.push(CohortsPopup.container());
 	ar.push(RetailChainsPopup.container());
 	ar.push(SpecializationsPopup.container());
 	ar.push(UsersPopup.container("authorsPopup"));
@@ -93,7 +93,7 @@ var PLUG = (function() {
 	    "job_title",
 	    "spec_id",
 	    "specialization",
-	    "loyalty_level_id",
+	    "cohort_id",
 	    "extra_info",
 	    "author_id", 
 	    "author"
@@ -129,8 +129,8 @@ var PLUG = (function() {
 		    if( perm.columns != null && perm.columns.specialization == true ) {
 			ar.push("<td class='ref'>", G.shielding(r.specialization), "</td>");
 		    }
-		    if( perm.columns != null && perm.columns.loyalty == true ) {
-			ar.push("<td class='ref'>", G.shielding(r.loyalty_level), "</td>");
+		    if( perm.columns != null && perm.columns.cohort == true ) {
+			ar.push("<td class='ref'>", G.shielding(r.cohort), "</td>");
 		    }
 		    ar.push("<td class='int'>", G.shielding(r.mobile), "</td>");
 		    ar.push("<td class='int'>", G.shielding(r.email), "</td>");
@@ -202,7 +202,7 @@ var PLUG = (function() {
 	const i_channels = Array.createIndexBy(data.channels, "chan_id");
 	const i_cities = Array.createIndexBy(data.cities, "city_id");
 	const i_jobs = Array.createIndexBy(data.job_titles, "job_title_id");
-	const i_loyalties = Array.createIndexBy(data.loyalty_levels, "loyalty_level_id");
+	const i_loyalties = Array.createIndexBy(data.cohorts, "cohort_id");
 	const i_regions = Array.createIndexBy(data.regions, "region_id");
 	const i_retail_chains = Array.createIndexBy(data.retail_chains, "rc_id");
 	const i_specs = Array.createIndexBy(data.specializations, "spec_id");
@@ -214,7 +214,7 @@ var PLUG = (function() {
 		const h = i_channels[a.chan_id] || {};
 		const k = i_cities[a.city_id] || {};
 		const j = i_jobs[arg.job_title_id] || {};
-		const l = i_loyalties[arg.loyalty_level_id] || {};
+		const l = i_loyalties[arg.cohort_id] || {};
 		const e = i_regions[a.region_id] || {};
 		const r = i_retail_chains[a.rc_id] || {};
 		const s = i_specs[arg.spec_id] || {};
@@ -229,8 +229,8 @@ var PLUG = (function() {
 		x.job_title = j.descr;
 		x.spec_id = arg.spec_id;
 		x.specialization = s.descr;
-		x.loyalty_level_id = arg.loyalty_level_id;
-		x.loyalty_level = l.descr;
+		x.cohort_id = arg.cohort_id;
+		x.cohort = l.descr;
 		x.mobile = arg.mobile;
 		x.email = arg.email;
 		x.account_id = a.account_id;
@@ -265,7 +265,7 @@ var PLUG = (function() {
 	    channels: data.channels,
 	    cities: data.cities,
 	    job_titles: data.job_titles,
-	    loyalty_levels: data.loyalty_levels,
+	    cohorts: data.cohorts,
 	    regions: data.regions,
 	    retail_chains: data.retail_chains,
 	    specializations: data.specializations
@@ -352,7 +352,7 @@ var PLUG = (function() {
 			ws.cell("C{0}".format_a(i + offset)).value(_fmtcontact(r));
 			ws.cell("D{0}".format_a(i + offset)).value(r.job_title);
 			ws.cell("E{0}".format_a(i + offset)).value(r.specialization);
-			ws.cell("F{0}".format_a(i + offset)).value(r.loyalty_level);
+			ws.cell("F{0}".format_a(i + offset)).value(r.cohort);
 			ws.cell("G{0}".format_a(i + offset)).value(r.mobile);
 			ws.cell("H{0}".format_a(i + offset)).value(r.email);
 			ws.cell("I{0}".format_a(i + offset)).value(r.a_code);
@@ -468,9 +468,9 @@ var PLUG = (function() {
 	    });
 	},
 	levels: function(tag, offset) {
-	    _togglePopup("loyalty_levels", tag, offset, function(obj) {
-		return LoyaltyLevelsPopup(_cache.data[obj], function(arg, i, ar) {
-		    _onpopup(tag, arg, "loyalty_level_id");
+	    _togglePopup("cohorts", tag, offset, function(obj) {
+		return CohortsPopup(_cache.data[obj], function(arg, i, ar) {
+		    _onpopup(tag, arg, "cohort_id");
 		})
 	    });
 	},

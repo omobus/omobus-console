@@ -14,7 +14,7 @@ var PLUG = (function() {
 	let x = 14, c = perm.columns || {};
 	if( c.channel == true ) x++;
 	if( c.brand == true ) x++;
-	if( c.loyalty == true ) x++;
+	if( c.cohort == true ) x++;
 	return x;
     }
 
@@ -51,8 +51,8 @@ var PLUG = (function() {
 	}
 	ar.push("<th><a href='javascript:void(0)' onclick='PLUG.contacts(this, 0.65)'>", lang.contact, "</a></th>");
 	ar.push("<th><a href='javascript:void(0)' onclick='PLUG.jobs(this, 0.70)'>", lang.job_title, "</a></th>");
-	if( perm.columns != null && perm.columns.loyalty == true ) {
-	    ar.push("<th><a href='javascript:void(0)' onclick='PLUG.levels(this, 0.70)'>", lang.loyalty_level, "</a></th>");
+	if( perm.columns != null && perm.columns.cohort == true ) {
+	    ar.push("<th><a href='javascript:void(0)' onclick='PLUG.levels(this, 0.70)'>", lang.cohort, "</a></th>");
 	}
 	ar.push("<th><a href='javascript:void(0)' onclick='PLUG.types(this, 0.85)'>", lang.training_type, "</a></th>");
 	ar.push("<th>", lang.photo, "</th>");
@@ -67,7 +67,7 @@ var PLUG = (function() {
 	ar.push(ChannelsPopup.container());
 	ar.push(ContactsPopup.container());
 	ar.push(JobTitlesPopup.container());
-	ar.push(LoyaltyLevelsPopup.container());
+	ar.push(CohortsPopup.container());
 	ar.push(RetailChainsPopup.container());
 	ar.push(TrainingMaterialsPopup.container());
 	ar.push(TrainingTypesPopup.container());
@@ -113,7 +113,7 @@ var PLUG = (function() {
 	    "patronymic",
 	    "job_title_id", 
 	    "job_title",
-	    "loyalty_level_id",
+	    "cohort_id",
 	    "training_type_id", 
 	    "training_type",
 	    "doc_note",
@@ -151,8 +151,8 @@ var PLUG = (function() {
 		    }
 		    ar.push("<td class='string'>", _fmtcontact(r), "</td>");
 		    ar.push("<td class='ref'>", G.shielding(r.job_title), "</td>");
-		    if( perm.columns != null && perm.columns.loyalty == true ) {
-			ar.push("<td class='ref'>", G.shielding(r.loyalty_level), "</td>");
+		    if( perm.columns != null && perm.columns.cohort == true ) {
+			ar.push("<td class='ref'>", G.shielding(r.cohort), "</td>");
 		    }
 		    ar.push("<td class='ref'>", G.shielding(r.training_type), "</td>");
 		    ar.push("<td class='ref'>");
@@ -313,7 +313,7 @@ var PLUG = (function() {
 			ws.cell("P{0}".format_a(i + offset)).value(r.tm);
 			ws.cell("Q{0}".format_a(i + offset)).value(_fmtcontact(r));
 			ws.cell("R{0}".format_a(i + offset)).value(r.job_title);
-			ws.cell("S{0}".format_a(i + offset)).value(r.loyalty_level);
+			ws.cell("S{0}".format_a(i + offset)).value(r.cohort);
 			ws.cell("T{0}".format_a(i + offset)).value(r.training_type);
 			if( Array.isArray(r.refs) && r.refs.length > 0 ) {
 			    const n = ["U","V"];
@@ -460,9 +460,9 @@ var PLUG = (function() {
 	    });
 	},
 	levels: function(tag, offset) {
-	    _togglePopup("loyalty_levels", tag, offset, function(obj) {
-		return LoyaltyLevelsPopup(_cache.data[obj], function(arg, i, ar) {
-		    _onpopup(tag, arg, "loyalty_level_id");
+	    _togglePopup("cohorts", tag, offset, function(obj) {
+		return CohortsPopup(_cache.data[obj], function(arg, i, ar) {
+		    _onpopup(tag, arg, "cohort_id");
 		})
 	    });
 	},

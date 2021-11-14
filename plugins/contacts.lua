@@ -29,7 +29,7 @@ select
     x.mobile,
     x.email,
     x.spec_id,
-    x.loyalty_level_id, 
+    x.cohort_id, 
     x.locked,
     x.extra_info,
     x.author_id,
@@ -133,12 +133,12 @@ select job_title_id, descr, hidden from job_titles
 	    )
 	end
 	if err == nil or err == false then
-	    tb.loyalty_levels, err = func_execute(tran,
+	    tb.cohorts, err = func_execute(tran,
 [[
-select loyalty_level_id, descr, hidden from loyalty_levels
+select cohort_id, descr, hidden from cohorts
     order by descr, row_no
 ]]
-		, "/plugins/contacts/loyalty_levels"
+		, "/plugins/contacts/cohorts"
 	    )
 	end
 	if err == nil or err == false then
@@ -214,7 +214,7 @@ local function personalize(datatb)
 	i_accounts[v.account_id] = 1
 	if v.job_title_id ~= nil then i_jobs[v.job_title_id] = 1; end
 	if v.spec_id ~= nil then i_specs[v.spec_id] = 1; end
-	if v.loyalty_level_id ~= nil then i_loyalties[v.loyalty_level_id] = 1; end
+	if v.cohort_id ~= nil then i_loyalties[v.cohort_id] = 1; end
 	if v.author_id ~= nil then i_users[v.author_id] = 1; end
 	v.row_no = i
     end
@@ -222,7 +222,7 @@ local function personalize(datatb)
     p.accounts = core.reduce(datatb.accounts, 'account_id', i_accounts)
     p.authors = core.reduce(datatb.users, 'user_id', i_users)
     p.job_titles = core.reduce(datatb.job_titles, 'job_title_id', i_jobs)
-    p.loyalty_levels = core.reduce(datatb.loyalty_levels, 'loyalty_level_id', i_loyalties)
+    p.cohorts = core.reduce(datatb.cohorts, 'cohort_id', i_loyalties)
     p.specializations = core.reduce(datatb.specializations, 'spec_id', i_specs)
 
     for i, v in ipairs(datatb.accounts or {}) do
@@ -250,7 +250,7 @@ function M.scripts(lang, permtb, sestb, params)
     table.insert(ar, '<script src="' .. V.static_prefix .. '/libs/xlsx-1.21.0.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.channels.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.jobtitles.js"> </script>')
-    table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.loyaltylevels.js"> </script>')
+    table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.cohorts.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.retailchains.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.specializations.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.users.js"> </script>')
