@@ -425,7 +425,7 @@ var __route = (function() {
 	    "</tr>");
 	if( data.wd != null && data.wd.mileage != null && data.wd.mileage/1000 > 0 ) {
 	    ar.push("<tr>",
-		"<td>", lang.mileage, ":</td>", 
+		"<td>", lang.mileageTotal, ":</td>", 
 		"<td class='int' colspan='3'>", lang.kilometers.format_a(parseFloat(data.wd.mileage/1000.0).toFixed(1)), "</td>",
 		"</tr>");
 	}

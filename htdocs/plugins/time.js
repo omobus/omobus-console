@@ -7,7 +7,7 @@ var PLUG = (function() {
     var _cache = {}, _perm = {}, _tags = {};
 
     function _getcolumns(perm) {
-	let x = 19, c = perm.columns || {};
+	let x = 20, c = perm.columns || {};
 	if( c.area == true ) x++;
 	if( c.department == true ) x++;
 	if( c.distributor == true ) x++;
@@ -41,6 +41,7 @@ var PLUG = (function() {
 	ar.push("<th colspan='3'>", lang.my, "</th>");
 	ar.push("<th colspan='8'>", lang.route, "</th>");
 	ar.push("<th colspan='4'>", lang.route_compliance.wd, "</th>");
+	ar.push("<th rowspan='2'>", lang.mileageTotalAbbr, "</th>");
 	if( perm.columns != null && perm.columns.area == true ) {
 	    ar.push("<th rowspan='2'>", lang.area, "</th>");
 	}
@@ -239,6 +240,7 @@ var PLUG = (function() {
 		} else {
 		    ar.push("<td class='delim ref disabled' colspan='4'>", lang.none.toLowerCase(), "</td>");
 		}
+		ar.push("<td class='delim int'>", r._total_mileage/1000 > 0 ? (r._total_mileage/1000.0).toFixed(1) : lang.dash, "</td>");
 		if( perm.columns != null && perm.columns.area == true ) {
 		    ar.push("<td class='ref sw95px'>", G.shielding(r.area), "</td>");
 		}
@@ -327,6 +329,10 @@ var PLUG = (function() {
 	ar.push("<tr>",
 	    "<th>", lang.dev_login, ":</th>",
 	    "<th colspan='3'>", G.shielding(data.dev_login, lang.dash), "</th>",
+	    "</tr>");
+	ar.push("<tr>",
+	    "<th>", lang.u_code, ":</th>",
+	    "<th colspan='3'>", G.shielding(data.user_id), "</th>",
 	    "</tr>");
 	if( !String.isEmpty(data.area) ) {
 	    ar.push("<tr>",
@@ -417,7 +423,7 @@ var PLUG = (function() {
 	}
 	if( data._total_mileage/1000 > 0 ) {
 	    ar.push("<tr>",
-		"<td class='ref'>", lang.mileage, ":</td>",
+		"<td class='ref'>", lang.mileageTotal, ":</td>",
 		"<td class='int' colspan='3'>", lang.kilometers.format_a((data._total_mileage/1000.0).toFixed(1)), "</td>",
 		"</tr>");
 	}
@@ -639,7 +645,6 @@ var PLUG = (function() {
 				ptr._duration += arg.duration||0;
 				ptr._instore_duration += arg.instore_duration||0;
 				ptr._mileage += arg.mileage||0;
-				ptr._total_mileage += arg.total_mileage||0;
 			    } else if( arg.scheduled == null || arg.scheduled == 0 ) {
 				ptr._other += arg.other||0;
 				ptr._accepted += arg.accepted||0;
@@ -651,8 +656,8 @@ var PLUG = (function() {
 				ptr._duration += arg.duration||0;
 				ptr._instore_duration += arg.instore_duration||0;
 				ptr._mileage += arg.mileage||0;
-				ptr._total_mileage += arg.total_mileage||0;
 			    }
+			    ptr._total_mileage += arg.total_mileage||0;
 			});
 		    }
 		});

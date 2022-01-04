@@ -61,7 +61,7 @@ var PLUG = (function() {
 	ar.push("<th colspan='2'>", lang.tech.exchange.docs, "</th>");
 	ar.push("<th colspan='2'>", lang.tech.acts.title, "</th>");
 	ar.push("<th colspan='2'>", lang.tech.docs.title, "</th>");
-	ar.push("<th rowspan='2' width='55px'>", lang.mileageAbbr, "</th>");
+	ar.push("<th rowspan='2' width='55px'>", lang.mileageTotalAbbr, "</th>");
 	ar.push("<th rowspan='2' width='45px'>", lang.tech.pause, "</th>");
 	if( typeof __allowedColumns == 'object' && __allowedColumns.area ) {
 	    ar.push("<th rowspan='2'>", lang.area, "</th>");
