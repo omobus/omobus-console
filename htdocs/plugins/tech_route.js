@@ -278,6 +278,10 @@ var __route = (function() {
 	    "<td class='ref' colspan='2' width='260px'>", G.shielding(data.dev_login, lang.dash), "</td>",
 	    "</tr>");
 	ar.push("<tr>",
+	    "<td>", lang.u_code, ":</td>",
+	    "<td class='ref' colspan='2' width='260px'>", G.shielding(data.user_id), "</td>",
+	    "</tr>");
+	ar.push("<tr>",
 	    "<td>", lang.dev_id, ":</td>",
 	    "<td class='ref", Array.isArray(data.dev_ids) && data.dev_ids.length > 1 ? " attention" : "" , "' colspan='2' width='260px'>", 
 		devids.join('<br/>'), "</td>",
