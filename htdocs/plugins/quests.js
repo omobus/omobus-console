@@ -115,7 +115,7 @@ var PLUG = (function() {
 		    }
 		    ar.push("</td>");
 		    ar.push("<td class='string note'>", G.shielding(r.qrow), "</td>");
-		    ar.push("<td class='delim int'>", G.shielding(r.value), "</td>");
+		    ar.push("<td class='delim note' align='center'>", G.shielding(r.value), "</td>");
 		    ar.push("<td class='string sw95px'>", G.shielding(r.head_name), "</td>");
 		    ar.push("</tr>");
 		    k++;

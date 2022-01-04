@@ -45,7 +45,7 @@ PLUG.registerRef("quest", (function() {
 	    }
 	    ar.push("</td>");
 	    ar.push("<td class='string'>", G.shielding(r.qrow), "</td>");
-	    ar.push("<td class='ref'>", G.shielding(r.value), "</td>");
+	    ar.push("<td class='string' align='center'>", G.shielding(r.value), "</td>");
 	    ar.push("</tr>");
 	}
 	if( ar.length == 0 ) {
