@@ -339,11 +339,12 @@ var PLUG = (function() {
 	var func = function(data_ts, ar, templ) {
 	    XlsxPopulate.fromDataAsync(templ)
 		.then(wb => {
-		    var offset = 4;
+		    var offset = 3;
 		    var ws = wb.sheet(0);
 		    wb.properties()._node.children = [];
-		    wb.property('Title', lang.photos.title);
+		    wb.property('Title', lang.contacts.title);
 		    wb.property('Author', __AUTHOR__);
+		    //wb.property('Description', "{0} {1}".format_a(lang.data_ts, data_ts));
 		    ws.name(_code);
 		    for( var i = 0, size = Math.min(ar.length,1048576 - offset), x; i < size; i++ ) {
 			r = ar[i];
