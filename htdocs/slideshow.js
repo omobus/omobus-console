@@ -1,5 +1,5 @@
 /* -*- JavaScript -*- */
-/* Copyright (c) 2006 - 2021 omobus-console authors, see the included COPYRIGHT file. */
+/* Copyright (c) 2006 - 2022 omobus-console authors, see the included COPYRIGHT file. */
 
 function Slideshow(rows /*[{ref:"uri",explain:"text"},...]*/, params /* = { container: "DOM container", idx: selected photo }*/) {
     if( !(this instanceof Slideshow) ) {

@@ -1,5 +1,5 @@
 /* -*- JavaScript -*- */
-/* Copyright (c) 2006 - 2021 omobus-console authors, see the included COPYRIGHT file. */
+/* Copyright (c) 2006 - 2022 omobus-console authors, see the included COPYRIGHT file. */
 
 function MonthsPopup(selection, params /* params = { container = "DOM container", year, month, uri = "AJAX request"} */) {
     if( !(this instanceof MonthsPopup) ) {

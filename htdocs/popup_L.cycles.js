@@ -1,5 +1,5 @@
 /* -*- JavaScript -*- */
-/* Copyright (c) 2006 - 2021 omobus-console authors, see the included COPYRIGHT file. */
+/* Copyright (c) 2006 - 2022 omobus-console authors, see the included COPYRIGHT file. */
 
 function CyclesPopup(selection, params /* params = { container = "DOM container", cycle_id = "selected cycle", uri = "AJAX request"} */) {
     if( !(this instanceof CyclesPopup) ) {

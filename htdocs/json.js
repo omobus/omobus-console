@@ -1,5 +1,5 @@
 /* -*- JavaScript -*- */
-/* Copyright (c) 2006 - 2021 omobus-console authors, see the included COPYRIGHT file.
+/* Copyright (c) 2006 - 2022 omobus-console authors, see the included COPYRIGHT file.
  *
  ** Major portions taken verbatim or adapted from the JSON-js.
  ** See https://github.com/douglascrockford/JSON-js for more information.

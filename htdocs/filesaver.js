@@ -1,5 +1,5 @@
 /* -*- JavaScript -*- */
-/* Copyright (c) 2006 - 2021 omobus-console authors, see the included COPYRIGHT file. */
+/* Copyright (c) 2006 - 2022 omobus-console authors, see the included COPYRIGHT file. */
 
 var saveAs = saveAs || "undefined" != typeof navigator && navigator.msSaveOrOpenBlob && navigator.msSaveOrOpenBlob.bind(navigator) || function(e) {
     "use strict";

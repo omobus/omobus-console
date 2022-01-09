@@ -1,5 +1,5 @@
 /* -*- JavaScript -*- */
-/* Copyright (c) 2006 - 2021 omobus-console authors, see the included COPYRIGHT file. */
+/* Copyright (c) 2006 - 2022 omobus-console authors, see the included COPYRIGHT file. */
 
 function TrainingTypesPopup(rows, selection, params /* params = { everything: true|false, container = "DOM container"} */) {
     if( !(this instanceof TrainingTypesPopup) ) {
