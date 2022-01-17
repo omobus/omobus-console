@@ -133,16 +133,10 @@ var PLUG = (function() {
 		    ar.push("<td class='copyable delim int{1}' onclick='PLUG.copy(\"{0}\");event.stopPropagation();'>".format_a(t, xs), 
 			G.shielding(r.user_id), "</td>");
 		}
-/*obsolete_at_2021-06:*/if( typeof r.wd_duration != 'undefined' ) {
-/*obsolete_at_2021-06:*/ar.push("<td class='time", xs,"'>", G.shielding(r.wd_begin), "</td>");
-/*obsolete_at_2021-06:*/ar.push("<td class='time", xs,"'>", G.shielding(r.wd_end), "</td>");
-/*obsolete_at_2021-06:*/ar.push("<td class='delim time", xs,"'>", G.shielding(r.wd_duration), "</td>");
-/*obsolete_at_2021-06:*/} else {
 		ar.push("<td class='time", xs, "'>", G.gettime_l(r.wd_begin), "</td>");
 		ar.push("<td class='time", xs, "'>", G.gettime_l(r.wd_end), "</td>");
 		ar.push("<td class='delim time", xs, "'>", String.isEmpty(r.wd_begin) || String.isEmpty(r.wd_end) ? "" : 
 		    Math.round((Date.parseISO8601(r.wd_end)-Date.parseISO8601(r.wd_begin))/60000).HHMM(), "</td>");
-/*obsolete_at_2021-06:*/}
 		ar.push("<td class='int", xs, "'>", G.getint_l(r.exch_sync_success_total), "</td>");
 		ar.push("<td class='delim time", xs, "'>", G.shielding(r.exch_sync_success_time), "</td>");
 		ar.push("<td class='int", xs, "'>", G.getint_l(r.exch_docs_success_total), "</td>");
@@ -158,7 +152,6 @@ var PLUG = (function() {
 		}
 		if( typeof __allowedColumns == 'object' && __allowedColumns.department ) {
 		    var t = []
-/*obsolete_at_2021-06:*/if( typeof r.deps != 'undefined' ) { t.push(G.shielding(r.deps).trunc(15)); }
 		    for( let i = 0, size = Array.isEmpty(r.departments) ? 0 : r.departments.length; i < size; i++ ) {
 			if( i == 2 ) {
 			    t.push("&mldr;");
@@ -173,7 +166,6 @@ var PLUG = (function() {
 		}
 		if( typeof __allowedColumns == 'object' && __allowedColumns.distributor ) {
 		    var t = []
-/*obsolete_at_2021-06:*/if( typeof r.distrs != 'undefined' ) { t.push(G.shielding(r.distrs).trunc(15)); }
 		    for( let i = 0, size = Array.isEmpty(r.distributors) ? 0 : r.distributors.length; i < size; i++ ) {
 			if( i == 2 ) {
 			    t.push("&mldr;");
