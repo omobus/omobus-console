@@ -205,6 +205,7 @@ var PLUG = (function() {
 	    _cache.data = null; // drops the internal cache
 	    G.xhr("GET", G.getdataref({plug: _code, code: "tech", date: G.getdate(_cache.date)}), "json", function(xhr, data) {
 		if( xhr.status == 200 && data != null && typeof data == 'object' ) {
+		    //console.log(data);
 		    _cache.data = data;
 		    _tags.tbody.html(_datatbl(data, _tags.total, _cache.date, _getfilter(), _cache.checked).join(""));
 		} else {
