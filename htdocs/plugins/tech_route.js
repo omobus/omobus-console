@@ -236,9 +236,20 @@ var __route = (function() {
     }
 
     function _statstbl(data) {
-	var ar = [], violations = [], devids = [], info = [], docs;
-	if( data.packets == null || data.packets.count == null || data.packets.count == 0 ) {
+	var ar = [], violations = [], devids = [], info = [], cancellation = [], alive = true, docs;
+	if( String.isEmpty(data.user_id) ) {
 	    return ar;
+	}
+	if( data.packets == null || data.packets.count == null || data.packets.count == 0 ) {
+	    alive = false;
+	}
+	if( data.cancellation != null ) {
+	    if( !String.isEmpty(data.cancellation.type) ) {
+		cancellation.push(data.cancellation.type);
+	    }
+	    if( !String.isEmpty(data.cancellation.note) ) {
+		cancellation.push(data.cancellation.note);
+	    }
 	}
 	if( data.violations != null ) {
 	    if( data.violations.gps_off ) {
@@ -273,24 +284,30 @@ var __route = (function() {
 	ar.push("<td width='49%' valign='top'>");
 	/* system statistics */
 	ar.push("<table  width='100%' class='report'>");
-	ar.push("<tr>",
-	    "<td>", lang.dev_login, ":</td>",
-	    "<td class='ref' colspan='2' width='260px'>", G.shielding(data.dev_login, lang.dash), "</td>",
-	    "</tr>");
+	if( !String.isEmpty(data.dev_login) ) {
+	    ar.push("<tr>",
+		"<td>", lang.dev_login, ":</td>",
+		"<td class='ref' colspan='2' width='260px'>", G.shielding(data.dev_login, lang.dash), "</td>",
+		"</tr>");
+	}
 	ar.push("<tr>",
 	    "<td>", lang.u_code, ":</td>",
 	    "<td class='ref' colspan='2' width='260px'>", G.shielding(data.user_id), "</td>",
 	    "</tr>");
-	ar.push("<tr>",
-	    "<td>", lang.dev_id, ":</td>",
-	    "<td class='ref", Array.isArray(data.dev_ids) && data.dev_ids.length > 1 ? " attention" : "" , "' colspan='2' width='260px'>", 
-		devids.join('<br/>'), "</td>",
-	    "</tr>");
-	ar.push("<tr>",
-	    "<td>", lang.tech.route.packets.title, ":</td>",
-	    "<td class='int' colspan='2' width='260px'>", lang.tech.route.packets.value.format_a(data.packets.count, G.shielding(data.packets.time)), "</td>",
-	    "</tr>");
-	if( data.traffics != null ) {
+	if( Array.isArray(data.dev_ids) ) {
+	    ar.push("<tr>",
+		"<td>", lang.dev_id, ":</td>",
+		"<td class='ref", Array.isArray(data.dev_ids) && data.dev_ids.length > 1 ? " attention" : "" , "' colspan='2' width='260px'>", 
+		    devids.join('<br/>'), "</td>",
+		"</tr>");
+	}
+	if( alive ) {
+	    ar.push("<tr>",
+		"<td>", lang.tech.route.packets.title, ":</td>",
+		"<td class='int' colspan='2' width='260px'>", lang.tech.route.packets.value.format_a(data.packets.count, G.shielding(data.packets.time)), "</td>",
+		"</tr>");
+	}
+	if( alive && data.traffics != null ) {
 	    ar.push("<tr>",
 		"<td>", lang.tech.route.traffics.omobus, ":</td>",
 		"<td class='int' width='130px'>", data.traffics.omobus_tx_bytes ? "&uarr;&nbsp;{0}".format_a(G.fileSize(data.traffics.omobus_tx_bytes)) : lang.dash, "</td>",
@@ -307,7 +324,7 @@ var __route = (function() {
 		"<td class='int' width='130px'>", data.traffics.mobile_rx_bytes ? "&darr;&nbsp;{0}".format_a(G.fileSize(data.traffics.mobile_rx_bytes)) : lang.dash, "</td>",
 		"</tr>");
 	}
-	if( data.power != null ) {
+	if( alive && data.power != null ) {
 	    ar.push("<tr>",
 		"<td>", lang.tech.route.power.format_a(data.rules != null ? G.shielding(data.rules.wd.b, lang.dash) : lang.dash), ":</td>",
 		"<td class='int", data.power.b !=null && (data.rules.power > data.power.b || data.power.b === 255) ? " attention" : "",
@@ -324,7 +341,7 @@ var __route = (function() {
 		    data.power.power_save ? "<hr/>***POWER SAVE***" : ""), "</td>",
 		"</tr>");
 	}
-	if( data.exchanges != null ) {
+	if( alive && data.exchanges != null ) {
 	    ar.push("<tr>",
 		"<td>", lang.tech.route.exchange.sync, ":</td>",
 		"<td class='int'>", data.exchanges.sync.success ? data.exchanges.sync.success : lang.dash, "</td>", 
@@ -345,7 +362,7 @@ var __route = (function() {
 		"<td class='int' colspan='2'>", data.exchanges.docs.packets ? data.exchanges.docs.packets : lang.dash, "</td>",
 		"</tr>");
 	}
-	if( !Array.isEmpty(data.trace) ) {
+	if( alive && !Array.isEmpty(data.trace) ) {
 	    let x = 0;
 	    data.trace.forEach(function(arg) { if( arg.control_point == 1 ) { x++; } });
 	    ar.push("<tr>",
@@ -411,41 +428,51 @@ var __route = (function() {
 		"<td class='ref' colspan='3'>", t.join('<br/>'), "</td>",
 		"</tr>");
 	}
-	ar.push("<tr>",
-	    "<td>", lang.workday, ":</td>", 
-	    "<td class='int' width='80px'>", (data.wd != null && data.wd.b != null) ? G.gettime_l(data.wd.b) : lang.dash, "</td>",
-	    "<td class='int' width='80px'>", (data.wd != null && data.wd.e != null) ? G.gettime_l(data.wd.e) : lang.dash, "</td>",
-	    "<td class='int' width='140px'>", (data.wd != null && data.wd.b != null && data.wd.e != null) ? lang.minutes.format_a(
-		Math.round((Date.parseISO8601(data.wd.e)-Date.parseISO8601(data.wd.b))/60000)) : lang.dash,"</td>",
-	    "</tr>");
-	ar.push("<tr>",
-	    "<td>", lang.route_compliance.wd, ":</td>", 
-	    "<td class='int' width='80px'>", (data.rd != null && data.rd.b != null) ? G.gettime_l(data.rd.b) : lang.dash, "</td>",
-	    "<td class='int' width='80px'>", (data.rd != null && data.rd.e != null) ? G.gettime_l(data.rd.e) : lang.dash, "</td>",
-	    "<td class='int' width='140px'>", (data.rd != null && data.rd.b != null && data.rd.e != null) ? "{0} ({1})".format_a(
-		lang.minutes.format_a(Math.round((Date.parseISO8601(data.rd.e)-Date.parseISO8601(data.rd.b))/60000)), 
-		    lang.minutes.format_a(data.rd.indoor)) 
-		: lang.dash,"</td>",
-	    "</tr>");
-	if( data.wd != null && data.wd.mileage != null && data.wd.mileage/1000 > 0 ) {
+	if( !Array.isEmpty(cancellation) ) {
+	    ar.push("<tr>",
+		"<td>", lang.tech.route.cancellation, ":</td>", 
+		"<td class='ref attention' colspan='3'>", cancellation.join("<br/>"), "</td>",
+		"</tr>");
+	}
+	if( alive ) {
+	    ar.push("<tr>",
+		"<td>", lang.workday, ":</td>", 
+		"<td class='int' width='80px'>", (data.wd != null && data.wd.b != null) ? G.gettime_l(data.wd.b) : lang.dash, "</td>",
+		"<td class='int' width='80px'>", (data.wd != null && data.wd.e != null) ? G.gettime_l(data.wd.e) : lang.dash, "</td>",
+		"<td class='int' width='140px'>", (data.wd != null && data.wd.b != null && data.wd.e != null) ? lang.minutes.format_a(
+		    Math.round((Date.parseISO8601(data.wd.e)-Date.parseISO8601(data.wd.b))/60000)) : lang.dash,"</td>",
+		"</tr>");
+	}
+	if( alive ) {
+	    ar.push("<tr>",
+		"<td>", lang.route_compliance.wd, ":</td>", 
+		"<td class='int' width='80px'>", (data.rd != null && data.rd.b != null) ? G.gettime_l(data.rd.b) : lang.dash, "</td>",
+		"<td class='int' width='80px'>", (data.rd != null && data.rd.e != null) ? G.gettime_l(data.rd.e) : lang.dash, "</td>",
+		"<td class='int' width='140px'>", (data.rd != null && data.rd.b != null && data.rd.e != null) ? "{0} ({1})".format_a(
+		    lang.minutes.format_a(Math.round((Date.parseISO8601(data.rd.e)-Date.parseISO8601(data.rd.b))/60000)), 
+			lang.minutes.format_a(data.rd.indoor)) 
+		    : lang.dash,"</td>",
+		"</tr>");
+	}
+	if( alive && data.wd != null && data.wd.mileage != null && data.wd.mileage/1000 > 0 ) {
 	    ar.push("<tr>",
 		"<td>", lang.mileageTotal, ":</td>", 
 		"<td class='int' colspan='3'>", lang.kilometers.format_a(parseFloat(data.wd.mileage/1000.0).toFixed(1)), "</td>",
 		"</tr>");
 	}
-	if( data.rd != null && data.rd.mileage != null && data.rd.mileage/1000 > 0 ) {
+	if( alive && data.rd != null && data.rd.mileage != null && data.rd.mileage/1000 > 0 ) {
 	    ar.push("<tr>",
 		"<td>", lang.route_mileage, ":</td>", 
 		"<td class='int' colspan='3'>", lang.kilometers.format_a(parseFloat(data.rd.mileage/1000.0).toFixed(1)), "</td>",
 		"</tr>");
 	}
-	if( !violations.isEmpty() ) {
+	if( alive && !violations.isEmpty() ) {
 	    ar.push("<tr>",
 		"<td>", lang.violations._caption, ":</td>", 
 		"<td class='ref attention' colspan='3'>", violations.join("<hr/>"), "</td>",
 		"</tr>");
 	}
-	if( docs != null ) {
+	if( alive && docs != null ) {
 	    ar.push("<tr class='def'>",
 		"<td colspan='4' class='divider'>", lang.tech.route.docs, "</td>",
 		"</tr>");
