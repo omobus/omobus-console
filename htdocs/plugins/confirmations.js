@@ -398,21 +398,22 @@ var PLUG = (function() {
 				.hyperlink({ hyperlink: G.getphotoref(r.ref,true) });
 			}
 			ws.cell("U{0}".format_a(i + offset)).value(r.confirm);
+			ws.cell("V{0}".format_a(i + offset)).value(r.succeeded);
 			if( Array.isArray(r.refs) && r.refs.length > 0 ) {
-			    const n = ["V","W","X","Y","Z","AA"];
+			    const n = ["W","X","Y","Z","AA","AB"];
 			    r.refs.forEach(function(val, index) {
 				ws.cell("{1}{0}".format_a(i + offset,n[index])).value("[ {0} ]".format_a(index + 1))
 				    .style({ fontColor: "0563c1", underline: true })
 				    .hyperlink({ hyperlink: G.getphotoref(r.refs[index],true) });
 			    });
 			}
-			ws.cell("AB{0}".format_a(i + offset)).value(r.doc_note);
-			ws.cell("AC{0}".format_a(i + offset)).value(r.head_name);
-			ws.cell("AD{0}".format_a(i + offset)).value(r.author_name);
+			ws.cell("AC{0}".format_a(i + offset)).value(r.doc_note);
+			ws.cell("AD{0}".format_a(i + offset)).value(r.head_name);
+			ws.cell("AE{0}".format_a(i + offset)).value(r.author_name);
 			if( typeof r.remark != 'undefined' ) {
-			    ws.cell("AE{0}".format_a(i + offset)).value(r.remark.status);
-			    ws.cell("AF{0}".format_a(i + offset)).value(r.remark.type);
-			    ws.cell("AG{0}".format_a(i + offset)).value(r.remark.note);
+			    ws.cell("AF{0}".format_a(i + offset)).value(r.remark.status);
+			    ws.cell("AG{0}".format_a(i + offset)).value(r.remark.type);
+			    ws.cell("AH{0}".format_a(i + offset)).value(r.remark.note);
 			}
 		    }
 		    wb.outputAsync()

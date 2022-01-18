@@ -450,21 +450,22 @@ var PLUG = (function() {
 			if( r.L != null ) {
 			    ws.cell("S{0}".format_a(i + offset)).value(Date.parseISO8601(r.L.fix_dt));
 			    ws.cell("T{0}".format_a(i + offset)).value(r.L.confirm);
+			    ws.cell("U{0}".format_a(i + offset)).value(r.L.succeeded);
 			    if( Array.isArray(r.L.refs) && r.L.refs.length > 0 ) {
-				const n = ["U","V","W","X","Y","Z"];
+				const n = ["V","W","X","Y","Z","AA"];
 				r.L.refs.forEach(function(val, index) {
 				    ws.cell("{1}{0}".format_a(i + offset,n[index])).value("[ {0} ]".format_a(index + 1))
 					.style({ fontColor: "0563c1", underline: true })
 					.hyperlink({ hyperlink: G.getphotoref(r.L.refs[index],true) });
 				});
 			    }
-			    ws.cell("AA{0}".format_a(i + offset)).value(r.L.doc_note);
-			    ws.cell("AB{0}".format_a(i + offset)).value(r.L.performer_name);
-			    ws.cell("AC{0}".format_a(i + offset)).value(r.L.head_name);
+			    ws.cell("AB{0}".format_a(i + offset)).value(r.L.doc_note);
+			    ws.cell("AC{0}".format_a(i + offset)).value(r.L.performer_name);
+			    ws.cell("AD{0}".format_a(i + offset)).value(r.L.head_name);
 			    if( typeof r.L.remark != 'undefined' ) {
-				ws.cell("AD{0}".format_a(i + offset)).value(r.L.remark.status);
-				ws.cell("AE{0}".format_a(i + offset)).value(r.L.remark.type);
-				ws.cell("AF{0}".format_a(i + offset)).value(r.L.remark.note);
+				ws.cell("AE{0}".format_a(i + offset)).value(r.L.remark.status);
+				ws.cell("AF{0}".format_a(i + offset)).value(r.L.remark.type);
+				ws.cell("AG{0}".format_a(i + offset)).value(r.L.remark.note);
 			    }
 			}
 		    }
