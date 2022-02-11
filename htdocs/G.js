@@ -35,7 +35,7 @@ var G = (function() {
 		ar.push(window.location.protocol, "//");
 	    }
 	    ar.push(window.location.hostname);
-	    if( Number.isInteger(window.location.port) ) {
+	    if( !String.isEmpty(window.location.port) ) {
 		ar.push(":", window.location.port);
 	    }
 	}
