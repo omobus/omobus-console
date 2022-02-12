@@ -46,7 +46,7 @@ M.data 		= {
 
 -- *** LTS web-service parameters ***
 M.ark 		= {
-    host 	= "192.168.83.7",
+    host 	= "192.168.83.251",
     port 	= 8080,
     connect_timeout = 10,
     recv_timeout= 25, -- maximum timiout for waiting omobus-ark web service data
