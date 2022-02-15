@@ -396,6 +396,12 @@ var __route = (function() {
 	    "<td class='ref' colspan='3'>", G.shielding(data.u_name, lang.dash),
 		info.length > 0 ? ("<br/>"+info.join('&nbsp;&nbsp;')) : "", "</td>",
 	    "</tr>");
+	if( !String.isEmpty(data.country) ) {
+	    ar.push("<tr>",
+		"<td>", lang.country, ":</td>",
+		"<td class='ref' colspan='3'>", G.shielding(data.country), "</td>",
+		"</tr>");
+	}
 	if( !String.isEmpty(data.area) ) {
 	    ar.push("<tr>",
 		"<td>", lang.area, ":</td>",
