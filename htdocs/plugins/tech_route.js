@@ -286,19 +286,19 @@ var __route = (function() {
 	ar.push("<table  width='100%' class='report'>");
 	if( !String.isEmpty(data.dev_login) ) {
 	    ar.push("<tr>",
-		"<td>", lang.dev_login, ":</td>",
-		"<td class='ref' colspan='2' width='260px'>", G.shielding(data.dev_login, lang.dash), "</td>",
+		"<th>", lang.dev_login, ":</th>",
+		"<th class='ref' colspan='2' width='260px'>", G.shielding(data.dev_login, lang.dash), "</th>",
 		"</tr>");
 	}
 	ar.push("<tr>",
-	    "<td>", lang.u_code, ":</td>",
-	    "<td class='ref' colspan='2' width='260px'>", G.shielding(data.user_id), "</td>",
+	    "<th>", lang.u_code, ":</th>",
+	    "<th class='ref' colspan='2' width='260px'>", G.shielding(data.user_id), "</th>",
 	    "</tr>");
 	if( Array.isArray(data.dev_ids) ) {
 	    ar.push("<tr>",
-		"<td>", lang.dev_id, ":</td>",
-		"<td class='ref", Array.isArray(data.dev_ids) && data.dev_ids.length > 1 ? " attention" : "" , "' colspan='2' width='260px'>", 
-		    devids.join('<br/>'), "</td>",
+		"<th>", lang.dev_id, ":</th>",
+		"<th class='ref", Array.isArray(data.dev_ids) && data.dev_ids.length > 1 ? " attention" : "" , "' colspan='2' width='260px'>", 
+		    devids.join('<br/>'), "</th>",
 		"</tr>");
 	}
 	if( alive ) {
@@ -381,8 +381,8 @@ var __route = (function() {
 	ar.push("<table  width='100%' class='report'>");
 	if( !String.isEmpty(data.head_name) ) {
 	    ar.push("<tr>",
-		"<td>", lang.head_name, ":</td>",
-		"<td class='ref' colspan='3'>", G.shielding(data.head_name), "</td>",
+		"<th>", lang.head_name, ":</th>",
+		"<th class='ref' colspan='3'>", G.shielding(data.head_name), "</th>",
 		"</tr>");
 	}
 	if( !String.isEmpty(data.email) ) {
@@ -392,26 +392,26 @@ var __route = (function() {
 	    info.push(G.shielding(data.mobile));
 	}
 	ar.push("<tr>",
-	    "<td>", lang.u_name, ":</td>",
-	    "<td class='ref' colspan='3'>", G.shielding(data.u_name, lang.dash),
-		info.length > 0 ? ("<br/>"+info.join('&nbsp;&nbsp;')) : "", "</td>",
+	    "<th>", lang.u_name, ":</th>",
+	    "<th class='ref' colspan='3'>", "<b>", G.shielding(data.u_name, lang.dash), "</b>",
+		info.length > 0 ? ("<br/>"+info.join('&nbsp;&nbsp;')) : "", "</th>",
 	    "</tr>");
 	if( !String.isEmpty(data.country) ) {
 	    ar.push("<tr>",
-		"<td>", lang.country, ":</td>",
-		"<td class='ref' colspan='3'>", G.shielding(data.country), "</td>",
+		"<th>", lang.country, ":</th>",
+		"<th class='ref' colspan='3'>", G.shielding(data.country), "</th>",
 		"</tr>");
 	}
 	if( !String.isEmpty(data.area) ) {
 	    ar.push("<tr>",
-		"<td>", lang.area, ":</td>",
-		"<td class='ref' colspan='3'>", G.shielding(data.area), "</td>",
+		"<th>", lang.area, ":</th>",
+		"<th class='ref' colspan='3'>", G.shielding(data.area), "</th>",
 		"</tr>");
 	}
 	if( !String.isEmpty(data.agency) ) {
 	    ar.push("<tr>",
-		"<td>", lang.agency, ":</td>",
-		"<td class='ref' colspan='3'>", G.shielding(data.agency), "</td>",
+		"<th>", lang.agency, ":</th>",
+		"<th class='ref' colspan='3'>", G.shielding(data.agency), "</th>",
 		"</tr>");
 	}
 	if( Array.isArray(data.departments) && data.departments.length > 0 ) {
@@ -420,8 +420,8 @@ var __route = (function() {
 		t.push(G.shielding(arg0)); 
 	    });
 	    ar.push("<tr>",
-		"<td>", lang.department, ":</td>",
-		"<td class='ref' colspan='3'>", t.join('<br/>'), "</td>",
+		"<th>", lang.department, ":</th>",
+		"<th class='ref' colspan='3'>", t.join('<br/>'), "</th>",
 		"</tr>");
 	}
 	if( Array.isArray(data.distributors) && data.distributors.length > 0 ) {
@@ -430,8 +430,8 @@ var __route = (function() {
 		t.push(G.shielding(arg0)); 
 	    });
 	    ar.push("<tr>",
-		"<td>", lang.distributor, ":</td>",
-		"<td class='ref' colspan='3'>", t.join('<br/>'), "</td>",
+		"<th>", lang.distributor, ":</th>",
+		"<th class='ref' colspan='3'>", t.join('<br/>'), "</th>",
 		"</tr>");
 	}
 	if( !Array.isEmpty(cancellation) ) {
