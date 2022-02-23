@@ -146,20 +146,21 @@ var PLUG = (function() {
 			r.row_id + "');event.stopPropagation();\">", r.row_no, "</td>");
 		    ar.push("<td class='date'>", G.getdate_l(Date.parseISO8601(r.fix_date)), "</td>");
 		    ar.push("<td class='int'>", G.shielding(r.employee_id), "</td>");
-		    ar.push("<td class='string'>", G.shielding(r.employee), "</td>");
+		    ar.push("<td class='string u_name'>", G.shielding(r.employee), "</td>");
 		    ar.push("<td class='time'>", G.gettime_l(Date.parseISO8601(r.jr_begin)), "</td>");
 		    ar.push("<td class='time'>", G.gettime_l(Date.parseISO8601(r.jr_end)), "</td>");
 		    ar.push("<td class='time'>", G.shielding(r.jr_duration), "</td>");
 		    ar.push("<td class='int'>", G.shielding(r.closed), "</td>");
 		    ar.push("<td class='time'>", G.shielding(r.duration), "</td>");
-		    ar.push("<td class='int'><a href='javascript:PLUG.more(" + r.row_no + ");'>", G.getsla_l(r.assessment, r.sla), "</a></td>");
+		    ar.push("<td class='int'>", "<a href='javascript:PLUG.more(" + r.row_no + ");'>", G.getnumeric_l(r.assessment, 2),
+			"</a>", "<hr/>", "<div class='row watermark'>", G.getpercent_l(r.sla), "</div>", "</td>");
 		    ar.push("<td class='string" + (r.rejected ? " strikethrough attention footnote" : "") + "'" + 
 			(r.rejected ? " data-title='{0}'".format_a(lang.joint_routes.notice0) : "") + ">", G.shielding(r.note0), "</td>");
 		    ar.push("<td class='string" + (r.rejected ? " strikethrough attention footnote" : "") + "'" + 
 			(r.rejected ? " data-title='{0}'".format_a(lang.joint_routes.notice0) : "") + ">", G.shielding(r.note1), "</td>");
 		    ar.push("<td class='string" + (r.rejected ? " strikethrough attention footnote" : "") + "'" + 
 			(r.rejected ? " data-title='{0}'".format_a(lang.joint_routes.notice0) : "") + ">", G.shielding(r.note2), "</td>");
-		    ar.push("<td class='string'>", G.shielding(r.author), "</td>");
+		    ar.push("<td class='string u_name'>", G.shielding(r.author), "</td>");
 		    ar.push("</tr>");
 		}
 		data._rows.push(r);
@@ -396,7 +397,12 @@ var PLUG = (function() {
 	},
 	more: function(row_no) {
 	    var r = _cache.data.rows[row_no-1];
-	    Dialog({width: 800, title: "{0}, {1}: {2}".format_a(G.shielding(r.employee),lang.sla.result, G.getsla_l(r.assessment, r.sla)), body: _detailsbody(r)}).show();
+	    Dialog({width: 800, title: "{0}, {1}: {2} ({3})".format_a(
+		G.shielding(r.employee),
+		lang.sla.result,
+		G.getnumeric_l(r.assessment, 2),
+		G.getpercent_l(r.sla)
+	    ), body: _detailsbody(r)}).show();
 	},
 	xlsx: function() {
 	    _toxlsx();

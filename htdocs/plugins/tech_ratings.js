@@ -34,8 +34,9 @@ PLUG.registerRef("rating", (function() {
 	    ar.push("<td class='string'>", G.shielding(r.a_name), "</td>");
 	    ar.push("<td class='string'>", G.shielding(r.address), "</td>");
 	    ar.push("<td class='string'>", G.shielding(r.e_name), "</td>");
-	    ar.push("<td class='int'><a href='javascript:void(0)' onclick='PLUG.getRef(\"rating\").more(", i, ");'>", 
-		G.getsla_l(r.assessment, r.sla), "</a></td>");
+	    ar.push("<td class='int'>", "<a href='javascript:void(0)' onclick='PLUG.getRef(\"rating\").more(", i, ");'>", 
+		G.getnumeric_l(r.assessment, 2), "</a>", "<hr/>", "<div class='row watermark'>", G.getpercent_l(r.sla), 
+		"</div>", "</td>");
 	    ar.push("</tr>");
 	}
 	if( ar.length == 0 ) {
@@ -50,7 +51,7 @@ PLUG.registerRef("rating", (function() {
     function _detailsbody(r) {
 	var ar = [], x;
 	ar.push("<div>", G.shielding(r.e_name), "</div>");
-	ar.push("<div>", lang.sla.result + ":&nbsp;" + G.getsla_l(r.assessment, r.sla), "</div>");
+	ar.push("<div>", "{0}:&nbsp;{1} ({2})".format_a(lang.sla.result,  G.getnumeric_l(r.assessment, 2), G.getpercent_l(r.sla)), "</div>");
 	ar.push("<div>", G.shielding(r.a_name), "</div>");
 	ar.push("<div>", G.shielding(r.address), "</div>");
 	ar.push("<br/>");

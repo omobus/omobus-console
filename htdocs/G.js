@@ -106,9 +106,8 @@ var G = (function() {
 
 	getnumeric_l: function(n, prec, def) { return _fmtnumber(n, prec, def); },
 	getcurrency_l: function(n, def) { return _fmtnumber(n, lang.numberFormat.currency_precision, def); },
-	getpercent_l: function(arg, def) { return arg == null ? (def == null || typeof def == 'undefined' ? lang.dash : (def + '%')) : (arg + '%'); },
+	getpercent_l: function(arg, def) { return (arg == null && (def == null || typeof def == 'undefined')) ? lang.dash : (_fmtnumber(arg, 1, def) + '%'); },
 	getint_l: function(n, def) { return _fmtnumber(n, 0, def); },
-	getsla_l: function(arg0, arg1) { return _fmtnumber(arg0, 2) + "&nbsp;/&nbsp;" + _fmtnumber(arg1, 1) + "%"; },
 
 	fileSize: function(arg) { return arg == null ? null : _fileSizeIEC(arg); },
 

@@ -1027,8 +1027,8 @@ ar.push("<td class='bool'>", (arg0.promo ? lang.plus : "&nbsp;"), "</td>");
 	    } else if( t == "rating" ) {
 		ar.push("<div>");
 		ar.push("<h2>", "{0}".format_a(lang.doctypes[t]), 
-		    "<span class='r'>", "{0}. <i>{1}</i>: {2}".format_a(G.shielding(r.e_name), lang.sla.result, G.getsla_l(r.assessment, r.sla)),
-		    "</span>", "</h2>");
+		    "<span class='r'>", "{0}. <i>{1}</i>: {2} ({3})".format_a(G.shielding(r.e_name), lang.sla.result, G.getnumeric_l(r.assessment, 2),
+			G.getpercent_l(r.sla)), "</span>", "</h2>");
 		ar.push("<span class='watermark'>", "{0}: {1}".format_a(lang.time_spent, lang.seconds.format_a(r.duration)), "</span>");
 		ar.push("</div>");
 		ar.push("<table width='100%' class='report'>");
@@ -1718,8 +1718,8 @@ ar.push("<td class='bool'>", (arg0.promo ? lang.plus : "&nbsp;"), "</td>");
 	    } else if( r._t == "rating" ) {
 		ar.push("<div>");
 		ar.push("<h2>", "{0} {1} {2} / {3}".format_a(lang.doctypes[r._t], lang.num, r.doc_no, r.doc_id), 
-		    "<span class='r'>", "{0}. <i>{1}</i>: {2}".format_a(G.shielding(r.e_name), lang.sla.result, G.getsla_l(r.assessment, r.sla)),
-		    "</span>", "</h2>");
+		    "<span class='r'>", "{0}. <i>{1}</i>: {2} ({3})".format_a(G.shielding(r.e_name), lang.sla.result, G.getnumeric_l(r.assessment, 2),
+			G.getpercent_l(r.sla)), "</span>", "</h2>");
 		ar.push("<span class='watermark'>", "{0}: {1}".format_a(lang.fix_time, G.getlongtime_l(r.fix_dt)), 
 		    "&nbsp;&nbsp;&nbsp;(", lang.seconds.format_a(r.duration), ")", "</span>");
 		ar.push("</div>");
