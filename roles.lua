@@ -14,6 +14,7 @@ local modules = {
 	cdm 		= require 'roles.cdm',
 	guests 		= require 'roles.guests',
 	ise 		= require 'roles.ise',
+	ism 		= require 'roles.ism',
 	kam 		= require 'roles.kam',
 	ksr 		= require 'roles.ksr',
 	merch 		= require 'roles.merch',
