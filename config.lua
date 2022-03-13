@@ -38,7 +38,7 @@ M.session	= {
 
 -- *** PostgreSQL server parameters ***
 M.data 		= {
-    server	= "hostaddr=127.0.0.1 port=5432",
+    server	= "hostaddr=127.0.0.1 port=5432 application_name=omobus-console",
     storage	= "omobus-proxy-db",
     user	= "omobus",
     password	= "omobus"
