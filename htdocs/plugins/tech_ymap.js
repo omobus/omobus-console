@@ -235,7 +235,10 @@ var __ymap = (function() {
 	    map = new ymaps.Map(
 		canvas, 
 		{
-		    controls: ['searchControl', 'fullscreenControl', 'zoomControl'],
+		    controls: typeof __publicMapEngine != 'undefined' && __publicMapEngine == true ?
+			['fullscreenControl', 'zoomControl']
+			    :
+			['searchControl', 'fullscreenControl', 'zoomControl'],
 		    center: [data.map.latitude, data.map.longitude],
 		    zoom: 12
 		}, 

@@ -507,6 +507,9 @@ end
 function M.startup(lang, permtb, sestb, params, stor)
     local ar = {}
     table.insert(ar, string.format("__routeWeeks = %d;",permtb.weeks or 4))
+    if permtb.mapKey == nil then
+	table.insert(ar, "__publicMapEngine = true;")
+    end
     if permtb.target == true then
 	table.insert(ar, "__allowTargetCreation = true;")
     end
