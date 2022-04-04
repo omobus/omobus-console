@@ -55,7 +55,7 @@ var __route = (function() {
 
     function _addition(r) {
 	var ar = [];
-	if( !String.isEmpty(r.number) ) { ar.push(G.shielding(r.number)); }
+	if( !String.isEmpty(r.tax_number) ) { ar.push(G.shielding(r.tax_number)); }
 	ar.push("{0} {1}.".format_a(G.shielding(r.account), G.shielding(r.address)));
 	if( !String.isEmpty(r.addition_type) ) { ar.push("<i>{0}</i>: <u>{1}</u>.".format_a(lang.addition_type, G.shielding(r.addition_type))); }
 	if( !String.isEmpty(r.chan) )          { ar.push("<i>{0}</i>: <u>{1}</u>.".format_a(lang.chan_name, G.shielding(r.chan))); }
