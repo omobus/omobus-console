@@ -25,7 +25,7 @@ select
     j.account a_name, 
     j.address, 
     coalesce(g1."x-address",g0."x-address") geo_address,
-    j.number,
+    j.tax_number,
     j.addition_type_id, 
     t.descr addition_type,
     j.chan_id, 
