@@ -29,7 +29,8 @@ select
     array_to_string(m.chan_ids,'|') chan_ids, (select string_agg(descr, '|') from channels where chan_id=any(m.chan_ids)) channels,
     m.author_id, case when u.user_id is null then m.author_id else u.descr end author,
     m.b_date,
-    m.e_date
+    m.e_date,
+    m.shared
 from info_materials m
     left join countries c on c.country_id = m.country_id
     left join retail_chains r on r.rc_id = m.rc_id
@@ -294,7 +295,8 @@ select console.req_info_material(%req_uid%, %_datetime%, 'edit', %infom_id%, (
 	%rc_id%, 
 	string_to_array(%chan_ids%,','),
 	%b_date%,
-	%e_date%
+	%e_date%,
+	%shared%::bool_t
     )
 ) rv
 ]]
@@ -461,6 +463,7 @@ function M.data(lang, method, permtb, sestb, params, content, content_type, stor
 	if mp.chan_ids == nil then mp.chan_ids = stor.NULL end
 	if mp.b_date == nil then mp.b_date = stor.NULL end
 	if mp.e_date == nil then mp.e_date = stor.NULL end
+	mp.shared = mp.shared == 'true' and 1 or 0
 	-- set default values
 	mp.infom_id = params.infom_id
 	-- check owner

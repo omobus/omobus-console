@@ -27,6 +27,7 @@ var PLUG = (function() {
 	ar.push("<th class='autoincrement'>", lang.num, "</th>");
 	ar.push("<th>", lang.code, "</th>");
 	ar.push("<th>", lang.info_material, "</th>");
+	ar.push("<th class='symbol footnote' data-title='", lang.shared, "''>", "&#x2709;", "</th>");
 	ar.push("<th>", lang.blob_size, "</th>");
 	ar.push("<th><a href='javascript:void(0)' onclick='PLUG.countries(this)'>", lang.country, "</a></th>");
 	ar.push("<th><a href='javascript:void(0)' onclick='PLUG.departments(this)'>", lang.departmentAbbr, "</a></th>");
@@ -105,6 +106,13 @@ var PLUG = (function() {
 		    ar.push("<td class='string", String.isEmpty(r.descr) ? " incomplete" : "", 
 			(typeof r.e_date == 'undefined' || r.e_date >= today) ? "" : " disabled", 
 			"'>", G.shielding(r.descr), "</td>");
+		    ar.push("<td class='symbol'>");
+		    if( r.shared ) {
+			ar.push("&#x2709;");
+		    } else {
+			ar.push("&nbsp;");
+		    }
+		    ar.push("</td>");
 		    ar.push("<td width='65px' class='ref", typeof r.blob_size == 'undefined' ? " incomplete" : "", "'>");
 		    if( typeof r.blob_size == 'undefined' ) {
 			ar.push("&nbsp;");
@@ -243,6 +251,12 @@ var PLUG = (function() {
 	ar.push("<input id='param:name' type='text' placeholder='", lang.info_materials.placeholder, "' autocomplete='on'>", "</input>");
 	ar.push("</div>");
 	ar.push("<div class='row'>");
+	ar.push("<label class='checkbox'>");
+	ar.push("<input id='param:shared' type='checkbox' />");
+	ar.push("<div class='checkbox__text'>", lang.shared, "</div>");
+	ar.push("</label>");
+	ar.push("</div>");
+	ar.push("<div class='row'>");
 	ar.push("<select id='param:daterange'>");
 	ar.push("<option value=''>", "{0}: {1}".format_a(lang.validity, lang.without_restrictions), "</option>");
 	ar.push("<option value='end_of_week'>", "{0}: {1}".format_a(lang.validity, lang.daterange.end_of_week), "</option>");
@@ -256,14 +270,14 @@ var PLUG = (function() {
 	ar.push("<div class='row'>");
 	ar.push("<button id='param:country' class='dropdown'>", "</button>");
 	ar.push("</div>");
-	if( !Array.isEmpty(mans.departments) ) {
-	    _checkboxContainer(ar, mans.departments, "dep", lang.department);
-	}
 	ar.push("<div class='row'>");
 	ar.push("<button id='param:rc' class='dropdown'>", "</button>");
 	ar.push("</div>");
 	if( !Array.isEmpty(mans.channels) ) {
 	    _checkboxContainer(ar, mans.channels, "chan", lang.chan_name);
+	}
+	if( !Array.isEmpty(mans.departments) ) {
+	    _checkboxContainer(ar, mans.departments, "dep", lang.department);
 	}
 	return ar;
     }
@@ -486,11 +500,13 @@ var PLUG = (function() {
 		    rc_id: data.rc_id,
 		    chan_ids: Array.clone(data.chan_ids),
 		    b_date: data.b_date,
-		    e_date: data.e_date
+		    e_date: data.e_date,
+		    shared: data.shared > 0
 		};
 		const mans = _cache.data.mans;
 		const alertView = _('param:alert');
 		const nameView = _('param:name');
+		const sharedView = _("param:shared");
 		const daterangeView = _('param:daterange');
 		const countryView = _('param:country');
 		const rcView = _('param:rc');
@@ -519,7 +535,8 @@ var PLUG = (function() {
 			    (data.rc_id||'') == (newData.rc_id||'') &&
 			    equals(data.chan_ids||[], newData.chan_ids||[]) &&
 			    (data.b_date||'') == (newData.b_date||'') &&
-			    (data.e_date||'') == (newData.e_date||'')
+			    (data.e_date||'') == (newData.e_date||'') &&
+			    (data.shared > 0) == newData.shared
 			);
 		    //console.log(newData);
 		}
@@ -535,6 +552,7 @@ var PLUG = (function() {
 		CountriesPopup.cleanup(mans.countries);
 		RetailChainsPopup.cleanup(mans.retail_chains);
 
+		sharedView.checked = data.shared > 0;
 		countryView.html(dropDownLabel(lang.country, data.country));
 		rcView.html(dropDownLabel(lang.rc_name, data.rc));
 
@@ -562,6 +580,9 @@ var PLUG = (function() {
 		    const val = cbar[i];
 		    const type = val.getAttribute('data-type');
 		    const ref = val.getAttribute('data-ref');
+		    if( type == null || ref == null ) {
+			continue;
+		    }
 		    const ptr = mans[mn(type)][ref];
 		    val.checked = Array.isArray(data[type+'_ids']) && data[type+'_ids'].findIndex(k => k == ptr[type+'_id']) >= 0;
 		    val.onchange = function() {
@@ -591,6 +612,11 @@ var PLUG = (function() {
 		nameView.oninput = function() {
 		    newData.descr = this.value.trim();
 		    func();
+		}
+		sharedView.onchange = function() {
+		    newData.shared = this.checked;
+		    func();
+		    togglePopup();
 		}
 		daterangeView.onclick = function() {
 		    togglePopup();
@@ -670,6 +696,7 @@ var PLUG = (function() {
 			let fd = new FormData();
 			fd.append("_datetime", G.getdatetime(new Date()));
 			fd.append("name", newData.descr);
+			fd.append("shared", newData.shared);
 			fd.append("country_id", newData.country_id);
 
 			if( !String.isEmpty(newData.dep_ids) ) {

@@ -28,7 +28,8 @@ select
     array_to_string(m.dep_ids,'|') dep_ids, (select string_agg(descr, '|') from departments where dep_id=any(m.dep_ids)) departments,
     m.author_id, case when u.user_id is null then m.author_id else u.descr end author,
     m.b_date,
-    m.e_date
+    m.e_date,
+    m.shared
 from training_materials m
     left join countries c on c.country_id=m.country_id
     left join users u on u.user_id=m.author_id
@@ -282,7 +283,8 @@ select console.req_training_material(%req_uid%, %_datetime%, 'edit', %tm_id%, (
 	%country_id%, 
 	string_to_array(%dep_ids%,','),
 	%b_date%,
-	%e_date%
+	%e_date%,
+	%shared%::bool_t
     )
 ) rv
 ]]
@@ -445,6 +447,7 @@ function M.data(lang, method, permtb, sestb, params, content, content_type, stor
 	if mp.dep_ids == nil then mp.dep_ids = stor.NULL end
 	if mp.b_date == nil then mp.b_date = stor.NULL end
 	if mp.e_date == nil then mp.e_date = stor.NULL end
+	mp.shared = mp.shared == 'true' and 1 or 0
 	-- set default values
 	mp.tm_id = params.tm_id
 	-- check owner
