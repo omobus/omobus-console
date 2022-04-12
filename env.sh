@@ -22,5 +22,5 @@ chmod 0644 $APKS/omobus-droid-3.5.*.apk
 droid=$(ls $APKS | grep 'omobus-droid-3\.5\.[a-z0-9_-]*\.apk')
 sed -i -e 's/omobus-droid.apk/'$droid'/g' $APKS/index.htm
 query="select \"paramText\"('srv:domain')"
-domain=$(echo $query | su omobus -c "/usr/local/libexec/pgsql-9.6/bin/psql -d omobus-proxy-db -At")
+domain=$(echo $query | su omobus -c "/usr/local/bin/psql -d omobus-proxy-db -At")
 sed -i -e 's/xxx.omobus.net/'$domain'/g' $APKS/index.htm
