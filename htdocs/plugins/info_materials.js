@@ -27,7 +27,7 @@ var PLUG = (function() {
 	ar.push("<th class='autoincrement'>", lang.num, "</th>");
 	ar.push("<th>", lang.code, "</th>");
 	ar.push("<th>", lang.info_material, "</th>");
-	ar.push("<th class='symbol footnote' data-title='", lang.shared, "''>", "&#x2709;", "</th>");
+	ar.push("<th class='symbol footnote' data-title='", lang.shared, "''>", "&#x21e7;", "</th>");
 	ar.push("<th>", lang.blob_size, "</th>");
 	ar.push("<th><a href='javascript:void(0)' onclick='PLUG.countries(this)'>", lang.country, "</a></th>");
 	ar.push("<th><a href='javascript:void(0)' onclick='PLUG.departments(this)'>", lang.departmentAbbr, "</a></th>");
@@ -108,7 +108,7 @@ var PLUG = (function() {
 			"'>", G.shielding(r.descr), "</td>");
 		    ar.push("<td class='symbol'>");
 		    if( r.shared ) {
-			ar.push("&#x2709;");
+			ar.push("&#x21e7;");
 		    } else {
 			ar.push("&nbsp;");
 		    }
