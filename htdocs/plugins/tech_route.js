@@ -2303,11 +2303,6 @@ ar.push("<td class='bool'>", (arg0.promo ? lang.plus : "&nbsp;"), "</td>");
 		_cache.data[user_id] = null; // drops the internal cache
 		G.xhr("GET", G.getdataref({plug: "tech", code: "tech_route", user_id: user_id, date: G.getdate(date)}), "json", function(xhr, data) {
 		    if( xhr.status == 200 &&  data != null && typeof data == 'object' ) {
-/* obsolete after 2022.06 BEGIN */
-for( k in data.audits) { data.audits[k].forEach(function(arg) { if( !Array.isArray(arg.rows) && Array.isArray(arg.criterias) ) arg.rows = arg.criterias; }); }
-for( k in data.ratings) { data.ratings[k].forEach(function(arg) { if( !Array.isArray(arg.rows) && Array.isArray(arg.criterias) ) arg.rows = arg.criterias; }); }
-for( k in data.shelfs) { data.shelfs[k].forEach(function(arg) { if( !Array.isArray(arg.rows) && Array.isArray(arg.brands) ) arg.rows = arg.brands; }); }
-/* END */
 			data._c = _compile_route(data);
 			data._d = _compile_docs(data);
 			data._x = _compile_results(data);
