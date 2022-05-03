@@ -44,16 +44,15 @@ var PLUG = (function() {
 	    ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.categories(this)'>", lang.categ_name, "</a></th>");
 	}
 	ar.push("<th><a href='javascript:void(0)' onclick='PLUG.products(this,0.8)'>", lang.prod_name, "</a></th>");
-	ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.placements(this,0.8)'>", lang.placement, "</a></th>");
 	ar.push("<th class='numeric' width='55px'>", lang.exist, "</th>");
 	ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"head\",0.90)'>", lang.head_name, "</a></th>");
+	ar.push("<th class='bool' width='35px'>", "&#x267A;", "</th>");
 	ar.push("</tr>", G.thnums(_getcolumns(perm)), "</thead>");
 	ar.push("<tbody id='maintb'></tbody></table>");
 	ar.push(MonthsPopup.container());
 	ar.push(BrandsPopup.container());
 	ar.push(CategoriesPopup.container());
 	ar.push(ChannelsPopup.container());
-	ar.push(PlacementsPopup.container());
 	ar.push(ProductsPopup.container());
 	ar.push(RetailChainsPopup.container());
 	ar.push(UsersPopup.container());
@@ -99,8 +98,6 @@ var PLUG = (function() {
 	    "prod_id", 
 	    "p_code", 
 	    "prod",
-	    "placement_id", 
-	    "placement",
 	    "head_id",
 	    "_isLatest"
 	]);
@@ -135,9 +132,9 @@ var PLUG = (function() {
 			ar.push("<td class='ref sw95px'>", G.shielding(r.categ), "</td>");
 		    }
 		    ar.push("<td class='string note'>", G.shielding(r.prod), "</td>");
-		    ar.push("<td class='ref sw95px'>", G.shielding(r.placement), "</td>");
 		    ar.push("<td class='delim bool'>", _getstatus(r.exist), "</td>");
 		    ar.push("<td class='string sw95px'>", G.shielding(r.head_name), "</td>");
+		    ar.push("<td class='bool'>", String.isEmpty(r.scratch) ? "" : "&#x267A;", "</td>");
 		    ar.push("</tr>");
 		    k++;
 		}
@@ -321,9 +318,9 @@ var PLUG = (function() {
 			ws.cell("O{0}".format_a(i + offset)).value(r.brand);
 			ws.cell("P{0}".format_a(i + offset)).value(r.p_code);
 			ws.cell("Q{0}".format_a(i + offset)).value(r.prod);
-			ws.cell("R{0}".format_a(i + offset)).value(r.placement);
-			ws.cell("S{0}".format_a(i + offset)).value(_getstatus(r.exist));
-			ws.cell("T{0}".format_a(i + offset)).value(r.head_name);
+			ws.cell("R{0}".format_a(i + offset)).value(_getstatus(r.exist));
+			ws.cell("S{0}".format_a(i + offset)).value(r.head_name);
+			ws.cell("T{0}".format_a(i + offset)).value(String.isEmpty(r.scratch) ? "" : "♺");
 		    }
 		    wb.outputAsync()
 			.then(function(blob) {
@@ -447,13 +444,6 @@ var PLUG = (function() {
 	    _togglePopup("products", tag, offset, function(obj) {
 		return ProductsPopup(_cache.data[obj], function(arg, i, ar) {
 		    _onpopup(tag, arg, "prod_id");
-		})
-	    });
-	},
-	placements: function(tag, offset) {
-	    _togglePopup("placements", tag, offset, function(obj) {
-		return PlacementsPopup(_cache.data[obj], function(arg, i, ar) {
-		    _onpopup(tag, arg, "placement_id");
 		})
 	    });
 	},

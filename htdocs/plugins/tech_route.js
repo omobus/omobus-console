@@ -530,13 +530,13 @@ var __route = (function() {
 	ar.push("</td>","</tr>","</table>");
 	ar.push("<br/>");
 	((data._x[account_id] || [])._refs || []).forEach(function(element, index) {
-	    let r = element.ref, t = element._t;
+	    let r = element.ref, t = element._t, f = __availabilityColumns || {};
 	    if( index > 0 ) {
 		ar.push("<hr/>");
 	    }
 	    if( t == "#av" ) {
 		ar.push("<div>");
-		ar.push("<h2>", "{0} + {1}".format_a(lang.doctypes.presence, lang.doctypes.stock), "</h2>");
+		ar.push("<h2>", lang.availability, "</h2>");
 		ar.push("<span class='watermark'>", "{0}: {1}".format_a(lang.time_spent, lang.seconds.format_a(r.duration)), "</span>");
 		ar.push("</div>");
 		ar.push("<table width='100%' class='report'>");
@@ -544,32 +544,68 @@ var __route = (function() {
 		ar.push("<td class='divider'>", lang.num, "</td>");
 		ar.push("<td class='divider'>", lang.code, "</td>");
 		ar.push("<td class='divider'>", lang.prod_name, "</td>");
-		ar.push("<td class='divider' width='75px'>", lang.facing, "</td>");
-		ar.push("<td class='divider' width='75px'>", lang.shelf_stock, "</td>");
-		ar.push("<td class='divider' width='25px'>", "&nbsp;", "</td>");
-		ar.push("<td class='divider' width='75px'>", lang.stock, "</td>");
-		ar.push("<td class='divider' width='25px'>", "&nbsp;", "</td>");
+		ar.push("<td class='divider' width='25px'>", lang.matrixAbbr, "</td>");
+		if( f.checkup ) {
+		    ar.push("<td class='divider' width='55px'>", lang.exist, "</td>");
+		    //ar.push("<td class='divider' width='25px'>", "&nbsp;", "</td>");
+		}
+		if( f.presence ) {
+		    ar.push("<td class='divider' width='70px'>", lang.facing, "</td>");
+		    ar.push("<td class='divider' width='70px'>", lang.shelf_stock, "</td>");
+		    //ar.push("<td class='divider' width='25px'>", "&nbsp;", "</td>");
+		}
+		if( f.stock ) {
+		    ar.push("<td class='divider' width='70px'>", lang.stock, "</td>");
+		    //ar.push("<td class='divider' width='25px'>", "&nbsp;", "</td>");
+		}
+		if( f.oos ) {
+		    ar.push("<td class='divider'>", lang.oos_type, "</td>");
+		    ar.push("<td class='divider'>", lang.note, "</td>");
+		}
 		ar.push("</tr>");
 		r.rows.forEach(function(arg0, row_no) {
 		    ar.push("<tr>");
 		    ar.push("<td class='autoincrement'>", row_no + 1, "</td>");
 		    ar.push("<td class='int'>", G.shielding(arg0.p_code), "</td>");
 		    ar.push("<td class='string'>", G.shielding(arg0.prod), "</td>");
-		    if( arg0.hasOwnProperty("presence") ) {
-			ar.push("<td class='int'>", G.getint_l(arg0.presence.facing), "</td>");
-			ar.push("<td class='int'>", G.getint_l(arg0.presence.stock), "</td>");
-			ar.push("<td class='bool'>", String.isEmpty(arg0.presence.scratch) ? "" : "&#x267A;", "</td>");
-		    } else {
-			ar.push("<td class='int'>", "</td>");
-			ar.push("<td class='int'>", "</td>");
-			ar.push("<td class='bool'>", "</td>");
+		    ar.push("<td class='bool'>", arg0.hasOwnProperty("matrix") ? lang.matrixAbbr : "", "</td>");
+		    if( f.checkup ) {
+			if( arg0.hasOwnProperty("checkup") ) {
+			    ar.push("<td class='bool'>", arg0.checkup.exist == 1 ? lang.plus : (arg0.checkup.exist == 2 ? lang.shortage : lang.dash), "</td>");
+			    //ar.push("<td class='bool'>", String.isEmpty(arg0.checkup.scratch) ? "" : "&#x267A;", "</td>");
+			} else {
+			    ar.push("<td class='bool'>", "</td>");
+			    //ar.push("<td class='bool'>", "</td>");
+			}
 		    }
-		    if( arg0.hasOwnProperty("stock") ) {
-			ar.push("<td class='int'>", G.getint_l(arg0.stock.stock), "</td>");
-			ar.push("<td class='bool'>", String.isEmpty(arg0.stock.scratch) ? "" : "&#x267A;", "</td>");
-		    } else {
-			ar.push("<td class='int'>", "</td>");
-			ar.push("<td class='bool'>", "</td>");
+		    if( f.presence ) {
+			if( arg0.hasOwnProperty("presence") ) {
+			    ar.push("<td class='int'>", G.getint_l(arg0.presence.facing), "</td>");
+			    ar.push("<td class='int'>", G.getint_l(arg0.presence.stock), "</td>");
+			    //ar.push("<td class='bool'>", String.isEmpty(arg0.presence.scratch) ? "" : "&#x267A;", "</td>");
+			} else {
+			    ar.push("<td class='int'>", "</td>");
+			    ar.push("<td class='int'>", "</td>");
+			    //ar.push("<td class='bool'>", "</td>");
+			}
+		    }
+		    if( f.stock ) {
+			if( arg0.hasOwnProperty("stock") ) {
+			    ar.push("<td class='int'>", G.getint_l(arg0.stock.stock), "</td>");
+			    //ar.push("<td class='bool'>", String.isEmpty(arg0.stock.scratch) ? "" : "&#x267A;", "</td>");
+			} else {
+			    ar.push("<td class='int'>", "</td>");
+			    //ar.push("<td class='bool'>", "</td>");
+			}
+		    }
+		    if( f.oos ) {
+			if( arg0.hasOwnProperty("oos") ) {
+			    ar.push("<td class='ref'>", G.shielding(arg0.oos.oos_type), "</td>");
+			    ar.push("<td class='string'>", G.shielding(arg0.oos.note), "</td>");
+			} else {
+			    ar.push("<td class='ref'>", "</td>");
+			    ar.push("<td class='string'>", "</td>");
+			}
 		    }
 		    ar.push("</tr>");
 		});
@@ -646,16 +682,16 @@ var __route = (function() {
 		ar.push("<td class='divider'>", lang.num, "</td>");
 		ar.push("<td class='divider'>", lang.code, "</td>");
 		ar.push("<td class='divider'>", lang.prod_name, "</td>");
-		ar.push("<td class='divider'>", lang.placement, "</td>");
 		ar.push("<td class='divider'>", lang.exist, "</td>");
+		ar.push("<td class='divider' width='35px'>", "&nbsp;", "</td>");
 		ar.push("</tr>");
 		r.rows.forEach(function(arg0, row_no) {
 		    ar.push("<tr>");
 		    ar.push("<td class='autoincrement'>", row_no + 1, "</td>");
 		    ar.push("<td class='int'>", G.shielding(arg0.p_code), "</td>");
 		    ar.push("<td class='string'>", G.shielding(arg0.prod), "</td>");
-		    ar.push("<td class='ref'>", G.shielding(arg0.placement), "</td>");
 		    ar.push("<td class='bool'>", arg0.exist == 1 ? lang.plus : (arg0.exist == 2 ? lang.shortage : lang.dash), "</td>");
+		    ar.push("<td class='bool'>", String.isEmpty(arg0.scratch) ? "" : "&#x267A;", "</td>");
 		    ar.push("</tr>");
 		});
 		ar.push("</table>");
@@ -1332,16 +1368,16 @@ ar.push("<td class='bool'>", (arg0.promo ? lang.plus : "&nbsp;"), "</td>");
 		ar.push("<td class='divider'>", lang.num, "</td>");
 		ar.push("<td class='divider'>", lang.code, "</td>");
 		ar.push("<td class='divider'>", lang.prod_name, "</td>");
-		ar.push("<td class='divider'>", lang.placement, "</td>");
 		ar.push("<td class='divider'>", lang.exist, "</td>");
+		ar.push("<td class='divider' width='35px'>", "&nbsp;", "</td>");
 		ar.push("</tr>");
 		r.rows.forEach(function(arg0) {
 		    ar.push("<tr>");
 		    ar.push("<td class='autoincrement'>", arg0.row_no + 1, "</td>");
 		    ar.push("<td class='int'>", G.shielding(arg0.p_code), "</td>");
 		    ar.push("<td class='string'>", G.shielding(arg0.prod), "</td>");
-		    ar.push("<td class='ref'>", G.shielding(arg0.placement), "</td>");
 		    ar.push("<td class='bool'>", arg0.exist == 1 ? lang.plus : (arg0.exist == 2 ? lang.shortage : lang.dash), "</td>");
+		    ar.push("<td class='bool'>", String.isEmpty(arg0.scratch) ? "" : "&#x267A;", "</td>");
 		    ar.push("</tr>");
 		});
 		ar.push("</table>");
@@ -2137,7 +2173,7 @@ ar.push("<td class='bool'>", (arg0.promo ? lang.plus : "&nbsp;"), "</td>");
 	}
 	const fn = function(code, agg) {
 	    let x, z;
-	    if( (x = data["{0}s".format_a(code)] || data[code] || data["{0}es".format_a(code)]) != null ) {
+	    if( (x = (data["{0}s".format_a(code)] || data[code] || data["{0}es".format_a(code)])) != null ) {
 		for( const k in x ) {
 		    if( (z = x[k]) != null ) {
 			if( Array.isArray(z) ) {
@@ -2160,7 +2196,7 @@ ar.push("<td class='bool'>", (arg0.promo ? lang.plus : "&nbsp;"), "</td>");
 		}
 	    }
 	}
-	/* aggregate [presences] and [stocks] rows */
+	/* aggregate [checkups], [presences], [stocks] and [oos] rows */
 	const agg = function(ar /*result*/, rows /*source*/, name) {
 	    rows.forEach(function(element1, index, array) {
 		let u, j = ar.findIndex(function(element2) {
@@ -2190,40 +2226,13 @@ ar.push("<td class='bool'>", (arg0.promo ? lang.plus : "&nbsp;"), "</td>");
 	fn("checkup");
 	fn("presence");
 	fn("stock");
-	/* aggregate presences and stocks rows */
-	for( const k in obj ) {
-	    let z = obj[k], av = {duration:0,rows:[]};
-	    if( z.hasOwnProperty("presence") && z.hasOwnProperty("stock") ) {
-		["presence","stock"].forEach(function(arg) {
-		    if( z.hasOwnProperty(arg) ) {
-			const ptr = z[arg];
-			av.duration += ptr.duration;
-			agg(av.rows, ptr.rows, arg);
-			z._refs.splice(z._refs.findIndex(function(element1) {
-			    return element1._t == arg;
-			}), 1);
-			delete z[arg];
-		    }
-		});
-		av.rows.sort(function(a, b) {
-		    if( a.prod > b.prod ) return 1;
-		    if( a.prod < b.prod ) return -1;
-		    return 0;
-		});
-		av.rows.forEach(function(element1, index) {
-		    element1.row_no = index;
-		});
-		z._av = av;
-		z._refs.push({_t:"#av",ref:av});
-	    }
-	}
-	fn("price");
 	fn("oos");
+	fn("price");
 	fn("photo");
 	fn("posm");
 	fn("confirmation");
-	fn("advt");
 	fn("shelf");
+	fn("advt");
 	/* #4 */
 	fn("target");
 	fn("training");
@@ -2231,6 +2240,41 @@ ar.push("<td class='bool'>", (arg0.promo ? lang.plus : "&nbsp;"), "</td>");
 	fn("promo");
 	fn("comment");
 	fn("quest");
+
+	/* aggregate matrices, checkup, presences, stocks and oos rows */
+	for( const k in obj ) {
+	    let z = obj[k], av = {duration:0,rows:[]};
+	    /* add matrices: */
+	    if( data.hasOwnProperty("matrices") ) {
+		if( (o = data.matrices[k]) != null && Array.isArray(o) ) {
+		    agg(av.rows, o, "matrix");
+		}
+	    }
+	    /* aggregate matrices, checkup, presences, stocks and oos rows */ 
+	    ["checkup","presence","stock","oos"].forEach(function(arg) {
+		if( z.hasOwnProperty(arg) ) {
+		    const ptr = z[arg];
+		    av.duration += ptr.duration;
+		    agg(av.rows, ptr.rows, arg);
+		    /*
+		    z._refs.splice(z._refs.findIndex(function(element1) {
+			return element1._t == arg;
+		    }), 1);
+		    delete z[arg];
+		    */
+		}
+	    });
+	    av.rows.sort(function(a, b) {
+		if( a.prod > b.prod ) return 1;
+		if( a.prod < b.prod ) return -1;
+		return 0;
+	    });
+	    av.rows.forEach(function(element1, index) {
+		element1.row_no = index;
+	    });
+	    z._av = av;
+	    z._refs./*push*/unshift({_t:"#av",ref:av});
+	}
 
 	return obj;
     }

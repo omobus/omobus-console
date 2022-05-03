@@ -12,5 +12,6 @@ M.tabs = {a_list=true}
 M.target = false
 M.urgent = false
 M.zstatus = false
+M.availability = {checkup=true, presence=true, stock=true, oos=true}
 
 return M

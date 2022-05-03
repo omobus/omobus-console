@@ -73,6 +73,7 @@ var lang = {
 	title1: "Аудиты размещения продукции за"
     },
     author: "Автор",
+    availability: "Наличие продукции",
     city_everything: "Все адм.-территор. образования",
     code: "Код",
     connecting: "Подключение...",
@@ -309,6 +310,8 @@ var lang = {
     loyalty_level: "Уровень лояльности",
     loyalty_level_everything: "Все уровни лояльности",
     managment: "<div><b>УПРАВЛЯЮЩИЕ ОТЧЕТЫ</b></div><div>Отчеты управления позволяют вносить изменения в исходные данные, используемые в ходе работы OMOBUS.</div>",
+    matrixAbbr: "М",
+    matrix: "Согласованный ассортимент (матрица)",
     mileageAbbr: "Пробег, км.",
     mileageTotal: "Общий пробег за весь день",
     mileageTotalAbbr: "Пробег за день, км.",

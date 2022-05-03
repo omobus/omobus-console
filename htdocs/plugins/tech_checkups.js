@@ -4,7 +4,7 @@
 PLUG.registerRef("checkup", (function() {
     /* private properties & methods */
     var _cache = {}; // internal cache object for preventing reloading data
-    var _columns = 8;
+    var _columns = 7;
 
     function _gettable() {
 	var ar = [];
@@ -15,7 +15,6 @@ PLUG.registerRef("checkup", (function() {
 	ar.push("<th>", lang.a_name, "</th>");
 	ar.push("<th>", lang.address, "</th>");
 	ar.push("<th>", lang.prod_name, "</th>");
-	ar.push("<th>", lang.placement, "</th>");
 	ar.push("<th class='bool'>", lang.exist, "</th>");
 	ar.push("</tr>", G.thnums(_columns), "</thead><tbody id='xztb'></tbody></table>");
 	return ar;
@@ -40,7 +39,6 @@ PLUG.registerRef("checkup", (function() {
 	    ar.push("<td class='string'>", G.shielding(r.a_name), "</td>");
 	    ar.push("<td class='string'>", G.shielding(r.address), "</td>");
 	    ar.push("<td class='string'>", G.shielding(r.prod), "</td>");
-	    ar.push("<td class='ref'>", G.shielding(r.placement), "</td>");
 	    ar.push("<td class='bool'>", _getstatus(r.exist), "</td>");
 	    ar.push("</tr>");
 	}

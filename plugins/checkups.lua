@@ -143,15 +143,6 @@ select prod_id, code, descr, hidden from products
 	    )
 	end
 	if err == nil or err == false then
-	    tb.placements, err = func_execute(tran,
-[[
-select placement_id, descr, hidden from placements
-    order by descr
-]]
-		, "/plugins/checkups/placements"
-	    )
-	end
-	if err == nil or err == false then
 	    tb.content, err = func_execute(tran,
 [[
 select content_ts, content_type, content_compress, content_blob from content_get('stat_checkups', '', 
@@ -193,7 +184,6 @@ local function personalize(sestb, data)
     local idx_brands = {}
     local idx_categs = {}
     local idx_prods = {}
-    local idx_placements = {}
     local idx_heads = {}
 
     if sestb.erpid ~= nil or sestb.department ~= nil or sestb.country ~= nil or sestb.distributor ~= nil or sestb.agency ~= nil then
@@ -216,7 +206,6 @@ local function personalize(sestb, data)
 		if v.brand_id ~= nil then idx_brands[v.brand_id] = 1; end
 		if v.categ_id ~= nil then idx_categs[v.categ_id] = 1; end
 		if v.prod_id ~= nil then idx_prods[v.prod_id] = 1; end
-		if v.placement_id ~= nil then idx_placements[v.placement_id] = 1; end
 		if v.head_id ~= nil then idx_heads[v.head_id] = 1; end
 		table.insert(tb, v); 
 		v.row_no = #tb
@@ -231,7 +220,6 @@ local function personalize(sestb, data)
 	    if v.brand_id ~= nil then idx_brands[v.brand_id] = 1; end
 	    if v.categ_id ~= nil then idx_categs[v.categ_id] = 1; end
 	    if v.prod_id ~= nil then idx_prods[v.prod_id] = 1; end
-	    if v.placement_id ~= nil then idx_placements[v.placement_id] = 1; end
 	    if v.head_id ~= nil then idx_heads[v.head_id] = 1; end
 	end
     end
@@ -243,7 +231,6 @@ local function personalize(sestb, data)
     p.brands = core.reduce(data.brands, 'brand_id', idx_brands)
     p.categories = core.reduce(data.categories, 'categ_id', idx_categs)
     p.products = core.reduce(data.products, 'prod_id', idx_prods)
-    p.placements = core.reduce(data.placements, 'placement_id', idx_placements)
 
     return json.encode(p)
 end
@@ -257,7 +244,6 @@ function M.scripts(lang, permtb, sestb, params)
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.brands.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.categories.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.channels.js"> </script>')
-    table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.placements.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.products.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.retailchains.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.users.js"> </script>')

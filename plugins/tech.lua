@@ -522,6 +522,9 @@ function M.startup(lang, permtb, sestb, params, stor)
     if permtb.columns ~= nil then
 	table.insert(ar, string.format("__allowedColumns = %s;", json.encode(permtb.columns)))
     end
+    if permtb.availability ~= nil then
+	table.insert(ar, string.format("__availabilityColumns = %s;", json.encode(permtb.availability)))
+    end
     if params.user_id ~= nil and params.date ~= nil then
 	local u_name = uname(stor, params.user_id, params.date)
 	assert(validate.isuid(params.user_id), "invalid [user_id] parameter.")
