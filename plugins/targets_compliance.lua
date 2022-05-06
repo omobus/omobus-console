@@ -401,7 +401,7 @@ function M.data(lang, method, permtb, sestb, params, content, content_type, stor
 	    assert(validate.isdatetime(p._datetime), "invalid [_datetime] parameter.")
 	    assert(validate.isuid(p.doc_id), "invalid [doc_id] parameter.")
 	    assert(p.remark_type_id == nil or validate.isuid(p.remark_type_id), "invalid [remark_type_id] parameter.")
-	    assert(p.note ~= nil and #p.note, "invalid [note] parameter.")
+	    assert((p.note ~= nil and #p.note) or (p.remark_type_id ~= nil), "missing required parameters [note] or [remark_type_id].")
 	    tb, err = remark(stor, sestb.erpid or sestb.username, p._datetime, 'reject', p.doc_id, p.remark_type_id, p.note)
 	    if err then
 		scgi.writeHeader(res, 500, {["Content-Type"] = mime.json .. "; charset=utf-8"})

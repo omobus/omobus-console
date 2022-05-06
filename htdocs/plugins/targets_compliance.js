@@ -648,7 +648,7 @@ var PLUG = (function() {
 	    }
 	    var enable = function() {
 		reaccept.disabled = ptr.status == 'accepted';
-		rereject.disabled = ptr.status == 'rejected' || String.isEmpty(ptr.note);
+		rereject.disabled = ptr.status == 'rejected' || (String.isEmpty(ptr.note) && String.isEmpty(ptr.remark_type_id));
 		renote.disabled = false;
 	    }
 	    var disable = function() {
@@ -687,7 +687,7 @@ var PLUG = (function() {
 	    if( ptr.status != 'rejected' ) {
 		rereject.onclick = function() {
 		    realert.hide();
-		    if( String.isEmpty(ptr.note) ) {
+		    if( String.isEmpty(ptr.note) && String.isEmpty(ptr.remark_type_id) ) {
 			alarm(lang.errors.remark.note);
 		    } else {
 			commit(this, "DELETE");
