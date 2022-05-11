@@ -530,7 +530,7 @@ var __route = (function() {
 	ar.push("</td>","</tr>","</table>");
 	ar.push("<br/>");
 	((data._x[account_id] || [])._refs || []).forEach(function(element, index) {
-	    let r = element.ref, t = element._t, f = __availabilityColumns || {};
+	    let r = element.ref, t = element._t, f = typeof __availabilityColumns == 'object' ? __availabilityColumns : {};
 	    if( index > 0 ) {
 		ar.push("<hr/>");
 	    }
@@ -2242,38 +2242,40 @@ ar.push("<td class='bool'>", (arg0.promo ? lang.plus : "&nbsp;"), "</td>");
 	fn("quest");
 
 	/* aggregate matrices, checkup, presences, stocks and oos rows */
-	for( const k in obj ) {
-	    let z = obj[k], av = {duration:0,rows:[]};
-	    /* add matrices: */
-	    if( data.hasOwnProperty("matrices") ) {
-		if( (o = data.matrices[k]) != null && Array.isArray(o) ) {
-		    agg(av.rows, o, "matrix");
+	if( typeof __availabilityColumns == 'object' ) {
+	    for( const k in obj ) {
+		let z = obj[k], av = {duration:0,rows:[]};
+		/* add matrices: */
+		if( data.hasOwnProperty("matrices") ) {
+		    if( (o = data.matrices[k]) != null && Array.isArray(o) ) {
+			agg(av.rows, o, "matrix");
+		    }
 		}
+		/* aggregate matrices, checkup, presences, stocks and oos rows */ 
+		["checkup","presence","stock","oos"].forEach(function(arg) {
+		    if( z.hasOwnProperty(arg) ) {
+			const ptr = z[arg];
+			av.duration += ptr.duration;
+			agg(av.rows, ptr.rows, arg);
+			/*
+			z._refs.splice(z._refs.findIndex(function(element1) {
+			    return element1._t == arg;
+			}), 1);
+			delete z[arg];
+			*/
+		    }
+		});
+		av.rows.sort(function(a, b) {
+		    if( a.prod > b.prod ) return 1;
+		    if( a.prod < b.prod ) return -1;
+		    return 0;
+		});
+		av.rows.forEach(function(element1, index) {
+		    element1.row_no = index;
+		});
+		z._av = av;
+		z._refs./*push*/unshift({_t:"#av",ref:av});
 	    }
-	    /* aggregate matrices, checkup, presences, stocks and oos rows */ 
-	    ["checkup","presence","stock","oos"].forEach(function(arg) {
-		if( z.hasOwnProperty(arg) ) {
-		    const ptr = z[arg];
-		    av.duration += ptr.duration;
-		    agg(av.rows, ptr.rows, arg);
-		    /*
-		    z._refs.splice(z._refs.findIndex(function(element1) {
-			return element1._t == arg;
-		    }), 1);
-		    delete z[arg];
-		    */
-		}
-	    });
-	    av.rows.sort(function(a, b) {
-		if( a.prod > b.prod ) return 1;
-		if( a.prod < b.prod ) return -1;
-		return 0;
-	    });
-	    av.rows.forEach(function(element1, index) {
-		element1.row_no = index;
-	    });
-	    z._av = av;
-	    z._refs./*push*/unshift({_t:"#av",ref:av});
 	}
 
 	return obj;
