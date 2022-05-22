@@ -4,7 +4,7 @@
 PLUG.registerRef("price", (function() {
     /* private properties & methods */
     var _cache = {}; // internal cache object for preventing reloading data
-    var _columns = 11;
+    var _columns = 13;
 
     function _gettable() {
 	var ar = [];
@@ -19,6 +19,8 @@ PLUG.registerRef("price", (function() {
 	ar.push("<th class='numeric' width='85px'>", lang.promo, "</th>");
 	ar.push("<th class='bool'>", lang.discount, "</th>");
 	ar.push("<th class='numeric' width='85px'>", lang.rrp, "</th>");
+	ar.push("<th width='95px'>", lang.photo, "</th>");
+	ar.push("<th>", lang.note, "</th>");
 	ar.push("<th class='bool' width='35px'>", "&#x267A;", "</th>");
 	ar.push("</tr>", G.thnums(_columns), "</thead><tbody id='xztb'></tbody></table>");
 	return ar;
@@ -46,6 +48,13 @@ ar.push("<td class='bool'>", (r.promo ? lang.plus : "&nbsp;"), "</td>");
 	    ar.push("<td class='bool'>", (r.discount ? lang.plus : "&nbsp;"), "</td>");
 }
 	    ar.push("<td class='int'>", G.getcurrency_l(r.rrp), "</td>");
+	    ar.push("<td class='ref'>");
+	    if( String.isEmpty(r.blob_id) ) {
+		ar.push("&nbsp;");
+	    } else {
+		ar.push("<a href='javascript:void(0);' onclick='PLUG.slideshow([", r.blob_id, "])'>", lang.view, "</a>");
+	    }
+	    ar.push("<td class='string'>", G.shielding(r.note), "</td>");
 	    ar.push("<td class='bool'>", String.isEmpty(r.scratch) ? "" : "&#x267A;", "</td>");
 	    ar.push("</tr>");
 	}

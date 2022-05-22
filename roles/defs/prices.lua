@@ -5,5 +5,6 @@ local M = {} -- public interface
 
 M.columns = {channel=true, brand=true, category=true}
 M.rows = 500
+M.zip = {photo='{account_id}_{prod_id}', max=1000}
 
 return M

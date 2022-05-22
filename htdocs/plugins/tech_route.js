@@ -974,6 +974,8 @@ var __route = (function() {
 		ar.push("<td class='divider' width='85px'>", lang.promo, "</td>");
 		ar.push("<td class='divider' width='35px'>", lang.discount, "</td>");
 		ar.push("<td class='divider' width='85px'>", lang.rrp, "</td>");
+		ar.push("<td class='divider' width='35px'>", lang.photo, "</td>");
+		ar.push("<td class='divider'>", lang.note, "</td>");
 		ar.push("<td class='divider' width='35px'>", "&nbsp;", "</td>");
 		ar.push("</tr>");
 		r.rows.forEach(function(arg0, row_no) {
@@ -990,6 +992,15 @@ ar.push("<td class='bool'>", (arg0.promo ? lang.plus : "&nbsp;"), "</td>");
 		    ar.push("<td class='bool'>", (arg0.discount ? lang.plus : "&nbsp;"), "</td>");
 }
 		    ar.push("<td class='int'>", G.getcurrency_l(arg0.rrp), "</td>");
+		    ar.push("<td class='ref'>");
+		    if( String.isEmpty(arg0.blob_id) ) {
+			ar.push("&nbsp;");
+		    } else {
+			ar.push("<a href='javascript:void(0);' onclick='PLUG.slideshow([\"", arg0.blob_id, "\"],1)'>",
+			    "[&nbsp;1&nbsp;]", "</a>");
+		    }
+		    ar.push("</td>");
+		    ar.push("<td class='string'>", G.shielding(arg0.note), "</td>");
 		    ar.push("<td class='bool'>", String.isEmpty(arg0.scratch) ? "" : "&#x267A;", "</td>");
 		    ar.push("</tr>");
 		});
@@ -1667,6 +1678,8 @@ ar.push("<td class='bool'>", (arg0.promo ? lang.plus : "&nbsp;"), "</td>");
 		ar.push("<td class='divider' width='85px'>", lang.promo, "</td>");
 		ar.push("<td class='divider' width='35px'>", lang.discount, "</td>");
 		ar.push("<td class='divider' width='85px'>", lang.rrp, "</td>");
+		ar.push("<td class='divider' width='35px'>", lang.photo, "</td>");
+		ar.push("<td class='divider'>", lang.note, "</td>");
 		ar.push("<td class='divider' width='35px'>", "&nbsp;", "</td>");
 		ar.push("</tr>");
 		r.rows.forEach(function(arg0) {
@@ -1683,6 +1696,15 @@ ar.push("<td class='bool'>", (arg0.promo ? lang.plus : "&nbsp;"), "</td>");
 		    ar.push("<td class='bool'>", (arg0.discount ? lang.plus : "&nbsp;"), "</td>");
 }
 		    ar.push("<td class='int'>", G.getcurrency_l(arg0.rrp), "</td>");
+		    ar.push("<td class='ref'>");
+		    if( String.isEmpty(arg0.blob_id) ) {
+			ar.push("&nbsp;");
+		    } else {
+			ar.push("<a href='javascript:void(0);' onclick='PLUG.slideshow([\"", arg0.blob_id, "\"],1)'>",
+			    "[&nbsp;1&nbsp;]", "</a>");
+		    }
+		    ar.push("</td>");
+		    ar.push("<td class='string'>", G.shielding(arg0.note), "</td>");
 		    ar.push("<td class='bool'>", String.isEmpty(arg0.scratch) ? "" : "&#x267A;", "</td>");
 		    ar.push("</tr>");
 		});
@@ -2274,7 +2296,9 @@ ar.push("<td class='bool'>", (arg0.promo ? lang.plus : "&nbsp;"), "</td>");
 		    element1.row_no = index;
 		});
 		z._av = av;
-		z._refs./*push*/unshift({_t:"#av",ref:av});
+		if( !Array.isEmpty(av) ) {
+		    z._refs./*push*/unshift({_t:"#av",ref:av});
+		}
 	    }
 	}
 

@@ -4,10 +4,10 @@
 var PLUG = (function() {
     /* private properties & methods */
     var _code = "prices";
-    var _cache = {}, _perm = {}, _tags = {};
+    var _cache = {}, _perm = {}, _tags = {}, _F = false /* abort export photos */;
 
     function _getcolumns(perm) {
-	let x = 13, c = perm.columns || {};
+	let x = 15, c = perm.columns || {};
 	if( c.channel == true ) x++;
 	if( c.brand == true ) x++;
 	if( c.category == true ) x++;
@@ -23,6 +23,11 @@ var PLUG = (function() {
 	ar.push("<span>", lang.received_ts, "</span>&nbsp;<span id='timestamp'>&nbsp;-&nbsp;</span>");
 	ar.push("&nbsp;(<a href='javascript:void(0);' onclick='PLUG.refresh();'>", lang.refresh, "</a>)<span id='plugTotal'></span>");
 	ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.xlsx(this)'>", lang.export.xlsx, "</a>");
+	if( perm.zip ) {
+	    ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.zip(this,_(\"L\"),_(\"progress\"))'>",
+		lang.export.photo, "</a><span id='L' style='display: none;'><span id='progress'></span>&nbsp;(<a href='javascript:void(0)' " +
+		"onclick='PLUG.abort();'>", lang.abort, "</a>)</span>");
+	}
 	ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.latest(this)'>", lang.latest, "</a>");
 	ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<input class='search' type='text' maxlength='96' autocomplete='off' placeholder='",
 	    lang.search, "' id='plugFilter' onkeyup='return PLUG.filter(this, event);' onpaste='PLUG.filter(this, event); return true;' />");
@@ -48,11 +53,14 @@ var PLUG = (function() {
 	ar.push("<th class='numeric' width='45px'>", lang.promo, "</th>");
 	ar.push("<th class='bool'>", lang.discount, "</th>");
 	ar.push("<th class='numeric' width='45px'>", lang.rrp, "</th>");
+	ar.push("<th>", lang.photo, "</th>");
+	ar.push("<th>", lang.note, "</th>");
 	ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"head\",0.90)'>", lang.head_name, "</a></th>");
 	ar.push("<th class='bool' width='35px'>", "&#x267A;", "</th>");
 	ar.push("</tr>", G.thnums(_getcolumns(perm)), "</thead>");
 	ar.push("<tbody id='maintb'></tbody></table>");
 	ar.push(MonthsPopup.container());
+	ar.push(SlideshowSimple.container());
 	ar.push(BrandsPopup.container());
 	ar.push(CategoriesPopup.container());
 	ar.push(ChannelsPopup.container());
@@ -95,6 +103,7 @@ var PLUG = (function() {
 	    "prod_id", 
 	    "p_code", 
 	    "prod",
+	    "note",
 	    "head_id",
 	    "_isLatest"
 	]);
@@ -138,6 +147,15 @@ ar.push("<td class='bool'>", r.promo ? lang.plus : "&nbsp;", "</td>");
 		    ar.push("<td class='bool'>", r.discount ? lang.plus : "&nbsp;", "</td>");
 }
 		    ar.push("<td class='int delim'>", G.getcurrency_l(r.rrp), "</td>");
+		    ar.push("<td class='ref'>");
+		    if( String.isEmpty(r.blob_id) ) {
+			ar.push("&nbsp;");
+		    } else {
+			ar.push("<img class='clickable' onclick='PLUG.slideshow(" + r.blob_id + ")' height='90px' " + (k>=20?"data-src='":"src='") +
+			    G.getdataref({plug: _code, blob: "yes", thumb: "yes", blob_id: r.blob_id}) + "' />");
+		    }
+		    ar.push("</td>");
+		    ar.push("<td class='delim string note'>", G.shielding(r.note), "</td>");
 		    ar.push("<td class='string sw95px'>", G.shielding(r.head_name), "</td>");
 		    ar.push("<td class='bool'>", String.isEmpty(r.scratch) ? "" : "&#x267A;", "</td>");
 		    ar.push("</tr>");
@@ -223,6 +241,7 @@ ar.push("<td class='bool'>", r.promo ? lang.plus : "&nbsp;", "</td>");
 		_markLatestRows(data.rows);
 		//console.log(data);
 		_tags.tbody.html(_datatbl(data, 1, _tags.total, _getfilter(), _cache.checked, _perm).join(""));
+		new LazyLoad();
 	    } else {
 		_tags.tbody.html(_datamsg(lang.failure, _perm).join(""));
 		_tags.total.html("");
@@ -239,6 +258,7 @@ ar.push("<td class='bool'>", r.promo ? lang.plus : "&nbsp;", "</td>");
 	    ProgressDialog.show();
 	    setTimeout(function() {
 		_tags.tbody.html(_datatbl(_cache.data, page, _tags.total, _getfilter(), _cache.checked, _perm).join(""));
+		new LazyLoad();
 		ProgressDialog.hide();
 	    }, 0);
 	}
@@ -332,8 +352,14 @@ ws.cell("T{0}".format_a(i + offset)).value(r.promo ? "+" : "");
 }
 			ws.cell("U{0}".format_a(i + offset)).value(r.units);
 			ws.cell("V{0}".format_a(i + offset)).value(r.rrp);
-			ws.cell("W{0}".format_a(i + offset)).value(r.head_name);
-			ws.cell("X{0}".format_a(i + offset)).value(String.isEmpty(r.scratch) ? "" : "♺");
+			if( typeof r.ref != 'undefined' ) {
+			    ws.cell("W{0}".format_a(i + offset)).value("[ 1 ]")
+				.style({ fontColor: "0563c1", underline: true })
+				.hyperlink({ hyperlink: G.getphotoref(r.ref,true) });
+			}
+			ws.cell("X{0}".format_a(i + offset)).value(r.note);
+			ws.cell("Y{0}".format_a(i + offset)).value(r.head_name);
+			ws.cell("Z{0}".format_a(i + offset)).value(String.isEmpty(r.scratch) ? "" : "♺");
 		    }
 		    wb.outputAsync()
 			.then(function(blob) {
@@ -464,8 +490,27 @@ ws.cell("T{0}".format_a(i + offset)).value(r.promo ? "+" : "");
 	    _togglePopup();
 	    _latest(tag);
 	},
+	slideshow: function(blob_id) {
+	    SlideshowSimple([G.getdataref({plug: _code, blob: "yes", blob_id: blob_id})]).show();
+	},
 	xlsx: function() {
 	    _toxlsx();
+	},
+	zip: function(tag0, tag1, span) {
+	    var ar = [];
+	    if( _cache.data != null && Array.isArray(_cache.data._rows) ) {
+		_cache.data._rows.forEach(function(r, i) {
+		    if( !String.isEmpty(r.blob_id) ) {
+			ar.push({params: r, blob_id: r.blob_id});
+		    }
+		});
+	    }
+	    _F = false;
+	    G.tozip(_code, ar, _perm.zip != null ? _perm.zip.photo : null, _perm.zip != null ? _perm.zip.max : null,
+		function() {return _F;}, tag0, tag1, span);
+	},
+	abort: function() {
+	    _F = true;
 	}
     }
 })();
