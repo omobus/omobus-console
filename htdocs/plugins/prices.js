@@ -139,13 +139,8 @@ var PLUG = (function() {
 		    }
 		    ar.push("<td class='string note'>", G.shielding(r.prod), "</td>");
 		    ar.push("<td class='int'>", G.getcurrency_l(r.price), "</td>");
-if( typeof r.discount == 'undefined' ) { /* obsolete after 01.10.2022 */
-ar.push("<td class='int'>", "&nbsp;", "</td>");
-ar.push("<td class='bool'>", r.promo ? lang.plus : "&nbsp;", "</td>");
-} else {
 		    ar.push("<td class='int'>", G.getcurrency_l(r.promo), "</td>");
 		    ar.push("<td class='bool'>", r.discount ? lang.plus : "&nbsp;", "</td>");
-}
 		    ar.push("<td class='int delim'>", G.getcurrency_l(r.rrp), "</td>");
 		    ar.push("<td class='ref'>");
 		    if( String.isEmpty(r.blob_id) ) {
@@ -344,12 +339,8 @@ ar.push("<td class='bool'>", r.promo ? lang.plus : "&nbsp;", "</td>");
 			ws.cell("P{0}".format_a(i + offset)).value(r.p_code);
 			ws.cell("Q{0}".format_a(i + offset)).value(r.prod);
 			ws.cell("R{0}".format_a(i + offset)).value(r.price);
-if( typeof r.discount == 'undefined' ) { /* obsolete after 01.10.2022 */
-ws.cell("T{0}".format_a(i + offset)).value(r.promo ? "+" : "");
-} else {
 			ws.cell("S{0}".format_a(i + offset)).value(r.promo);
 			ws.cell("T{0}".format_a(i + offset)).value(r.discount ? "+" : "");
-}
 			ws.cell("U{0}".format_a(i + offset)).value(r.units);
 			ws.cell("V{0}".format_a(i + offset)).value(r.rrp);
 			if( typeof r.ref != 'undefined' ) {

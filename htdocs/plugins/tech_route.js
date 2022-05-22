@@ -984,13 +984,8 @@ var __route = (function() {
 		    ar.push("<td class='int'>", G.shielding(arg0.p_code), "</td>");
 		    ar.push("<td class='string'>", G.shielding(arg0.prod), "</td>");
 		    ar.push("<td class='int'>", G.getcurrency_l(arg0.price), "</td>");
-if( typeof arg0.promo == 'undefined' ) { /* obsolete after 01.10.2022 */
-ar.push("<td class='int'>", "&nbsp;", "</td>");
-ar.push("<td class='bool'>", (arg0.promo ? lang.plus : "&nbsp;"), "</td>");
-} else {
 		    ar.push("<td class='int'>", G.getcurrency_l(arg0.promo), "</td>");
 		    ar.push("<td class='bool'>", (arg0.discount ? lang.plus : "&nbsp;"), "</td>");
-}
 		    ar.push("<td class='int'>", G.getcurrency_l(arg0.rrp), "</td>");
 		    ar.push("<td class='ref'>");
 		    if( String.isEmpty(arg0.blob_id) ) {
@@ -1688,13 +1683,8 @@ ar.push("<td class='bool'>", (arg0.promo ? lang.plus : "&nbsp;"), "</td>");
 		    ar.push("<td class='int'>", G.shielding(arg0.p_code), "</td>");
 		    ar.push("<td class='string'>", G.shielding(arg0.prod), "</td>");
 		    ar.push("<td class='int'>", G.getcurrency_l(arg0.price), "</td>");
-if( typeof arg0.promo == 'undefined' ) { /* obsolete after 01.10.2022 */
-ar.push("<td class='int'>", "&nbsp;", "</td>");
-ar.push("<td class='bool'>", (arg0.promo ? lang.plus : "&nbsp;"), "</td>");
-} else {
 		    ar.push("<td class='int'>", G.getcurrency_l(arg0.promo), "</td>");
 		    ar.push("<td class='bool'>", (arg0.discount ? lang.plus : "&nbsp;"), "</td>");
-}
 		    ar.push("<td class='int'>", G.getcurrency_l(arg0.rrp), "</td>");
 		    ar.push("<td class='ref'>");
 		    if( String.isEmpty(arg0.blob_id) ) {

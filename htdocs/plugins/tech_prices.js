@@ -40,13 +40,8 @@ PLUG.registerRef("price", (function() {
 	    ar.push("<td class='string'>", G.shielding(r.address), "</td>");
 	    ar.push("<td class='string'>", G.shielding(r.prod), "</td>");
 	    ar.push("<td class='int'>", G.getcurrency_l(r.price), "</td>");
-if( typeof r.discount == 'undefined' ) { /* obsolete after 01.10.2022 */
-ar.push("<td class='int'>", "&nbsp;", "</td>");
-ar.push("<td class='bool'>", (r.promo ? lang.plus : "&nbsp;"), "</td>");
-} else {
 	    ar.push("<td class='int'>", G.getcurrency_l(r.promo), "</td>");
 	    ar.push("<td class='bool'>", (r.discount ? lang.plus : "&nbsp;"), "</td>");
-}
 	    ar.push("<td class='int'>", G.getcurrency_l(r.rrp), "</td>");
 	    ar.push("<td class='ref'>");
 	    if( String.isEmpty(r.blob_id) ) {
