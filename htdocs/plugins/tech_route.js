@@ -544,7 +544,7 @@ var __route = (function() {
 		ar.push("<td class='divider'>", lang.num, "</td>");
 		ar.push("<td class='divider'>", lang.code, "</td>");
 		ar.push("<td class='divider'>", lang.prod_name, "</td>");
-		ar.push("<td class='divider' width='25px'>", lang.matrixAbbr, "</td>");
+		ar.push("<td class='divider footnote' width='25px' data-title='", lang.matrix, "'>", lang.matrixAbbr, "</td>");
 		if( f.checkup ) {
 		    ar.push("<td class='divider' width='55px'>", lang.exist, "</td>");
 		    //ar.push("<td class='divider' width='25px'>", "&nbsp;", "</td>");
@@ -2256,7 +2256,7 @@ var __route = (function() {
 	/* aggregate matrices, checkup, presences, stocks and oos rows */
 	if( typeof __availabilityColumns == 'object' ) {
 	    for( const k in obj ) {
-		let z = obj[k], av = {duration:0,rows:[]};
+		let z = obj[k], av = {duration:0,rows:[]}, f = false;
 		/* add matrices: */
 		if( data.hasOwnProperty("matrices") ) {
 		    if( (o = data.matrices[k]) != null && Array.isArray(o) ) {
@@ -2275,6 +2275,7 @@ var __route = (function() {
 			}), 1);
 			delete z[arg];
 			*/
+			f = true;
 		    }
 		});
 		av.rows.sort(function(a, b) {
@@ -2284,9 +2285,9 @@ var __route = (function() {
 		});
 		av.rows.forEach(function(element1, index) {
 		    element1.row_no = index;
-		});
+		})
 		z._av = av;
-		if( !Array.isEmpty(av) ) {
+		if( f ) {
 		    z._refs./*push*/unshift({_t:"#av",ref:av});
 		}
 	    }
