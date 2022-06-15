@@ -261,7 +261,7 @@ select count(*) exist from users
 		tb._everything = true
 	    end
 
-	    if (err == nil or err == false) and permtb ~= nil and permtb.zstatus and code == 'tech_route' then
+	    if (err == nil or err == false) and permtb ~= nil and code == 'tech_route' then
 		tb.zstatus, err = func_execute(tran,
 [[
 select 
@@ -276,6 +276,22 @@ where j.user_id = %user_id% and j.fix_date = %fix_date%
 		    , "/plugins/tech/zstatus"
 		    , {user_id=user_id, fix_date=date}
 		)
+	    end
+	    if (err == nil or err == false) and permtb ~= nil and permtb.zstatus ~= nil and permtb.zstatus.granted and code == 'tech_route' then
+		tb._tmp, err = func_execute(tran,
+[[
+select 
+    case when (current_date - %fix_date%::date) <= %depth% then 'yes'
+	else null end granted,
+    %fix_date%::date + %depth% till
+]]
+		    , "/plugins/tech/zwrite"
+		    , {fix_date=date, depth=permtb.zstatus.depth}
+		)
+		if tb._tmp ~= nil and #tb._tmp == 1 and tb._tmp[1].granted == 'yes' then
+		    tb._zstatusChangeable = tb._tmp[1].till
+		end
+		tb._tmp = nil
 	    end
 	end
 	if err then
@@ -320,13 +336,31 @@ select console.req_target(%req_uid%, %_datetime%, (%doc_id%, %sub%, %msg%, %stri
     )
 end
 
-local function zstatus(stor, uid, reqdt, cmd, guid, note)
-    return stor.get(function(tran, func_execute) return func_execute(tran,
+local function zstatus(stor, uid, reqdt, cmd, guid, note, depth --[[ permission ]])
+    return stor.get(function(tran, func_execute)
+	local rv, tb, err = {}, func_execute(tran,
+[[
+select count(guid) exist from j_user_activities 
+    where guid = %guid% and fix_date is not null and (current_date - fix_date::date) <= %depth%
+]]
+	    , "/plugins/tech/zstatusPermissions"
+	    , {guid = guid, depth = depth}
+	)
+	if (err == nil or err == false) and tb ~= nil and #tb == 1 and tb[1].exist == 1 then
+	    tb, err = func_execute(tran,
 [[
 select console.req_zstatus(%req_uid%, %req_dt%, %cmd%, %guid%, %msg%) zrows
 ]]
-	, "/plugins/tech/zstatus"
-	, {req_uid = uid, req_dt = reqdt, cmd = cmd, guid = guid, msg = note or stor.NULL})
+		, "/plugins/tech/zstatus"
+		, {req_uid = uid, req_dt = reqdt, cmd = cmd, guid = guid, msg = note or stor.NULL}
+	    )
+	    if (err == nil or err == false) and tb ~= nil and #tb == 1 then
+		rv.zrows = tb[1].zrows
+	    end
+	else
+	    rv.forbidden = true
+	end
+	return rv, err
     end, false
     )
 end
@@ -436,9 +470,10 @@ local function personalizeL2(tb, my_habitat) --: tech_route
     return tb
 end
 
-local function personalizeL3(tb, zstatus)  --: tech_route
+local function personalizeL3(tb, zstatus, zf)  --: tech_route
     local idx = {}
-    if tb.route ~= nil and #tb.route > 0 then
+
+    if tb.route ~= nil and #tb.route > 0 and zstatus ~= nil and #zstatus > 0 then
 	for i, v in ipairs(zstatus) do
 	    idx[v.guid] = v
 	end
@@ -449,6 +484,7 @@ local function personalizeL3(tb, zstatus)  --: tech_route
 	    v.zauthor = k and k.zauthor
 	end
     end
+    tb.zstatusChangeable = zf
     return tb
 end
 
@@ -515,9 +551,6 @@ function M.startup(lang, permtb, sestb, params, stor)
     end
     if permtb.urgent == true then
 	table.insert(ar, "__allowUrgentActivities = true;")
-    end
-    if permtb.zstatus == true then
-	table.insert(ar, "__allowZstatusChanging = true;")
     end
     if permtb.columns ~= nil then
 	table.insert(ar, string.format("__allowedColumns = %s;", json.encode(permtb.columns)))
@@ -597,18 +630,21 @@ function M.data(lang, method, permtb, sestb, params, content, content_type, stor
 	    elseif tb == nil then
 		scgi.writeHeader(res, 200, {["Content-Type"] = mime.json .. "; charset=utf-8"})
 		scgi.writeBody(res, "{}")
-	    elseif permtb.zstatus and params.code == 'tech_route' and tb.zstatus ~= nil and #tb.zstatus > 0 and tb._everything then
+	    elseif params.code == 'tech_route' and tb._everything then
 		scgi.writeHeader(res, 200, {["Content-Type"] = tb.content_type .. "; charset=utf-8", ["Content-Encoding"] = "deflate"})
-		scgi.writeBody(res, compress(json.encode(personalizeL3(json.decode(decompress(tb.content_blob, tb.content_compress)), tb.zstatus))))
+		scgi.writeBody(res, compress(json.encode(personalizeL3(json.decode(decompress(tb.content_blob, tb.content_compress)), 
+		    tb.zstatus, tb._zstatusChangeable))))
 	    elseif tb._everything then
 		scgi.writeHeader(res, 200, {["Content-Type"] = tb.content_type .. "; charset=utf-8", ["Content-Encoding"] = "deflate"})
 		scgi.writeBody(res, compress(decompress(tb.content_blob, tb.content_compress)))
 	    elseif params.code == 'tech_route' then
 		scgi.writeHeader(res, 200, {["Content-Type"] = tb.content_type .. "; charset=utf-8", ["Content-Encoding"] = "deflate"})
-		scgi.writeBody(res, compress(json.encode(personalizeL2(json.decode(decompress(tb.content_blob, tb.content_compress)), tb.my_habitat))))
+		scgi.writeBody(res, compress(json.encode(personalizeL3(personalizeL2(json.decode(decompress(tb.content_blob, tb.content_compress)), 
+		    tb.my_habitat), tb.zstatus, tb._zstatusChangeable))))
 	    else
 		scgi.writeHeader(res, 200, {["Content-Type"] = tb.content_type .. "; charset=utf-8", ["Content-Encoding"] = "deflate"})
-		scgi.writeBody(res, compress(json.encode(personalizeL1(json.decode(decompress(tb.content_blob, tb.content_compress)), tb.my_habitat))))
+		scgi.writeBody(res, compress(json.encode(personalizeL1(json.decode(decompress(tb.content_blob, tb.content_compress)), 
+		    tb.my_habitat))))
 	    end
 	end
     elseif method == "POST" then
@@ -637,16 +673,19 @@ function M.data(lang, method, permtb, sestb, params, content, content_type, stor
 	    scgi.writeBody(res, "Bad request. Operation does not permitted.")
 	end
     elseif method == "PUT" then
-	if permtb.zstatus == true then
+	if permtb.zstatus ~= nil and permtb.zstatus.granted == true then
 	    local p, tb, err
 	    if type(content) == "string" then p = uri.parseQuery(content) end
 	    assert(validate.isdatetime(p._datetime), "invalid [_datetime] parameter.")
 	    assert(validate.isuid(p.guid), "invalid [guid] parameter.")
-	    tb, err = zstatus(stor, sestb.erpid or sestb.username, p._datetime, 'accept', p.guid, p.note)
-	    if err then
+	    tb, err = zstatus(stor, sestb.erpid or sestb.username, p._datetime, 'accept', p.guid, p.note, permtb.zstatus.depth)
+	    if err or tb == nil then
 		scgi.writeHeader(res, 500, {["Content-Type"] = mime.json .. "; charset=utf-8"})
 		scgi.writeBody(res, "{\"status\":\"failed\",\"msg\":\"Internal server error\"}")
-	    elseif tb == nil or #tb ~= 1 or tb[1].zrows == nil or tb[1].zrows == 0 then
+	    elseif tb.forbidden then
+		scgi.writeHeader(res, 403, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
+		scgi.writeBody(res, "{\"status\":\"Not permitted\"}")
+	    elseif tb.zrows == nil or tb.zrows == 0 then
 		scgi.writeHeader(res, 409, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
 		scgi.writeBody(res, "Invalid input parameters")
 	    else
@@ -658,17 +697,20 @@ function M.data(lang, method, permtb, sestb, params, content, content_type, stor
 	    scgi.writeBody(res, "Bad request. Operation does not permitted.")
 	end
     elseif method == "DELETE" then
-	if permtb.zstatus == true then
+	if permtb.zstatus ~= nil and permtb.zstatus.granted == true then
 	    local p, tb, err
 	    if type(content) == "string" then p = uri.parseQuery(content) end
 	    assert(validate.isdatetime(p._datetime), "invalid [_datetime] parameter.")
 	    assert(validate.isuid(p.guid), "invalid [guid] parameter.")
 	    assert(p.note ~= nil and #p.note, "invalid [note] parameter.")
-	    tb, err = zstatus(stor, sestb.erpid or sestb.username, p._datetime, 'reject', p.guid, p.note)
-	    if err then
+	    tb, err = zstatus(stor, sestb.erpid or sestb.username, p._datetime, 'reject', p.guid, p.note, permtb.zstatus.depth)
+	    if err or tb == nil then
 		scgi.writeHeader(res, 500, {["Content-Type"] = mime.json .. "; charset=utf-8"})
 		scgi.writeBody(res, "{\"status\":\"failed\",\"msg\":\"Internal server error\"}")
-	    elseif tb == nil or #tb ~= 1 or tb[1].zrows == nil or tb[1].zrows == 0 then
+	    elseif tb.forbidden then
+		scgi.writeHeader(res, 403, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
+		scgi.writeBody(res, "{\"status\":\"Not permitted\"}")
+	    elseif tb.zrows == nil or tb.zrows == 0 then
 		scgi.writeHeader(res, 409, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
 		scgi.writeBody(res, "Invalid input parameters")
 	    else
