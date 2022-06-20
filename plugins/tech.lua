@@ -282,7 +282,7 @@ where j.user_id = %user_id% and j.fix_date = %fix_date%
 [[
 select 
     case when (current_date - %fix_date%::date) <= %depth% then 'yes'
-	else null end granted,
+	else null end "granted",
     %fix_date%::date + %depth% till
 ]]
 		    , "/plugins/tech/zwrite"
