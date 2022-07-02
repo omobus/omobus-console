@@ -422,9 +422,9 @@ var PLUG = (function() {
 			    ar.push("<div class='row remark'>", G.shielding(val), "</div>");
 			});
 		    }
+		    ar.push("</td>");
 		    ar.push("<td class='ref' width='25px'><img class='clickable' onclick='PLUG.save(this,\"", x.ref_id, 
 			"\")' height='20px' src='",G.getstaticref("drawable/download.png"), "'/></td>");
-		    ar.push("</td>");
 		    ar.push("</tr>");
 		    c++;
 		}
