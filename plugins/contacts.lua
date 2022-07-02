@@ -32,11 +32,13 @@ select
     x.cohort_id, 
     x.locked,
     x.extra_info,
+    x.consent_status,
+    x.consent_dt,
     x.author_id,
     x.updated_ts,
     x."_isAlienData"
 from contacts x 
-where x.hidden = 0 $(0)
+where "_dataTimestamp" is not null and x.hidden = 0 $(0)
 order by x.updated_ts desc, x."name", x.surname, x.patronymic, x.account_id, x.contact_id
 ]]
 	if sestb.erpid ~= nil then
@@ -194,6 +196,17 @@ select current_timestamp data_ts
     )
 end
 
+local function blob(stor, contact_id)
+    return stor.get(function(tran, func_execute) return func_execute(tran,
+[[
+select contact_id, consent_data, consent_type from contacts where contact_id = %contact_id%
+]]
+	    , "/plugins/contacts/consent_data/", {contact_id = contact_id}
+	)
+    end
+    )
+end
+
 local function compress(arg)
     return zlib.deflate(6):finish(arg)
 end
@@ -265,16 +278,39 @@ end
 function M.data(lang, method, permtb, sestb, params, content, content_type, stor, res)
     local tb, err
     if method == "GET" then
-	tb, err = data(stor, sestb)
-	if err then
-	    scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
-	    scgi.writeBody(res, "Internal server error")
-	elseif tb == nil or tb.rows == nil then
-	    scgi.writeHeader(res, 200, {["Content-Type"] = mime.json .. "; charset=utf-8"})
-	    scgi.writeBody(res, "{}")
+	if params.blob ~= nil then
+	    -- validate input data
+	    assert(validate.isuid(params.contact_id), "invalid [contact_id] parameter.")
+	    -- execute query
+	    tb, err = blob(stor, params.contact_id)
+	    if err then
+		scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
+		scgi.writeBody(res, "Internal server error")
+	    elseif tb[1].consent_type == mime.pdf then
+		scgi.writeHeader(res, 200, {
+		    ["Content-Type"] = mime.pdf,
+		    ["Content-Disposition"] = "inline; filename=\"" .. params.contact_id .. ".pdf\""
+		})
+		scgi.writeBody(res, tb[1].consent_data)
+	    elseif tb[1].content_type == mime.jpeg then
+		scgi.writeHeader(res, 200, {["Content-Type"] = mime.jpeg})
+		scgi.writeBody(res, tb[1].consent_data)
+	    else
+		scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
+		scgi.writeBody(res, "Invalid BLOB type")
+	    end
 	else
-	    scgi.writeHeader(res, 200, {["Content-Type"] = mime.json .. "; charset=utf-8", ["Content-Encoding"] = "deflate"})
-	    scgi.writeBody(res, compress(json.encode(personalize(tb))))
+	    tb, err = data(stor, sestb)
+	    if err then
+		scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
+		scgi.writeBody(res, "Internal server error")
+	    elseif tb == nil or tb.rows == nil then
+		scgi.writeHeader(res, 200, {["Content-Type"] = mime.json .. "; charset=utf-8"})
+		scgi.writeBody(res, "{}")
+	    else
+		scgi.writeHeader(res, 200, {["Content-Type"] = mime.json .. "; charset=utf-8", ["Content-Encoding"] = "deflate"})
+		scgi.writeBody(res, compress(json.encode(personalize(tb))))
+	    end
 	end
     else
 	scgi.writeHeader(res, 400, {["Content-Type"] = mime.txt .. "; charset=utf-8"})

@@ -12,7 +12,7 @@ var PLUG = (function() {
     }
 
     function _getcolumns(perm) {
-	let x = 11, c = perm.columns || {};
+	let x = 13, c = perm.columns || {};
 	if( c.channel == true ) x++;
 	if( c.cohort == true ) x++;
 	if( c.specialization == true ) x++;
@@ -31,26 +31,33 @@ var PLUG = (function() {
 	    lang.search, "' id='plugFilter' onkeyup='return PLUG.filter(this, event);' onpaste='PLUG.filter(this, event); return true;' />");
 	ar.push("</td></tr></table>");
 	ar.push("<table width='100%' class='report'><thead><tr>");
-	ar.push("<th class='autoincrement'>", lang.num, "</th>");
-	ar.push("<th>", lang.contact, "</th>");
-	ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.jobs(this, 0.30)'>", lang.job_title, "</a></th>");
+	ar.push("<th rowspan='2' class='autoincrement'>", lang.num, "</th>");
+	ar.push("<th rowspan='2'>", lang.contact, "</th>");
+	ar.push("<th rowspan='2' class='sw95px'><a href='javascript:void(0)' onclick='PLUG.jobs(this, 0.30)'>", lang.job_title, "</a></th>");
+	ar.push("<th rowspan='2'>", lang.a_code, "</th>");
+	ar.push("<th rowspan='2'><a href='javascript:void(0)' onclick='PLUG.retail_chains(this)'>", lang.a_name, "</a></th>");
+	ar.push("<th rowspan='2'>", lang.address, "</th>");
+	if( perm.columns != null && perm.columns.channel == true ) {
+	    ar.push("<th rowspan='2' class='sw95px'><a href='javascript:void(0)' onclick='PLUG.channels(this)'>", lang.chan_name, "</a></th>");
+	}
 	if( perm.columns != null && perm.columns.specialization == true ) {
-	    ar.push("<th width='65px'><a href='javascript:void(0)' onclick='PLUG.specs(this, 0.30)'>", lang.specialization, "</a></th>");
+	    ar.push("<th rowspan='2' width='65px'><a href='javascript:void(0)' onclick='PLUG.specs(this, 0.30)'>", lang.specialization, "</a></th>");
 	}
 	if( perm.columns != null && perm.columns.cohort == true ) {
-	    ar.push("<th width='65px'><a href='javascript:void(0)' onclick='PLUG.levels(this, 0.30)'>", lang.cohort, "</a></th>");
+	    ar.push("<th rowspan='2' width='65px'><a href='javascript:void(0)' onclick='PLUG.levels(this, 0.30)'>", lang.cohort, "</a></th>");
 	}
-	ar.push("<th width='95px'>", lang.mobile, "</th>");
-	ar.push("<th>", lang.email, "</th>");
-	ar.push("<th>", lang.a_code, "</th>");
-	ar.push("<th><a href='javascript:void(0)' onclick='PLUG.retail_chains(this)'>", lang.a_name, "</a></th>");
-	ar.push("<th>", lang.address, "</th>");
-	if( perm.columns != null && perm.columns.channel == true ) {
-	    ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.channels(this)'>", lang.chan_name, "</a></th>");
+	ar.push("<th rowspan='2' width='95px'>", lang.mobile, "</th>");
+	ar.push("<th rowspan='2'>", lang.email, "</th>");
+	ar.push("<th rowspan='2'>", lang.note, "</th>");
+	ar.push("<th colspan='2'>", lang.contacts.consents.group, "</th>");
+	ar.push("<th rowspan='2' class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"author\",0.90)'>", lang.author, "</a></th>");
+	ar.push("<th rowspan='2'>", "&#9850;", "</th>");
+	ar.push("<tr>");
+	for( let i = 0; i < 2; i++ ) {
+	    ar.push("<th><a class='footnote_L' href='javascript:void(0)' onclick='PLUG.consent(this,", i+1, ")'",
+		" data-title='", lang.contacts.consents.name[i], "'>", lang.contacts.consents.abbr[i], "</th>");
 	}
-	ar.push("<th>", lang.note, "</th>");
-	ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"author\",0.90)'>", lang.author, "</a></th>");
-	ar.push("<th>", "&#9850;", "</th>");
+	ar.push("</tr>");
 	ar.push("</tr>", G.thnums(_getcolumns(perm)), "</thead>");
 	ar.push("<tbody id='maintb'></tbody></table>");
 	ar.push(ChannelsPopup.container());
@@ -95,6 +102,7 @@ var PLUG = (function() {
 	    "specialization",
 	    "cohort_id",
 	    "extra_info",
+	    "consent_status",
 	    "author_id", 
 	    "author"
 	]);
@@ -110,11 +118,22 @@ var PLUG = (function() {
 	for( var i = 0; i < size; i++ ) {
 	    if( (r = data.rows[i]) != null && f.is(r) ) {
 		if( (page-1)*perm.rows <= x && x < page*perm.rows ) {
-		    var xs = "";
+		    var xs = "", z = [false, false], y = [false, false], w = Date.parseISO8601(r.consent_dt);
 		    if( r.a_hidden ) {
 			xs = " strikethrough attention";
 		    } else if ( r.a_locked ) {
 			xs = " strikethrough";
+		    }
+		    if( !String.isEmpty(r.patronymic) || !String.isEmpty(r.surname) ) {
+			z[0] = true;
+		    }
+		    if( !String.isEmpty(r.email) || !String.isEmpty(r.mobile) ) {
+			z[0] = z[1] = true;
+		    }
+		    if( r.consent_status == 'collecting' ) {
+			y[0] = true;
+		    } else if( r.consent_status == 'collecting_and_informing' ) {
+			y[0] = y[1] = true;
 		    }
 		    ar.push("<tr" + (typeof checked != 'undefined' && checked[r.contact_id] ? " class='selected'" : "") + ">");
 		    ar.push("<td class='autoincrement clickable' onclick=\"PLUG.checkrow(this.parentNode,'" +
@@ -126,6 +145,12 @@ var PLUG = (function() {
 		    } else {
 			ar.push("<td class='ref'>", G.shielding(r.job_title), "</td>");
 		    }
+		    ar.push("<td class='int", xs, "'>", G.shielding(r.a_code), "</td>");
+		    ar.push("<td class='string a_name", xs, "'>", G.shielding(r.a_name), "</td>");
+		    ar.push("<td class='string a_address", xs, "'>", G.shielding(r.address), "</td>");
+		    if( perm.columns != null && perm.columns.channel == true ) {
+			ar.push("<td class='ref sw95px'>", G.shielding(r.chan), "</td>");
+		    }
 		    if( perm.columns != null && perm.columns.specialization == true ) {
 			ar.push("<td class='ref'>", G.shielding(r.specialization), "</td>");
 		    }
@@ -134,13 +159,29 @@ var PLUG = (function() {
 		    }
 		    ar.push("<td class='int'>", G.shielding(r.mobile), "</td>");
 		    ar.push("<td class='int'>", G.shielding(r.email), "</td>");
-		    ar.push("<td class='int", xs, "'>", G.shielding(r.a_code), "</td>");
-		    ar.push("<td class='string a_name", xs, "'>", G.shielding(r.a_name), "</td>");
-		    ar.push("<td class='string a_address", xs, "'>", G.shielding(r.address), "</td>");
-		    if( perm.columns != null && perm.columns.channel == true ) {
-			ar.push("<td class='ref sw95px'>", G.shielding(r.chan), "</td>");
-		    }
 		    ar.push("<td class='string note'>", G.shielding(r.extra_info), "</td>");
+		    ar.push("<td class='int", (z[0] && !y[0]) ? " violation" : "", "' width='25px'>");
+		    if( y[0] ) {
+			ar.push("<a href='", G.getdataref({plug: _code, contact_id: r.contact_id, blob: true}), "'");
+			if( w != null ) {
+			    ar.push(" class='footnote_L'  data-title='{0}: {1}'".format_a(lang.contacts.consents.timestamp, G.getdatetime_l(w)));
+			}
+			ar.push(" target='_blank'>", lang.plus, "</a>");
+		    } else {
+			ar.push("&nbsp;");
+		    }
+		    ar.push("</td>");
+		    ar.push("<td class='int", (z[1] && !y[1]) ? " violation" : "", "' width='25px'>");
+		    if( y[1] ) {
+			ar.push("<a href='", G.getdataref({plug: _code, contact_id: r.contact_id, blob: true}), "'");
+			if( w != null ) {
+			    ar.push(" class='footnote_L'  data-title='{0}: {1}'".format_a(lang.contacts.consents.timestamp, G.getdatetime_l(w)));
+			}
+			ar.push(" target='_blank'>", lang.plus, "</a>");
+		    } else {
+			ar.push("&nbsp;");
+		    }
+		    ar.push("</td>");
 		    ar.push("<td class='string sw95px'>", G.shielding(r.author), "</td>");
 		    ar.push("<td width='14px' class='int'>", r._isaliendata ? "&#9850;" : "&nbsp;", "</td>");
 		    ar.push("</tr>");
@@ -251,6 +292,8 @@ var PLUG = (function() {
 		x.author_id = arg.author_id;
 		x.author = u.descr;
 		x.extra_info = arg.extra_info;
+		x.consent_status = arg.consent_status;
+		x.consent_dt = arg.consent_dt;
 		x.locked = arg.locked;
 		x.updated_ts = arg.updated_ts;
 		x._isaliendata = arg._isaliendata;
@@ -334,6 +377,30 @@ var PLUG = (function() {
 	_page(1);
     }
 
+    function _consentFilter(tag) {
+	if( _cache.xfilters == null ) {
+	    _cache.xfilters = {};
+	}
+	if( tag.hasClass("important") ) {
+	    _cache.xfilters["consent_status" + tag] = null;
+	    tag.removeClass('important');
+	} else {
+	    const z = [];
+	    z.push("consent_status=");
+	    if( tag == 1 ) {
+		z.push("collecting");
+		z.push("collecting_and_informing");
+	    } else {
+		z.push("collecting_and_informing");
+	    }
+	    z.push("$");
+	    _cache.xfilters["consent_status" + tag] = z.join("");
+	    tag.addClass('important');
+	}
+	_page(1);
+    }
+
+
     function _toxlsx() {
 	var ar = [], data_ts;
 	var func = function(data_ts, ar, templ) {
@@ -365,9 +432,16 @@ var PLUG = (function() {
 			ws.cell("O{0}".format_a(i + offset)).value(r.city);
 			ws.cell("P{0}".format_a(i + offset)).value(r.rc);
 			ws.cell("Q{0}".format_a(i + offset)).value(r.ka_type);
-			ws.cell("R{0}".format_a(i + offset)).value(r.doc_note);
-			ws.cell("S{0}".format_a(i + offset)).value(r.author);
-			ws.cell("T{0}".format_a(i + offset)).value(/*Date.parseISO8601(*/r.updated_ts/*)*/);
+			ws.cell("R{0}".format_a(i + offset)).value(r.extra_info);
+			if( r.consent_status == 'collecting' || r.consent_status == 'collecting_and_informing' ) {
+			    ws.cell("S{0}".format_a(i + offset)).value(lang.yes);
+			}
+			if( r.consent_status == 'collecting_and_informing' ) {
+			    ws.cell("T{0}".format_a(i + offset)).value(lang.yes);
+			}
+			ws.cell("U{0}".format_a(i + offset)).value(Date.parseISO8601(r.consent_dt));
+			ws.cell("V{0}".format_a(i + offset)).value(r.author);
+			ws.cell("W{0}".format_a(i + offset)).value(/*Date.parseISO8601(*/r.updated_ts/*)*/);
 		    }
 		    wb.outputAsync()
 			.then(function(blob) {
@@ -481,6 +555,10 @@ var PLUG = (function() {
 		    _onpopup(tag, arg, "spec_id");
 		})
 	    });
+	},
+	consent: function(tag, n) {
+	    _togglePopup();
+	    _consentFilter(tag, n);
 	},
 	xlsx: function() {
 	    _toxlsx();
