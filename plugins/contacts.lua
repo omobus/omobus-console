@@ -38,7 +38,7 @@ select
     x.updated_ts,
     x."_isAlienData"
 from contacts x 
-where "_dataTimestamp" is not null and x.hidden = 0 $(0)
+where x.hidden = 0 $(0)
 order by x.updated_ts desc, x."name", x.surname, x.patronymic, x.account_id, x.contact_id
 ]]
 	if sestb.erpid ~= nil then
