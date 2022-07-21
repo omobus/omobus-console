@@ -7,7 +7,7 @@ var PLUG = (function() {
     var _cache = {}, _perm = {}, _tags = {};
 
     function _getcolumns(perm) {
-	return 12;
+	return 13;
     }
 
     function _getbody(perm) {
