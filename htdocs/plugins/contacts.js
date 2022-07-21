@@ -32,7 +32,7 @@ var PLUG = (function() {
 	ar.push("</td></tr></table>");
 	ar.push("<table width='100%' class='report'><thead><tr>");
 	ar.push("<th rowspan='2' class='autoincrement'>", lang.num, "</th>");
-	ar.push("<th rowspan='2'>", lang.contact, "</th>");
+	ar.push("<th rowspan='2' width='150px'>", lang.contact, "</th>");
 	ar.push("<th rowspan='2' class='sw95px'><a href='javascript:void(0)' onclick='PLUG.jobs(this, 0.30)'>", lang.job_title, "</a></th>");
 	ar.push("<th rowspan='2'>", lang.a_code, "</th>");
 	ar.push("<th rowspan='2'><a href='javascript:void(0)' onclick='PLUG.retail_chains(this)'>", lang.a_name, "</a></th>");
@@ -46,15 +46,18 @@ var PLUG = (function() {
 	if( perm.columns != null && perm.columns.cohort == true ) {
 	    ar.push("<th rowspan='2' width='65px'><a href='javascript:void(0)' onclick='PLUG.levels(this, 0.30)'>", lang.cohort, "</a></th>");
 	}
-	ar.push("<th rowspan='2' width='95px'>", lang.mobile, "</th>");
-	ar.push("<th rowspan='2'>", lang.email, "</th>");
+	ar.push("<th colspan='2'>", lang.contacts.informing.group, "</th>");
 	ar.push("<th rowspan='2'>", lang.note, "</th>");
 	ar.push("<th colspan='2'>", lang.contacts.consents.group, "</th>");
 	ar.push("<th rowspan='2' class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"author\",0.90)'>", lang.author, "</a></th>");
-	ar.push("<th rowspan='2'>", "&#9850;", "</th>");
+	ar.push("<th rowspan='2' class='footnote_L' data-title='", lang.alien_data, "'>", "&#9850;", "</th>");
 	ar.push("<tr>");
 	for( let i = 0; i < 2; i++ ) {
-	    ar.push("<th><a class='footnote_L' href='javascript:void(0)' onclick='PLUG.consent(this,", i+1, ")'",
+	    ar.push("<th width='36px'><a href='javascript:void(0)' onclick='PLUG.informing(this,", i+1, ")'>", 
+		lang.contacts.informing.abbr[i], "</th>");
+	}
+	for( let i = 0; i < 2; i++ ) {
+	    ar.push("<th width='25px'><a class='footnote_L' href='javascript:void(0)' onclick='PLUG.consent(this,", i+1, ")'",
 		" data-title='", lang.contacts.consents.name[i], "'>", lang.contacts.consents.abbr[i], "</th>");
 	}
 	ar.push("</tr>");
@@ -113,7 +116,8 @@ var PLUG = (function() {
     }
 
     function _datatbl(data, page, total, f, checked, perm) {
-	var ar = [], size = Array.isArray(data.rows) ? data.rows.length : 0, x = 0, r, z;
+	var ar = [], size = Array.isArray(data.rows) ? data.rows.length : 0, x = 0, r, z, t;
+	var rx = new RegExp("['\"]", "g");
 	data._rows = [];
 	for( var i = 0; i < size; i++ ) {
 	    if( (r = data.rows[i]) != null && f.is(r) ) {
@@ -138,7 +142,16 @@ var PLUG = (function() {
 		    ar.push("<tr" + (typeof checked != 'undefined' && checked[r.contact_id] ? " class='selected'" : "") + ">");
 		    ar.push("<td class='autoincrement clickable' onclick=\"PLUG.checkrow(this.parentNode,'" +
 			r.contact_id + "');event.stopPropagation();\">", r.row_no, "</td>");
-		    ar.push("<td class='string'>", _fmtcontact(r), "</td>");
+		    t = G.shielding(r.contact_id).replace(rx,' ');
+		    ar.push("<td class='string'>", _fmtcontact(r));
+		    if( r.contact_id.length > 21 ) {
+			ar.push("<div class='row watermark copyable footnote' data-title='{0}' onclick='G.copyToClipboard(\"{0}\");event.stopPropagation();'>"
+			    .format_a(t), "<hr/>", G.shielding(r.contact_id).mtrunc(21), "</div>");
+		    } else {
+			ar.push("<div class='row watermark copyable' onclick='G.copyToClipboard(\"{0}\");event.stopPropagation();'>"
+			    .format_a(t), "<hr/>", G.shielding(r.contact_id), "</div>");
+		    }
+		    ar.push("</td>");
 		    if( r.locked ) {
 			ar.push("<td class='ref strikethrough footnote' data-title='", lang.contacts.footnote0, "'>", 
 			    G.shielding(r.job_title), "</td>");
@@ -157,14 +170,28 @@ var PLUG = (function() {
 		    if( perm.columns != null && perm.columns.cohort == true ) {
 			ar.push("<td class='ref'>", G.shielding(r.cohort), "</td>");
 		    }
-		    ar.push("<td class='int'>", G.shielding(r.mobile), "</td>");
-		    ar.push("<td class='int'>", G.shielding(r.email), "</td>");
+		    ar.push("<td class='int' width='36px'>");
+		    if( String.isEmpty(r.mobile) ) {
+			ar.push("&nbsp;");
+		    } else {
+			ar.push("<span class='copyable footnote_L' data-title='{1}: {0}' onclick='G.copyToClipboard(\"{0}\");event.stopPropagation();'>"
+			    .format_a(G.shielding(r.mobile), lang.mobile), "<hr/>", lang.plus, "</span>");
+		    }
+		    ar.push("</td>");
+		    ar.push("<td class='int' width='36px'>");
+		    if( String.isEmpty(r.email) ) {
+			ar.push("&nbsp;");
+		    } else {
+			ar.push("<span class='copyable footnote_L' data-title='{1}: {0}' onclick='G.copyToClipboard(\"{0}\");event.stopPropagation();'>"
+			    .format_a(G.shielding(r.email), lang.email), "<hr/>", lang.plus, "</span>");
+		    }
+		    ar.push("</td>");
 		    ar.push("<td class='string note'>", G.shielding(r.extra_info), "</td>");
 		    ar.push("<td class='int", (z[0] && !y[0]) ? " violation" : "", "' width='25px'>");
 		    if( y[0] ) {
 			ar.push("<a href='", G.getdataref({plug: _code, contact_id: r.contact_id, blob: true}), "'");
 			if( w != null ) {
-			    ar.push(" class='footnote_L'  data-title='{0}: {1}'".format_a(lang.contacts.consents.timestamp, G.getdatetime_l(w)));
+			    ar.push(" class='footnote_L' data-title='{0}: {1}'".format_a(lang.contacts.consents.timestamp, G.getdatetime_l(w)));
 			}
 			ar.push(" target='_blank'>", lang.plus, "</a>");
 		    } else {
@@ -175,7 +202,7 @@ var PLUG = (function() {
 		    if( y[1] ) {
 			ar.push("<a href='", G.getdataref({plug: _code, contact_id: r.contact_id, blob: true}), "'");
 			if( w != null ) {
-			    ar.push(" class='footnote_L'  data-title='{0}: {1}'".format_a(lang.contacts.consents.timestamp, G.getdatetime_l(w)));
+			    ar.push(" class='footnote_L' data-title='{0}: {1}'".format_a(lang.contacts.consents.timestamp, G.getdatetime_l(w)));
 			}
 			ar.push(" target='_blank'>", lang.plus, "</a>");
 		    } else {
@@ -183,7 +210,11 @@ var PLUG = (function() {
 		    }
 		    ar.push("</td>");
 		    ar.push("<td class='string sw95px'>", G.shielding(r.author), "</td>");
-		    ar.push("<td width='14px' class='int'>", r._isaliendata ? "&#9850;" : "&nbsp;", "</td>");
+		    if( r._isaliendata ) {
+			ar.push("<td width='14px' class='int footnote_L' data-title='", lang.alien_data, "'>", "&#9850;", "</td>");
+		    } else {
+			ar.push("<td width='14px' class='int'>", "&nbsp;", "</td>");
+		    }
 		    ar.push("</tr>");
 		}
 		data._rows.push(r);
@@ -377,29 +408,42 @@ var PLUG = (function() {
 	_page(1);
     }
 
-    function _consentFilter(tag) {
+    function _consentFilter(tag, n) {
 	if( _cache.xfilters == null ) {
 	    _cache.xfilters = {};
 	}
 	if( tag.hasClass("important") ) {
-	    _cache.xfilters["consent_status" + tag] = null;
+	    _cache.xfilters["consent_status" + n] = null;
 	    tag.removeClass('important');
 	} else {
 	    const z = [];
-	    z.push("consent_status=");
-	    if( tag == 1 ) {
+	    if( n == 1 ) {
 		z.push("collecting");
 		z.push("collecting_and_informing");
 	    } else {
 		z.push("collecting_and_informing");
 	    }
-	    z.push("$");
-	    _cache.xfilters["consent_status" + tag] = z.join("");
+	    _cache.xfilters["consent_status" + n] = "consent_status=({0})$".format_a(z.join("|"));
 	    tag.addClass('important');
 	}
 	_page(1);
     }
 
+    function _informingFilter(tag, n) {
+	if( _cache.xfilters == null ) {
+	    _cache.xfilters = {};
+	}
+	if( tag.hasClass("important") ) {
+	    if( n == 1 ) { _cache.xfilters["mobile"] = null; }
+	    if( n == 2 ) { _cache.xfilters["email"] = null; }
+	    tag.removeClass('important');
+	} else {
+	    if( n == 1 ) { _cache.xfilters["mobile"] = "mobile=(.*)$"; }
+	    if( n == 2 ) { _cache.xfilters["email"] = "email=(.*)$"; }
+	    tag.addClass('important');
+	}
+	_page(1);
+    }
 
     function _toxlsx() {
 	var ar = [], data_ts;
@@ -559,6 +603,10 @@ var PLUG = (function() {
 	consent: function(tag, n) {
 	    _togglePopup();
 	    _consentFilter(tag, n);
+	},
+	informing: function(tag, n) {
+	    _togglePopup();
+	    _informingFilter(tag, n);
 	},
 	xlsx: function() {
 	    _toxlsx();
