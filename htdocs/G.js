@@ -58,6 +58,7 @@ var G = (function() {
 	return encodeURI(ar.join(''));
     }
 
+/*
     function _enumerateKeys(ar, cb, prefix) {
 	for( var key in ar ) {
 	    var val = ar[key];
@@ -68,6 +69,7 @@ var G = (function() {
 	    }
 	}
     }
+*/
 
     function _htmlentities(arg) {
 	if( typeof arg == 'string' ) {
@@ -235,6 +237,12 @@ var G = (function() {
 	    tag0.hide(); tag1.show();
 	    span.html(lang.export.progress.format_a(0, size));
 	    __save(rows.shift());
+	},
+
+	copyToClipboard: function(text) {
+	    navigator.clipboard.writeText(text);
+	    Toast.show(lang.notices.clipboard);
+	    console.log(text);
 	},
 
 	quarterDateRange: function(year, quarter) {

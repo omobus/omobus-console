@@ -127,10 +127,10 @@ var PLUG = (function() {
 		ar.push("<td class='string", xs,"'>", G.shielding(r.u_name), "</td>");
 		t = G.shielding(r.user_id).replace(rx,' ');
 		if( r.user_id.length > 15 ) {
-		    ar.push("<td class='copyable delim int footnote{1}' data-title='{0}' onclick='PLUG.copy(\"{0}\");event.stopPropagation();'>".format_a(t, xs), 
+		    ar.push("<td class='copyable delim int footnote{1}' data-title='{0}' onclick='G.copyToClipboard(\"{0}\");event.stopPropagation();'>".format_a(t, xs), 
 			G.shielding(r.user_id).mtrunc(15), "</td>");
 		} else {
-		    ar.push("<td class='copyable delim int{1}' onclick='PLUG.copy(\"{0}\");event.stopPropagation();'>".format_a(t, xs), 
+		    ar.push("<td class='copyable delim int{1}' onclick='G.copyToClipboard(\"{0}\");event.stopPropagation();'>".format_a(t, xs), 
 			G.shielding(r.user_id), "</td>");
 		}
 		ar.push("<td class='time", xs, "'>", G.gettime_l(r.wd_begin), "</td>");
@@ -458,11 +458,6 @@ var PLUG = (function() {
 		    history.replaceState({date: _cache.date}, "", G.getdefref({plug: _code, date: G.getdate(_cache.date)}));
 		}, {date: _cache.date, uri: G.getdataref({plug: _code, calendar: true})})
 	    });
-	},
-	copy: function(text) {
-	    navigator.clipboard.writeText(text);
-	    Toast.show(lang.notices.clipboard);
-	    console.log(text);
 	},
 	slideshow: function(blobs, position) {
 	    var ar = [];
