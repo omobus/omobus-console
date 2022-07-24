@@ -141,7 +141,7 @@ var PLUG = (function() {
 		    ar.push("<td class='int'>", G.getcurrency_l(r.price), "</td>");
 		    ar.push("<td class='int'>", G.getcurrency_l(r.promo), "</td>");
 		    ar.push("<td class='bool'>", r.discount ? lang.plus : "&nbsp;", "</td>");
-		    ar.push("<td class='int delim'>", G.getcurrency_l(r.rrp), "</td>");
+		    ar.push("<td class='int'>", G.getcurrency_l(r.rrp), "</td>");
 		    ar.push("<td class='ref'>");
 		    if( String.isEmpty(r.blob_id) ) {
 			ar.push("&nbsp;");
@@ -150,7 +150,7 @@ var PLUG = (function() {
 			    G.getdataref({plug: _code, blob: "yes", thumb: "yes", blob_id: r.blob_id}) + "' />");
 		    }
 		    ar.push("</td>");
-		    ar.push("<td class='delim string note'>", G.shielding(r.note), "</td>");
+		    ar.push("<td class='string note delim'>", G.shielding(r.note), "</td>");
 		    ar.push("<td class='string sw95px'>", G.shielding(r.head_name), "</td>");
 		    ar.push("<td class='bool'>", String.isEmpty(r.scratch) ? "" : "&#x267A;", "</td>");
 		    ar.push("</tr>");
