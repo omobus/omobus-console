@@ -108,7 +108,7 @@ var PLUG = (function() {
 		    ar.push("<td class='string", String.isEmpty(r.descr) ? " incomplete" : "", 
 			(typeof r.e_date == 'undefined' || r.e_date >= today) ? "" : " disabled", 
 			"'>", G.shielding(r.descr), "</td>");
-		    ar.push("<td class='symbol'>");
+		    ar.push("<td width='20px' class='symbol ref'>");
 		    if( r.shared ) {
 			ar.push("&#x21e7;");
 		    } else {
