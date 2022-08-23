@@ -92,7 +92,7 @@ var PLUG = (function() {
 	ar.push("</tr></thead><tbody>");
 	if( Array.isArray(r.criterias) ) {
 	    r.criterias.forEach(function(x, i) {
-		var sts = [], z, note;
+		var sts = [], note = [], z;
 		if( x.fix_dt > r.fix_dt ) {
 		    sts.push(" attention");
 		} else if( typeof x.score == 'undefined' || x.score == null ) {
@@ -106,18 +106,18 @@ var PLUG = (function() {
 		    var ptr = r.scores[v.account_id] != null ? r.scores[v.account_id][x.rating_criteria_id] : null;
 		    if( ptr == null ) {
 			ar.push("<td class='int'>", "&nbsp;", "</td>");
+		    } else if( String.isEmpty(ptr.note) ) {
+			ar.push("<td class='int" + z + "'>", G.getint_l(ptr.score,"&#129300;"), "</td>");
 		    } else {
-			note = ptr.note;
-			ar.push("<td class='int" + z + (String.isEmpty(note) ? "" : " footnote_L") + "'" + 
-			    (String.isEmpty(note) ? "" : " data-title='{0}'".format_a(note)) + ">", 
-			    G.getint_l(ptr.score,"&#129300;") + ((String.isEmpty(note) || ptr.score == null) ? "" : "<sup>*</sup>"), 
-			    "</td>");
+			note.push(ptr.note);
+			ar.push("<td class='int" + z + " footnote_L' data-title='" + G.shielding(ptr.note) + "'>", 
+			    G.getint_l(ptr.score,"&#129300;"), ptr.score == null ? "" : "<sup>*</sup>", "</td>");
 		    }
 		});
 		ar.push("<td width='55px' class='int" + z + (x.sla != null && x.sla < 75 ? " violation" : "") + "'>", G.getint_l(x.score, ""), "</td>");
 		ar.push("<td width='55px' class='int" + z + "'>", G.getpercent_l(x.sla, ""), "</td>");
 		ar.push("<td width='55px' class='int" + z + "'>", G.getnumeric_l(x.wf, 2, ""), "</td>");
-		ar.push("<td class='string" + z + "'>", G.shielding(note), "</td>");
+		ar.push("<td class='string" + z + "'>", G.shielding(note.join(" ▪ ")), "</td>");
 		ar.push("</tr>");
 	    });
 	}
