@@ -62,7 +62,7 @@ var PLUG = (function() {
     }
 
     function _detailsbody(r) {
-	var ar = [];
+	var ar = [], f = false;
 	if( r.rejected ) {
 	    ar.push("<div class='row attention'>", lang.joint_routes.notice1, "</div>");
 	}
@@ -86,13 +86,19 @@ var PLUG = (function() {
 	r.accounts.forEach(function(v, i) {
 	    ar.push("<th width='20px'>*<sup>", i + 1, "</sup></th>");
 	});
-	ar.push("<th width='50px'>", lang.sla.score, "</th>");
+	ar.push("<th colspan='2' width='50px'>", lang.sla.score, "</th>");
+	ar.push("<th class='footnote' data-title='", lang.wf, "'>", lang.wfAbbr, "</th>");
 	ar.push("<th>", lang.note, "</th>");
 	ar.push("</tr></thead><tbody>");
 	if( Array.isArray(r.criterias) ) {
 	    r.criterias.forEach(function(x, i) {
-		var z = x.fix_dt > r.fix_dt ? " attention" : "";
-		var note;
+		var sts = [], z, note;
+		if( x.fix_dt > r.fix_dt ) {
+		    sts.push(" attention");
+		} else if( typeof x.score == 'undefined' || x.score == null ) {
+		    sts.push(" disabled");
+		}
+		z = sts.join("");
 		ar.push("<tr>");
 		ar.push("<td class='autoincrement" + z + "'>", i + 1, "</td>");
 		ar.push("<td class='string" + z + "'>", G.shielding(x.descr), "</td>");
@@ -102,21 +108,26 @@ var PLUG = (function() {
 			ar.push("<td class='int'>", "&nbsp;", "</td>");
 		    } else {
 			note = ptr.note;
-			ar.push("<td class='int" + z + (String.isEmpty(note) ? "" : " footnote") + "'" + (String.isEmpty(note) ? "" : " data-title='{0}'".format_a(note)) + ">", 
-			    G.getint_l(ptr.score), "</td>");
+			ar.push("<td class='int" + z + (String.isEmpty(note) ? "" : " footnote_L") + "'" + 
+			    (String.isEmpty(note) ? "" : " data-title='{0}'".format_a(note)) + ">", 
+			    G.getint_l(ptr.score,"&#129300;") + ((String.isEmpty(note) || ptr.score == null) ? "" : "<sup>*</sup>"), 
+			    "</td>");
 		    }
 		});
-		ar.push("<td class='int" + z + "'>", /*G.getint_l(*/x.score/*)*/, "</td>");
+		ar.push("<td width='55px' class='int" + z + (x.sla != null && x.sla < 75 ? " violation" : "") + "'>", G.getint_l(x.score, ""), "</td>");
+		ar.push("<td width='55px' class='int" + z + "'>", G.getpercent_l(x.sla, ""), "</td>");
+		ar.push("<td width='55px' class='int" + z + "'>", G.getnumeric_l(x.wf, 2, ""), "</td>");
 		ar.push("<td class='string" + z + "'>", G.shielding(note), "</td>");
 		ar.push("</tr>");
 	    });
 	}
 	ar.push("</tbody><tfoot>");
-	ar.push("<tr class='def'><td colspan='", r.closed + 4,"' class='watermark'>", "{0}:&nbsp;{1}. {2}&nbsp;{3}".format_a(
+	ar.push("<tr class='def'><td colspan='", r.closed + 6,"' class='watermark'>", "{0}:&nbsp;{1}. {2}&nbsp;{3}".format_a(
 	    lang.author, r.author, lang.data_ts, G.getdatetime_l(Date.parseISO8601(r.fix_dt))), "</td></tr>");
 	ar.push("</tfoot></table>");
 	ar.push("<br/>");
 	ar.push("<table width='100%' class='report'>");
+	f = r.accounts.find(function(v) { return !String.isEmpty(v.extra_info); }) !== undefined;
 	r.accounts.forEach(function(v, i) {
 	    ar.push("<tr class='def'>");
 	    ar.push("<td class='autoincrement'>*<sup>", i + 1, "</sup></td>");
@@ -124,6 +135,13 @@ var PLUG = (function() {
 	    ar.push("<td class='int'>", G.shielding(v.a_code), "</td>");
 	    ar.push("<td class='string'>", G.shielding(v.a_name), "</td>");
 	    ar.push("<td class='string'>", G.shielding(v.address), "</td>");
+	    if( f ) {
+		if( String.isEmpty(v.extra_info) ) {
+		    ar.push("<td>", "</td>");
+		} else {
+		    ar.push("<td class='string violation'>", "<i>{0}</i>:&nbsp;{1}".format_a(lang.regret, G.shielding(v.extra_info)), "</td>");
+		}
+	    }
 	    ar.push("</tr>");
 	});
 	ar.push("</table>");
@@ -152,8 +170,9 @@ var PLUG = (function() {
 		    ar.push("<td class='time'>", G.shielding(r.jr_duration), "</td>");
 		    ar.push("<td class='int'>", G.shielding(r.closed), "</td>");
 		    ar.push("<td class='time'>", G.shielding(r.duration), "</td>");
-		    ar.push("<td class='int'>", "<a href='javascript:PLUG.more(" + r.row_no + ");'>", G.getnumeric_l(r.assessment, 2),
-			"</a>", "<hr/>", "<div class='row watermark'>", G.getpercent_l(r.sla), "</div>", "</td>");
+		    ar.push("<td class='int", r.sla < 75 ? " violation" : "", "'>", "<a href='javascript:PLUG.more(" + r.row_no + ");'>", 
+			G.getnumeric_l(r.assessment, 2), "</a>", "<hr/>", "<div class='row watermark'>", G.getpercent_l(r.sla), "</div>", 
+			"</td>");
 		    ar.push("<td class='string" + (r.rejected ? " strikethrough attention footnote" : "") + "'" + 
 			(r.rejected ? " data-title='{0}'".format_a(lang.joint_routes.notice0) : "") + ">", G.shielding(r.note0), "</td>");
 		    ar.push("<td class='string" + (r.rejected ? " strikethrough attention footnote" : "") + "'" + 
@@ -220,6 +239,7 @@ var PLUG = (function() {
 	    if( xhr.status == 200 && data != null && typeof data == 'object' ) {
 		_cache.data = data;
 		_tags.tbody.html(_datatbl(data, 1, _tags.total, _getfilter(), _cache.checked, _perm).join(""));
+		//console.log(data);
 	    } else {
 		_tags.tbody.html(_datamsg(lang.failure, _perm).join(""));
 		_tags.total.html("");

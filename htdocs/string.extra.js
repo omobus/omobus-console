@@ -5,7 +5,7 @@
 
 (function (String, undefined) {
     String.isEmpty = function(arg) {
-	return arg == null /*|| typeof arg != 'string'*/ || arg.isEmpty();
+	return arg == null || typeof arg != 'string' || arg.isEmpty();
     };
 }(String));
 
