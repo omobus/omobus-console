@@ -128,7 +128,7 @@ var __route = (function() {
 		ar.push("<td class='bool", ptr == null ? "" : (" footnote' data-title='" + lang.tech.route.pending.format_a(_pending(ptr).join('. '))), "'>",
 		    r.route == null ? "" : ("+" + (r.sched_no && r.closed ? ("<sup>"+r.sched_no+"</sup>") : ptr == null ? "" : ("<sup>&#10059;</sup>"))), 
 		    "</td>");
-if( typeof data.zstatusChangeable != 'undefined' /*&& data.zstatusChangeable*/ && r.strict && r.closed && r.guid ) {
+		if( typeof data.zstatusChangeable != 'undefined' /*&& data.zstatusChangeable*/ && r.strict && r.closed && r.guid ) {
 		    ar.push("<td class='bool ref clickable", _zstatusStyle(r).join(''), "' onclick='__route.zstatus(this,\"", r.user_id, "\",", i, ",\"", r.guid, "\",0.10)'>", 
 			"<span>+</span>", "</td>");
 		} else {
@@ -172,7 +172,7 @@ if( typeof data.zstatusChangeable != 'undefined' /*&& data.zstatusChangeable*/ &
 		if( String.isEmpty(r.extra_info) ) {
 		    ar.push("<td class='bool'>", "&nbsp;", "</td>");
 		} else {
-		    ar.push("<td class='bool footnote_L' data-title='{0}: {1}.".format_a(lang.repentance, G.shielding(r.extra_info)), 
+		    ar.push("<td class='bool footnote_L' data-title='{0}: {1}.".format_a(lang.regret, G.shielding(r.extra_info)), 
 			"' width='30px'>", "&#x1F613;", "</td>");
 		}
 		ar.push("<td class='bool'>");
