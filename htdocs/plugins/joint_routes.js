@@ -114,7 +114,7 @@ var PLUG = (function() {
 			    G.getint_l(ptr.score,"&#129300;"), ptr.score == null ? "" : "<sup>*</sup>", "</td>");
 		    }
 		});
-		ar.push("<td width='55px' class='int" + z + (x.sla != null && x.sla < 75 ? " violation" : "") + "'>", G.getint_l(x.score, ""), "</td>");
+		ar.push("<td width='55px' class='int" + z + (x.sla != null && x.sla < 75 ? " violation" : "") + "'>", G.getnumeric_l(x.score, 2, ""), "</td>");
 		ar.push("<td width='55px' class='int" + z + "'>", G.getpercent_l(x.sla, ""), "</td>");
 		ar.push("<td width='55px' class='int" + z + "'>", G.getnumeric_l(x.wf, 2, ""), "</td>");
 		ar.push("<td class='string" + z + "'>", G.shielding(note.join(" ▪ ")), "</td>");
