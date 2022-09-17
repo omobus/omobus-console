@@ -110,7 +110,7 @@ var PLUG = (function() {
 			ar.push("<td class='int" + z + "'>", G.getint_l(ptr.score,"&#129300;"), "</td>");
 		    } else {
 			note.push(ptr.note);
-			ar.push("<td class='int" + z + " footnote_L' data-title='" + G.shielding(ptr.note) + "'>", 
+			ar.push("<td class='ref" + z + " footnote' data-title='" + G.shielding(ptr.note) + "'>", 
 			    G.getint_l(ptr.score,"&#129300;"), ptr.score == null ? "" : "<sup>*</sup>", "</td>");
 		    }
 		});
@@ -122,7 +122,7 @@ var PLUG = (function() {
 	    });
 	}
 	ar.push("</tbody><tfoot>");
-	ar.push("<tr class='def'><td colspan='", r.closed + 6,"' class='watermark'>", "{0}:&nbsp;{1}. {2}&nbsp;{3}".format_a(
+	ar.push("<tr class='def'><td colspan='", r.closed + 8,"' class='watermark'>", "{0}:&nbsp;{1}. {2}&nbsp;{3}".format_a(
 	    lang.author, r.author, lang.data_ts, G.getdatetime_l(Date.parseISO8601(r.fix_dt))), "</td></tr>");
 	ar.push("</tfoot></table>");
 	ar.push("<br/>");
