@@ -37,7 +37,7 @@ var PLUG = (function() {
 	ar.push("<th>", lang.validity, "</th>");
 	ar.push("<th class='symbol'>", "&#x2699;", "</th>");
 	ar.push("<th>", lang.author, "</th>");
-	ar.push("<th>", "&#9850;", "</th>");
+	ar.push("<th class='footnote_L' data-title='", lang.alien_data, "'>", "&#9850;", "</th>");
 	ar.push("</tr>", G.thnums(_getcolumns(perm)), "</thead>");
 	ar.push("<tbody id='maintb'></tbody></table>");
 	ar.push(Dialog.container());
@@ -109,13 +109,11 @@ var PLUG = (function() {
 		    ar.push("<td class='string", String.isEmpty(r.descr) ? " incomplete" : "", 
 			(typeof r.e_date == 'undefined' || r.e_date >= today) ? "" : " disabled", 
 			"'>", G.shielding(r.descr), "</td>");
-		    ar.push("<td width='20px' class='symbol ref'>");
 		    if( r.shared ) {
-			ar.push("&#x21e7;");
+			ar.push("<td width='20px' class='symbol ref footnote' data-title='", lang.shared, "'>", "&#x21e7;", "</td>");
 		    } else {
-			ar.push("&nbsp;");
+			ar.push("<td width='20px' class='ref'>", "&nbsp;", "</td>");
 		    }
-		    ar.push("</td>");
 		    ar.push("<td width='65px' class='ref'>");
 		    if( typeof r.blob_size == 'undefined' ) {
 			ar.push("&nbsp;");
@@ -127,7 +125,6 @@ var PLUG = (function() {
 			    r.blob_size ? G.getnumeric_l(r.blob_size/1024, 1) : lang.dash, "</a>");
 		    }
 		    ar.push("</td>");
-
 		    ar.push("<td class='ref sw95px", Array.isEmpty(r.brand_ids) ? " incomplete" : "", "'>");
 		    if( Array.isArray(r.brands) ) {
 			Array.prototype.push.apply(ar, _shieldingStringArray(r.brands));
@@ -170,7 +167,11 @@ var PLUG = (function() {
 			ar.push("<td class='ref sw95px'>", "&nbsp;", "</td>");
 		    }
 		    ar.push("<td class='string sw95px'>", G.shielding(r.author), "</td>");
-		    ar.push("<td width='14px' class='int'>", r._isaliendata ? "&#9850;" : "&nbsp;", "</td>");
+		    if( r._isaliendata ) {
+			ar.push("<td width='14px' class='int footnote_L' data-title='", lang.alien_data, "'>", "&#9850;", "</td>");
+		    } else {
+			ar.push("<td width='14px' class='int'>", "&nbsp;", "</td>");
+		    }
 		    ar.push("</tr>");
 		}
 		x++;
