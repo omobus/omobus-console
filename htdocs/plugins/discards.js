@@ -45,7 +45,7 @@ var PLUG = (function() {
 	    ar.push("<th width='27px' class='symbol'>", "&#x2713;", "</th>");
 	}
 	if( perm.reject ) {
-	    ar.push("<th width='27px' class='symbol'>", "&#x2421;", "</th>");
+	    ar.push("<th width='27px' class='symbol'>", "&#x2715", "</th>");
 	}
 	ar.push("<th><a href='javascript:void(0)' onclick='PLUG.types(this,0.85)'>", lang.discards.type, "</a></th>");
 	ar.push("<th class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"head\",0.90)'>", lang.head_name, "</a></th>");

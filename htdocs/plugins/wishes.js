@@ -42,7 +42,7 @@ var PLUG = (function() {
 	    ar.push("<th width='27px' rowspan='2' class='symbol'>", "&#x2713;", "</th>");
 	}
 	if( perm.reject ) {
-	    ar.push("<th width='27px' rowspan='2' class='symbol'>", "&#x2421;", "</th>");
+	    ar.push("<th width='27px' rowspan='2' class='symbol'>", "&#x2715", "</th>");
 	}
 	ar.push("<th rowspan='2'>", lang.note, "</th>");
 	ar.push("<th rowspan='2' class='sw95px'><a href='javascript:void(0)' onclick='PLUG.users(this,\"head\",0.90)'>", lang.head_name, "</a></th>");

@@ -44,7 +44,7 @@ var PLUG = (function() {
 	    ar.push("<th width='27px' class='symbol'>", "&#x2713;", "</th>");
 	}
 	if( perm.reject ) {
-	    ar.push("<th width='27px' class='symbol'>", "&#x2421;", "</th>");
+	    ar.push("<th width='27px' class='symbol'>", "&#x2715", "</th>");
 	}
 	ar.push("<th>", lang.photo, "</th>");
 	ar.push("<th>", lang.note, "</th>");
