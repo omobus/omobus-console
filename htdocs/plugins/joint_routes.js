@@ -109,7 +109,7 @@ var PLUG = (function() {
 		    } else if( String.isEmpty(ptr.note) ) {
 			ar.push("<td class='int" + z + "'>", G.getint_l(ptr.score,"&#129300;"), "</td>");
 		    } else {
-			note.push(ptr.note);
+			note.push(G.shielding(ptr.note));
 			ar.push("<td class='ref" + z + " footnote' data-title='" + G.shielding(ptr.note) + "'>", 
 			    G.getint_l(ptr.score,"&#129300;"), ptr.score == null ? "" : "<sup>*</sup>", "</td>");
 		    }
@@ -117,7 +117,7 @@ var PLUG = (function() {
 		ar.push("<td width='55px' class='int" + z + (x.sla != null && x.sla < 75 ? " violation" : "") + "'>", G.getnumeric_l(x.score, 2, ""), "</td>");
 		ar.push("<td width='55px' class='int" + z + "'>", G.getpercent_l(x.sla, ""), "</td>");
 		ar.push("<td width='55px' class='int" + z + "'>", G.getnumeric_l(x.wf, 2, ""), "</td>");
-		ar.push("<td class='string" + z + "'>", G.shielding(note.join(" ▪ ")), "</td>");
+		ar.push("<td class='string" + z + "'>", note.join("<hr/>"), "</td>");
 		ar.push("</tr>");
 	    });
 	}
