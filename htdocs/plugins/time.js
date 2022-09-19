@@ -435,14 +435,15 @@ var PLUG = (function() {
 	var rx = new RegExp("['\"]", "g");
 	for( var i = 0, size = Array.isArray(data.days) ? data.days.length : 0; i < size; i++ ) {
 	    if( (r = data.days[i]) != null ) {
-		const fn = [];
+		const fn = [], rule = {};
 		const d = Date.parseISO8601(r.route_date);
-		const rule_b = r.rules == null || r.rules.wd == null || r.rules.wd.begin == null ? rules.wd.begin : r.rules.wd.begin;
-		const rule_e = r.rules == null || r.rules.wd == null || r.rules.wd.end == null ? rules.wd.end : r.rules.wd.end;
-		const rule_t = r.rules == null || r.rules.wd == null || r.rules.wd.timing == null ? rules.wd.timing : r.rules.wd.timing;
 		const disabled = !(r.scheduled > 0 || r.other > 0) || r.canceled > 0 ? " disabled" : "";
 		const violations = (disabled != "" || r.violations == null || (!r.violations.gps && !r.violations.tm && !r.violations.oom)) 
 		    ? "" : " violation footnote";
+		rule.begin = r.rules == null || r.rules.wd == null || r.rules.wd.begin == null ? rules.wd.begin : r.rules.wd.begin;
+		rule.end = r.rules == null || r.rules.wd == null || r.rules.wd.end == null ? rules.wd.end : r.rules.wd.end;
+		rule.duration = r.rules == null || r.rules.wd == null || r.rules.wd.duration == null ? rules.wd.duration : r.rules.wd.duration;
+		rule.timing = r.rules == null || r.rules.wd == null || r.rules.wd.timing == null ? rules.wd.timing : r.rules.wd.timing;
 		if( r.violations != null && r.violations.gps ) { fn.push(lang.violations.gps); }
 		if( r.violations != null && r.violations.tm ) { fn.push(lang.violations.tm); }
 		if( r.violations != null && r.violations.oom ) { fn.push(lang.violations.oom); }
@@ -467,12 +468,29 @@ var PLUG = (function() {
 			ar.push("<td class='ref disabled' colspan='5'>", lang.none.toLowerCase(), "</td>");
 		    } else {
 			t = G.gettime_l(Date.parseISO8601(r.route_begin));
-			ar.push("<td class='time", rule_b != null && t > rule_b ? " attention" : "", "'>", t, "</td>");
+			if( rule.begin != null && t > rule.begin ) {
+			    ar.push("<td class='time attention footnote' data-title='", lang.violations.wday.begin.format_a(rule.begin), "'>", t, "</td>");
+			} else {
+			    ar.push("<td class='time'>", t, "</td>");
+			}
 			t = G.gettime_l(Date.parseISO8601(r.route_end));
-			ar.push("<td class='time", rule_e != null && rule_e > t ? " attention" : "", "'>", t, "</td>");
-			ar.push("<td class='time'>", G.shielding(Number.HHMM(r.route_duration)), "</td>");
+			if( rule.end != null && rule.end > t ) {
+			    ar.push("<td class='time attention footnote' data-title='", lang.violations.wday.end.format_a(rule.end), "'>", t, "</td>");
+			} else {
+			    ar.push("<td class='time'>", t, "</td>");
+			}
+			t = Number.HHMM(r.route_duration);
+			if( rule.duration != null && rule.duration > t ) {
+			    ar.push("<td class='time attention footnote' data-title='", lang.violations.wday.duration.format_a(rule.duration), "'>", t, "</td>");
+			} else {
+			    ar.push("<td class='time'>", t, "</td>");
+			}
 			t = Number.HHMM(r.instore_duration);
-			ar.push("<td class='time", rule_t != null && t < rule_t ? " attention" : "", "'>", G.shielding(t), "</td>");
+			if( rule.timing != null && rule.timing > t ) {
+			    ar.push("<td class='time attention footnote' data-title='", lang.violations.timing.format_a(rule.timing), "'>", t, "</td>");
+			} else {
+			    ar.push("<td class='time'>", t, "</td>");
+			}
 			ar.push("<td class='int'>", r.mileage/1000 > 0 ? (r.mileage/1000.0).toFixed(1) : lang.dash, "</td>");
 		    }
 		    ar.push("<td class='smallint'>");
@@ -487,7 +505,7 @@ var PLUG = (function() {
 			ar.push(lang.dash);
 		    }
 		    ar.push("</td>");
-		    ar.push("<td class='smallint'>");
+		    ar.push("<td class='smallint", ((r.scheduled||0) - (r.discarded||0)) > (r.closed||0) && ((r.closed||0) + (r.other||0)) > 0 ? " violation" : "", "'>");
 		    if( r.closed > 0 || r.other > 0 ) {
 			if( r.other > 0 ) {
 			    ar.push("<span class='footnote' data-title='{2}'>{0}<sup>&nbsp;(+{1})</sup></span>".format_a(

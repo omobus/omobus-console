@@ -90,12 +90,14 @@ var PLUG = (function() {
 	var ar = [], size = Array.isArray(data.rows) ? data.rows.length : 0, x = 0, r, t;
 	for( var i = 0; i < size; i++ ) {
 	    if( (r = data.rows[i]) != null && f.is(r) ) {
-		var fn = [];
-		var rule_b = r.rules == null || r.rules.wd == null || r.rules.wd.begin == null ? data.rules.wd.begin : r.rules.wd.begin;
-		var rule_e = r.rules == null || r.rules.wd == null || r.rules.wd.end == null ? data.rules.wd.end : r.rules.wd.end;
+		var fn = [], rule = {};
 		var disabled = !(r.scheduled > 0 || r.other > 0) || r.canceled > 0 ? " disabled" : "";
 		var violations = (disabled != "" || r.violations == null || (!r.violations.gps && !r.violations.tm && !r.violations.oom)) 
 		    ? "" : " violation footnote";
+		rule.begin = r.rules == null || r.rules.wd == null || r.rules.wd.begin == null ? data.rules.wd.begin : r.rules.wd.begin;
+		rule.end = r.rules == null || r.rules.wd == null || r.rules.wd.end == null ? data.rules.wd.end : r.rules.wd.end;
+		rule.duration = r.rules == null || r.rules.wd == null || r.rules.wd.duration == null ? data.rules.wd.duration : r.rules.wd.duration;
+		rule.timing = r.rules == null || r.rules.timing == null ? data.rules.timing : r.rules.timing;
 		if( r.violations.gps ) { fn.push(lang.violations.gps); }
 		if( r.violations.tm ) { fn.push(lang.violations.tm); }
 		if( r.violations.oom ) { fn.push(lang.violations.oom); }
@@ -118,11 +120,29 @@ var PLUG = (function() {
 		} else {
 		    if( r.route_begin != null || r.route_end != null ) {
 			t = G.gettime_l(Date.parseISO8601(r.route_begin));
-			ar.push("<td class='time", rule_b != null && t > rule_b ? " attention" : "", "'>", t, "</td>");
+			if( rule.begin != null && t > rule.begin ) {
+			    ar.push("<td class='time attention footnote' data-title='", lang.violations.wday.begin.format_a(rule.begin), "'>", t, "</td>");
+			} else {
+			    ar.push("<td class='time'>", t, "</td>");
+			}
 			t = G.gettime_l(Date.parseISO8601(r.route_end));
-			ar.push("<td class='time", rule_e != null && rule_e > t ? " attention" : "", "'>", t, "</td>");
-			ar.push("<td class='time'>", G.shielding(Number.HHMM(r.route_duration)), "</td>");
-			ar.push("<td class='time'>", G.shielding(Number.HHMM(r.instore_duration)), "</td>");
+			if( rule.end != null && rule.end > t ) {
+			    ar.push("<td class='time attention footnote' data-title='", lang.violations.wday.end.format_a(rule.end), "'>", t, "</td>");
+			} else {
+			    ar.push("<td class='time'>", t, "</td>");
+			}
+			t = Number.HHMM(r.route_duration);
+			if( rule.duration != null && rule.duration > t ) {
+			    ar.push("<td class='time attention footnote' data-title='", lang.violations.wday.duration.format_a(rule.duration), "'>", t, "</td>");
+			} else {
+			    ar.push("<td class='time'>", t, "</td>");
+			}
+			t = Number.HHMM(r.instore_duration);
+			if( rule.timing != null && rule.timing > t ) {
+			    ar.push("<td class='time attention footnote' data-title='", lang.violations.timing.format_a(rule.timing), "'>", t, "</td>");
+			} else {
+			    ar.push("<td class='time'>", t, "</td>");
+			}
 			ar.push("<td class='delim int' width='55px'>", r.mileage/1000 > 0 ? (r.mileage/1000.0).toFixed(1) : lang.dash, "</td>");
 		    } else {
 			ar.push("<td class='delim ref disabled' colspan='5'>", lang.none.toLowerCase(), "</td>");
@@ -139,7 +159,7 @@ var PLUG = (function() {
 			ar.push(lang.dash);
 		    }
 		    ar.push("</td>");
-		    ar.push("<td class='smallint'>");
+		    ar.push("<td class='smallint", ((r.scheduled||0) - (r.discarded||0)) > (r.closed||0) && ((r.closed||0) + (r.other||0)) > 0 ? " violation" : "", "'>");
 		    if( r.closed > 0 || r.other > 0 ) {
 			if( r.other > 0 ) {
 			    ar.push("<span class='footnote' data-title='{2}'>{0}<sup>&nbsp;(+{1})</sup></span>".format_a(
@@ -193,8 +213,13 @@ var PLUG = (function() {
 		    ar.push("<td class='ref sw95px", disabled, "'>", t.join(''), "</td>");
 		}
 		ar.push("<td class='delim string u_name", disabled, "'>", G.shielding(r.head_name), "</td>");
-		ar.push("<td class='int", disabled==""&&r.power!=null&&r.power.begin!=null&&(data.rules.power>r.power.begin||r.power.begin===255) ? " attention" : "",
-		    disabled, "' width='40px'>", r.power != null ? G.getpercent_l(_fixpower(r.power.begin)) : lang.dash, "</td>");
+		if( disabled == "" && r.power!=null && r.power.begin!=null && (data.rules.power>r.power.begin||r.power.begin===255) ) {
+		    ar.push("<td class='int attention footnote_L' width='40px' data-title='", lang.violations.power.format_a(data.rules.power), "'>", 
+			r.power != null ? G.getpercent_l(_fixpower(r.power.begin)) : lang.dash, "</td>");
+		} else {
+		    ar.push("<td class='int", disabled, "' width='40px'>", 
+			r.power != null ? G.getpercent_l(_fixpower(r.power.begin)) : lang.dash, "</td>");
+		}
 		ar.push("<td class='int", disabled, "' width='40px'>", r.power != null? G.getpercent_l(_fixpower(r.power.end)) : lang.dash, "</td>");
 		ar.push("<td class='int", disabled, "' width='40px'>", r.power != null && r.power.chargings > 0 ? G.getint_l(r.power.chargings) : lang.dash, "</td>");
 		ar.push("</tr>");
