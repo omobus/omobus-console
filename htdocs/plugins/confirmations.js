@@ -116,7 +116,7 @@ var PLUG = (function() {
 	return ar;
     }
 
-    function _remarktbl(remark_types) {
+    function _remarktbl() {
 	var ar = [];
 	ar.push("<h1>", lang.remark.caption, "</h1>");
 	ar.push("<div onclick='event.stopPropagation();'>");
@@ -124,18 +124,6 @@ var PLUG = (function() {
 	ar.push("<div class='row'>", lang.notices.remark, "</div>");
 	ar.push("</p>");
 	ar.push("<div class='row attention gone' id='re:alert'></div>");
-	if( Array.isArray(remark_types) && remark_types.length > 0 ) {
-	    ar.push("<p>");
-	    ar.push("<div class='row'>");
-	    ar.push("<select id='re:type'>");
-	    ar.push("<option value=''>", lang.not_specified, "</option>");
-	    remark_types.forEach(function(r) {
-		ar.push("<option value='", G.shielding(r.remark_type_id), "'>", G.shielding(r.descr), "</option>");
-	    });
-	    ar.push("</select>");
-	    ar.push("</div>");
-	    ar.push("</p>");
-	}
 	ar.push("<div class='row'><textarea id='re:note' rows='3' maxlength='1024' autocomplete='off' placeholder='",
 	    lang.remark.placeholder, "'></textarea></div>");
 	ar.push("<br/>");
@@ -552,10 +540,10 @@ var PLUG = (function() {
 	    _cache._more_row_no = u;
 	},
 	remark: function(tag, row_no, offset) {
-	    var reaccept, rereject, renote, realert, retype;
+	    var reaccept, rereject, renote, realert;
 	    var u = 'remark:{0}'.format_a(row_no);
 	    var r = _cache.data.rows[row_no-1];
-	    var ptr = _cache.remarks[r.doc_id] || {status:(r.remark||{}).status,remark_type_id:null,type:null,note:null};
+	    var ptr = _cache.remarks[r.doc_id] || {status:(r.remark||{}).status,note:null};
 	    var commit = function(self, method) {
 		var params = {doc_id: r.doc_id, _datetime: G.getdatetime(new Date())};
 		var xhr = G.xhr(method, G.getdataref({plug: _code}), "", function(xhr) {
@@ -585,9 +573,6 @@ var PLUG = (function() {
 		_tags.more.startSpinner();
 		disable();
 		xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-		if( typeof ptr.remark_type_id != 'undefined' && !String.isEmpty(ptr.remark_type_id) ) {
-		    params.remark_type_id = ptr.remark_type_id;
-		}
 		if( typeof ptr.note != 'undefined' && !String.isEmpty(ptr.note) ) {
 		    params.note = ptr.note;
 		}
@@ -599,7 +584,7 @@ var PLUG = (function() {
 	    }
 	    var enable = function() {
 		reaccept.disabled = ptr.status == 'accepted';
-		rereject.disabled = ptr.status == 'rejected' || (String.isEmpty(ptr.note) && String.isEmpty(ptr.remark_type_id));
+		rereject.disabled = ptr.status == 'rejected' || String.isEmpty(ptr.note);
 		renote.disabled = false;
 	    }
 	    var disable = function() {
@@ -610,20 +595,11 @@ var PLUG = (function() {
 	    if( _cache._more_row_no != null && _cache._more_row_no != u ) {
 		_tags.more.hide();
 	    }
-	    _tags.more.set(_remarktbl(_cache.data.remark_types).join(''));
+	    _tags.more.set(_remarktbl().join(''));
 	    realert = _("re:alert");
 	    renote = _("re:note");
 	    reaccept = _("re:accept");
 	    rereject = _("re:reject");
-	    retype = _("re:type");
-	    if( retype != null ) {
-		retype.onchange = function() {
-		    ptr.remark_type_id = (this.value || this.options[this.selectedIndex].value);
-		    ptr.type = this.options[this.selectedIndex].innerText;
-		    enable();
-		    realert.hide();
-		}
-	    }
 	    renote.oninput = function() {
 		ptr.note = this.value.trim();
 		enable();
@@ -638,15 +614,12 @@ var PLUG = (function() {
 	    if( ptr.status != 'rejected' ) {
 		rereject.onclick = function() {
 		    realert.hide();
-		    if( String.isEmpty(ptr.note) && String.isEmpty(ptr.remark_type_id) ) {
+		    if( String.isEmpty(ptr.note) ) {
 			alarm(lang.errors.remark.note);
 		    } else {
 			commit(this, "DELETE");
 		    }
 		}
-	    }
-	    if( ptr.remark_type_id != null ) {
-		retype.value = ptr.remark_type_id;
 	    }
 	    if( ptr.note != null ) {
 		renote.text(ptr.note);
