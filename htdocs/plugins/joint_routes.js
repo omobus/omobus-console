@@ -306,8 +306,9 @@ var PLUG = (function() {
 		    wb.property('Title', lang.joint_routes.title);
 		    wb.property('Author', __AUTHOR__);
 		    wb.property('Description', "{0} {1}".format_a(lang.data_ts, data_ts));
-		    ws.name(_code);
-		    for( var i = 0, size = Math.min(ar.length,1048576 - offset), x; i < size; i++ ) {
+		    /* page 1: */
+		    ws.name("{0}-totals".format_a(_code));
+		    for( var i = 0, size = Math.min(ar.length,1048576 - offset), r; i < size; i++ ) {
 			r = ar[i];
 			ws.cell("A{0}".format_a(i + offset)).value(r.row_no);
 			ws.cell("B{0}".format_a(i + offset)).value(Date.parseISO8601(r.fix_dt));
@@ -316,14 +317,54 @@ var PLUG = (function() {
 			ws.cell("E{0}".format_a(i + offset)).value(G.gettime_l(Date.parseISO8601(r.jr_begin)));
 			ws.cell("F{0}".format_a(i + offset)).value(G.gettime_l(Date.parseISO8601(r.jr_end)));
 			ws.cell("G{0}".format_a(i + offset)).value(r.jr_duration);
-			ws.cell("H{0}".format_a(i + offset)).value(r.closed);
-			ws.cell("I{0}".format_a(i + offset)).value(r.duration);
+			ws.cell("H{0}".format_a(i + offset)).value(r.duration);
+			ws.cell("I{0}".format_a(i + offset)).value(r.closed);
 			ws.cell("J{0}".format_a(i + offset)).value(r.assessment);
 			ws.cell("K{0}".format_a(i + offset)).value(G.getpercent_l(r.sla));
 			ws.cell("L{0}".format_a(i + offset)).value(r.note0);
 			ws.cell("M{0}".format_a(i + offset)).value(r.note1);
 			ws.cell("N{0}".format_a(i + offset)).value(r.note2);
 			ws.cell("O{0}".format_a(i + offset)).value(r.author);
+		    }
+		    /* page 2: */
+		    ws = wb.sheet(1);
+		    ws.name("{0}-scores".format_a(_code));
+		    for( var i = 0, f = 0, size = ar.length, r; i < size && f < (1048576 - offset); i++ ) {
+			r = ar[i];
+			for( var j = 0, size2 = r.accounts.length, r2; j < size2; j++ ) {
+			    r2 = r.accounts[j];
+			    for( var w = 0, size3 = r.criterias.length, r3; w < size3; w++ ) {
+				r3 = r.criterias[w];
+				ws.cell("A{0}".format_a(f + offset)).value(r.row_no);
+				ws.cell("B{0}".format_a(f + offset)).value(Date.parseISO8601(r.fix_dt));
+				ws.cell("C{0}".format_a(f + offset)).value(r.employee_id);
+				ws.cell("D{0}".format_a(f + offset)).value(r.employee);
+				ws.cell("E{0}".format_a(f + offset)).value(r2.a_code);
+				ws.cell("F{0}".format_a(f + offset)).value(r2.a_name);
+				ws.cell("G{0}".format_a(f + offset)).value(r2.address);
+				ws.cell("H{0}".format_a(f + offset)).value(r2.chan);
+				ws.cell("I{0}".format_a(f + offset)).value(r2.poten);
+				ws.cell("J{0}".format_a(f + offset)).value(r2.region);
+				ws.cell("K{0}".format_a(f + offset)).value(r2.city);
+				ws.cell("L{0}".format_a(f + offset)).value(r2.rc);
+				ws.cell("M{0}".format_a(f + offset)).value(r2.ka_type);
+				ws.cell("N{0}".format_a(f + offset)).value(r3.descr);
+				const ptr = r.scores[r2.account_id] != null ? r.scores[r2.account_id][r3.rating_criteria_id] : null;
+				if( ptr != null ) {
+				    ws.cell("O{0}".format_a(f + offset)).value(ptr.score);
+				    ws.cell("P{0}".format_a(f + offset)).value(ptr.note);
+				}
+				ws.cell("Q{0}".format_a(f + offset)).value(r3.wf);
+				ws.cell("R{0}".format_a(f + offset)).value(r2.extra_info);
+				ws.cell("S{0}".format_a(f + offset)).value(r.assessment);
+				ws.cell("T{0}".format_a(f + offset)).value(G.getpercent_l(r.sla));
+				ws.cell("U{0}".format_a(f + offset)).value(r.note0);
+				ws.cell("V{0}".format_a(f + offset)).value(r.note1);
+				ws.cell("W{0}".format_a(f + offset)).value(r.note2);
+				ws.cell("X{0}".format_a(f + offset)).value(r.author);
+				f++;
+			    }
+			}
 		    }
 		    wb.outputAsync()
 			.then(function(blob) {
