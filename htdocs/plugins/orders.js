@@ -323,6 +323,7 @@ var PLUG = (function() {
 	    if( xhr.status == 200 && data != null && typeof data == 'object' ) {
 		_cache.data = data;
 		_tags.tbody.html(_datatbl(data, 1, _tags.total, _getfilter(), _cache.checked, _perm).join(""));
+		//console.log(data);
 	    } else {
 		_tags.tbody.html(_datamsg(lang.failure, _perm).join(""));
 		_tags.total.html("");
@@ -389,8 +390,8 @@ var PLUG = (function() {
 		    wb.property('Title', lang.orders.title);
 		    wb.property('Author', __AUTHOR__);
 		    wb.property('Description', "{0} {1}".format_a(lang.data_ts, data_ts));
-		    ws.name(_code);
-		    for( var i = 0, size = Math.min(ar.length,1048576 - offset), x; i < size; i++ ) {
+		    ws.name("{0}-totals".format_a(_code));
+		    for( var i = 0, size = Math.min(ar.length,1048576 - offset); i < size; i++ ) {
 			r = ar[i];
 			ws.cell("A{0}".format_a(i + offset)).value(r.row_no);
 			ws.cell("B{0}".format_a(i + offset)).value(Date.parseISO8601(r.fix_dt));
@@ -423,6 +424,50 @@ var PLUG = (function() {
 			    ws.cell("Z{0}".format_a(i + offset)).value(r.mailboxes.join(", "));
 			}
 			ws.cell("AA{0}".format_a(i + offset)).value(r.head_name);
+		    }
+		    ws = wb.sheet(1);
+		    ws.name("{0}-products".format_a(_code));
+		    for( var i = 0, f = 0, size = ar.length, r; i < size && f < (1048576 - offset); i++ ) {
+			r = ar[i];
+			for( var j = 0, size2 = r.rows.length, r2; j < size2; j++ ) {
+			    r2 = r.rows[j];
+			    ws.cell("A{0}".format_a(f + offset)).value(r.row_no);
+			    ws.cell("B{0}".format_a(f + offset)).value(Date.parseISO8601(r.fix_dt));
+			    ws.cell("C{0}".format_a(f + offset)).value(r.dev_login);
+			    ws.cell("D{0}".format_a(f + offset)).value(r.u_name);
+			    ws.cell("E{0}".format_a(f + offset)).value(r.a_code);
+			    ws.cell("F{0}".format_a(f + offset)).value(r.a_name);
+			    ws.cell("G{0}".format_a(f + offset)).value(r.address);
+			    ws.cell("H{0}".format_a(f + offset)).value(r.chan);
+			    ws.cell("I{0}".format_a(f + offset)).value(r.poten);
+			    ws.cell("J{0}".format_a(f + offset)).value(r.region);
+			    ws.cell("K{0}".format_a(f + offset)).value(r.city);
+			    ws.cell("L{0}".format_a(f + offset)).value(r.rc);
+			    ws.cell("M{0}".format_a(f + offset)).value(r.ka_type);
+			    ws.cell("N{0}".format_a(f + offset)).value(r.distributor);
+			    ws.cell("O{0}".format_a(f + offset)).value(r.warehouse);
+			    ws.cell("P{0}".format_a(f + offset)).value(Date.parseISO8601(r.delivery_date));
+			    ws.cell("Q{0}".format_a(f + offset)).value(r.delivery_type);
+			    ws.cell("R{0}".format_a(f + offset)).value(r.delivery_note);
+			    ws.cell("S{0}".format_a(f + offset)).value(r.payment_method);
+			    ws.cell("T{0}".format_a(f + offset)).value(r.payment_delay);
+			    ws.cell("U{0}".format_a(f + offset)).value(r2.prod);
+			    ws.cell("V{0}".format_a(f + offset)).value(r2.unit_price);
+			    ws.cell("W{0}".format_a(f + offset)).value(r2.qty);
+			    ws.cell("X{0}".format_a(f + offset)).value(r2.pack_name);
+			    ws.cell("Y{0}".format_a(f + offset)).value(r.amount);
+			    ws.cell("Z{0}".format_a(f + offset)).value(r.bonus);
+			    ws.cell("AA{0}".format_a(f + offset)).value(r.encashment);
+			    ws.cell("AB{0}".format_a(f + offset)).value(r.doc_note);
+			    if( Array.isArray(r.order_params) ) {
+				ws.cell("AC{0}".format_a(f + offset)).value(r.order_params.join(", "));
+			    }
+			    if( Array.isArray(r.mailboxes) ) {
+				ws.cell("AD{0}".format_a(f + offset)).value(r.mailboxes.join(", "));
+			    }
+			    ws.cell("AE{0}".format_a(f + offset)).value(r.head_name);
+			    f++;
+			}
 		    }
 		    wb.outputAsync()
 			.then(function(blob) {
