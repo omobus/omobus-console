@@ -1,7 +1,7 @@
 https://favicon.io/favicon-generator/
 
     Background: Rounded
-    Font Family: Lemonada
+    Font Family: Lemonada (https://www.wfonts.com/font/lemonada)
     Font Size: 110
     Font Color: #FFFFFF
     Background Color: #209CEE
