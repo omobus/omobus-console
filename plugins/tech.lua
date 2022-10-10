@@ -516,7 +516,6 @@ function M.scripts(lang, permtb, sestb, params)
     if permtb.tabs ~= nil and permtb.tabs.a_list == true then 
 	table.insert(ar, '<script src="' .. V.static_prefix .. '/plugins/a_list.js"> </script>')
     end
-    table.insert(ar, '<script src="' .. V.static_prefix .. '/plugins/tech_advt.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/plugins/tech_audits.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/plugins/tech_checkups.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/plugins/tech_comments.js"> </script>')

@@ -20,7 +20,6 @@ M.monthly_reports = {
     "presences", 
     "stocks", 
     "oos",
-    "advt", 
     "prices", 
     "posms", 
     "promos",

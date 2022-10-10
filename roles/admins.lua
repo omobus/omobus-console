@@ -8,7 +8,6 @@ M.permissions = {
     null 		= {},
 
     additions 		= require 'roles.defs.additions',
-    advt 		= require 'roles.defs.advt',
     audits 		= require 'roles.defs.audits',
     cancellations 	= require 'roles.defs.cancellations',
     checkups 		= require 'roles.defs.checkups',

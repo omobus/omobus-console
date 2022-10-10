@@ -9,7 +9,6 @@ M.home = "tech"
 M.permissions = {
     null 	= { },
 
-    advt 		= require 'roles.defs.advt',
     checkups 		= require 'roles.defs.checkups',
     comments 		= require 'roles.defs.comments',
     confirmations 	= require 'roles.defs.confirmations',

@@ -610,29 +610,6 @@ var __route = (function() {
 		    ar.push("</tr>");
 		});
 		ar.push("</table>");
-	    } else if( t == "advt" ) {
-		ar.push("<div>");
-		ar.push("<h2>", "{0}".format_a(lang.doctypes[t]), "</h2>");
-		ar.push("<span class='watermark'>", "{0}: {1}".format_a(lang.time_spent, lang.seconds.format_a(r.duration)), "</span>");
-		ar.push("</div>");
-		ar.push("<table width='100%' class='report'>");
-		ar.push("<tr class='def'>");
-		ar.push("<td class='divider'>", lang.num, "</td>");
-		ar.push("<td class='divider'>", lang.pos_material, "</td>");
-		ar.push("<td class='divider'>", lang.placement, "</td>");
-		ar.push("<td class='divider'>", lang.exist, "</td>");
-		ar.push("<td class='divider' width='35px'>", "&nbsp;", "</td>");
-		ar.push("</tr>");
-		r.rows.forEach(function(arg0, row_no) {
-		    ar.push("<tr>");
-		    ar.push("<td class='autoincrement'>", row_no + 1, "</td>");
-		    ar.push("<td class='string'>", G.shielding(arg0.posm), "</td>");
-		    ar.push("<td class='ref'>", G.shielding(arg0.placement), "</td>");
-		    ar.push("<td class='int'>", G.getint_l(arg0.qty), "</td>");
-		    ar.push("<td class='bool'>", String.isEmpty(arg0.scratch) ? "" : "&#x267A;", "</td>");
-		    ar.push("</tr>");
-		});
-		ar.push("</table>");
 	    } else if( t == "audit" ) {
 		r.forEach(function(e, index) {
 		    if( index > 0 ) {
@@ -1304,31 +1281,7 @@ var __route = (function() {
 	    if( index > 0 ) {
 		ar.push("<hr/>");
 	    }
-	    if( r._t == "advt" ) {
-		ar.push("<div>");
-		ar.push("<h2>", "{0} {1} {2} / {3}".format_a(lang.doctypes[r._t], lang.num, r.doc_no, r.doc_id), "</h2>");
-		ar.push("<span class='watermark'>", "{0}: {1}".format_a(lang.fix_time, G.getlongtime_l(r.fix_dt)), 
-		    "&nbsp;&nbsp;&nbsp;(", lang.seconds.format_a(r.duration), ")", "</span>");
-		ar.push("</div>");
-		ar.push("<table width='100%' class='report'>");
-		ar.push("<tr class='def'>");
-		ar.push("<td class='divider'>", lang.num, "</td>");
-		ar.push("<td class='divider'>", lang.pos_material, "</td>");
-		ar.push("<td class='divider'>", lang.placement, "</td>");
-		ar.push("<td class='divider'>", lang.exist, "</td>");
-		ar.push("<td class='divider' width='35px'>", "&nbsp;", "</td>");
-		ar.push("</tr>");
-		r.rows.forEach(function(arg0) {
-		    ar.push("<tr>");
-		    ar.push("<td class='autoincrement'>", arg0.row_no + 1, "</td>");
-		    ar.push("<td class='string'>", G.shielding(arg0.posm), "</td>");
-		    ar.push("<td class='ref'>", G.shielding(arg0.placement), "</td>");
-		    ar.push("<td class='int'>", G.getint_l(arg0.qty), "</td>");
-		    ar.push("<td class='bool'>", String.isEmpty(arg0.scratch) ? "" : "&#x267A;", "</td>");
-		    ar.push("</tr>");
-		});
-		ar.push("</table>");
-	    } else if( r._t == "audit" ) {
+	    if( r._t == "audit" ) {
 		ar.push("<div>");
 		ar.push("<h2>", "{0} {1} {2} / {3}".format_a(lang.doctypes[r._t], lang.num, r.doc_no, r.doc_id), 
 		    "<span class='r'>", "{0}. <i>{1}</i>: {2}".format_a(G.shielding(r.categ).trunc(20), lang.sla.result, G.getpercent_l(r.sla)),
@@ -2101,7 +2054,6 @@ var __route = (function() {
 	    }
 	}
 
-	fn("advt");
 	fn("audit");
 	fn("checkup");
 	fn("comment");
@@ -2244,7 +2196,6 @@ var __route = (function() {
 	fn("posm");
 	fn("confirmation");
 	fn("shelf");
-	fn("advt");
 	/* #4 */
 	fn("target");
 	fn("training");

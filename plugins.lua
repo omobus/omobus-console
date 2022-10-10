@@ -9,7 +9,6 @@ local modules = {
 	null 			= require 'plugins.null',
 
 	additions 		= require 'plugins.additions',
-	advt 			= require 'plugins.advt',
 	audits 			= require 'plugins.audits',
 	cancellations 		= require 'plugins.cancellations',
 	checkups 		= require 'plugins.checkups',
