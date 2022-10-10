@@ -325,8 +325,9 @@ var PLUG = (function() {
     function _add(files, max_file_size_mb) {
 	for( var i = 0, size = files.length, counter = 0; i < size; i++ ) {
 	    var f = files[i];
-	    if( !(f.type == 'application/pdf' || f.type == 'video/mp4' || f.type == 'image/jpeg') ) {
+	    if( !(f.type == 'application/pdf' || f.type == 'video/mp4' || f.type == 'image/jpeg' || f.type == 'application/zip') ) {
 		Toast.show(lang.training_materials.msg0.format_a(f.name));
+		console.log(f.name + " => " + f.type);
 	    } else if( max_file_size_mb*1024*1024 < f.size ) {
 		Toast.show(lang.training_materials.msg1.format_a(f.name, max_file_size_mb));
 	    } else {
@@ -445,6 +446,7 @@ var PLUG = (function() {
 	    if( _perm.add ) {
 		var input = document.createElement('input');
 		input.type = 'file';
+		input.accept="image/jpeg, application/pdf, video/mp4, application/zip"
 		input.onchange = function() {
 		    _add(this.files, _perm.add.max_file_size_mb);
 		}
