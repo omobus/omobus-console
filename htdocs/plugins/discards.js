@@ -137,7 +137,7 @@ var PLUG = (function() {
 		    ar.push("<div class='row watermark'>", G.shielding(r.activity_type), "</div>");
 		    ar.push("</td>");
 		    if( perm.validate ) {
-			if( !r.validated /*&& !r.rejected*/ && !r.closed ) {
+			if( !r.validated /*&& !r.rejected*/ /*&& !r.closed*/ ) {
 			    ar.push("<td class='ref footnote' data-title='{0}'>".format_a(lang.discards.accept),
 				"<a class='symbol' href='javascript:void(0)' onclick='PLUG.validate(this,{0},\"{1}\",\"{2}\",\"{3}\",\"{4}\")'>"
 				    .format_a(r.row_no, r.user_id, r.account_id, r.activity_type_id, r.route_date), "&#x2713", "</a>", "</td>");
