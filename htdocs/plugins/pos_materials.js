@@ -414,7 +414,7 @@ var PLUG = (function() {
 	    filterkey = keyname;
 	}
 	if( typeof arg == 'object' ) {
-	    _cache.xfilters[filterkey] = Filter.escape(filterkey, arg[keyname]);
+	    _cache.xfilters[filterkey] = (keyname == filterkey ? Filter.escape : Filter.escapeArray)(filterkey, arg[keyname]);
 	    tag.addClass('important');
 	} else {
 	    _cache.xfilters[filterkey] = null;
@@ -670,7 +670,7 @@ var PLUG = (function() {
 			fd.append("country_id", newData.country_id);
 			fd.append("brand_ids", newData.brand_ids);
 
-			if( !String.isEmpty(newData.dep_ids) ) {
+			if( !Array.isEmpty(newData.dep_ids) ) {
 			    fd.append("dep_ids", newData.dep_ids);
 			}
 			if( !Array.isEmpty(newData.placement_ids) ) {

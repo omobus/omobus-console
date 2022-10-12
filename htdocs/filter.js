@@ -54,6 +54,10 @@ function Filter(arg, short, params) {
 	return typeof k == 'string' && typeof v != 'undefined' && !String.isEmpty(v) ?
 	    "{0}={1}$".format_a(k, v.replace(_re0,'\\040')) : "";
     };
+    Filter.escapeArray = function(k, v) {
+	return typeof k == 'string' && typeof v != 'undefined' && !String.isEmpty(v) ?
+	    "{0}\\.\\d={1}$".format_a(k, v.replace(_re0,'\\040')) : "";
+    };
 }(Filter));
 
 

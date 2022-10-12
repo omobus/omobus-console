@@ -389,7 +389,7 @@ var PLUG = (function() {
 	    filterkey = keyname;
 	}
 	if( typeof arg == 'object' ) {
-	    _cache.xfilters[filterkey] = Filter.escape(filterkey, arg[keyname]);
+	    _cache.xfilters[filterkey] = (keyname == filterkey ? Filter.escape : Filter.escapeArray)(filterkey, arg[keyname]);
 	    tag.addClass('important');
 	} else {
 	    _cache.xfilters[filterkey] = null;
@@ -699,7 +699,7 @@ var PLUG = (function() {
 			fd.append("shared", newData.shared);
 			fd.append("country_id", newData.country_id);
 
-			if( !String.isEmpty(newData.dep_ids) ) {
+			if( !Array.isEmpty(newData.dep_ids) ) {
 			    fd.append("dep_ids", newData.dep_ids);
 			}
 			if( !String.isEmpty(newData.rc_id) ) {
@@ -714,7 +714,6 @@ var PLUG = (function() {
 			if( !String.isEmpty(newData.e_date) ) {
 			    fd.append("e_date", newData.e_date);
 			}
-
 			dialogObject.startSpinner();
 			alertView.hide();
 
