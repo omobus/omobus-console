@@ -314,7 +314,7 @@ local function blob(stor, pl_id)
 [[
 select pl_id, blob, content_type from planograms where pl_id = %pl_id%
 ]]
-	, "/plugins/planograms/blob/", {pl_id = pl_id})
+	, "/plugins/planograms/blob", {pl_id = pl_id})
     end
     )
 end
@@ -324,7 +324,7 @@ local function author(stor, pl_id)
 [[
 select author_id from planograms where pl_id=%pl_id%
 ]]
-	, "/plugins/planograms/author/"
+	, "/plugins/planograms/author"
 	, {pl_id = pl_id})
     end
     )
@@ -335,7 +335,7 @@ local function unlink(stor, uid, reqdt, pl_id)
 [[
 select console.req_planogram(%req_uid%, %req_dt%, 'unlink', %pl_id%, null::console.planogram_t) rv
 ]]
-        , "/plugins/planograms/unlink/"
+        , "/plugins/planograms/unlink"
         , {req_uid = uid, req_dt = reqdt, pl_id = pl_id})
     end
     )
@@ -358,7 +358,7 @@ select console.req_planogram(%req_uid%, %_datetime%, 'edit', %pl_id%, (
     )
 ) rv
 ]]
-	, "/plugins/planograms/edit/"
+	, "/plugins/planograms/edit"
 	, params)
     end
     )
@@ -369,7 +369,7 @@ local function post(stor, uid, reqdt, blob, content_type)
 [[
 select console.req_planogram(%req_uid%, %req_dt%/*, 'add'*/, %name%, %1:blob%, %content_type%) rv
 ]]
-	, "/plugins/planograms/add/"
+	, "/plugins/planograms/add"
 	, {req_uid = uid, req_dt = reqdt, name = blob.name, content_type = content_type}
 	, blob.contents)
     end

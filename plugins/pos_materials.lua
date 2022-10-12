@@ -295,7 +295,7 @@ local function author(stor, posm_id)
 [[
 select author_id from pos_materials where posm_id=%posm_id%
 ]]
-	, "/plugins/pos_materials/author/"
+	, "/plugins/pos_materials/author"
 	, {posm_id = posm_id})
     end
     )
@@ -306,7 +306,7 @@ local function unlink(stor, uid, reqdt, posm_id)
 [[
 select console.req_pos_material(%req_uid%, %req_dt%, 'unlink', %posm_id%, null::console.pos_material_t) rv
 ]]
-        , "/plugins/pos_materials/unlink/"
+        , "/plugins/pos_materials/unlink"
         , {req_uid = uid, req_dt = reqdt, posm_id = posm_id})
     end
     )
@@ -329,7 +329,7 @@ select console.req_pos_material(%req_uid%, %_datetime%, 'edit', %posm_id%, (
     )
 ) rv
 ]]
-	, "/plugins/pos_materials/edit/"
+	, "/plugins/pos_materials/edit"
 	, params)
     end
     )
@@ -340,7 +340,7 @@ local function post(stor, uid, reqdt, blob, content_type)
 [[
 select console.req_pos_material(%req_uid%, %req_dt%/*, 'add'*/, %name%, %1:blob%, %content_type%) rv
 ]]
-	, "/plugins/pos_materials/add/"
+	, "/plugins/pos_materials/add"
 	, {req_uid = uid, req_dt = reqdt, name = blob.name, content_type = content_type}
 	, blob.contents)
     end

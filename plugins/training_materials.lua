@@ -246,7 +246,7 @@ local function blob(stor, tm_id)
 [[
 select tm_id, blob, content_type from training_materials where tm_id = %tm_id%
 ]]
-	, "/plugins/training_materials/blob/", {tm_id = tm_id})
+	, "/plugins/training_materials/blob", {tm_id = tm_id})
     end
     )
 end
@@ -256,7 +256,7 @@ local function author(stor, tm_id)
 [[
 select author_id from training_materials where tm_id=%tm_id%
 ]]
-	, "/plugins/training_materials/author/"
+	, "/plugins/training_materials/author"
 	, {tm_id = tm_id})
     end
     )
@@ -267,7 +267,7 @@ local function unlink(stor, uid, reqdt, tm_id)
 [[
 select console.req_training_material(%req_uid%, %req_dt%, 'unlink', %tm_id%, null::console.training_material_t) rv
 ]]
-        , "/plugins/training_materials/unlink/"
+        , "/plugins/training_materials/unlink"
         , {req_uid = uid, req_dt = reqdt, tm_id = tm_id})
     end
     )
@@ -288,7 +288,7 @@ select console.req_training_material(%req_uid%, %_datetime%, 'edit', %tm_id%, (
     )
 ) rv
 ]]
-	, "/plugins/training_materials/edit/"
+	, "/plugins/training_materials/edit"
 	, params)
     end
     )
@@ -299,7 +299,7 @@ local function post(stor, uid, reqdt, blob, content_type)
 [[
 select console.req_training_material(%req_uid%, %req_dt%/*, 'add'*/, %name%, %1:blob%, %content_type%) rv
 ]]
-	, "/plugins/training_materials/add/"
+	, "/plugins/training_materials/add"
 	, {req_uid = uid, req_dt = reqdt, name = blob.name, content_type = content_type}
 	, blob.contents)
     end

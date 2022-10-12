@@ -259,7 +259,7 @@ local function blob(stor, infom_id)
 [[
 select infom_id, blob, content_type from info_materials where infom_id = %infom_id%
 ]]
-	, "/plugins/info_materials/blob/", {infom_id = infom_id})
+	, "/plugins/info_materials/blob", {infom_id = infom_id})
     end
     )
 end
@@ -269,7 +269,7 @@ local function author(stor, infom_id)
 [[
 select author_id from info_materials where infom_id=%infom_id%
 ]]
-	, "/plugins/info_materials/author/"
+	, "/plugins/info_materials/author"
 	, {infom_id = infom_id})
     end
     )
@@ -280,7 +280,7 @@ local function unlink(stor, uid, reqdt, infom_id)
 [[
 select console.req_info_material(%req_uid%, %req_dt%, 'unlink', %infom_id%, null::console.info_material_t) rv
 ]]
-        , "/plugins/info_materials/unlink/"
+        , "/plugins/info_materials/unlink"
         , {req_uid = uid, req_dt = reqdt, infom_id = infom_id})
     end
     )
@@ -302,7 +302,7 @@ select console.req_info_material(%req_uid%, %_datetime%, 'edit', %infom_id%, (
     )
 ) rv
 ]]
-	, "/plugins/info_materials/edit/"
+	, "/plugins/info_materials/edit"
 	, params)
     end
     )
@@ -313,7 +313,7 @@ local function post(stor, uid, reqdt, blob, content_type)
 [[
 select console.req_info_material(%req_uid%, %req_dt%/*, 'add'*/, %name%, %1:blob%, %content_type%) rv
 ]]
-	, "/plugins/info_materials/add/"
+	, "/plugins/info_materials/add"
 	, {req_uid = uid, req_dt = reqdt, name = blob.name, content_type = content_type}
 	, blob.contents)
     end
