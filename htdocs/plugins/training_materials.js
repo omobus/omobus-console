@@ -260,16 +260,7 @@ var PLUG = (function() {
 	ar.push("</select>");
 	ar.push("</div>");
 	ar.push("<div class='row'>");
-	ar.push("<select id='param:country'>");
-	ar.push("<option value=''>", "{0}: {1}".format_a(lang.country, lang.without_restrictions), "</option>");
-	if( Array.isArray(mans.countries) ) {
-	    mans.countries.forEach(function(arg) {
-		ar.push("<option value='", G.shielding(arg.country_id), "'>", 
-		    "{0}: {1}".format_a(lang.country, G.shielding(arg.descr)), 
-		    "</option>");
-	    });
-	}
-	ar.push("</select>");
+	ar.push("<button id='param:country' class='dropdown'>", "</button>");
 	ar.push("</div>");
 	if( !Array.isEmpty(mans.brands) ) {
 	    _checkboxContainer(ar, mans.brands, "brand", lang.brand);
@@ -454,11 +445,30 @@ var PLUG = (function() {
 	    }
 	},
 	edit: function(arg) {
+	    const popups = {};
+	    const togglePopup = function(popup, tag, oncreate) {
+		let x, name;
+		for( name in popups) {
+		    if( typeof popup != 'undefined' && name == popup ) {
+			x = popups[name];
+		    } else {
+			popups[name].hide();
+		    }
+		}
+		if( typeof popup != 'undefined' && x == null ) {
+		    x = popups[popup] = oncreate(popup);
+		}
+		if( x != null ) {
+		    x.toggle(tag/*, offset*/);
+		}
+	    }
 	    Dialog({
 		width: 650, 
 		title: lang.training_materials.caption.format_a(arg), 
 		body: _parambodytbl(_cache.data.mans),
-		buttons: _parambtntbl()
+		buttons: _parambtntbl(),
+		onHideListener: function(dialogObject) { togglePopup(); },
+		onScrollListener: function(dialogObject) { togglePopup(); }
 	    }).show(function(dialogObject) {
 		const today = new Date();
 		const year = today.getFullYear();
@@ -519,14 +529,22 @@ var PLUG = (function() {
 			);
 		    //console.log(newData);
 		}
+		const dropDownLabel = function(arg0, arg1) {
+		    if( typeof arg1 == 'object' ) {
+			return "&#9776;&nbsp;&nbsp;{0}:&nbsp;&nbsp;<i>{1}</i>".format_a(arg0, arg1.descr);
+		    } else if( !String.isEmpty(arg1)  ) {
+			return "&#9776;&nbsp;&nbsp;{0}:&nbsp;&nbsp;<i>{1}</i>".format_a(arg0, arg1);
+		    }
+		    return "&#9776;&nbsp;&nbsp;{0}:&nbsp;&nbsp;<i>{1}</i>".format_a(arg0, lang.without_restrictions);
+		}
+
+		CountriesPopup.cleanup(mans.countries)
 
 		sharedView.checked = data.shared > 0;
+		countryView.html(dropDownLabel(lang.country, data.country || lang.not_specified));
 
 		if( !String.isEmpty(data.descr) ) {
 		    nameView.value = data.descr;
-		}
-		if( !String.isEmpty(data.country_id) ) {
-		    countryView.value = data.country_id;
 		}
 		if( month >= 9 ) {
 		    daterangeView.add(_createSelectOption("next_year", "{0}: {1}".format_a(lang.validity, lang.daterange.next_quarter)));
@@ -569,7 +587,11 @@ var PLUG = (function() {
 			    }
 			}
 			func();
+			togglePopup();
 		    }
+		}
+		dialogObject._container.onclick = function() {
+		    togglePopup();
 		}
 		nameView.onfocus = function() {
 		    togglePopup();
@@ -583,10 +605,9 @@ var PLUG = (function() {
 		    func();
 		    togglePopup();
 		}
-		countryView.onchange = function() {
-		    newData.country_id = (this.value || this.options[this.selectedIndex].value);
-		    func();
-		};
+		daterangeView.onclick = function() {
+		    togglePopup();
+		}
 		daterangeView.onchange = function() {
 		    let x = (this.value || this.options[this.selectedIndex].value), t;
 		    if( x == '' ) {
@@ -620,6 +641,20 @@ var PLUG = (function() {
 		    //console.log(x, "->", newData.b_date, " - ", newData.e_date);
 		    func();
 		};
+		if( !Array.isEmpty(mans.countries) ) {
+		    countryView.onclick = function(ev) {
+			togglePopup("countries", countryView, function(obj) {
+			    return CountriesPopup(mans[obj], function(arg, i, ar) {
+				newData.country_id = typeof arg == 'object' ? arg.country_id : null;
+				countryView.html(dropDownLabel(lang.country, arg));
+				func();
+			    }, {everything: false})
+			});
+			ev.stopPropagation();
+		    }
+		} else {
+		    countryView.disabled = true;
+		}
 		backView.onclick = function() {
 		    dialogObject.hide();
 		}

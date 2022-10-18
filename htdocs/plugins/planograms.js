@@ -567,7 +567,7 @@ var PLUG = (function() {
 		RetailChainsPopup.cleanup(mans.retail_chains);
 
 		sharedView.checked = data.shared > 0;
-		countryView.html(dropDownLabel(lang.country, data.country));
+		countryView.html(dropDownLabel(lang.country, data.country || lang.not_specified));
 		rcView.html(dropDownLabel(lang.rc_name, data.rc));
 
 		if( !String.isEmpty(data.descr) ) {
