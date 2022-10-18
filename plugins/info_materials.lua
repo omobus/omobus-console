@@ -405,6 +405,12 @@ function M.data(lang, method, permtb, sestb, params, content, content_type, stor
 	    elseif tb[1].content_type == mime.jpeg then
 		scgi.writeHeader(res, 200, {["Content-Type"] = mime.jpeg})
 		scgi.writeBody(res, tb[1].blob)
+	    elseif tb[1].content_type == mime.zip then
+		scgi.writeHeader(res, 200, {
+		    ["Content-Type"] = tb[1].content_type,
+		    ["Content-Disposition"] = "inline; filename=\"" .. params.infom_id .. ".zip\""
+		})
+		scgi.writeBody(res, tb[1].blob)
 	    else
 		scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
 		scgi.writeBody(res, "Invalid BLOB type")
@@ -434,7 +440,7 @@ function M.data(lang, method, permtb, sestb, params, content, content_type, stor
 	assert(mp.blob and mp.blob.size > 0, "invalid [blob] parameter.")
 	assert(mp.blob.size <= permtb.add.max_file_size_mb*1024*1024, string.format("[blob] size should be less then %d MB.", 
 	    permtb.add.max_file_size_mb))
-	assert(core.contains({mime.pdf, mime.mp4, mime.jpeg},mp.content_type), "blob [content_type] is not supported.")
+	assert(core.contains({mime.pdf, mime.mp4, mime.jpeg, mime.zip},mp.content_type), "blob [content_type] is not supported.")
 	-- execute query
 	if post(stor, sestb.erpid or sestb.username, mp._datetime, mp.blob, mp.content_type) then
 	    scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
