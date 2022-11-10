@@ -3,6 +3,8 @@
 
 local M = {} -- public interface
 
+M.debug 	= true
+
 M.title		= "OMOBUS"
 M.subtitle	= "management console"
 
