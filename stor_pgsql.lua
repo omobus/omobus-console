@@ -186,7 +186,7 @@ function M.connect(server, storage, user, password)
 	return nil
     end
 
-    log.i(string.format("[stor_pgsql] database %s@[%s]/%s connected.", user, server, storage))
+    log.d(string.format("[stor_pgsql] database %s@[%s]/%s connected.", user, server, storage))
 
     conn:setNoticeProcessor(log.w);
 
@@ -196,7 +196,7 @@ end
 function M.disconnect(conn)
     conn:finish()
     conn = nil
-    log.i("[stor_pgsql] database disconnected.")
+    log.d("[stor_pgsql] database disconnected.")
 end
 
 function M.begin_tran(conn, readonly)
@@ -212,7 +212,7 @@ function M.begin_tran(conn, readonly)
 	return nil
     end
     res:clear()
-    log.i(string.format("[stor_pgsql] begin %s transaction.", readonly and "read" or "write"))
+    log.d(string.format("[stor_pgsql] begin %s transaction.", readonly and "read" or "write"))
     return conn
 end
 
@@ -226,7 +226,7 @@ local function end_tran(conn, commit)
 	    res ~= nil and res:errorMessage() or "unable to allocate memory"
 	    ))
     else
-	log.i(string.format("[stor_pgsql] %s transaction.", commit and "commit" or "rollback"))
+	log.d(string.format("[stor_pgsql] %s transaction.", commit and "commit" or "rollback"))
     end
     if res ~= nil then 
 	res:clear()
