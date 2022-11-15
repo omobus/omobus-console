@@ -315,10 +315,13 @@ var PLUG = (function() {
 
     function _add(files, max_file_size_mb) {
 	for( var i = 0, size = files.length, counter = 0; i < size; i++ ) {
-	    var f = files[i];
-	    if( !(f.type == 'application/pdf' || f.type == 'video/mp4' || f.type == 'image/jpeg' || f.type == 'application/zip') ) {
+	    var f = files[i], t = f.type;
+	    if( t == 'application/x-zip-compressed' ) {
+		t = 'application/zip';
+	    }
+	    if( !(t == 'application/pdf' || t == 'video/mp4' || t == 'image/jpeg' || t == 'application/zip') ) {
 		Toast.show(lang.training_materials.msg0.format_a(f.name));
-		console.log(f.name + " => " + f.type);
+		console.log(f.name + " => " + t);
 	    } else if( max_file_size_mb*1024*1024 < f.size ) {
 		Toast.show(lang.training_materials.msg1.format_a(f.name, max_file_size_mb));
 	    } else {
@@ -326,7 +329,7 @@ var PLUG = (function() {
 		fd = new FormData();
 		fd.append("_datetime", G.getdatetime(new Date()));
 		fd.append("blob", f, f.name.replace(/\.[^/.]+$/, ""));
-		fd.append("content_type", f.type);
+		fd.append("content_type", t);
 		xhr = G.xhr("POST", G.getdataref({plug: _code}), "json", function(xhr, resp) {
 		    if( xhr.status == 200 ) {
 			PLUG.refresh();
@@ -437,7 +440,7 @@ var PLUG = (function() {
 	    if( _perm.add ) {
 		var input = document.createElement('input');
 		input.type = 'file';
-		input.accept="image/jpeg, application/pdf, video/mp4, application/zip"
+		input.accept="image/jpeg, application/pdf, video/mp4, application/zip, application/x-zip-compressed"
 		input.onchange = function() {
 		    _add(this.files, _perm.add.max_file_size_mb);
 		}
