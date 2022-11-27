@@ -282,6 +282,9 @@ local function get_lang(lang)
 end
 
 function websvc_main()
+    -- initialize glogal objects
+    log.init(config.debug)
+
     return {
 	request_handler = function(env, content_size, content, res) -- request handler
 	    assert(env.QUERY_STRING ~= nil, "invalid request. QUERY_STRING is unavailable.")
