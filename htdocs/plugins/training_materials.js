@@ -30,6 +30,7 @@ var PLUG = (function() {
 	ar.push("<th class='symbol footnote' data-title='", lang.shared, "''>", "&#x21e7;", "</th>");
 	ar.push("<th>", lang.blob_size, "</th>");
 	ar.push("<th><a href='javascript:void(0)' onclick='PLUG.brands(this)'>", lang.brand, "</a></th>");
+	ar.push("<th><a href='javascript:void(0)' onclick='PLUG.types(this)'>", lang.training_type, "</a></th>");
 	ar.push("<th><a href='javascript:void(0)' onclick='PLUG.countries(this)'>", lang.country, "</a></th>");
 	ar.push("<th><a href='javascript:void(0)' onclick='PLUG.departments(this)'>", lang.departmentAbbr, "</a></th>");
 	ar.push("<th>", lang.validity, "</th>");
@@ -42,6 +43,7 @@ var PLUG = (function() {
 	ar.push(BrandsPopup.container());
 	ar.push(CountriesPopup.container());
 	ar.push(DepartmentsPopup.container());
+	ar.push(TrainingTypesPopup.container());
 	return ar;
     }
 
@@ -125,6 +127,13 @@ var PLUG = (function() {
 		    ar.push("<td class='ref sw95px'>");
 		    if( Array.isArray(r.brands) ) {
 			Array.prototype.push.apply(ar, _shieldingStringArray(r.brands));
+		    } else {
+			ar.push("<div class='row watermark'><i>", lang.without_restrictions, "</i></div>");
+		    }
+		    ar.push("</td>");
+		    ar.push("<td class='ref sw95px'>");
+		    if( Array.isArray(r.training_types) ) {
+			Array.prototype.push.apply(ar, _shieldingStringArray(r.training_types));
 		    } else {
 			ar.push("<div class='row watermark'><i>", lang.without_restrictions, "</i></div>");
 		    }
@@ -264,6 +273,9 @@ var PLUG = (function() {
 	ar.push("</div>");
 	if( !Array.isEmpty(mans.brands) ) {
 	    _checkboxContainer(ar, mans.brands, "brand", lang.brand);
+	}
+	if( !Array.isEmpty(mans.training_types) ) {
+	    _checkboxContainer(ar, mans.training_types, "training_type", lang.training_type);
 	}
 	if( !Array.isEmpty(mans.departments) ) {
 	    _checkboxContainer(ar, mans.departments, "dep", lang.department);
@@ -491,6 +503,7 @@ var PLUG = (function() {
 		const newData = {
 		    descr: data.descr, 
 		    brand_ids: Array.clone(data.brand_ids),
+		    training_type_ids: Array.clone(data.training_type_ids),
 		    country_id: data.country_id, 
 		    dep_ids: Array.clone(data.dep_ids),
 		    b_date: data.b_date,
@@ -524,6 +537,7 @@ var PLUG = (function() {
 			(
 			    (data.descr||'') == (newData.descr||'') &&
 			    equals(data.brand_ids||[], newData.brand_ids||[]) &&
+			    equals(data.training_type_ids||[], newData.training_type_ids||[]) &&
 			    (data.country_id||'') == (newData.country_id||'') &&
 			    equals(data.dep_ids||[], newData.dep_ids||[]) &&
 			    (data.b_date||'') == (newData.b_date||'') &&
@@ -681,6 +695,9 @@ var PLUG = (function() {
 			if( !Array.isEmpty(newData.brand_ids) ) {
 			    fd.append("brand_ids", newData.brand_ids);
 			}
+			if( !Array.isEmpty(newData.training_type_ids) ) {
+			    fd.append("training_type_ids", newData.training_type_ids);
+			}
 			if( !String.isEmpty(newData.b_date) ) {
 			    fd.append("b_date", newData.b_date);
 			}
@@ -747,6 +764,13 @@ var PLUG = (function() {
 	    _togglePopup("brands", tag, offset, function(obj) {
 		return BrandsPopup(_cache.data._f[obj], function(arg, i, ar) {
 		    _onpopup(tag, arg, "brand_id", "brand_ids");
+		})
+	    });
+	},
+	types: function(tag, offset) {
+	    _togglePopup("training_types", tag, offset, function(obj) {
+		return TrainingTypesPopup(_cache.data._f[obj], function(arg, i, ar) {
+		    _onpopup(tag, arg, "training_type_id", "training_type_ids");
 		})
 	    });
 	},

@@ -23,9 +23,14 @@ select
     m.descr, 
     blob_length(m.blob) blob_size,
     m.content_type,
-    array_to_string(m.brand_ids,'|') brand_ids, (select string_agg(descr, '|') from brands where brand_id=any(m.brand_ids)) brands,
-    m.country_id, c.descr country, 
-    array_to_string(m.dep_ids,'|') dep_ids, (select string_agg(descr, '|') from departments where dep_id=any(m.dep_ids)) departments,
+    array_to_string(m.brand_ids,'|') brand_ids, 
+    (select string_agg(descr, '|') from brands where brand_id=any(m.brand_ids)) brands,
+    array_to_string(m.training_type_ids,'|') training_type_ids, 
+    (select string_agg(descr, '|') from training_types where training_type_id=any(m.training_type_ids)) training_types,
+    m.country_id, 
+    c.descr country, 
+    array_to_string(m.dep_ids,'|') dep_ids, 
+    (select string_agg(descr, '|') from departments where dep_id=any(m.dep_ids)) departments,
     m.author_id, case when u.user_id is null then m.author_id else u.descr end author,
     m.b_date,
     m.e_date,
@@ -71,6 +76,18 @@ select brand_id, descr from brands
 order by row_no, descr
 ]]
 		    , "/plugins/training_materials/brands", { 
+			user_id = sestb.erpid
+		    }
+		)
+	    end
+	    if err == nil or err == false then
+		tb.training_types, err = func_execute(tran,
+[[
+select training_type_id, descr from training_types
+    where hidden = 0 and (dep_ids is null or dep_ids && coalesce((select dep_ids from users where user_id=%user_id%),dep_ids))
+order by row_no, descr
+]]
+		    , "/plugins/training_materials/training_types", { 
 			user_id = sestb.erpid
 		    }
 		)
@@ -147,6 +164,18 @@ order by row_no, descr
 		)
 	    end
 	    if err == nil or err == false then
+		tb.training_types, err = func_execute(tran,
+[[
+select training_type_id, descr from training_types
+    where hidden = 0 and (%dep_id% is null or dep_ids is null or dep_ids && string_to_array(%dep_id%,',')::uids_t)
+order by row_no, descr
+]]
+		    , "/plugins/training_materials/training_types", {
+			dep_id = sestb.department == nil and stor.NULL or sestb.department
+		    }
+		)
+	    end
+	    if err == nil or err == false then
 		tb.departments, err = func_execute(tran,
 [[
 select dep_id, descr from departments
@@ -185,6 +214,16 @@ order by row_no, descr
 		)
 	    end
 	    if err == nil or err == false then
+		tb.training_types, err = func_execute(tran,
+[[
+select training_type_id, descr from training_types
+    where hidden = 0
+order by row_no, descr
+]]
+		    , "/plugins/training_materials/training_types"
+		)
+	    end
+	    if err == nil or err == false then
 		tb.departments, err = func_execute(tran,
 [[
 select dep_id, descr from departments
@@ -215,6 +254,15 @@ select brand_id, descr, hidden from brands
     order by descr, row_no
 ]]
 		, "/plugins/training_materials/_f/brands"
+	    )
+	end
+	if err == nil or err == false then
+	    tb._f.training_types, err = func_execute(tran,
+[[
+select training_type_id, descr, hidden from training_types
+    order by descr, row_no
+]]
+		, "/plugins/training_materials/_f/training_types"
 	    )
 	end
 	if err == nil or err == false then
@@ -280,6 +328,7 @@ local function put(stor, uid, params)
 select console.req_training_material(%req_uid%, %_datetime%, 'edit', %tm_id%, (
 	%name%, 
 	string_to_array(%brand_ids%,','), 
+	string_to_array(%training_type_ids%,','), 
 	%country_id%, 
 	string_to_array(%dep_ids%,','),
 	%b_date%,
@@ -313,6 +362,7 @@ end
 local function personalize(data, u_id)
     local p = {}
     local idx_brands = {}
+    local idx_types = {}
     local idx_deps = {}
     local idx_couns = {}
 
@@ -322,10 +372,13 @@ local function personalize(data, u_id)
 	    v._isowner = (v.author_id ~= nil and u_id:lower() == v.author_id:lower()) and true or false
 	    v.brand_ids = split(v.brand_ids)
 	    v.brands = split(v.brands)
+	    v.training_type_ids = split(v.training_type_ids)
+	    v.training_types = split(v.training_types)
 	    v.dep_ids = split(v.dep_ids)
 	    v.departments = split(v.departments)
 
 	    if v.brand_ids ~= nil then for _, q in ipairs(v.brand_ids) do idx_brands[q] = 1; end; end
+	    if v.training_type_ids ~= nil then for _, q in ipairs(v.training_type_ids) do idx_types[q] = 1; end; end
 	    if v.dep_ids ~= nil then for _, q in ipairs(v.dep_ids) do idx_deps[q] = 1; end; end
 	    if v.country_id ~= nil then idx_couns[v.country_id] = 1; end
 	end
@@ -334,10 +387,12 @@ local function personalize(data, u_id)
     p.rows = data.rows
     p.mans = {}
     p.mans.brands = data.brands
+    p.mans.training_types = data.training_types
     p.mans.countries = data.countries
     p.mans.departments = data.departments
     p._f = {}
     p._f.brands = core.reduce(data._f.brands, 'brand_id', idx_brands)
+    p._f.training_types = core.reduce(data._f.training_types, 'training_type_id', idx_types)
     p._f.countries = core.reduce(data._f.countries, 'country_id', idx_couns)
     p._f.departments = core.reduce(data._f.departments, 'dep_id', idx_deps)
 
@@ -352,6 +407,7 @@ function M.scripts(lang, permtb, sestb, params)
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.brands.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.countries.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.departments.js"> </script>')
+    table.insert(ar, '<script src="' .. V.static_prefix .. '/popup.trainingtypes.js"> </script>')
     table.insert(ar, '<script src="' .. V.static_prefix .. '/plugins/training_materials.js"> </script>')
     return table.concat(ar,"\n")
 end
@@ -444,12 +500,14 @@ function M.data(lang, method, permtb, sestb, params, content, content_type, stor
 	assert(validate.isdatetime(mp._datetime), "invalid [_datetime] parameter.")
 	assert(#mp.name, "invalid [name] parameter.")
 	assert(mp.brand_ids == nil or validate.isuids(mp.brand_ids), "invalid [brand_ids] parameter.")
+	assert(mp.training_type_ids == nil or validate.isuids(mp.training_type_ids), "invalid [training_type_ids] parameter.")
 	assert(validate.isuid(mp.country_id), "invalid [country_id] parameter.")
 	assert(mp.dep_ids == nil or validate.isuids(mp.dep_ids), "invalid [dep_ids] parameter.")
 	assert(mp.b_date == nil or validate.isdate(mp.b_date), "invalid [b_date] parameter.")
 	assert(mp.e_date == nil or validate.isdate(mp.e_date), "invalid [e_date] parameter.")
 	-- set unknown values
 	if mp.brand_ids == nil then mp.brand_ids = stor.NULL end
+	if mp.training_type_ids == nil then mp.training_type_ids = stor.NULL end
 	if mp.dep_ids == nil then mp.dep_ids = stor.NULL end
 	if mp.b_date == nil then mp.b_date = stor.NULL end
 	if mp.e_date == nil then mp.e_date = stor.NULL end
