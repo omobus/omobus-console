@@ -1,5 +1,5 @@
 -- -*- Lua -*-
--- Copyright (c) 2006 - 2022 omobus-console authors, see the included COPYRIGHT file.
+-- Copyright (c) 2006 - 2022 omobus-tbot authors, see the included COPYRIGHT file.
 
 local config = require 'config'
 local stor = require 'stor_pgsql'
@@ -16,7 +16,7 @@ function M.cleanup()
     if stor.cleanup ~= nil then stor.cleanup() end
 end
 
-function M.get(func_in_tran, ro)
+function M.get(func_in_tran, ro, params)
     local conn, tran, tb, err
     err = true
     if func_in_tran ~= nil then
@@ -24,7 +24,7 @@ function M.get(func_in_tran, ro)
 	if conn ~= nil then
 	    tran = stor.begin_tran(conn, ro == nil or ro)
 	    if tran ~= nil then
-		tb, err = func_in_tran(tran, stor.execute)
+		tb, err = func_in_tran(tran, stor.execute, params)
 		stor.commit_tran(tran)
 	    end
 	    stor.disconnect(conn)
@@ -33,7 +33,7 @@ function M.get(func_in_tran, ro)
     return tb, err
 end
 
-function M.put(func_in_tran)
+function M.put(func_in_tran, params)
     local conn, tran, err
     err = true
     if func_in_tran ~= nil then
@@ -41,7 +41,7 @@ function M.put(func_in_tran)
 	if conn ~= nil then
 	    tran = stor.begin_tran(conn, false)
 	    if tran ~= nil then
-		_, err = func_in_tran(tran, stor.execute)
+		_, err = func_in_tran(tran, stor.execute, params)
 		stor.commit_tran(tran)
 	    end
 	    stor.disconnect(conn)

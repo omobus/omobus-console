@@ -38,14 +38,21 @@ local function dumpparams(query_id, params)
     local str = query_id
     if params ~= nil then
 	for k, v in pairs(params) do
-	    if f then 
-		str = str .. "&" 
+	    if f then
+		str = str .. "&"
 	    else
 		str = str .. "?"
 		f = true
 	    end
-	    str = str .. k .. "=" .. (isnull(v) and 'null' or 
-		(type(v) == "table" and dumparray(v) or v))
+	    if isnull(v) then
+		st = str .. k .. "=null"
+	    elseif type(v) == "table" then
+		str = str .. k .. "=" .. dumparray(v)
+	    elseif type(v) == "boolean" then
+		str = str .. k .. "=" .. (v and '1' or '0')
+	    else
+		str = str .. k .. "=" .. v
+	    end
 	end
     end
     return str
@@ -132,6 +139,8 @@ local function sqlexec(conn, query, params, blob)
 		tmp = tmp:replace(string.format("%%%s%%", k), z~=nil and conn:escape(z) or 'null')
 	    elseif type(v) == "number" then
 		tmp = tmp:replace(string.format("%%%s%%", k), v)
+	    elseif type(v) == 'boolean' then
+		tmp = tmp:replace(string.format("%%%s%%", k), v and 1 or 0)
 	    else
 		tmp = tmp:replace(string.format("%%%s%%", k), conn:escape(v))
 	    end
