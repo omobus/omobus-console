@@ -44,18 +44,19 @@ var G = (function() {
 	    for( var prop in params ) {
 		var v = params[prop];
 		if( v != null ) {
-		    ar.push(delim,prop,"=",v);
+		    ar.push(delim,prop,"=",encodeURIComponent(v));
 		    delim = "&";
 		}
 	    }
 	}
 	if( extra != null && typeof extra == 'object' ) {
 	    for( var prop in extra ) {
-		ar.push(delim,prop,"=",extra[prop]);
+		ar.push(delim,prop,"=",encodeURIComponent(extra[prop]));
 		delim = "&";
 	    }
 	}
-	return encodeURI(ar.join(''));
+	//return encodeURI(ar.join(''));
+	return ar.join('');
     }
 
 /*
