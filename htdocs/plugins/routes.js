@@ -105,7 +105,7 @@ var PLUG = (function() {
 	    }
 	}
 	if( typeof _cache.userFilter == 'string' ) {
-	    a.push("user_id={0}$ ".format_a(_cache.userFilter));
+	    a.push(Filter.escape('user_id',_cache.userFilter));
 	}
 	a.push(_tags.f.val());
 	return Filter(a.join(' '), false, [
