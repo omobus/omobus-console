@@ -1911,3 +1911,16 @@ hr {
     from { opacity: .4 } 
     to { opacity: 1 }
 }
+
+/* *** Zoom animation *** */
+
+.zoom-in {
+    cursor: zoom-in;
+}
+
+.zoom-out {
+    cursor: zoom-out;
+    transition: transform 0.25s ease;
+    transform: scale(3);
+    transform-origin: top;
+}

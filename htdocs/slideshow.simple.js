@@ -21,6 +21,15 @@ function SlideshowSimple(rows /* = URI array*/, params /* = { container: "DOM co
     var onclose = function() { own.hide(); };
     var onnext = function() { own.next(); };
     var onprev = function() { own.prev(); };
+    var onzoom = function() {
+	if( this.hasClass('zoom-in') ) {
+	    this.removeClass('zoom-in');
+	    this.addClass('zoom-out');
+	} else {
+	    this.addClass('zoom-in');
+	    this.removeClass('zoom-out');
+	}
+    };
     this._container = params.container;
     params.container.html(this._get(params.container, rows).join(""));
     this._slides(params.idx || 1);
@@ -29,7 +38,7 @@ function SlideshowSimple(rows /* = URI array*/, params /* = { container: "DOM co
     this._foreach(params.container.getElementsByClassName("next"), function(arg) { arg.onclick = onnext; });
     this._foreach(params.container.getElementsByClassName("prev"), function(arg) { arg.onclick = onprev; });
     /* extra styles: */
-    this._foreach(params.container.getElementsByTagName("img"), function(arg) { arg.style.maxHeight = "{0}px".format_a(h-60); });
+    this._foreach(params.container.getElementsByTagName("img"), function(arg) { arg.height = h - 60; arg.onclick = onzoom; });
 }
 
 
@@ -53,7 +62,7 @@ SlideshowSimple.prototype._get = function(tag, rows) {
 	    x++;
 	    ar.push("<div class='slide'>");
 	    ar.push("<div class='numbertext'>", x, " / ", size, "</div>");
-	    ar.push("<div class='container'><img class='fade' data-original='", r, "'/></div>");
+	    ar.push("<div class='container'><img class='fade zoom-in' data-original='", r, "'/></div>");
 	    ar.push("</div>");
 	}
     }
@@ -105,7 +114,6 @@ SlideshowSimple.prototype._onkeyup = function(ev) {
     }
     return a;
 }
-
 
 /* public functions: */
 
