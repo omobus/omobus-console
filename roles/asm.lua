@@ -67,7 +67,7 @@ M.permissions.routes.inprogress = true
 M.permissions.targets_compliance.remark = true
 M.permissions.tech.target = true
 M.permissions.tech.urgent = true
-M.permissions.tech.zstatus.granted = true
+M.permissions.tech.zstatus.granted = 'self'
 M.permissions.wishes.reject = true
 M.permissions.wishes.validate = true
 

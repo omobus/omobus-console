@@ -128,7 +128,8 @@ var __route = (function() {
 		ar.push("<td class='bool", ptr == null ? "" : (" footnote' data-title='" + lang.tech.route.pending.format_a(_pending(ptr).join('. '))), "'>",
 		    r.route == null ? "" : ("+" + (r.sched_no && r.closed ? ("<sup>"+r.sched_no+"</sup>") : ptr == null ? "" : ("<sup>&#10059;</sup>"))), 
 		    "</td>");
-		if( typeof data.zstatusChangeable != 'undefined' /*&& data.zstatusChangeable*/ && r.strict && r.closed && r.guid ) {
+		if( r.strict && r.closed && r.guid && typeof data.zstatusChangeable != 'undefined' && 
+			(data.zstatusGranted == 'yes' || (data.zstatusGranted == 'self' && (typeof r._isowner == 'undefined' || r._isowner == true))) ) {
 		    ar.push("<td class='bool ref clickable", _zstatusStyle(r).join(''), "' onclick='__route.zstatus(this,\"", r.user_id, "\",", i, ",\"", r.guid, "\",0.10)'>", 
 			"<span>+</span>", "</td>");
 		} else {
@@ -792,6 +793,9 @@ var __route = (function() {
 		    ar.push("</table>");
 		});
 	    } else if( t == "photo" ) {
+
+let blobArray = [], blobPosition = 1, blobArraySerialized;
+
 		ar.push("<div>");
 		ar.push("<h2>", "{0}".format_a(lang.doctypes[t]), "</h2>");
 		ar.push("<span class='watermark'>", "{0}: {1}".format_a(lang.time_spent, lang.seconds.format_a(duration(r))), "</span>");
@@ -805,6 +809,14 @@ var __route = (function() {
 		ar.push("<td class='divider'>", lang.photo, "</td>");
 		ar.push("<td class='divider'>", lang.note, "</td>");
 		ar.push("</tr>");
+
+r.forEach(function(e) {
+if( !String.isEmpty(e.blob_id) ) {
+    blobArray.push(e.blob_id);
+}
+		});
+blobArraySerialized = blobArray.join(",");
+
 		r.forEach(function(e, row_no) {
 		    xs = typeof e.revoked != 'undefined' && e.revoked ? ' strikethrough' : '';
 		    ar.push("<tr>");
@@ -821,8 +833,9 @@ var __route = (function() {
 		    if( String.isEmpty(e.blob_id) ) {
 			ar.push("&nbsp;");
 		    } else {
-			ar.push("<img class='clickable' onclick='PLUG.slideshow([", e.blob_id, "],1)' height='90px' src='",
-			    G.getdataref({plug: "tech", blob: "yes", thumb: "yes", blob_id: e.blob_id}), "' />");
+			ar.push("<img class='clickable' onclick='PLUG.slideshow([", blobArraySerialized/*e.blob_id*/, "]," , blobPosition/*1*/,
+			    ")' height='90px' src='", G.getdataref({plug: "tech", blob: "yes", thumb: "yes", blob_id: e.blob_id}), "' />");
+			blobPosition++;
 		    }
 		    ar.push("</td>");
 		    ar.push("<td class='string", xs, "'>");
@@ -2328,7 +2341,13 @@ var __route = (function() {
 			ptr._znote = null;
 		    } else {
 			enable();
-			alarm(xhr.status == 409 ? lang.errors.zstatus.exist : lang.errors.runtime);
+			if( xhr.status == 409 ) {
+			    alarm(lang.errors.zstatus.exist);
+			} else if( xhr.status == 403 ) {
+			    alarm(lang.errors.not_permitted);
+			} else {
+			    alarm(lang.errors.runtime);
+			}
 		    }
 		    x.stopSpinner();
 		});

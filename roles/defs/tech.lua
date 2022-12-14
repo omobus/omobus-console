@@ -11,7 +11,7 @@ M.weeks = 4
 M.tabs = {a_list=true}
 M.target = false
 M.urgent = false
-M.zstatus = {granted = false, depth = 7 --[[ in days ]]} 
+M.zstatus = {granted = 'no', depth = 7 --[[ in days ]]} 
 M.availability = {checkup=true, presence=true, stock=true, oos=true}
 
 return M

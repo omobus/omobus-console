@@ -23,9 +23,11 @@ function M.split(str, pat, fn)
 end
 
 function M.contains(arr, val)
-    for index, value in ipairs(arr) do
-	if value == val then
-	    return true
+    if val ~= nil then
+	for index, value in ipairs(arr) do
+	    if value == val then
+		return true
+	    end
 	end
     end
 
