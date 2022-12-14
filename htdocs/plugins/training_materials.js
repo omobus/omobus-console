@@ -452,7 +452,8 @@ var PLUG = (function() {
 	    if( _perm.add ) {
 		var input = document.createElement('input');
 		input.type = 'file';
-		input.accept="image/jpeg, application/pdf, video/mp4, application/zip, application/x-zip-compressed"
+		input.accept="image/jpeg, application/pdf, video/mp4, application/zip, application/x-zip-compressed";
+		input.multiple = 'multiple';
 		input.onchange = function() {
 		    _add(this.files, _perm.add.max_file_size_mb);
 		}

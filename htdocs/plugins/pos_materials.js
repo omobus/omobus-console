@@ -462,6 +462,8 @@ var PLUG = (function() {
 	    if( _perm.add ) {
 		var input = document.createElement('input');
 		input.type = 'file';
+		input.accept="image/jpeg, application/pdf";
+		input.multiple = 'multiple';
 		input.onchange = function() {
 		    _add(this.files, _perm.add.max_file_size_mb);
 		}
