@@ -52,11 +52,11 @@ function Filter(arg, short, params) {
     var _re0 = new RegExp(' ', 'g');
     Filter.escape = function(k, v) {
 	return typeof k == 'string' && typeof v != 'undefined' && !String.isEmpty(v) ?
-	    "{0}={1}$".format_a(k, v.replace(_re0,'\\040')) : "";
+	    "{0}={1}$".format_a(k, v.replace(_re0,'\\x20')) : "";
     };
     Filter.escapeArray = function(k, v) {
 	return typeof k == 'string' && typeof v != 'undefined' && !String.isEmpty(v) ?
-	    "{0}\\.\\d={1}$".format_a(k, v.replace(_re0,'\\040')) : "";
+	    "{0}\\.\\d={1}$".format_a(k, v.replace(_re0,'\\x20')) : "";
     };
 }(Filter));
 
