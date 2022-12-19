@@ -6,7 +6,7 @@ local M = {} -- public interface
 local core = require 'core'
 
 function M.isuid(str)
-    return str ~= nil and str:match('[^a-zA-ZабвгдеёжзийклмнопрстуфхцчшщъыьэюяА-Я0-9-._/: ()+]') == nil
+    return str ~= nil and str:match('[^a-zA-Zа-яА-Я0-9-._/: ()+]') == nil
 end
 
 function M.isuids(str, delim)
