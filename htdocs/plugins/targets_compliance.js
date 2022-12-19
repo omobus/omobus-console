@@ -87,9 +87,9 @@ var PLUG = (function() {
 	    "target_type_id", 
 	    "target_type", 
 	    "b_date", 
-	    "L\.[0-9]+\.performer_id",
-	    "L\.[0-9]+\.head_id", 
-	    "L\.[0-9]+\.confirmation_type_id"
+	    "L\.performer_id",
+	    "L\.head_id", 
+	    "L\.confirmation_type_id"
 	]);
     }
 
@@ -342,6 +342,7 @@ var PLUG = (function() {
 			}
 		    });
 		}
+		//console.log(data);
 		_cache.data = data;
 		_tags.tbody.html(_datatbl(data, 1, _tags.total, _getfilter(), _cache.checked, _perm).join(""));
 		new LazyLoad();
