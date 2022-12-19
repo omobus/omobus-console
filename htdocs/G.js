@@ -59,19 +59,6 @@ var G = (function() {
 	return ar.join('');
     }
 
-/*
-    function _enumerateKeys(ar, cb, prefix) {
-	for( var key in ar ) {
-	    var val = ar[key];
-	    if( typeof val == 'object' ) {
-		_enumerateKeys(val, cb, key + '.');
-	    } else {
-		cb(prefix == null ? key : (prefix + key), val)
-	    }
-	}
-    }
-*/
-
     function _htmlentities(arg) {
 	if( typeof arg == 'string' ) {
 	    arg = arg.replace(/<br\s*\/>/gi, "\n");
