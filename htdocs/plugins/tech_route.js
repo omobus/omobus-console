@@ -674,6 +674,13 @@ var __route = (function() {
 		});
 		ar.push("</table>");
 	    } else if( t == "comment" ) {
+		let blobArray = [], blobPosition = 1, blobArraySerialized;
+		r.forEach(function(e) {
+		    if( !String.isEmpty(e.blob_id) ) {
+			blobArray.push(e.blob_id);
+		    }
+		});
+		blobArraySerialized = blobArray.join(",");
 		ar.push("<div>");
 		ar.push("<h2>", "{0}".format_a(lang.doctypes[t]), "</h2>");
 		ar.push("<span class='watermark'>", "{0}: {1}".format_a(lang.time_spent, lang.seconds.format_a(duration(r))), "</span>");
@@ -682,22 +689,24 @@ var __route = (function() {
 		ar.push("<tr class='def'>");
 		ar.push("<td class='divider'>", lang.num, "</td>");
 		ar.push("<td class='divider'>", lang.comments.type, "</td>");
-		ar.push("<td class='divider'>", lang.note, "</td>");
 		ar.push("<td class='divider'>", lang.photo, "</td>");
+		ar.push("<td class='divider'>", lang.note, "</td>");
 		ar.push("</tr>");
 		r.forEach(function(e, row_no) {
 		    ar.push("<tr>");
 		    ar.push("<td class='autoincrement'>", row_no + 1, "</td>");
-		    ar.push("<td class='string' width='250px'>", G.shielding(e.comment_type), "</td>");
-		    ar.push("<td class='string'>", G.shielding(e.doc_note), "</td>");
+		    ar.push("<td class='ref' width='250px'>", G.shielding(e.comment_type), "</td>");
 		    ar.push("<td class='ref' width='95px'>");
 		    if( String.isEmpty(e.blob_id) ) {
 			ar.push("&nbsp;");
 		    } else {
-			ar.push("<a href='javascript:void(0);' onclick='PLUG.slideshow([\"", e.blob_id, "\"],1)'>",
-			    lang.view, "</a>");
+			ar.push("<img class='clickable' onclick='PLUG.slideshow([", blobArraySerialized, "]," , blobPosition,
+			    ")' height='90px' src='", G.getdataref({plug: "tech", blob: "yes", thumb: "yes", blob_id: e.blob_id}), 
+			    "' />");
+			blobPosition++;
 		    }
 		    ar.push("</td>");
+		    ar.push("<td class='string'>", G.shielding(e.doc_note), "</td>");
 		    ar.push("</tr>");
 		});
 		ar.push("</table>");
