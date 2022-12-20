@@ -45,6 +45,7 @@ var PLUG = (function() {
 	ar.push(DaysPopup.container());
 	ar.push(Popup.container());
 	ar.push(Dialog.container());
+	ar.push(Dialog.container("newTargetDialog"));
 	ar.push(Slideshow.container());
 	ar.push(SlideshowSimple.container());
 	return ar;
@@ -343,7 +344,7 @@ var PLUG = (function() {
 	    _tags.groups = {u: _("usersGroup"), dets: _("detsGroup")};
 	    _tags.ref = _("refContainer");
 	    _tags.popups = {};
-	    _tags.popups["$"] = new Popup();
+	    //_tags.popups["$"] = new Popup();
 	    _setcaldate(date);
 	    if( u_id == null ) {
 		_cache.uid = null;

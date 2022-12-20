@@ -793,9 +793,13 @@ var __route = (function() {
 		    ar.push("</table>");
 		});
 	    } else if( t == "photo" ) {
-
-let blobArray = [], blobPosition = 1, blobArraySerialized;
-
+		let blobArray = [], blobPosition = 1, blobArraySerialized;
+		r.forEach(function(e) {
+		    if( !String.isEmpty(e.blob_id) ) {
+			blobArray.push(e.blob_id);
+		    }
+		});
+		blobArraySerialized = blobArray.join(",");
 		ar.push("<div>");
 		ar.push("<h2>", "{0}".format_a(lang.doctypes[t]), "</h2>");
 		ar.push("<span class='watermark'>", "{0}: {1}".format_a(lang.time_spent, lang.seconds.format_a(duration(r))), "</span>");
@@ -809,22 +813,19 @@ let blobArray = [], blobPosition = 1, blobArraySerialized;
 		ar.push("<td class='divider'>", lang.photo, "</td>");
 		ar.push("<td class='divider'>", lang.note, "</td>");
 		ar.push("</tr>");
-
-r.forEach(function(e) {
-if( !String.isEmpty(e.blob_id) ) {
-    blobArray.push(e.blob_id);
-}
-		});
-blobArraySerialized = blobArray.join(",");
-
 		r.forEach(function(e, row_no) {
-		    xs = typeof e.revoked != 'undefined' && e.revoked ? ' strikethrough' : '';
+		    const isRevoked = typeof e.revoked != 'undefined' && e.revoked;
+		    xs = isRevoked ? ' strikethrough' : '';
 		    ar.push("<tr>");
 		    ar.push("<td class='autoincrement'>", row_no + 1, "</td>");
 		    ar.push("<td class='ref", xs, "' width='200px'>");
 		    ar.push(G.shielding(e.placement));
 		    if( !String.isEmpty(e.asp_type) ) {
 			ar.push("<div class='row watermark'>", G.shielding(e.asp_type), "</div>");
+		    }
+		    if( typeof __allowTargetCreation != 'undefined' && __allowTargetCreation && !isRevoked && !String.isEmpty(e.blob_id) ) {
+			ar.push("<div class='row ref'>", "<a href='javascript:void(0)' onclick='__route.target(\"", e.doc_id, "\",", 
+			    e.blob_id, ")'>", "[&nbsp;", lang.targets.title1.toLowerCase(), "&nbsp;]", "</a>", "</div>");
 		    }
 		    ar.push("</td>");
 		    ar.push("<td class='ref", xs, "' width='100px'>", G.shielding(e.brand), "</td>");
@@ -833,8 +834,9 @@ blobArraySerialized = blobArray.join(",");
 		    if( String.isEmpty(e.blob_id) ) {
 			ar.push("&nbsp;");
 		    } else {
-			ar.push("<img class='clickable' onclick='PLUG.slideshow([", blobArraySerialized/*e.blob_id*/, "]," , blobPosition/*1*/,
-			    ")' height='90px' src='", G.getdataref({plug: "tech", blob: "yes", thumb: "yes", blob_id: e.blob_id}), "' />");
+			ar.push("<img class='clickable' onclick='PLUG.slideshow([", blobArraySerialized, "]," , blobPosition,
+			    ")' height='90px' src='", G.getdataref({plug: "tech", blob: "yes", thumb: "yes", blob_id: e.blob_id}), 
+			    "' />");
 			blobPosition++;
 		    }
 		    ar.push("</td>");
@@ -2406,6 +2408,68 @@ blobArraySerialized = blobArray.join(",");
 		}
 	    }
 	    enable();
+	},
+
+	target: function(doc_id, blob_id) {
+	    const ar = [];
+
+	    ar.push("<div>", lang.notices.target, "</div>");
+	    ar.push("<div class='row attention gone' id='newTarget-alertView'></div>");
+	    ar.push("<div class='row'>", "<input id='newTarget-subjectView' type='text' maxlength='128' autocomplete='off' placeholder='", 
+		lang.targets.subject.placeholder, "'/>", "</div>");
+	    ar.push("<div class='row'>", "<textarea id='newTarget-bodyView' rows='5' maxlength='2048' autocomplete='off' placeholder='", 
+		lang.targets.body.placeholder, "'></textarea>", "</div>");
+	    ar.push("<div class='row'>", "<label class='checkbox'>", "<input type='checkbox' id='newTarget-strictView' />", 
+		"<div class='checkbox__text'>", lang.targets.strict, "</div>", "</label>", "</div>");
+	    ar.push("<div class='row'>", "<label class='checkbox'>", "<input type='checkbox' id='newTarget-urgentView' ",
+		(typeof __allowUrgentActivities != 'undefined' && __allowUrgentActivities) ? "" : " disabled='disabled'", 
+		" />", "<div class='checkbox__text'>", lang.targets.urgent, "</div>", "</label>", "</div>");
+	    ar.push("<br/>");
+	    ar.push("<div class='row' align='right'>", "<button id='newTarget-commitView' disabled='true'>", lang.targets.save, 
+		"</button>", "</div>");
+
+	    Dialog({container: "newTargetDialog", width: 530, title: lang.targets.title2, body: ar.join('')})
+		.show(function(dialogView) {
+		    let args = {};
+		    const alertView = _("newTarget-alertView");
+		    const subjectView = _("newTarget-subjectView");
+		    const bodyView = _("newTarget-bodyView");
+		    const strictView = _("newTarget-strictView");
+		    const urgentView = _("newTarget-urgentView");
+		    const commitView = _("newTarget-commitView");
+		    const writeAlert = function(arg) { alertView.html(arg); alertView.show(); }
+		    const checkTarget = function() { commitView.disabled = String.isEmpty(args.sub) || String.isEmpty(args.msg); };
+		    subjectView.oninput = function() { args.sub = this.value.trim(); alertView.hide(); checkTarget(); };
+		    bodyView.oninput = function() { args.msg = this.value.trim(); alertView.hide(); checkTarget(); };
+		    strictView.onchange = function() { args.strict = this.checked; alertView.hide(); checkTarget(); };
+		    urgentView.onchange = function() { args.urgent = this.checked; alertView.hide(); checkTarget(); };
+		    commitView.onclick = function() {
+			if( String.isEmpty(args.sub) ) {
+			    writeAlert(lang.errors.target.sub);
+			} else if( String.isEmpty(args.msg) ) {
+			    writeAlert(lang.errors.target.body);
+			} else {
+			    const xhr = G.xhr("POST", G.getdataref({plug: "tech", doc_id: doc_id}), "", function(xhr) {
+				if( xhr.status == 200 ) {
+				    args = {};
+				    Toast.show(lang.success.target);
+				    dialogView.hide();
+				} else {
+				    commitView.disabled = false;
+				    writeAlert(xhr.status == 409 ? lang.errors.target.exist : lang.errors.runtime);
+				}
+				dialogView.stopSpinner();
+			    });
+			    dialogView.startSpinner();
+			    args.doc_id = doc_id;
+			    args._datetime = G.getdatetime(new Date());
+			    commitView.disabled = true;
+			    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+			    xhr.send(G.formParamsURI(args));
+			}
+		    }
+		    alertView.hide();
+		});
 	}
     }
 })();
