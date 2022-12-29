@@ -1,5 +1,5 @@
 -- -*- Lua -*-
--- Copyright (c) 2006 - 2022 omobus-tbot authors, see the included COPYRIGHT file.
+-- Copyright (c) 2006 - 2022 omobus-console authors, see the included COPYRIGHT file.
 
 local config = require 'config'
 local stor = require 'stor_pgsql'
