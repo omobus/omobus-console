@@ -1,8 +1,6 @@
 -- -*- Lua -*-
 -- Copyright (c) 2006 - 2022 omobus-console authors, see the included COPYRIGHT file.
 
-local M = {} -- public interface
-
 local debug = false
 local code = "(console) "
 local shielding = function(s) return s == nil and '<nil>' or s; end
