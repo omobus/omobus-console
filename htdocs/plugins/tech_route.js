@@ -601,8 +601,12 @@ var __route = (function() {
 		    }
 		    if( f.oos ) {
 			if( arg0.hasOwnProperty("oos") ) {
-			    ar.push("<td class='ref'>", G.shielding(arg0.oos.oos_type), "<hr/>", "<span class='watermark'>",
-				G.shielding(arg0.oos.note), "</span>", "</td>");
+			    ar.push("<td class='ref'>");
+			    ar.push("<div class='row'>", G.shielding(arg0.oos.oos_type), "</div>");
+			    if( !String.isEmpty(arg0.oos.note) ) {
+				ar.push("<hr/>", "<div class='watermark'>", G.shielding(arg0.oos.note), "</div>");
+			    }
+			    ar.push("</td>");
 			    //ar.push("<td class='string'>", G.shielding(arg0.oos.note), "</td>");
 			} else {
 			    ar.push("<td class='ref'>", "</td>");
