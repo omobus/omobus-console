@@ -54,6 +54,7 @@ M.permissions.photos.urgent = true
 M.permissions.posms.target = true
 M.permissions.posms.urgent = true
 M.permissions.targets_compliance.remark = true
+M.permissions.tech.indirectStaff = true
 M.permissions.tech.target = true
 M.permissions.tech.urgent = true
 

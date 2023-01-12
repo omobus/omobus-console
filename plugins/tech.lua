@@ -86,7 +86,8 @@ select my_staff user_id from my_staff(%user_id%, 1::bool_t)
 		    , "/plugins/tech/F.my_staff"
 		    , {user_id = sestb.erpid}
 		)
-		tb.indirect_staff, err = func_execute(tran,
+		if permtb.indirectStaff == true then
+		    tb.indirect_staff, err = func_execute(tran,
 [[
 select distinct user_id from (
     select user_id, account_id from j_user_activities where fix_date=%fix_date%
@@ -104,9 +105,10 @@ select distinct user_id from (
     select account_id from (select expand_cities(city_id) city_id, chan_id from my_cities where user_id in (select my_staff(%user_id%, 1::bool_t))) c, accounts a where c.city_id=a.city_id and (c.chan_id='' or c.chan_id=a.chan_id)
 ) and user_id not in (select my_staff(%user_id%, 1::bool_t))
 ]]
-		    , "/plugins/tech/F.indirect_staff"
-		    , {user_id = sestb.erpid, fix_date = date}
-		)
+			, "/plugins/tech/F.indirect_staff"
+			, {user_id = sestb.erpid, fix_date = date}
+		    )
+		end
 	    elseif sestb.department ~= nil or sestb.country ~= nil then
 		tb.my_staff, err = func_execute(tran,
 [[

@@ -13,5 +13,6 @@ M.target = false
 M.urgent = false
 M.zstatus = {granted = 'no' --[[ no|yes|self ]], depth = 7 --[[ in days ]]} 
 M.availability = {checkup=true, presence=true, stock=true, oos=true}
+M.indirectStaff = false
 
 return M
