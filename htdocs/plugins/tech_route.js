@@ -487,7 +487,7 @@ var __route = (function() {
 		var ptr = docs[k];
 		ar.push("<tr>");
 		if( (ptr.count - ptr.inprogress) > 0 && PLUG.containsRef(k) ) {
-		    ar.push("<td class='ref_L'><span onclick='PLUG.selectRef(\"", k, "\")'>", lang.doctypes[k], "</span>:</td>");
+		    ar.push("<td class='ref_L'><a href='javascript:void(0)' onclick='PLUG.selectRef(\"", k, "\")'>", lang.doctypes[k], "</a>:</td>");
 		} else {
 		    ar.push("<td>", lang.doctypes[k], ":</td>");
 		}
