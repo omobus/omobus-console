@@ -358,6 +358,7 @@ var lang = {
 	title1: "Заказы продукции за",
 	caption: "Заказ №{0} / {1}"
     },
+    outlet_stock: "Остаток по данным клиента",
     pack: "Упак.",
     payment: "Оплата",
     payment_delay: "Отсрочка",

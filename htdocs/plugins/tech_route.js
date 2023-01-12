@@ -545,18 +545,22 @@ var __route = (function() {
 		ar.push("<td class='divider'>", lang.num, "</td>");
 		ar.push("<td class='divider'>", lang.code, "</td>");
 		ar.push("<td class='divider'>", lang.prod_name, "</td>");
-		ar.push("<td class='divider footnote' width='25px' data-title='", lang.matrix, "'>", lang.matrixAbbr, "</td>");
+		ar.push("<td class='divider footnote' width='25px' data-title='", lang.matrix, "'>", 
+		    lang.matrixAbbr, "</td>");
+		if( r._existOutletStock ) {
+		    ar.push("<td class='divider' width='120px' colspan='2'>", lang.outlet_stock, "</td>");
+		}
 		if( f.checkup ) {
-		    ar.push("<td class='divider' width='55px'>", lang.exist, "</td>");
+		    ar.push("<td class='divider' width='50px'>", lang.exist, "</td>");
 		    //ar.push("<td class='divider' width='25px'>", "&nbsp;", "</td>");
 		}
 		if( f.presence ) {
-		    ar.push("<td class='divider' width='70px'>", lang.facing, "</td>");
-		    ar.push("<td class='divider' width='70px'>", lang.shelf_stock, "</td>");
+		    ar.push("<td class='divider' width='66px'>", lang.facing, "</td>");
+		    ar.push("<td class='divider' width='66px'>", lang.shelf_stock, "</td>");
 		    //ar.push("<td class='divider' width='25px'>", "&nbsp;", "</td>");
 		}
 		if( f.stock ) {
-		    ar.push("<td class='divider' width='70px'>", lang.stock, "</td>");
+		    ar.push("<td class='divider' width='66px'>", lang.stock, "</td>");
 		    //ar.push("<td class='divider' width='25px'>", "&nbsp;", "</td>");
 		}
 		if( f.oos ) {
@@ -570,6 +574,14 @@ var __route = (function() {
 		    ar.push("<td class='int'>", G.shielding(arg0.p_code), "</td>");
 		    ar.push("<td class='string'>", G.shielding(arg0.prod), "</td>");
 		    ar.push("<td class='bool'>", arg0.hasOwnProperty("matrix") ? lang.matrixAbbr : "", "</td>");
+		    if( r._existOutletStock ) {
+			if( arg0.hasOwnProperty("outlet_stock") ) {
+			    ar.push("<td class='date'>", G.getdate_l(arg0.outlet_stock.s_date), "</td>");
+			    ar.push("<td class='int'>", G.getint_l(arg0.outlet_stock.stock), "</td>");
+			} else {
+			    ar.push("<td class='int' colspan='2'>", "</td>");
+			}
+		    }
 		    if( f.checkup ) {
 			if( arg0.hasOwnProperty("checkup") ) {
 			    ar.push("<td class='bool'>", arg0.checkup.exist == 1 ? lang.plus : (arg0.checkup.exist == 2 ? lang.shortage : lang.dash), "</td>");
@@ -2233,7 +2245,7 @@ var __route = (function() {
 	fn("comment");
 	fn("quest");
 
-	/* aggregate matrices, checkup, presences, stocks and oos rows */
+	/* aggregate matrices, outlet_stocks, checkup, presences, stocks and oos rows: */
 	if( typeof __availabilityColumns == 'object' ) {
 	    for( const k in obj ) {
 		let z = obj[k], av = {duration:0,rows:[]}, f = false;
@@ -2243,7 +2255,14 @@ var __route = (function() {
 			agg(av.rows, o, "matrix");
 		    }
 		}
-		/* aggregate matrices, checkup, presences, stocks and oos rows */ 
+		/* add outlet_stocks: */
+		if( data.hasOwnProperty("outlet_stocks") ) {
+		    if( (o = data.outlet_stocks[k]) != null && Array.isArray(o) ) {
+			agg(av.rows, o, "outlet_stock");
+			av._existOutletStock = true;
+		    }
+		}
+		/* aggregate checkup, presences, stocks and oos rows: */ 
 		["checkup","presence","stock","oos"].forEach(function(arg) {
 		    if( z.hasOwnProperty(arg) ) {
 			const ptr = z[arg];
@@ -2270,6 +2289,7 @@ var __route = (function() {
 		if( f ) {
 		    z._refs./*push*/unshift({_t:"#av",ref:av});
 		}
+		//console.log(z);
 	    }
 	}
 
