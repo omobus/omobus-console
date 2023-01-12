@@ -561,7 +561,7 @@ var __route = (function() {
 		}
 		if( f.oos ) {
 		    ar.push("<td class='divider'>", lang.oos_type, "</td>");
-		    ar.push("<td class='divider'>", lang.note, "</td>");
+		    //ar.push("<td class='divider'>", lang.note, "</td>");
 		}
 		ar.push("</tr>");
 		r.rows.forEach(function(arg0, row_no) {
@@ -601,11 +601,12 @@ var __route = (function() {
 		    }
 		    if( f.oos ) {
 			if( arg0.hasOwnProperty("oos") ) {
-			    ar.push("<td class='ref'>", G.shielding(arg0.oos.oos_type), "</td>");
-			    ar.push("<td class='string'>", G.shielding(arg0.oos.note), "</td>");
+			    ar.push("<td class='ref'>", G.shielding(arg0.oos.oos_type), "<hr/>", "<span class='watermark'>",
+				G.shielding(arg0.oos.note), "</span>", "</td>");
+			    //ar.push("<td class='string'>", G.shielding(arg0.oos.note), "</td>");
 			} else {
 			    ar.push("<td class='ref'>", "</td>");
-			    ar.push("<td class='string'>", "</td>");
+			    //ar.push("<td class='string'>", "</td>");
 			}
 		    }
 		    ar.push("</tr>");
