@@ -75,7 +75,7 @@ var lang = {
     code: "Код",
     connecting: "Подключение...",
     back: "Назад",
-    blob_size: "Размер, КБ",
+    blob_size: "Размер, KiB",
     bonus: "Бонус",
     brand: "Бренд",
     brand_everything: "Все бренды",
