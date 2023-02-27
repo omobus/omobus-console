@@ -15,10 +15,9 @@ local log = require 'log'
 
 local function data(stor, sestb)
     return stor.get(function(tran, func_execute)
-	local tb, err, qs1, stint1, stint
+	local tb, err, task
 	tb = {}
-	qs1 =
-[[
+	task = { params = {}, limits = "", query = [[
 select 
     x.contact_id,
     x.account_id, 
@@ -41,9 +40,10 @@ from contacts x
 where x.hidden = 0 $(0)
 order by x.updated_ts desc, x."name", x.surname, x.patronymic, x.account_id, x.contact_id
 ]]
+	}
 	if sestb.erpid ~= nil then
-	    stint1 = { user_id = sestb.erpid }
-	    stint2 =  [[
+	    task.params = { user_id = sestb.erpid }
+	    task.limits =  [[
 and x.account_id in (
     select account_id from my_accounts where user_id in (select my_staff(%user_id%, 1::bool_t))
 	union
@@ -57,11 +57,11 @@ and x.account_id in (
 )
 ]]
 	elseif sestb.department ~= nil or sestb.country ~= nil then
-	    stint1 = {
+	    task.params = {
 		dep_id = sestb.department == nil and stor.NULL or sestb.department,
 		country_id = sestb.country == nil and stor.NULL or sestb.country
 	    }
-	    stint2 = [[
+	    task.limits = [[
 and x.account_id in (
     select account_id from my_accounts where user_id in (
 	select user_id from users 
@@ -71,8 +71,8 @@ and x.account_id in (
 )
 ]]
 	elseif sestb.distributor ~= nil then
-	    stint1 = { distr_id = sestb.distributor }
-	    stint2 = [[
+	    task.params = { distr_id = sestb.distributor }
+	    task.limits = [[
 and x.account_id in (
     select account_id from my_accounts where user_id in (
 	select user_id from users
@@ -81,8 +81,8 @@ and x.account_id in (
 )
 ]]
 	elseif sestb.agency ~= nil then
-	    stint1 = { agency_id = sestb.agency }
-	    stint2 = [[
+	    task.params = { agency_id = sestb.agency }
+	    task.limits = [[
 and x.account_id in (
     select account_id from my_accounts where user_id in (
 	select user_id from users
@@ -90,13 +90,10 @@ and x.account_id in (
     )
 )
 ]]
-	else
-	    stint1 = {}
-	    stint2 = ""
         end
 
 	if err == nil or err == false then
-	    tb.rows, err = func_execute(tran, qs1:replace("$(0)", stint2), "/plugins/contacts/data/", stint1)
+	    tb.rows, err = func_execute(tran, task.query:replace("$(0)", task.limits), "/plugins/contacts/data/", task.params)
 	end
 	if err == nil or err == false then
 	    tb.accounts, err = func_execute(tran,

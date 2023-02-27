@@ -162,7 +162,7 @@ local function photo(stor, blob_id)
 [[
 select photo_get(%blob_id%::blob_t) photo
 ]]
-	, "/plugins/comments/photo"
+	, "/plugins/prices/photo"
 	, {blob_id = blob_id})
     end
     )
@@ -174,7 +174,7 @@ local function thumb(stor, blob_id)
 [[
 select thumb_get(%blob_id%::blob_t) photo
 ]]
-	, "/plugins/comments/thumb"
+	, "/plugins/prices/thumb"
 	, {blob_id = blob_id})
     end
     )
