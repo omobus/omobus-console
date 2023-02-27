@@ -80,7 +80,8 @@ var G = (function() {
     /* public properties & methods */
     return {
 	shielding: function(arg, def) {
-	    return arg == null || arg == "" ? (def == null || typeof def == 'undefined' ? "" : def) : _htmlentities(arg); 
+	    return arg == null || arg == "" ? (def == null || typeof def == 'undefined' ? "" : _htmlentities(def))
+		: _htmlentities(arg); 
 	},
 
 	getdate: function(d) { return _fmtdate(d, "yyyy-mm-dd"); },

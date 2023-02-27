@@ -32,7 +32,8 @@ M.monthly_reports = {
 
 M.analitics = {
     "targets_compliance",
-    "time"
+    "time",
+    "quests_results"
 }
 
 M.managment = {

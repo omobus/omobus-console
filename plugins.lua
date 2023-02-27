@@ -31,6 +31,7 @@ local modules = {
 	prices 			= require 'plugins.prices',
 	promos 			= require 'plugins.promos',
 	quests 			= require 'plugins.quests',
+	quests_results 		= require 'plugins.quests_results',
 	reclamations 		= require 'plugins.reclamations',
 	route_compliance 	= require 'plugins.route_compliance',
 	routes 			= require 'plugins.routes',

@@ -120,7 +120,7 @@ select distinct content_code from content_stream
 	    end
 	end
 	for k in pairs(objects) do
-	    local f = core.contains({'monthly_reports','analitics'}, k)
+	    local f = core.contains({'monthly_reports'}, k)
 	    local ref = {}
 	    for i2, v2 in ipairs(objects[k]) do
 		if idx1[v2] == true and (f == false or idx2[v2] == true) then

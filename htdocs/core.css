@@ -265,7 +265,7 @@ hr {
 
 /* *** Modal dialog *** */
 
-.dialog {
+.dialog, .dialog-blue {
     font-size: 9pt;
     position: fixed;
     top: 0;
@@ -277,7 +277,7 @@ hr {
     z-index: 1000;
 }
 
-.dialog > div {
+.dialog > div, .dialog-blue > div {
     width: 440px;
     position: relative;
     margin: 100px auto;
@@ -286,7 +286,12 @@ hr {
     background-color: #f6f6f6;
 }
 
-.dialog .close {
+.dialog-blue > div {
+    color: #ffffff;
+    background-color: #1866d2;
+}
+
+.dialog .close, .dialog-blue .close {
     color: rgba(150, 150, 150, 1);
     position: absolute;
     top: 2px;
@@ -295,39 +300,46 @@ hr {
     font-weight: bold;
 }
 
-.dialog .close:hover, 
-.dialog .close:focus {
+.dialog-blue .close {
+    color: #ffffff;
+}
+
+.dialog .close:hover, .dialog .close:focus, .dialog-blue .close:hover, .dialog-blue .close:focus {
     color: rgba(120, 120, 120, 1);
     text-decoration: none;
     cursor: pointer;
 }
 
-.dialog h1 {
+.dialog-blue .close:hover, .dialog-blue .close:focus {
+    color: #eeeeee;
+}
+
+.dialog h1, .dialog-blue h1 {
     font-size: 14pt;
     font-weight: normal;
 }
 
-.dialog h1:first-letter {
+.dialog h1:first-letter, .dialog-blue h1:first-letter {
     text-transform: capitalize;
 }
 
-.dialog h2 {
+.dialog h2, .dialog-blue h2 {
     font-size: 11pt;
     font-weight: normal;
     margin: 0;
 }
 
-.dialog span.r {
+.dialog span.r, .dialog-blue span.r {
     float: right;
 }
 
-.dialog .spinner, .dialog .spinner:after {
+.dialog .spinner, .dialog .spinner:after, .dialog-blue .spinner, .dialog-blue .spinner:after {
     border-radius: 50%;
     width: 10em;
     height: 10em;
 }
 
-.dialog .spinner {
+.dialog .spinner, .dialog-blue .spinner {
     display: none;
     margin: auto 25px;
     font-size: 2px;
@@ -355,7 +367,7 @@ hr {
   100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); }
 }
 
-.dialog hr {
+.dialog hr, .dialog-blue hr {
     border: none;
     height: 1px;
     margin: 16px 0px 16px 0px;
@@ -363,20 +375,20 @@ hr {
     background-image:    -moz-linear-gradient(left, rgba(154,154,154,0.5), rgba(154,154,154,0.5), rgba(154,154,154,0.5));
 }
 
-.dialog p {
-}
+/*.dialog p, .dialog-blue p {
+}*/
 
-.dialog div.scrollable {
+.dialog div.scrollable, .dialog-blue div.scrollable {
     overflow-y: auto;
     overflow-x: hidden;
 }
 
-.dialog div.row {
+.dialog div.row, .dialog-blue div.row {
     padding-top: 8px;
     padding-bottom: 8px;
 }
 
-.dialog div.ref {
+.dialog div.ref, .dialog-blue div.ref {
     padding-top: 4px;
     padding-bottom: 4px;
 }
@@ -385,8 +397,11 @@ hr {
     color: red;
 }
 
-.dialog button {
-    border: 1px solid #a3a3a3;
+.dialog-blue div.attention {
+    color: white;
+}
+
+.dialog button, .dialog-blue button {
     border-radius: 3px;
     min-width: 140px;
     height: 28px;
@@ -395,7 +410,17 @@ hr {
     font-size: 9pt;
     white-space: nowrap;
     cursor: pointer;
+}
+
+.dialog button {
+    border: 1px solid #a3a3a3;
     background: linear-gradient(to bottom,  #f6f6f6 0%,#ededed 47%,#e4e4e4 100%);
+}
+
+.dialog-blue button {
+    border: 1px solid #a3a3a3;
+    color: #0044a2;
+    background: #ffffff
 }
 
 .dialog button:hover {
@@ -403,13 +428,18 @@ hr {
     background: linear-gradient(to bottom,  #f6f6f6 0%,#ededed 47%,#e4e4e4 100%);
 }
 
-.dialog button:disabled {
+.dialog-blue button:hover {
+    border: 1px solid #8a8a8a;
+    background: #eeeeee;
+}
+
+.dialog button:disabled, .dialog-blue button:disabled {
     border: 1px solid #7d7d7d;
     cursor: default;
     background: linear-gradient(to bottom,  #f6f6f6 0%,#ededed 47%,#e4e4e4 100%);
 }
 
-.dialog select {
+.dialog select, .dialog-blue select {
     width: 100%;
     border: 1px solid #d3d3d3;
     border-radius: 3px;
@@ -423,18 +453,18 @@ hr {
     background: linear-gradient(to bottom, #f6f6f6 0%, #efefef 47%, #f4f4f4 100%);
 }
 
-.dialog select:hover {
+.dialog select:hover, .dialog-blue select:hover {
     border: 1px solid #8a8a8a;
     background: linear-gradient(to bottom, #f6f6f6 0%, #efefef 47%, #f4f4f4 100%);
 }
 
-.dialog select:disabled {
+.dialog select:disabled, .dialog-blue select:disabled {
     border: 1px solid #ededed;
     cursor: default;
     background: linear-gradient(to bottom, #f6f6f6 0%, #f1f1f1 47%, #f4f4f4 100%);
 }
 
-.dialog input[type="text"] {
+.dialog input[type="text"], .dialog-blue input[type="text"] {
     width: 100%;
     box-sizing: border-box;
     border: 1px solid #d3d3d3;
@@ -446,18 +476,18 @@ hr {
     background: linear-gradient(to bottom, #f6f6f6 0%, #efefef 47%, #f4f4f4 100%);
 }
 
-.dialog input[type="text"]:hover {
+.dialog input[type="text"]:hover, .dialog-blue input[type="text"]:hover {
     border: 1px solid #8a8a8a;
     background: linear-gradient(to bottom, #f6f6f6 0%, #efefef 47%, #f4f4f4 100%);
 }
 
-.dialog input[type="text"]:disabled {
+.dialog input[type="text"]:disabled, .dialog-blue input[type="text"]:disabled {
     border: 1px solid #ededed;
     cursor: default;
     background: linear-gradient(to bottom, #f6f6f6 0%, #f1f1f1 47%, #f4f4f4 100%);
 }
 
-.dialog textarea {
+.dialog textarea, .dialog-blue textarea {
     width: 100%;
     height: 100%;
     min-height: 80px;
@@ -472,43 +502,42 @@ hr {
     resize: vertical;
 }
 
-.dialog textarea:hover {
+.dialog textarea:hover, .dialog-blue textarea:hover {
     border: 1px solid #8a8a8a;
     background: linear-gradient(to bottom, #f6f6f6 0%, #efefef 47%, #f4f4f4 100%);
 }
 
-.dialog textarea:disabled {
+.dialog textarea:disabled, .dialog-blue textarea:disabled {
     border: 1px solid #ededed;
     cursor: default;
     background: linear-gradient(to bottom, #f6f6f6 0%, #f1f1f1 47%, #f4f4f4 100%);
 }
 
-.dialog a:link,
-.dialog a:visited {
+.dialog a:link, .dialog a:visited, .dialog-blue a:link, .dialog-blue a:visited {
     text-decoration: none;
     color: #416CE5;
     border-bottom: 1px dotted #416CE5;
     font-weight: normal;
 }
 
-.dialog a.cleanup {
+.dialog a.cleanup, .dialog-blue a.cleanup {
     border: none;
     color: #bd1515;
 }
 
-.dialog input[type="checkbox"] {
+.dialog input[type="checkbox"], .dialog-blue input[type="checkbox"] {
     position: absolute;
     z-index: -1;
     opacity: 0;
 }
 
-.dialog .checkbox__text {
+.dialog .checkbox__text, .dialog-blue .checkbox__text {
     position: relative;
     padding: 0 0 0 50px;
     cursor: pointer;
 }
 
-.dialog .checkbox__text:before {
+.dialog .checkbox__text:before, .dialog-blue .checkbox__text:before {
     content: '';
     position: absolute;
     left: 0;
@@ -520,7 +549,7 @@ hr {
     transition: .2s;
 }
 
-.dialog .checkbox__text:after {
+.dialog .checkbox__text:after, .dialog-blue .checkbox__text:after {
     content: '';
     position: absolute;
     top: 2px;
@@ -533,24 +562,24 @@ hr {
     transition: .2s;
 }
 
-.dialog input[type="checkbox"]:disabled + .checkbox__text {
+.dialog input[type="checkbox"]:disabled + .checkbox__text, .dialog-blue input[type="checkbox"]:disabled + .checkbox__text {
     color: #7d7d7d;
     cursor: default;
 }
 
-.dialog input[type="checkbox"]:checked + .checkbox__text:before {
+.dialog input[type="checkbox"]:checked + .checkbox__text:before, .dialog-blue input[type="checkbox"]:checked + .checkbox__text:before {
     background: /*#9FD468*/ #007dc1;
 }
 
-.dialog input[type="checkbox"]:checked + .checkbox__text:after {
+.dialog input[type="checkbox"]:checked + .checkbox__text:after, .dialog-blue input[type="checkbox"]:checked + .checkbox__text:after {
     left: 21px;
 }
 
-.dialog input[type="checkbox"]:focus + .checkbox__text:before {
+.dialog input[type="checkbox"]:focus + .checkbox__text:before, .dialog-blue input[type="checkbox"]:focus + .checkbox__text:before {
     box-shadow: inset 0 2px 3px rgba(0,0,0,.4);
 }
 
-.dialog button.dropdown {
+.dialog button.dropdown, .dialog-blue button.dropdown {
     width: 100%;
     border: 1px solid #d3d3d3;
     border-radius: 3px;
@@ -565,32 +594,32 @@ hr {
     background: linear-gradient(to bottom, #f6f6f6 0%, #efefef 47%, #f4f4f4 100%);
 }
 
-.dialog button.dropdown:hover {
+.dialog button.dropdown:hover, .dialog-blue button.dropdown:hover {
     border: 1px solid #8a8a8a;
     background: linear-gradient(to bottom, #f6f6f6 0%, #efefef 47%, #f4f4f4 100%);
 }
 
-.dialog button.dropdown:disabled {
+.dialog button.dropdown:disabled, .dialog-blue button.dropdown:disabled {
     border: 1px solid #ededed;
     cursor: default;
     background: linear-gradient(to bottom, #f6f6f6 0%, #f1f1f1 47%, #f4f4f4 100%);
 }
 
-.dialog div.tbl {
+.dialog div.tbl, .dialog-blue div.tbl {
     display: table;
     width: 100%;
 }
 
-.dialog div.tblrow {
+.dialog div.tblrow, .dialog-blue div.tblrow {
     display: table-row;
 }
 
-.dialog div.tblcell {
+.dialog div.tblcell, .dialog-blue div.tblcell {
     display: table-cell;
     width: 33%;
 }
 
-.dialog div.tblbody {
+.dialog div.tblbody, .dialog-blue div.tblbody {
     display: table-row-group;
 }
 
@@ -602,12 +631,13 @@ hr {
     left: 0;
     z-index: 1010;
     display: none;
-    max-width: 580px;
+    max-width: 590px;
 }
 
 .ballon .body {
-    padding: 18px 8px 18px 8px;
+    padding: 18px 12px 18px 12px;
     min-width: 300px;
+    min-height: 30px;
     text-align: left;
     white-space: normal;
     background-color: #ffffff;
@@ -736,6 +766,12 @@ hr {
     font-weight: normal;
     margin-top: 2px;
     /*margin-bottom: 12px;*/
+}
+
+.ballon h1 div {
+    color: #1877d7;
+    font-size: 9pt;
+    font-weight: normal;
 }
 
 .ballon h2 {
@@ -1433,10 +1469,10 @@ hr {
 
 .report th,
 .report td {
-    padding-left: 4px;
-    padding-top: 2px;
-    padding-right: 4px;
-    padding-bottom: 2px;
+    padding-left: 5px;
+    padding-top: 3px;
+    padding-right: 5px;
+    padding-bottom: 3px;
 }
 
 .report th {
@@ -1583,7 +1619,7 @@ hr {
     max-width: 140px;
 }
 
-.report td.a_address {
+.report td.address {
     word-break: break-word;
     min-width: 150px;
     max-width: 190px;
@@ -1592,6 +1628,12 @@ hr {
 .report td.u_name {
     word-break: break-word;
     min-width: 120px;
+}
+
+.report td.u_name2 {
+    word-break: break-word;
+    width: 130px;
+    text-align: center;
 }
 
 .report td.note {
@@ -1604,8 +1646,9 @@ hr {
     color: #7d7d7d;
 }
 
+.report th.attention,
 .report td.attention {
-    color: red;
+    color: #e60000;
 }
 
 .report td.accepted {
@@ -1622,6 +1665,9 @@ hr {
 
 .report td.violation {
     background-color: #fad4d4;
+}
+.report td.altered {
+    background-color: #fad4d460;
 }
 
 .report td.watermark {
@@ -1642,12 +1688,13 @@ hr {
     color: #939393;
     font-size: 8pt;
     font-style: normal;
-    border-top-color: #f6f6f6;;
-    border-left-color: #f6f6f6;;
-    border-right-color: #f6f6f6;;
+    border-top-color: #f6f6f6;
+    border-left-color: #f6f6f6;
+    border-right-color: #f6f6f6;
+    border-top-color: #dbdbdb;
     text-decoration: none;
-    padding-top: 5px;
-    padding-bottom: 3px;
+    padding-top: 9px;
+    padding-bottom: 7px;
 }
 
 .report td.delim {
@@ -1699,6 +1746,31 @@ hr {
     font-size: 8pt;
     font-style: normal;
     text-decoration: none;
+}
+
+.report button {
+    border: 1px solid #a3a3a3;
+    border-radius: 3px;
+    min-width: 140px;
+    height: 28px;
+    padding-left: 28px;
+    padding-right: 28px;
+    margin: 8px 12px;
+    font-size: 9pt;
+    white-space: nowrap;
+    cursor: pointer;
+    background: linear-gradient(to bottom,  #f6f6f6 0%,#ededed 47%,#e4e4e4 100%);
+}
+
+.report button:hover {
+    border: 1px solid #8a8a8a;
+    background: linear-gradient(to bottom,  #f6f6f6 0%,#ededed 47%,#e4e4e4 100%);
+}
+
+.report button:disabled {
+    border: 1px solid #7d7d7d;
+    cursor: default;
+    background: linear-gradient(to bottom,  #f6f6f6 0%,#ededed 47%,#e4e4e4 100%);
 }
 
 /* *** Schedule *** */

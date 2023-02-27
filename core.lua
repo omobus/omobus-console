@@ -36,9 +36,9 @@ end
 
 function M.reduce(rows, colname, idx)
     local tb = {}
-	if rows ~= nil then
-	    for i, v in ipairs(rows) do
-		if idx[ v[colname] ] ~= nil then
+    if rows ~= nil then
+	for i, v in ipairs(rows) do
+	    if idx[ v[colname] ] ~= nil then
 		table.insert(tb, v);
 	    end
 	end

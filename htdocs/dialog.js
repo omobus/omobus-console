@@ -42,8 +42,8 @@ function Dialog(params /* params = { container = "DOM container", width, title, 
 /* static functions: */
 
 (function (Dialog, undefined) {
-    Dialog.container = function(id) {
-	return "<div id='" + (id == null || typeof id == 'undefined' ? "baseDialog" : id) + "' class='dialog'></div>";
+    Dialog.container = function(id, styleName /* dialog|dialog-blue */) {
+	return "<div id='" + (id || "baseDialog") + "' class='" + (styleName || "dialog") + "'></div>";
     };
 }(Dialog));
 
