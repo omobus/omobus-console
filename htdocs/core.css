@@ -228,6 +228,15 @@ hr {
 }
 /* OBSOLETE: end */
 
+.fatal-error {
+    background: rgba(220, 10, 10, 0.85);
+    padding-top: 5px;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+    color: #ffffff;
+    text-align: center;
+    border-radius: 4px;
+}
 
 .footnote:hover:after {
     content: attr(data-title);

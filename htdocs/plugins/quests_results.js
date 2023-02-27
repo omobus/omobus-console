@@ -37,12 +37,13 @@ var PLUG = (function() {
 	ar.push("&nbsp&nbsp;|&nbsp;&nbsp;<a href='javascript:void(0)' onclick='PLUG.back(this)'>", lang.a_everything, "</a>");
 	ar.push("</span>");
 	ar.push("</td></tr></table>");
+	ar.push("<div id='fatalError' class='fatal-error gone'>", "</div>");
 	/* accounts page: */
 	ar.push("<div id='accountsContainer'>");
 	ar.push("<table width='100%' class='report'>", "<thead>", "<tr>");
 	ar.push("<th rowspan='2' class='autoincrement'>", lang.num, "</th>");
 	ar.push("<th rowspan='2'>", lang.a_code, "</th>");
-	ar.push("<th rowspan='2'><a href='javascript:void(0)' onclick='PLUG.retail_chains(this)'>", lang.a_name, "</a></th>");
+	ar.push("<th rowspan='2'>", "<a href='javascript:void(0)' onclick='PLUG.retail_chains(this)'>", lang.a_name, "</a>", "</th>");
 	ar.push("<th rowspan='2'>", lang.address, "</th>");
 	if( perm.columns != null && perm.columns.channel == true ) {
 	    ar.push("<th rowspan='2' class='sw95px'><a href='javascript:void(0)' onclick='PLUG.channels(this)'>", lang.chan_name, "</a></th>");
@@ -53,11 +54,11 @@ var PLUG = (function() {
 	ar.push("<th colspan='2'>", lang.founded_data, "</th>");
 	ar.push("</tr>", "<tr>");
 	ar.push("<th>", lang.date, "</th>");
-	ar.push("<th>", lang.u_name, "</th>");
+	ar.push("<th>", "<a href='javascript:void(0)' onclick='PLUG.users(this,\"censor\",0.7)'>", lang.u_name, "</a>", "</th>");
 	ar.push("<th>", lang.date, "</th>");
-	ar.push("<th>", lang.u_name, "</th>");
+	ar.push("<th>", "<a href='javascript:void(0)' onclick='PLUG.users(this,\"user\",0.8)'>", lang.u_name, "</a>", "</th>");
 	ar.push("<th>", lang.date, "</th>");
-	ar.push("<th>", lang.u_name, "</th>");
+	ar.push("<th>", "<a href='javascript:void(0)' onclick='PLUG.users(this,\"founder\",0.9)'>", lang.u_name, "</a>", "</th>");
 	ar.push("</tr>", G.thnums(_getcolumns1(perm)), "</thead>");
 	ar.push("<tbody id='maintb'>", "</tbody>");
 	ar.push("</table>");
@@ -89,7 +90,9 @@ var PLUG = (function() {
 	ar.push(ChannelsPopup.container());
 	ar.push(QuestNamesPopup.container());
 	ar.push(RetailChainsPopup.container());
-//ar.push(UsersPopup.container("headsPopup"));
+	ar.push(UsersPopup.container());
+	ar.push(UsersPopup.container("foundersPopup"));
+	ar.push(UsersPopup.container("censorsPopup"));
 	ar.push(Popup.container());
 	ar.push(Dialog.container("baseDialog-blue","dialog-blue"));
 	ar.push(SlideshowSimple.container());
@@ -115,14 +118,10 @@ var PLUG = (function() {
 	    "a\.chan\.descr",
 	    "a\.rc_id",
 	    "a\.rc\.\descr",
-
-"user_id", 
-	    "dev_login", 
-	    "u_name", 
-	    "head_id",
-	    "area",
-	    "departments\.[0-9]+",
-	    "distributors\.[0-9]+"
+	    "user_id",
+	    "u\.descr",
+	    "founder_id", 
+	    "censor_id" 
 	]);
     }
 
@@ -399,7 +398,7 @@ var PLUG = (function() {
 		    ar.push("<td class='autoincrement footnote_L altered' data-title='", "{0} ({1}: {2}, {3}: {4})"
 			.format_a(lang.altered_data, lang.author.toLowerCase(), G.shielding(r.censor_name,r.censor_id),
 			    lang.date.toLowerCase(), G.getdatetime_l(r.altered_dt)),
-			"' align='center' width='", 100/max, "%'>");
+			"' align='center' width='", 100/max, "%' onmouseover='PLUG.dismiss()'>");
 		} else {
 		    ar.push("<td align='center' width='", 100/max, "%'>");
 		}
@@ -467,10 +466,10 @@ var PLUG = (function() {
 		    ar.push("<td class='ref'>");
 		    if( r.hidden == 1 ) {
 			ar.push("<a class='symbol footnote_L' data-title='", lang[_code].restore, "' href='javascript:void(0)' ",
-			    "onclick='PLUG.restore(this,", i, ")'>", _restoreSymbol, "</a>");
+			    "onclick='PLUG.restore(this,", i, ")' onmouseover='PLUG.dismiss()'>", _restoreSymbol, "</a>");
 		    } else {
 			ar.push("<a class='symbol attention footnote_L' data-title='", lang[_code].remove, "' href='javascript:void(0)' ",
-			    "onclick='PLUG.remove(this,", i, ")'>", _removeSymbol, "</a>");
+			    "onclick='PLUG.remove(this,", i, ")' onmouseover='PLUG.dismiss()'>", _removeSymbol, "</a>");
 		    }
 		    ar.push("</td>");
 		}
@@ -521,31 +520,37 @@ var PLUG = (function() {
 	G.xhr("GET", G.getdataref({plug: _code}), "json", function(xhr, data) {
 	    if( xhr.status == 200 && data != null && typeof data == 'object' ) {
 		_cache.data1 = _compileRowset(data);
-		//console.log(data); console.log(_cache.data1);
+		//console.log(data, _cache.data1);
 		_tags.tbody.html(_data1tbl(_cache.data1, 1, _tags.total, _getfilter(), _cache.checked, _perm).join(""));
+		_tags.fatalError.hide();
 	    } else {
 		_tags.tbody.html(_data1msg(lang.failure, _perm).join(""));
 		_tags.total.html("");
+		_tags.fatalError.html(lang.errors.runtime);
+		_tags.fatalError.show();
 	    }
 	    _tags.ts.html(G.getdatetime_l(new Date()));
 	    ProgressDialog.hide();
 	}).send();
     }
 
-    function _data2req(params) {
+    function _data2req(params, forced) {
 	ProgressDialog.show();
-	_cache.data2 = null; _cache.p2 = null; // drop the internal cache
+	if( forced ) { _tags.questContainer.hide(); }
+	//_cache.data2 = null; // drop the internal cache
 	G.xhr("GET", G.getdataref({plug: _code, account_id: params.account_id, qname_id: params.qname_id}), "json", function(xhr, data) {
 	    if( xhr.status == 200 && data != null && typeof data == 'object' ) {
 		_cache.data2 = data;
 		_cache.p2 = params;
-console.log(_cache.p2, _cache.data2);
+		//console.log(_cache.p2, _cache.data2);
 		_tags.tbody2.html(_data2tbl1(_cache.data2, _perm).join(""));
 		_tags.tbody3.html(_data2tbl2(_cache.data2, _cache.hidden, _perm).join(""));
 		_tags.tbody4.html(_data2tbl3(_cache.data2, _cache.hidden, _perm).join(""));
+		_tags.questContainer.show();
+		_tags.fatalError.hide();
 	    } else {
-//		_tags.tbody.html(_data1msg(lang.failure, _perm).join(""));
-//		_tags.total.html("");
+		_tags.fatalError.html(lang.errors.runtime);
+		_tags.fatalError.show();
 	    }
 	    _tags.ts.html(G.getdatetime_l(new Date()));
 	    ProgressDialog.hide();
@@ -599,14 +604,12 @@ console.log(_cache.p2, _cache.data2);
     function _switchTo(attrs) {
 	const f = typeof attrs != 'undelined' && attrs != null;
 	_togglePopup();
-/*_tags.tbody2.html("");
-	_tags.tbody3.html("");
-	_tags.tbody4.html("");*/
+	_tags.valuePopup.hide();
 	_tags.summary.forEach(function(arg) { if( f == true ) { arg.hide(); } else { arg.show(); } });
 	_tags.more.forEach(function(arg)    { if( f == true ) { arg.show(); } else { arg.hide(); } });
 	if( f ) {
 	    if( _cache.data2 == null || _cache.p2 == null || _cache.p2.account_id != attrs.account_id || _cache.p2.qname_id != attrs.qname_id ) {
-		_data2req({account_id: attrs.account_id, qname_id: attrs.qname_id});
+		_data2req({account_id: attrs.account_id, qname_id: attrs.qname_id}, true);
 	    }
 	    history.replaceState({account_id: attrs.account_id, qname_id: attrs.qname_id}, "", 
 		G.getdefref({plug: _code, account_id: attrs.account_id, qname_id: attrs.qname_id}));
@@ -827,8 +830,10 @@ console.log(_cache.p2, _cache.data2);
 	    _tags.f = _("plugFilter");
 	    _tags.ts = _("timestamp");
 	    _tags.total = _("plugTotal");
+	    _tags.fatalError = _("fatalError");
 	    _tags.summary = [_("accountsGroup"), _("accountsContainer")];
 	    _tags.more = [_("questGroup"), _("questContainer")];
+	    _tags.questContainer = _("questContainer");
 	    _tags.popups = {};
 	    _tags.valuePopup = new Popup();
 	    _switchTo(params);
@@ -836,12 +841,12 @@ console.log(_cache.p2, _cache.data2);
 	refresh: function() {
 	    _togglePopup();
 	    _tags.popups = {};
-	    if( _cache.screenName == 'main' || _cache.p2 == null ) {
+	    if( _cache.screenName == 'main' ) {
 		_data1req();
 		_cache.data2 = null;
-		_cache.p2 = null;
 	    } else {
-		_data2req(_cache.p2);
+		_tags.valuePopup.hide();
+		_data2req(_cache.p2, false);
 		_cache.data1 = null;
 	    }
 	},
@@ -852,6 +857,7 @@ console.log(_cache.p2, _cache.data2);
 	    });
 	},
 	page: function(arg) {
+	    _togglePopup();
 	    _page(arg);
 	    window.scrollTo(0, 0);
 	},
@@ -887,6 +893,13 @@ console.log(_cache.p2, _cache.data2);
 	quest: function(row_no) {
 	    _switchTo(_cache.data1.rows[row_no-1]);
 	    window.scrollTo(0, 0);
+	},
+	users: function(tag, type, offset) {
+	    _togglePopup(type+"s", tag, offset, function(obj) {
+		return UsersPopup(_cache.data1[obj], function(arg, i, ar) {
+		    _onpopup(tag, arg, "user_id", type+"_id");
+		}, {container:obj+"Popup", everyone:true})
+	    });
 	},
 	back: function() {
 	    _switchTo();
@@ -943,6 +956,7 @@ console.log(_cache.p2, _cache.data2);
 	    });
 	},
 	eraseEverything: function() {
+	    _tags.valuePopup.hide();
 	    if( _cache.data2 != null ) {
 		_eraseEverything(_cache.data2);
 	    }
@@ -950,33 +964,8 @@ console.log(_cache.p2, _cache.data2);
 	edit: function(tag, i, offset) {
 	    _changeValue(tag, _cache.data2.rows[i], offset);
 	},
-
-
-
-
-/*,
-	users: function(tag, type, offset) {
-	    _togglePopup(type+"s", tag, offset, function(obj) {
-		return UsersPopup(_cache.data[obj], function(arg, i, ar) {
-		    _onpopup(tag, arg, "user_id", type+"_id");
-		}, {container:type+"sPopup", everyone:true})
-	    });
-	},
-	more: function(row_no) {
-	    _switchTo(_cache.data.rows[row_no-1]);
-	    _historyState(_cache.y, _cache.m, _cache.u);
-	    window.scrollTo(0, 0);
-	},
-	back: function() {
-	    _switchTo();
-	    _historyState(_cache.y, _cache.m, _cache.u);
-	},
-	page: function(arg) {
-	    _morepage(arg);
-	    window.scrollTo(0, 0);
-	},
-*/
 	hidden: function(tag) {
+	    _tags.valuePopup.hide();
 	    if( tag.hasClass("important") ) {
 		_cache.hidden = null;
 		tag.removeClass('important');
@@ -986,6 +975,9 @@ console.log(_cache.p2, _cache.data2);
 	    }
 	    _tags.tbody3.html(_data2tbl2(_cache.data2, _cache.hidden, _perm).join(""));
 	    _tags.tbody4.html(_data2tbl3(_cache.data2, _cache.hidden, _perm).join(""));
+	},
+	dismiss: function() {
+	    _tags.valuePopup.hide();
 	}
     }
 })();
