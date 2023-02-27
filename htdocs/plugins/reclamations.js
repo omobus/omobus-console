@@ -160,7 +160,7 @@ var PLUG = (function() {
 		    ar.push("<td class='string sw95px delim'>", G.shielding(r.u_name), "</td>");
 		    ar.push("<td class='int'>", G.shielding(r.a_code), "</td>");
 		    ar.push("<td class='string a_name'>", G.shielding(r.a_name), "</td>");
-		    ar.push("<td class='string a_address" + (perm.columns != null && perm.columns.channel == true ? "" : " delim") + 
+		    ar.push("<td class='string address" + (perm.columns != null && perm.columns.channel == true ? "" : " delim") + 
 			"'>", G.shielding(r.address), "</td>");
 		    if( perm.columns != null && perm.columns.channel == true ) {
 			ar.push("<td class='ref sw95px delim'>", G.shielding(r.chan), "</td>");

@@ -115,7 +115,7 @@ var PLUG = (function() {
 			r.row_id + "');event.stopPropagation();\">", r.row_no, "</td>");
 		    ar.push("<td class='int", xs, "'>", G.shielding(r.a_code), "</td>");
 		    ar.push("<td class='string a_name", xs, "'>", G.shielding(r.a_name), "</td>");
-		    ar.push("<td class='string a_address", xs, "'>", G.shielding(r.address), "</td>");
+		    ar.push("<td class='string address", xs, "'>", G.shielding(r.address), "</td>");
 		    if( perm.columns != null && perm.columns.region == true ) {
 			ar.push("<td class='ref sw95px delim'>", G.shielding(r.region), "</td>");
 		    }

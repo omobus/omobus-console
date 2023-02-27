@@ -190,7 +190,7 @@ var PLUG = (function() {
 		    ar.push("<td class='string sw95px'>", G.shielding(r.author_name), "</td>");
 		    ar.push("<td class='int'>", G.shielding(r.a_code), "</td>");
 		    ar.push("<td class='string a_name" + (r.a_hidden ? " strikethrough attention" : "") + "'>", G.shielding(r.a_name), "</td>");
-		    ar.push("<td class='string a_address" + (r.a_hidden ? " strikethrough attention" : "") + "'>", G.shielding(r.address), "</td>");
+		    ar.push("<td class='string address" + (r.a_hidden ? " strikethrough attention" : "") + "'>", G.shielding(r.address), "</td>");
 		    if( perm.columns != null && perm.columns.channel == true ) {
 			ar.push("<td class='ref sw95px'>", G.shielding(r.chan), "</td>");
 		    }

@@ -213,7 +213,7 @@ var PLUG = (function() {
 		    ar.push("<td class='ref", xs, "'><span onclick='PLUG.slideshow_a(" + i + ")'>", 
 			G.shielding(r.a_code), "</span></td>");
 		    ar.push("<td class='string a_name", xs, "'>", G.shielding(r.a_name), "</td>");
-		    ar.push("<td class='string a_address", perm.columns != null && perm.columns.channel == true ? "" : " delim", xs, 
+		    ar.push("<td class='string address", perm.columns != null && perm.columns.channel == true ? "" : " delim", xs, 
 			"'>", G.shielding(r.address), "</td>");
 		    if( perm.columns != null && perm.columns.channel == true ) {
 			ar.push("<td class='ref delim sw95px", xs, "'>", G.shielding(r.chan), "</td>");

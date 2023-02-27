@@ -117,7 +117,7 @@ var PLUG = (function() {
 			ar.push("<hr/><div class='row remark'><i>", G.shielding(r.tax_number), "</i></div>");
 		    }
 		    ar.push("</td>");
-		    ar.push("<td class='string a_address", r.rejected ? " disabled" : "", "'>");
+		    ar.push("<td class='string address", r.rejected ? " disabled" : "", "'>");
 		    if( !String.isEmpty(r.address) ) {
 			ar.push("<div class='row'>", G.shielding(r.address), "</div>");
 		    }

@@ -43,7 +43,7 @@ PLUG.registerRef("promo", (function() {
 	    ar.push("<td class='time'>", G.gettime_l(Date.parseISO8601(r.fix_dt)), "</td>");
 	    ar.push("<td class='int'>", G.shielding(r.a_code), "</td>");
 	    ar.push("<td class='a_name'>", G.shielding(r.a_name), "</td>");
-	    ar.push("<td class='a_address'>", G.shielding(r.address), "</td>");
+	    ar.push("<td class='address'>", G.shielding(r.address), "</td>");
 	    ar.push("<td class='ref'>", G.shielding(r.categ), "</td>");
 	    ar.push("<td class='ref'>", G.shielding(r.brand), "</td>");
 	    ar.push("<td class='string'>", G.shielding(r.prod), "</td>");

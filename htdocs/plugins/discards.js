@@ -123,7 +123,7 @@ var PLUG = (function() {
 			G.shielding(r.a_code), "</td>");
 		    ar.push("<td class='string a_name", r.closed ? " strikethrough attention" : "", r.rejected ? " disabled" : "", "'>", 
 			G.shielding(r.a_name), "</td>");
-		    ar.push("<td class='string a_address", r.closed ? " strikethrough attention" : "", r.rejected ? " disabled" : "", 
+		    ar.push("<td class='string address", r.closed ? " strikethrough attention" : "", r.rejected ? " disabled" : "", 
 			"'>", G.shielding(r.address), "</td>");
 		    if( perm.columns != null && perm.columns.channel == true ) {
 			ar.push("<td class='ref sw95px", r.rejected ? " disabled" : "", "'>", G.shielding(r.chan), "</td>");

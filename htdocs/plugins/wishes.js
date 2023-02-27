@@ -122,11 +122,11 @@ var PLUG = (function() {
 		    ar.push("<td class='string a_name", r.closed ? " strikethrough attention" : "", r.rejected ? " disabled" : "", "'>", 
 			G.shielding(r.a_name), "</td>");
 		    if( perm.columns != null && perm.columns.channel == true ) {
-			ar.push("<td class='string a_address", r.closed ? " strikethrough attention" : "", r.rejected ? " disabled" : "", 
+			ar.push("<td class='string address", r.closed ? " strikethrough attention" : "", r.rejected ? " disabled" : "", 
 			    "'>", G.shielding(r.address), "</td>");
 			ar.push("<td class='ref sw95px", r.rejected ? " disabled" : "", " delim2'>", G.shielding(r.chan), "</td>");
 		    } else {
-			ar.push("<td class='string a_address", r.closed ? " strikethrough attention" : "", r.rejected ? " disabled" : "", 
+			ar.push("<td class='string address", r.closed ? " strikethrough attention" : "", r.rejected ? " disabled" : "", 
 			    " delim2'>", G.shielding(r.address), "</td>");
 		    }
 		    for( let a = 1, f = Array.isArray(r.weeks); a <= perm.weeks; a++ ) {
