@@ -77,7 +77,7 @@ function TrainingMaterialsPopup(rows, selection, params /* params = { everything
 (function (TrainingMaterialsPopup, undefined) {
     TrainingMaterialsPopup.container = function(id) {
 	return "<div id='" + (id == null || typeof id == 'undefined' ? "tmsPopup" : id) + 
-	    "' class='ballon'><div class='arrow'></div><div class='body' style='min-height: 30px;'></div></div>";
+	    "' class='ballon'><div class='arrow'></div><div class='body'></div></div>";
     };
 }(TrainingMaterialsPopup));
 

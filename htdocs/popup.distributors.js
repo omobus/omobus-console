@@ -77,7 +77,7 @@ function DistributorsPopup(rows, selection, params /* params = { everything: tru
 (function (DistributorsPopup, undefined) {
     DistributorsPopup.container = function(id) {
 	return "<div id='" + (id == null || typeof id == 'undefined' ? "distributorsPopup" : id) + 
-	    "' class='ballon'><div class='arrow'></div><div class='body' style='min-height: 30px;'></div></div>";
+	    "' class='ballon'><div class='arrow'></div><div class='body'></div></div>";
     };
 }(DistributorsPopup));
 

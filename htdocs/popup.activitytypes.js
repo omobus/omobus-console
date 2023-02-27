@@ -77,7 +77,7 @@ function ActivityTypesPopup(rows, selection, params /* params = { everything: tr
 (function (ActivityTypesPopup, undefined) {
     ActivityTypesPopup.container = function(id) {
 	return "<div id='" + (id == null || typeof id == 'undefined' ? "activitytypesPopup" : id) + 
-	    "' class='ballon'><div class='arrow'></div><div class='body' style='min-height: 30px;'></div></div>";
+	    "' class='ballon'><div class='arrow'></div><div class='body'></div></div>";
     };
 }(ActivityTypesPopup));
 

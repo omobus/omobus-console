@@ -35,7 +35,7 @@ function CyclesPopup(selection, params /* params = { container = "DOM container"
 	ar.push("<div class='arrow'></div>");
 	//ar.push("<span class='close'>&times;</span>");
 	ar.push("<div class='spinner'></div>");
-	ar.push("<div class='body' style='min-height: 30px;'></div>");
+	ar.push("<div class='body'></div>");
 	ar.push("</div>");
 	return ar.join('');
     };

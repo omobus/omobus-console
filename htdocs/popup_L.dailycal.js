@@ -18,6 +18,7 @@ function DaysPopup(selection, params /* = { container = "DOM container", date, u
     this._container = params.container;
     this._body = params.container.getElementsByClassName('body')[0];
     this._spinner = params.container.getElementsByClassName('spinner')[0];
+    this._body.style.width = '480px';
     this._selection = selection;
     this._uri = params.uri;
     this._date = params.date instanceof Date ? params.date : Date.parseISO8601(params.date);
@@ -35,7 +36,7 @@ function DaysPopup(selection, params /* = { container = "DOM container", date, u
 	ar.push("<div class='arrow'></div>");
 	ar.push("<span class='close'>&times;</span>");
 	ar.push("<div class='spinner'></div>");
-	ar.push("<div class='body' style='min-height: 30px; width: 480px;'></div>");
+	ar.push("<div class='body'></div>");
 	ar.push("</div>");
 	return ar.join('');
     };

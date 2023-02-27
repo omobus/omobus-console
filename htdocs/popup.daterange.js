@@ -26,6 +26,7 @@ function DateRangePopup(min, max, selection, params /* params = {b_date = '2020-
     this._month = (this._dates.b_date||this._dates.e_date||this._dates.min).getMonth();
     this._year = (this._dates.b_date||this._dates.e_date||this._dates.min).getFullYear();
     this._body = params.container.getElementsByClassName('body')[0];
+    this._body.style.width = '480px';
 
     this._update();
 }
@@ -37,7 +38,7 @@ function DateRangePopup(min, max, selection, params /* params = {b_date = '2020-
 	var ar = [];
 	ar.push("<div id='", id == null || typeof id == 'undefined' ? "daterangePopup" : id, "' class='ballon'>");
 	ar.push("<div class='arrow'></div>");
-	ar.push("<div class='body' style='min-height: 30px; width: 480px;'></div>");
+	ar.push("<div class='body'></div>");
 	ar.push("</div>");
 	return ar.join('');
     };

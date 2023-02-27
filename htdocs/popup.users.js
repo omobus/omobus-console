@@ -85,7 +85,7 @@ function UsersPopup(users, selection, params /* params = { everyone: true|false,
 	var ar = [];
 	ar.push("<div id='", id == null || typeof id == 'undefined' ? "usersPopup" : id, "' class='ballon'>");
 	ar.push("<div class='arrow'></div>");
-	ar.push("<div class='body' style='min-height: 30px;'></div>");
+	ar.push("<div class='body'></div>");
 	ar.push("</div>");
 	return ar.join('');
     };

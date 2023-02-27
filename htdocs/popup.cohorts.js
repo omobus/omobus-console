@@ -77,7 +77,7 @@ function CohortsPopup(rows, selection, params /* params = { everything: true|fal
 (function (CohortsPopup, undefined) {
     CohortsPopup.container = function(id) {
 	return "<div id='" + (id == null || typeof id == 'undefined' ? "cohortsPopup" : id) + 
-	    "' class='ballon'><div class='arrow'></div><div class='body' style='min-height: 30px;'></div></div>";
+	    "' class='ballon'><div class='arrow'></div><div class='body'></div></div>";
     };
 }(CohortsPopup));
 

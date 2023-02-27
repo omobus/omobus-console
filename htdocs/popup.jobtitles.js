@@ -77,7 +77,7 @@ function JobTitlesPopup(rows, selection, params /* params = { everything: true|f
 (function (JobTitlesPopup, undefined) {
     JobTitlesPopup.container = function(id) {
 	return "<div id='" + (id == null || typeof id == 'undefined' ? "jobtitlesPopup" : id) + 
-	    "' class='ballon'><div class='arrow'></div><div class='body' style='min-height: 30px;'></div></div>";
+	    "' class='ballon'><div class='arrow'></div><div class='body'></div></div>";
     };
 }(JobTitlesPopup));
 

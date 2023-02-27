@@ -77,7 +77,7 @@ function OOSTypesPopup(rows, selection, params /* params = { everything: true|fa
 (function (OOSTypesPopup, undefined) {
     OOSTypesPopup.container = function(id) {
 	return "<div id='" + (id == null || typeof id == 'undefined' ? "oostypesPopup" : id) + 
-	    "' class='ballon'><div class='arrow'></div><div class='body' style='min-height: 30px;'></div></div>";
+	    "' class='ballon'><div class='arrow'></div><div class='body'></div></div>";
     };
 }(OOSTypesPopup));
 

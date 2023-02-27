@@ -77,7 +77,7 @@ function PotentialsPopup(rows, selection, params /* params = { everything: true|
 (function (PotentialsPopup, undefined) {
     PotentialsPopup.container = function(id) {
 	return "<div id='" + (id == null || typeof id == 'undefined' ? "potentialsPopup" : id) + 
-	    "' class='ballon'><div class='arrow'></div><div class='body' style='min-height: 30px;'></div></div>";
+	    "' class='ballon'><div class='arrow'></div><div class='body'></div></div>";
     };
 }(PotentialsPopup));
 

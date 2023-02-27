@@ -77,7 +77,7 @@ function DiscardTypesPopup(rows, selection, params /* params = { everything: tru
 (function (DiscardTypesPopup, undefined) {
     DiscardTypesPopup.container = function(id) {
 	return "<div id='" + (id == null || typeof id == 'undefined' ? "discardtypesPopup" : id) + 
-	    "' class='ballon'><div class='arrow'></div><div class='body' style='min-height: 30px;'></div></div>";
+	    "' class='ballon'><div class='arrow'></div><div class='body'></div></div>";
     };
 }(DiscardTypesPopup));
 

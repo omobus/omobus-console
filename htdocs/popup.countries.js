@@ -79,7 +79,7 @@ function CountriesPopup(rows, selection, params /* params = { everything: true|f
 	var ar = [];
 	ar.push("<div id='", id == null || typeof id == 'undefined' ? "countriesPopup" : id, "' class='ballon'>");
 	ar.push("<div class='arrow'></div>");
-	ar.push("<div class='body' style='min-height: 30px;'></div>");
+	ar.push("<div class='body'></div>");
 	ar.push("</div>");
 	return ar.join('');
     };

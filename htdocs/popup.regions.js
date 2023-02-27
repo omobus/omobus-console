@@ -77,7 +77,7 @@ function RegionsPopup(rows, selection, params /* params = { everything: true|fal
 (function (RegionsPopup, undefined) {
     RegionsPopup.container = function(id) {
 	return "<div id='" + (id == null || typeof id == 'undefined' ? "regionsPopup" : id) + 
-	    "' class='ballon'><div class='arrow'></div><div class='body' style='min-height: 30px;'></div></div>";
+	    "' class='ballon'><div class='arrow'></div><div class='body'></div></div>";
     };
 }(RegionsPopup));
 

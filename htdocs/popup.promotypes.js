@@ -77,7 +77,7 @@ function PromoTypesPopup(rows, selection, params /* params = { everything: true|
 (function (PromoTypesPopup, undefined) {
     PromoTypesPopup.container = function(id) {
 	return "<div id='" + (id == null || typeof id == 'undefined' ? "promotypesPopup" : id) + 
-	    "' class='ballon'><div class='arrow'></div><div class='body' style='min-height: 30px;'></div></div>";
+	    "' class='ballon'><div class='arrow'></div><div class='body'></div></div>";
     };
 }(PromoTypesPopup));
 

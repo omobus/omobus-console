@@ -26,7 +26,7 @@ function Popup(container) {
 	ar.push("<div class='arrow'></div>");
 	ar.push("<span class='close'>&times;</span>");
 	ar.push("<div class='spinner'></div>");
-	ar.push("<div class='body' style='min-height: 30px;'></div>");
+	ar.push("<div class='body'></div>");
 	ar.push("</div>");
 	return ar.join('');
     };
@@ -46,12 +46,21 @@ Popup.prototype._show = function(arg, offset) {
 
 /* public functions: */
 
-Popup.prototype.set = function(msg) {
-    this._body.html(msg);
+Popup.prototype.set = function(msg, width) {
+    const t = typeof width;
+    if( t == 'string' ) {
+	this._body.style.width = width;
+    } else if( t == 'number' ) {
+	this._body.style.width = '{0}px'.format_a(width);
+    }
+    this._body.html(Array.isArray(msg) ? msg.join('') : msg);
 }
 
-Popup.prototype.show = function(arg, msg, offset) {
+Popup.prototype.show = function(arg, offset, onShowListener) {
     if( this._container.isHidden() ) {
+	if( typeof onShowListener == 'function' ) {
+	    onShowListener(this);
+	}
 	this._show(arg, offset);
     }
 }
@@ -61,8 +70,11 @@ Popup.prototype.hide = function() {
     this._container.hide();
 }
 
-Popup.prototype.toggle = function(arg, offset) {
+Popup.prototype.toggle = function(arg, offset, onShowListener) {
     if( this._container.toggle() ) {
+	if( typeof onShowListener == 'function' ) {
+	    onShowListener(this);
+	}
 	this._show(arg, offset);
     } else {
 	this._spinner.hide();

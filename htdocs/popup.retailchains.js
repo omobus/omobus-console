@@ -79,7 +79,7 @@ function RetailChainsPopup(rows, selection, params /* params = { everything: tru
 	var ar = [];
 	ar.push("<div id='", id == null || typeof id == 'undefined' ? "retailchainsPopup" : id, "' class='ballon'>");
 	ar.push("<div class='arrow'></div>");
-	ar.push("<div class='body' style='min-height: 30px;'></div>");
+	ar.push("<div class='body'></div>");
 	ar.push("</div>");
 	return ar.join('');
     };
