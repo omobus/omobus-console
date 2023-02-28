@@ -95,6 +95,7 @@ var PLUG = (function() {
 	ar.push(UsersPopup.container("censorsPopup"));
 	ar.push(Popup.container());
 	ar.push(Dialog.container("baseDialog-blue","dialog-blue"));
+	ar.push(Dialog.container());
 	ar.push(SlideshowSimple.container());
 	return ar;
     }
@@ -815,6 +816,72 @@ var PLUG = (function() {
 	});
     }
 
+    function _urgent(data) {
+	const minNote = 10;
+	Dialog({
+	    width: 530, 
+	    title: lang.urgent, 
+	    body: [
+		"<div>", lang[_code].urgent_warning.format_a(minNote), "</div>",
+		"<div class='row attention gone' id='urgent-alertView'>", "</div>",
+		"<div class='row'>", "<textarea id='urgent-noteView' rows='5' maxlength='1024' autocomplete='off' placeholder='",
+		    lang.urgent_placeholder, "'></textarea>", "</div>"
+	    ],
+	    buttons: [
+		"<div class='row' align='right'>", "<button id='urgent-commitView' disabled='yes'>", 
+		    lang.urgent, "</button>", "</div>"
+	    ]
+	}).show(function(dialogView) {
+	    const is = function() {
+		return !String.isEmpty(data._note) && data._note.length >= minNote;;
+	    }
+	    const alertView = _("urgent-alertView");
+	    const noteView = _("urgent-noteView");
+	    const commitView = _("urgent-commitView");
+	    noteView.value = data._note || "";
+	    commitView.disabled = !is();
+	    noteView.oninput = function() {
+		data._note = this.value.trim();
+		commitView.disabled = !is();
+		alertView.hide();
+	    }
+	    noteView.onkeypress = function(event) {
+		if( event.charCode == 13 && is() ) {
+		    commitView.click();
+		}
+		return event.charCode != 13;
+	    }
+	    commitView.onclick = function() {
+		if( !is() ) {
+		    return;
+		}
+		const facility = "urgent";
+		const fd = new FormData();
+		fd.append("_datetime", G.getdatetime(new Date()));
+		fd.append("facility", facility);
+		fd.append("fix_date", data.fix_date || "?");
+		fd.append("account_id", data.account_id || "?");
+		fd.append("qname_id", data.qname_id || "?");
+		fd.append("note", data._note || "");
+		commitView.disabled = true;
+		alertView.hide();
+		dialogView.startSpinner();
+		G.xhr("POST", G.getdataref({plug: _code, facility: facility}), "", function(xhr) {
+		    if( xhr.status == 200 ) {
+			data._note = null;
+			Toast.show(lang.success.urgent);
+			dialogView.hide();
+		    } else {
+			alertView.html(lang.errors.runtime);
+			alertView.show();
+			commitView.disabled = false;
+		    }
+		    dialogView.stopSpinner();
+		}).send(fd);
+	    };
+	});
+    }
+
 
 /* public properties & methods */
     return {
@@ -963,6 +1030,12 @@ var PLUG = (function() {
 	},
 	edit: function(tag, i, offset) {
 	    _changeValue(tag, _cache.data2.rows[i], offset);
+	},
+	urgent: function() {
+	    _tags.valuePopup.hide();
+	    if( _cache.data2 != null ) {
+		_urgent(_cache.data2);
+	    }
 	},
 	hidden: function(tag) {
 	    _tags.valuePopup.hide();

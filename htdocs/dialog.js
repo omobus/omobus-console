@@ -62,7 +62,7 @@ Dialog.prototype._get = function(title, body, buttons) {
 	ar.push("</div>");
     }
     if( buttons != null ) {
-	ar.push("<br/>");
+	/*ar.push("<br/>");*/
 	ar.push(Array.isArray(buttons) ? buttons.join("") : buttons);
     }
     ar.push("</div>");

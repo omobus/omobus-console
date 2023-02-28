@@ -51,8 +51,13 @@ from (
 	    qname_id,
 	    censor_id,
 	    altered_dt
-	from dyn_quests
-	    where "_isRecentData" = 1 and censor_id is not null and altered_dt is not null
+	from (
+	    select fix_date, account_id, qname_id, censor_id, altered_dt from dyn_quests
+		where "_isRecentData" = 1 and censor_id is not null and altered_dt is not null
+		    union
+	    select fix_date, account_id, qname_id, censor_id, altered_dt from dyn_quests2
+		where "_isRecentData" = 1 and censor_id is not null and altered_dt is not null
+	) v
 	order by fix_date desc, account_id, qname_id, altered_dt desc
     ) x2 on x2.fix_date = x.fix_date and x2.account_id = x.account_id and x2.qname_id = x.qname_id
 where x.account_id in (  $(0)  )
@@ -519,6 +524,30 @@ select console.req_quest(
     )
 end
 
+local function urgent(stor, uid, reqdt, attrs)
+    return stor.put(function(tran, func_execute) return func_execute(tran,
+[[
+select console.req_quest(
+    %req_uid%, 
+    %req_dt%, 
+    'urgent', 
+    hstore('fix_date',%fix_date%::text) || hstore('account_id',%account_id%::text) ||
+	hstore('qname_id',%qname_id%::text) || hstore('note',%note%::text)
+) rv
+]]
+	, "/plugins/quests_results/urgent"
+	, { 
+	    req_uid = uid, 
+	    req_dt = reqdt, 
+	    fix_date = attrs.fix_date or stor.NULL, 
+	    account_id = attrs.account_id or stor.NULL, 
+	    qname_id = attrs.qname_id or stor.NULL,
+	    note = attrs.note or stor.NULL
+	})
+    end
+    )
+end
+
 local function genid(quest_id, account_id)
     local ctx = hash.md5()
     ctx:update(quest_id or "?")
@@ -639,7 +668,7 @@ function M.data(lang, method, permtb, sestb, params, content, content_type, stor
     elseif (method == "DELETE" or method == 'PUT') and params.facility == 'Q' then
 	local cmd = method == "DELETE" and "remove" or "restore"
 	-- check permissions
-	assert(permtb.remove ~= nil and permtb.remove == true, string.format('[%s] command not permitted.',cmd))
+	assert(permtb.remove ~= nil and permtb.remove == true, string.format('[%s] command not permitted.', cmd))
         -- validate input data
 	assert(string.find(content_type, "multipart/form-data", 1, true),
 	    string.format("unsupported content type (expected: %s, received: %s).", "multipart/form-data", content_type))
@@ -661,7 +690,7 @@ function M.data(lang, method, permtb, sestb, params, content, content_type, stor
     elseif (method == "DELETE" or method == 'PUT') and params.facility == 'Q2' then
 	local cmd = method == "DELETE" and "remove2" or "restore2"
 	-- check permissions
-	assert(permtb.remove ~= nil and permtb.remove == true, string.format('[%s] command not permitted.',cmd))
+	assert(permtb.remove ~= nil and permtb.remove == true, string.format('[%s] command not permitted.', cmd))
         -- validate input data
 	assert(string.find(content_type, "multipart/form-data", 1, true),
 	    string.format("unsupported content type (expected: %s, received: %s).", "multipart/form-data", content_type))
@@ -682,9 +711,9 @@ function M.data(lang, method, permtb, sestb, params, content, content_type, stor
 	    scgi.writeBody(res, "{\"status\":\"success\"}")
 	end
     elseif method == "DELETE" and params.facility == 'erase' then
-	local cmd = "erase"
+	local cmd = params.facility
 	-- check permissions
-	assert(permtb.eraseEverything ~= nil and permtb.eraseEverything == true, string.format('[%s] command not permitted.',cmd))
+	assert(permtb.eraseEverything ~= nil and permtb.eraseEverything == true, string.format('[%s] command not permitted.', cmd))
         -- validate input data
 	assert(string.find(content_type, "multipart/form-data", 1, true),
 	    string.format("unsupported content type (expected: %s, received: %s).", "multipart/form-data", content_type))
@@ -703,9 +732,9 @@ function M.data(lang, method, permtb, sestb, params, content, content_type, stor
 	    scgi.writeBody(res, "{\"status\":\"success\"}")
 	end
     elseif method == 'PUT' and params.facility == 'set' then
-	local cmd = "set"
+	local cmd = params.facility
 	-- check permissions
-	assert(permtb.edit ~= nil and permtb.edit == true, string.format('[%s] command not permitted.',cmd))
+	assert(permtb.edit ~= nil and permtb.edit == true, string.format('[%s] command not permitted.', cmd))
         -- validate input data
 	assert(string.find(content_type, "multipart/form-data", 1, true),
 	    string.format("unsupported content type (expected: %s, received: %s).", "multipart/form-data", content_type))
@@ -719,6 +748,28 @@ function M.data(lang, method, permtb, sestb, params, content, content_type, stor
 	assert(mp.value ~= nil, "invalid [value] parameter.")
 	-- execute query
 	if set(stor, sestb.erpid or sestb.username, mp._datetime, mp) then
+	    scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
+	    scgi.writeBody(res, "Internal server error")
+	else
+	    scgi.writeHeader(res, 200, {["Content-Type"] = mime.json})
+	    scgi.writeBody(res, "{\"status\":\"success\"}")
+	end
+    elseif method == "POST" and params.facility == 'urgent' then
+	local cmd = params.facility
+	-- check permissions
+	assert(permtb.urgent ~= nil and permtb.urgent == true, string.format('[%s] command not permitted.', cmd))
+        -- validate input data
+	assert(string.find(content_type, "multipart/form-data", 1, true),
+	    string.format("unsupported content type (expected: %s, received: %s).", "multipart/form-data", content_type))
+	mp = multipart.parse(content, content_type)
+	assert(mp, "unable to parse multipart data.")
+	assert(validate.isdatetime(mp._datetime), "invalid [_datetime] parameter.")
+	assert(validate.isdate(mp.fix_date), "invalid [fix_date] parameter.")
+	assert(validate.isuid(mp.account_id), "invalid [account_id] parameter.")
+	assert(validate.isuid(mp.qname_id), "invalid [qname_id] parameter.")
+	assert(mp.note ~= nil and #mp.note > 0, "invalid [note] parameter.")
+	-- execute query
+	if urgent(stor, sestb.erpid or sestb.username, mp._datetime, mp) then
 	    scgi.writeHeader(res, 500, {["Content-Type"] = mime.txt .. "; charset=utf-8"})
 	    scgi.writeBody(res, "Internal server error")
 	else
