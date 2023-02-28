@@ -218,7 +218,7 @@ from dyn_quests d
     left join quest_items i on i.qname_id = r.qname_id and i.qrow_id = r.qrow_id and i.qitem_id = d.value and r.qtype = 'selector'
     left join users u3 on u3.user_id = d.censor_id
 where d.account_id = %account_id% and d.qname_id = %qname_id% and d."_isRecentData" = 1
-order by r.row_no, r.descr
+order by r.pid, r.row_no, r.descr
 ]]
 		, "/plugins/quests_results/data2/dyn_quests"
 		, { account_id = account_id, qname_id = qname_id }
