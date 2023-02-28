@@ -2458,52 +2458,55 @@ var __route = (function() {
 	    ar.push("<div class='row'>", "<label class='checkbox'>", "<input type='checkbox' id='newTarget-urgentView' ",
 		(typeof __allowUrgentActivities != 'undefined' && __allowUrgentActivities) ? "" : " disabled='disabled'", 
 		" />", "<div class='checkbox__text'>", lang.targets.urgent, "</div>", "</label>", "</div>");
-	    ar.push("<br/>");
-	    ar.push("<div class='row' align='right'>", "<button id='newTarget-commitView' disabled='true'>", lang.targets.save, 
-		"</button>", "</div>");
 
-	    Dialog({container: "newTargetDialog", width: 530, title: lang.targets.title2, body: ar.join('')})
-		.show(function(dialogView) {
-		    let args = {};
-		    const alertView = _("newTarget-alertView");
-		    const subjectView = _("newTarget-subjectView");
-		    const bodyView = _("newTarget-bodyView");
-		    const strictView = _("newTarget-strictView");
-		    const urgentView = _("newTarget-urgentView");
-		    const commitView = _("newTarget-commitView");
-		    const writeAlert = function(arg) { alertView.html(arg); alertView.show(); }
-		    const checkTarget = function() { commitView.disabled = String.isEmpty(args.sub) || String.isEmpty(args.msg); };
-		    subjectView.oninput = function() { args.sub = this.value.trim(); alertView.hide(); checkTarget(); };
-		    bodyView.oninput = function() { args.msg = this.value.trim(); alertView.hide(); checkTarget(); };
-		    strictView.onchange = function() { args.strict = this.checked; alertView.hide(); checkTarget(); };
-		    urgentView.onchange = function() { args.urgent = this.checked; alertView.hide(); checkTarget(); };
-		    commitView.onclick = function() {
-			if( String.isEmpty(args.sub) ) {
-			    writeAlert(lang.errors.target.sub);
-			} else if( String.isEmpty(args.msg) ) {
-			    writeAlert(lang.errors.target.body);
-			} else {
-			    const xhr = G.xhr("POST", G.getdataref({plug: "tech", doc_id: doc_id}), "", function(xhr) {
-				if( xhr.status == 200 ) {
-				    args = {};
-				    Toast.show(lang.success.target);
-				    dialogView.hide();
-				} else {
-				    commitView.disabled = false;
-				    writeAlert(xhr.status == 409 ? lang.errors.target.exist : lang.errors.runtime);
-				}
-				dialogView.stopSpinner();
-			    });
-			    dialogView.startSpinner();
-			    args.doc_id = doc_id;
-			    args._datetime = G.getdatetime(new Date());
-			    commitView.disabled = true;
-			    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-			    xhr.send(G.formParamsURI(args));
-			}
+	    Dialog({
+		container: "newTargetDialog", 
+		width: 530, 
+		title: lang.targets.title2, 
+		body: ar,
+		buttons: ["<div class='row' align='right'>", "<button id='newTarget-commitView' disabled='true'>", 
+		    lang.targets.save, "</button>", "</div>"]
+	    }).show(function(dialogView) {
+		let args = {};
+		const alertView = _("newTarget-alertView");
+		const subjectView = _("newTarget-subjectView");
+		const bodyView = _("newTarget-bodyView");
+		const strictView = _("newTarget-strictView");
+		const urgentView = _("newTarget-urgentView");
+		const commitView = _("newTarget-commitView");
+		const writeAlert = function(arg) { alertView.html(arg); alertView.show(); }
+		const checkTarget = function() { commitView.disabled = String.isEmpty(args.sub) || String.isEmpty(args.msg); };
+		subjectView.oninput = function() { args.sub = this.value.trim(); alertView.hide(); checkTarget(); };
+		bodyView.oninput = function() { args.msg = this.value.trim(); alertView.hide(); checkTarget(); };
+		strictView.onchange = function() { args.strict = this.checked; alertView.hide(); checkTarget(); };
+		urgentView.onchange = function() { args.urgent = this.checked; alertView.hide(); checkTarget(); };
+		commitView.onclick = function() {
+		    if( String.isEmpty(args.sub) ) {
+			writeAlert(lang.errors.target.sub);
+		    } else if( String.isEmpty(args.msg) ) {
+			writeAlert(lang.errors.target.body);
+		    } else {
+			const xhr = G.xhr("POST", G.getdataref({plug: "tech", doc_id: doc_id}), "", function(xhr) {
+			    if( xhr.status == 200 ) {
+				args = {};
+				Toast.show(lang.success.target);
+				dialogView.hide();
+			    } else {
+				commitView.disabled = false;
+				writeAlert(xhr.status == 409 ? lang.errors.target.exist : lang.errors.runtime);
+			    }
+			    dialogView.stopSpinner();
+			});
+			dialogView.startSpinner();
+			args.doc_id = doc_id;
+			args._datetime = G.getdatetime(new Date());
+			commitView.disabled = true;
+			xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+			xhr.send(G.formParamsURI(args));
 		    }
-		    alertView.hide();
-		});
+		}
+		alertView.hide();
+	    });
 	}
     }
 })();
