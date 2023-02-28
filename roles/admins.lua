@@ -78,6 +78,7 @@ M.permissions.posms.urgent = true
 M.permissions.quests_results.edit = true
 M.permissions.quests_results.eraseEverything = true
 M.permissions.quests_results.remove = true
+M.permissions.quests_results.urgent = true
 M.permissions.routes.inprogress = true
 M.permissions.targets.remove = true
 M.permissions.targets.edit = true
